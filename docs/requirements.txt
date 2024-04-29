@@ -1,0 +1,11 @@
+autoapi
+#jsonschema==4.17.3
+git+https://github.com/executablebooks/MyST-NB.git
+ipython
+linkify-it-py
+myst-parser==2.0
+pydata-sphinx-theme
+sphinx==7.2
+sphinx-autoapi
+sphinx-copybutton
+sphinx-sitemap

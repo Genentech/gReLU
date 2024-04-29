@@ -1,0 +1,28 @@
+MEME version 4
+
+ALPHABET= ACGT
+
+strands: + -
+
+Background letter frequencies
+A 0.25 C 0.25 G 0.25 T 0.25
+
+MOTIF MA0004.1 Arnt
+letter-probability matrix: alength= 4 w= 6 nsites= 20 E= 0
+ 0.200000  0.800000  0.000000  0.000000
+ 0.950000  0.000000  0.050000  0.000000
+ 0.000000  1.000000  0.000000  0.000000
+ 0.000000  0.000000  1.000000  0.000000
+ 0.000000  0.000000  0.000000  1.000000
+ 0.000000  0.000000  1.000000  0.000000
+URL http://jaspar.genereg.net/matrix/MA0004.1
+
+MOTIF MA0006.1 Ahr::Arnt
+letter-probability matrix: alength= 4 w= 6 nsites= 24 E= 0
+ 0.125000  0.333333  0.083333  0.458333
+ 0.000000  0.000000  0.958333  0.041667
+ 0.000000  0.958333  0.000000  0.041667
+ 0.000000  0.000000  0.958333  0.041667
+ 0.000000  0.000000  0.000000  1.000000
+ 0.000000  0.000000  1.000000  0.000000
+URL http://jaspar.genereg.net/matrix/MA0006.1

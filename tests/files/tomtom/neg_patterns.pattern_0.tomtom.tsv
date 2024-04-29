@@ -1,0 +1,7 @@
+Query_ID	Target_ID	Optimal_offset	p-value	E-value	q-value	Overlap	Query_consensus	Target_consensus	Orientation
+1	AC0078:CTCF_CTCFL:C2H2_ZF	-10	0.000259919	0.165569	0.249411	13	GGTCGCAGAGCCACATGGGGGCGGGA	CCACCAGGGGGCG	-
+1	AC0482:ZNF:C2H2_ZF	-5	0.000393286	0.250523	0.249411	18	GGTCGCAGAGCCACATGGGGGCGGGA	CAGAGCCAGGTGGGGTGC	+
+
+# Tomtom (Motif Comparison Tool): Version 5.5.1 compiled on Jan 26 2024 at 21:48:22
+# The format of this file is described at https://meme-suite.org/meme/doc/tomtom-output-format.html.
+# tomtom -no-ssc -oc . --verbosity 1 -text -min-overlap 5 -mi 1 -dist pearson -evalue -thresh 10.0 /tmp/tmpuqq1nf19 /usr/local/lib/python3.8/dist-packages/grelu/resources/meme/jvierstra_consensus_pwms.meme
