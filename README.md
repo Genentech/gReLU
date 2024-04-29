@@ -6,46 +6,13 @@ gReLU is a python library to train, interpret, and apply deep learning models to
 
 ## Installation
 
-To install the package:
-
-```shell
-pip install \
-    --trusted-host pypi.vida.science.roche.com \
-    --extra-index-url https://pypi.vida.science.roche.com/simple/ \
-    grelu
-```
-
-To upgrade the package:
-
-
-```shell
-pip install \
-    --upgrade \
-    --trusted-host pypi.vida.science.roche.com \
-    --extra-index-url https://pypi.vida.science.roche.com/simple/ \
-    grelu
-```
-
 To install from source:
 
 ```shell
-git clone https://code.roche.com/braid-relu/grelu.git
-cd grelu
+git clone https://github.com/Genentech/gReLU.git
+cd gReLU
 pip install .
 ```
-
-## Rosalind
-
-`grelu` is available on `Rosalind` in managed environments.
-
-```shell
-ml spaces/gpy
-ml gpyprd/gpy39 # available on Py 3.9 and 3.10 environments
-```
-
-We recommend using Volta GPUs on Rosalind to avoid CUDA issues. This can be achieved via the `--gres=gpu:volta:1` SLURM option in the command line or on the Advanced Slurm Options section of the Rosalind Portal.
-
-For details on all possibilities, see [this Slack channel](https://gred.slack.com/archives/tool-grelu).
 
 ## Contributing
 
@@ -53,7 +20,7 @@ This project uses [pre-commit](https://pre-commit.com/). Please make sure to ins
 
 ```shell
 pip install pre-commit
-cd grelu
+cd gReLU
 pre-commit install
 ```
 
