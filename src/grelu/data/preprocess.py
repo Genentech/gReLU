@@ -238,6 +238,35 @@ def filter_chromosomes(
     return filter_intervals(data, keep, inplace=inplace)
 
 
+def clip_intervals(
+    intervals: pd.DataFrame,
+    start: Optional[int] = None,
+    end: Optional[int] = None,
+):
+    """
+    Clip the ends of intervals to the given boundaries.
+
+    Args:
+        intervals: Dataframe containing the genomic intervals to clip.
+        start: The minimum start coordinate. All start coordinates less than this
+            will be clipped to this value.
+        end: The maximum start coordinate. All end coordinates greater than this
+            will be clipped to this value.
+
+    Returns:
+        Dataframe containing clipped intervals.
+    """
+    # Clip start
+    if start is not None:
+        intervals["start"] = intervals["start"].apply(lambda x: max(x, start))
+
+    # Clip end
+    if end is not None:
+        intervals["end"] = intervals["end"].apply(lambda x: min(x, end))
+
+    return intervals
+
+
 def filter_overlapping(
     data: Union[pd.DataFrame, AnnData],
     ref_intervals: pd.DataFrame,
@@ -560,25 +589,52 @@ def add_negatives(
         )
 
 
-def extend_from_summit(
-    df: pd.DataFrame, seq_len: int, summit_col: int = 9
+def extend_from_coord(
+    df: pd.DataFrame, seq_len: int, center_col: str = "summit"
 ) -> pd.DataFrame:
     """
-    Extend peaks in narrowpeak format to a fixed distance from the summit
+    Create intervals centered on the given coordinates.
 
     Args:
-        df: peaks in narrowpeak format
-        seq_len: Length to extend the summit
-        summit_col: Column that contains the summit position
+        df: A pandas dataframe
+        seq_len: Length of the output intervals.
+        center_col: Name of the column that contains the position to be centered
 
     Returns:
         Summit-extended peak coordinates
     """
-    summits = df.iloc[:, summit_col].astype(int)
-    starts = df.iloc[:, 1] + summits - seq_len // 2
+    centers = df[center_col].astype(int)
+    starts = df.iloc[:, 1] + centers - seq_len // 2
     return pd.DataFrame.from_dict(
         {"chrom": df.iloc[:, 0], "start": starts, "end": starts + seq_len}
     )
+
+
+def merge_intervals_by_column(intervals: pd.DataFrame, group_col: str) -> pd.DataFrame:
+    """
+    Merge intervals that have the same value in a given column. The output
+    is a dataframe containing one interval per unique value, with the start corresponding
+    to the minimum of all start positions for intervals with that value, and the end
+    corresponding to the maximum of all end positions for intervals with that value.
+
+    Args:
+        intervals: Dataframe containing genomic intervals.
+        group_col: Column by which to group and merge intervals.
+
+    Returns:
+        A dataframe containing one merged interval for each value in group_col.
+    """
+    output = intervals.groupby("gene_name").apply(
+        lambda x: (x.chrom.unique().tolist(), x.start.min(), x.end.max())
+    )
+    output = pd.DataFrame(output).reset_index()
+    output[["chrom", "start", "end"]] = pd.DataFrame(output[0].tolist())
+    output = output.drop(columns=0)
+    assert (
+        output.chrom.apply(len).unique() == 1
+    ), "At least one group of intervals spans multiple chromosomes"
+    output.chrom = output.chrom.apply(lambda x: x[0])
+    return output
 
 
 def make_insertion_bigwig(

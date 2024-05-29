@@ -323,6 +323,8 @@ def marginalize_variants(
     ds = VariantDataset(
         variants,
         seq_len=seq_len or model.data_params["train_seq_len"],
+        rc=rc,
+        max_seq_shift=max_seq_shift,
         genome=genome,
     )
 
@@ -334,8 +336,6 @@ def marginalize_variants(
         batch_size=batch_size,
         augment_aggfunc="mean",
         compare_func=compare_func,
-        rc=rc,
-        max_seq_shift=max_seq_shift,
     ).squeeze(axis=(-1, -2))
     assert variant_effects.ndim == 1, variant_effects.shape
 

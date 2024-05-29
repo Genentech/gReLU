@@ -7,6 +7,7 @@ import wandb
 from grelu.lightning import LightningModel
 
 DEFAULT_WANDB_ENTITY = 'grelu'
+DEFAULT_WANDB_HOST = 'https://api.wandb.ai'
 
 
 def get_meme_file_path(meme_motif_db):
@@ -58,20 +59,20 @@ def get_blacklist_file(genome):
     return str(blacklist)
 
 
-def _check_wandb():
-    assert wandb.login(host='https://genentech.wandb.io'), 'Weights & Biases (wandb) is not configured, see https://genentech.wandb.io/authorize'
+def _check_wandb(host=DEFAULT_WANDB_HOST):
+    assert wandb.login(host=host), f'Weights & Biases (wandb) is not configured, see {DEFAULT_WANDB_HOST}/authorize'
 
 
-def projects():
-    _check_wandb()
+def projects(host=DEFAULT_WANDB_HOST):
+    _check_wandb(host=host)
     
     api = wandb.Api()
     projects = api.projects(DEFAULT_WANDB_ENTITY)
     return [p.name for p in projects]
 
 
-def artifacts(project, type_is=None, type_contains=None):
-    _check_wandb()
+def artifacts(project, host=DEFAULT_WANDB_HOST, type_is=None, type_contains=None):
+    _check_wandb(host)
     project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
     
     api = wandb.Api()
@@ -89,16 +90,16 @@ def artifacts(project, type_is=None, type_contains=None):
     return arts
 
 
-def models(project):
-    return artifacts(project, type_contains='model')
+def models(project, host=DEFAULT_WANDB_HOST):
+    return artifacts(project, host=host, type_contains='model')
 
 
-def datasets(project):
-    return artifacts(project, type_contains='dataset')
+def datasets(project, host=DEFAULT_WANDB_HOST):
+    return artifacts(project, host=host, type_contains='dataset')
 
 
-def runs(project, field='id', filters=None):
-    _check_wandb()
+def runs(project, host=DEFAULT_WANDB_HOST, field='id', filters=None):
+    _check_wandb(host=host)
     project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
     
     api = wandb.Api()

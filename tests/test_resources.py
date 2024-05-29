@@ -1,4 +1,5 @@
 from grelu.resources import (
+    DEFAULT_WANDB_HOST,
     artifacts,
     datasets,
     get_blacklist_file,
@@ -17,11 +18,9 @@ def test_resources():
     import wandb
 
     try:
-        wandb.login(host="https://genentech.wandb.io", anonymous="never", timeout=0)
+        wandb.login(host=DEFAULT_WANDB_HOST, anonymous="never", timeout=0)
     except wandb.errors.UsageError:  # login anonymously if not logged in already
-        wandb.login(
-            host="https://genentech.wandb.io", relogin=True, anonymous="must", timeout=0
-        )
+        wandb.login(host=DEFAULT_WANDB_HOST, relogin=True, anonymous="must", timeout=0)
 
     assert len(projects()) > 0
 

@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 import torch
-from pandas.api.types import is_integer_dtype, is_string_dtype, is_categorical_dtype
+from pandas.api.types import is_categorical_dtype, is_integer_dtype, is_string_dtype
 from torch import Tensor
 
 from grelu.io.genome import get_genome

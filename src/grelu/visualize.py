@@ -305,8 +305,12 @@ def add_highlights(
     width: Optional[int] = None,
     starts: Optional[Union[int, List[int]]] = None,
     ends: Optional[Union[int, List[int]]] = None,
-    ymin=-10,
-    ymax=20,
+    positions: Optional[Union[int, List[int]]] = None,
+    ymin: float = -10,
+    ymax: float = 20,
+    facecolor: Optional[str] = "yellow",
+    alpha: Optional[float] = 0.15,
+    edgecolor: Optional[str] = None,
 ) -> None:
     """
     Add highlights to a matplotlib axis
@@ -319,9 +323,16 @@ def add_highlights(
     elif starts is not None:
         starts = make_list(starts)
 
+    elif positions is not None:
+        starts = [x - 0.5 for x in make_list(positions)]
+        width = 1
+
+    else:
+        raise ValueError("One of centers, starts or positions must be provided.")
+
     # Get width for each highlight
     if ends is None:
-        assert width is not None
+        assert width is not None, "ends must be provided."
         widths = [width] * len(starts)
     else:
         ends = make_list(ends)
@@ -335,7 +346,9 @@ def add_highlights(
                 xy=[start, ymin],
                 width=w,
                 height=ymax - ymin,
-                facecolor=(1, 1, 0, 0.15),
+                facecolor=facecolor,
+                alpha=alpha,
+                edgecolor=edgecolor,
             )
         )
 
@@ -434,7 +447,11 @@ def plot_attributions(
     ticks: int = 10,
     highlight_centers: Optional[List[int]] = None,
     highlight_width: Union[int, List[int]] = 5,
-    ylim: Optional[int] = None,
+    highlight_positions: Optional[List[int]] = None,
+    ylim: Optional[Tuple[float, float]] = None,
+    facecolor: Optional[str] = "yellow",
+    edgecolor: Optional[str] = None,
+    alpha: Optional[float] = 0.15,
 ):
     """
     Plot base-level importance scores across a sequence.
@@ -447,7 +464,11 @@ def plot_attributions(
         ticks: Frequency of ticks on the x-axis
         highlight_centers: List of positions where highlights are centered
         highlight_width: Width of each highlighted region
-        ylim: Maximum value on the y-axis
+        highlight_positions: List of individual positions to highlight.
+        ylim: Axis limits for the y-axis
+        facecolor: Face color for highlight box
+        edgecolor: Edge color for highlight box
+        alpha: Opacity of highlight box
     """
     # Collect attributions for the relevant bases
     attrs = attrs.squeeze()[:, start_pos:end_pos].T
@@ -468,6 +489,18 @@ def plot_attributions(
             ax,
             centers=[x - start_pos for x in highlight_centers],
             width=highlight_width,
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            alpha=alpha,
+        )
+
+    if highlight_positions is not None:
+        add_highlights(
+            ax,
+            positions=[x - start_pos for x in highlight_positions],
+            facecolor=facecolor,
+            edgecolor=edgecolor,
+            alpha=alpha,
         )
 
     # Plot
@@ -553,6 +586,9 @@ def plot_tracks(
     titles: Optional[List[str]] = None,
     figsize: Tuple[float, float] = (20, 1.5),
     highlight_intervals: Optional[pd.DataFrame] = None,
+    facecolor: Optional[str] = "yellow",
+    edgecolor: Optional[str] = None,
+    alpha: Optional[float] = 0.15,
     annotations: Dict[str, pd.DataFrame] = {},
 ):
     """
@@ -565,6 +601,9 @@ def plot_tracks(
         titles: List containing a title for each track
         figsize: Tuple of (width, height)
         highlight_intervals: A pandas dataframe containing genomic intervals to highlight
+        facecolor: Face color for highlight box
+        edgecolor: Edge color for highlight box
+        alpha: Opacity of highlight box
         annotations: Dictionary of (key, value) pairs where the keys are strings
             and the values are pandas dataframes containing annotated genomic intervals
     """
@@ -576,7 +615,6 @@ def plot_tracks(
     track_len = len(tracks[0])
     end_pos = end_pos or track_len
     coord_len = end_pos - start_pos
-    bin_size = coord_len // track_len
 
     # Get plot titles
     if titles is None:
@@ -588,7 +626,7 @@ def plot_tracks(
     fig, axes = plt.subplots(
         n_tracks + n_annotations, 1, figsize=figsize, sharex=True, tight_layout=True
     )
-    if n_tracks == 1:
+    if n_tracks + n_annotations == 1:
         axes = [axes]
 
     # Plot the tracks
@@ -599,16 +637,24 @@ def plot_tracks(
         ax.set_title(title)
         sns.despine(top=True, right=True, bottom=True)
 
-    # Add highlights
-    if highlight_intervals is not None:
-        add_highlights(
-            ax,
-            starts=(highlight_intervals.start - start_pos) // bin_size,
-            ends=int(np.ceil((highlight_intervals.end - start_pos) / bin_size)),
-        )
+        # Add highlights
+        if highlight_intervals is not None:
+            add_highlights(
+                ax,
+                starts=highlight_intervals.start,
+                ends=highlight_intervals.end,
+                ymin=y.min(),
+                ymax=y.max(),
+                facecolor=facecolor,
+                edgecolor=edgecolor,
+                alpha=alpha,
+            )
 
     # Plot the annotations
     for ax, (title, ann) in zip(axes[n_tracks:], annotations.items()):
+        # Add strand to annotations
+        if "strand" not in ann.columns:
+            ann["strand"] = "+"
         # Make tracks
         track = FeatureTrack(name=title, size=coord_len, start_pos=start_pos)
         for row in ann.itertuples():

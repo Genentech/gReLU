@@ -152,7 +152,7 @@ class LabeledSeqDataset(Dataset):
 
         if get_input_type(seqs) == "intervals":
             self.intervals = seqs
-            self.chroms = np.unique(self.intervals.chrom)
+            self.chroms = list(set(self.intervals.chrom))
         else:
             self.intervals = None
             self.chroms = None

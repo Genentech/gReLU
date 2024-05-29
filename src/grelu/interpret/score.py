@@ -145,6 +145,7 @@ def get_attributions(
 
     # Add transform to model
     model.add_transform(prediction_transform)
+    model = model.eval()
 
     # Empty list for the output
     attributions = []
@@ -165,6 +166,8 @@ def get_attributions(
         attributer = IntegratedGradients(model.to(device))
     elif method == "inputxgradient":
         attributer = InputXGradient(model.to(device))
+    else:
+        raise NotImplementedError
 
     # Calculate attributions for each sequence
     with torch.no_grad():
@@ -173,8 +176,9 @@ def get_attributions(
 
             if method == "deepshap":
                 reference = dinucleotide_shuffle(
-                    X_[0], n_shuffles=n_shuffles, random_state=seed
+                    X_[0].cpu(), n_shuffles=n_shuffles, random_state=seed
                 ).to(device)
+
                 attr = attributer.attribute(
                     X_,
                     reference,
@@ -184,7 +188,7 @@ def get_attributions(
                 if not hypothetical:
                     attr = attr * X_
             else:
-                attr = attributer.attribute(X_, abs=False)
+                attr = attributer.attribute(X_)
 
             attributions.append(attr.cpu().numpy())
 

@@ -255,6 +255,8 @@ class LightningModel(pl.LightningModule):
         """
         if self.train_params["task"] == "binary":
             metrics.update(y_hat, y.type(torch.long))
+        elif self.train_params["task"] == "multiclass":
+            metrics.update(y_hat, y.type(torch.long).argmax(axis=1))
         else:
             metrics.update(y_hat, y)
 
@@ -361,8 +363,8 @@ class LightningModel(pl.LightningModule):
         """
         Calculate metrics for entire test set
         """
-        test_metrics = self.test_metrics.compute()
-        self.log_dict({k: v.mean() for k, v in test_metrics.items()})
+        self.computed_test_metrics = self.test_metrics.compute()
+        self.log_dict({k: v.mean() for k, v in self.computed_test_metrics.items()})
         losses = torch.stack(self.test_losses)
         self.log("test_loss", torch.mean(losses))
 
@@ -450,7 +452,7 @@ class LightningModel(pl.LightningModule):
         """
         Make dataloader for training
         """
-        assert isinstance(dataset, LabeledSeqDataset), type(dataset)
+        assert isinstance(dataset, LabeledSeqDataset)
         return DataLoader(
             dataset,
             batch_size=batch_size or self.train_params["batch_size"],
@@ -467,7 +469,7 @@ class LightningModel(pl.LightningModule):
         """
         Make dataloader for validation and testing
         """
-        assert isinstance(dataset, LabeledSeqDataset), type(dataset)
+        assert isinstance(dataset, LabeledSeqDataset)
         return DataLoader(
             dataset,
             batch_size=batch_size or self.train_params["batch_size"],
@@ -576,7 +578,8 @@ class LightningModel(pl.LightningModule):
             if not attr.startswith("_") and not attr.isupper():
                 value = getattr(dataset, attr)
                 if (
-                    (isinstance(value, str))
+                    (attr == "chroms")
+                    or (isinstance(value, str))
                     or (isinstance(value, int))
                     or (isinstance(value, float))
                     or (value is None)
@@ -802,7 +805,7 @@ class LightningModel(pl.LightningModule):
         trainer.test(model=self, dataloaders=dataloader, verbose=True)
 
         metric_dict = {
-            k: v.detach().cpu().numpy() for k, v in self.test_metrics.compute().items()
+            k: v.detach().cpu().numpy() for k, v in self.computed_test_metrics.items()
         }
         self.test_metrics.reset()
         return pd.DataFrame(metric_dict, index=self.data_params["tasks"]["name"])
@@ -894,37 +897,60 @@ class LightningModel(pl.LightningModule):
             ]
 
     def input_coord_to_output_bin(
-        self, input_coord: int, start_pos: int = 0, return_bin: str = "start"
+        self,
+        input_coord: int,
+        start_pos: int = 0,
     ) -> int:
         """
         Given the position of a base in the input, get the index of the corresponding bin
         in the model's prediction.
+
+        Args:
+            input_coord: Genomic coordinate of the input position
+            start_pos: Genomic coordinate of the first base in the input sequence
+
+        Returns:
+            Index of the output bin containing the given position.
+
         """
         output_bin = (input_coord - start_pos) / self.data_params[
             "train_bin_size"
         ] - self.model_params["crop_len"]
-        if return_bin == "start":
-            return int(np.floor(output_bin))
-        else:
-            return int(np.ceil(output_bin))
+        return int(np.floor(output_bin))
 
     def output_bin_to_input_coord(
-        self, output_bin: int, return_pos: str = "start"
+        self,
+        output_bin: int,
+        return_pos: str = "start",
+        start_pos: int = 0,
     ) -> int:
         """
-        Given the index of a bin in the output, get the index of its corresponding
+        Given the index of a bin in the output, get its corresponding
         start or end coordinate.
+
+        Args:
+            output_bin: Index of the bin in the model's output
+            return_pos: "start" or "end"
+            start_pos: Genomic coordinate of the first base in the input sequence
+
+        Returns:
+            Genomic coordinate corresponding to the start (if return_pos = start)
+            or end (if return_pos=end) of the bin.
+
         """
         start = (output_bin + self.model_params["crop_len"]) * self.data_params[
             "train_bin_size"
         ]
         if return_pos == "start":
-            return start
+            return start + start_pos
+        elif return_pos == "end":
+            return start + self.data_params["train_bin_size"] + start_pos
         else:
-            return start + self.data_params["train_bin_size"]
+            raise NotImplementedError
 
     def input_intervals_to_output_intervals(
-        self, intervals: pd.DataFrame
+        self,
+        intervals: pd.DataFrame,
     ) -> pd.DataFrame:
         """
         Given a dataframe containing intervals corresponding to the
@@ -954,15 +980,21 @@ class LightningModel(pl.LightningModule):
         Args:
             intervals: A dataframe of genomic intervals
             start_pos: The start position of the sequence input to the model.
+
+        Returns:start and end indices of the output bins corresponding
+            to each input interval.
         """
-        output_intervals = intervals.copy()
-        output_intervals["bin_start"] = intervals.start.apply(
-            self.input_coord_to_output_bin, args=(start_pos, "start")
+        return pd.DataFrame(
+            {
+                "start": intervals.start.apply(
+                    self.input_coord_to_output_bin, args=(start_pos,)
+                ),
+                "end": intervals.end.apply(
+                    self.input_coord_to_output_bin, args=(start_pos,)
+                )
+                + 1,
+            }
         )
-        output_intervals["bin_end"] = intervals.end.apply(
-            self.input_coord_to_output_bin, args=(start_pos, "end")
-        )
-        return output_intervals
 
 
 class LightningModelEnsemble(pl.LightningModule):

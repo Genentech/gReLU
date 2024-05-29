@@ -75,7 +75,7 @@ strings = ["AAG", "CGA", "TTT"]
 one_hot = strings_to_one_hot(strings)
 labels_reg = Tensor([[1.0, 0.5], [0.5, 1.0], [1.0, 0.0]]).unsqueeze(2)
 labels_bin = Tensor([[0], [1], [0]]).unsqueeze(2)
-labels_multicla = Tensor([[2], [0], [1]]).long()
+labels_multicla = Tensor([[0, 0, 1], [1, 0, 0], [0, 1, 0]]).unsqueeze(2)
 multitask_bin_labels = (
     nn.functional.one_hot(labels_bin.type(torch.long), num_classes=2)
     .squeeze()
@@ -183,8 +183,8 @@ def test_lightning_model_results():
 
     # Multiclass classification with class weights
     loss = multicla_model.validation_step((one_hot, labels_multicla), 0).detach()
-    expected_loss = torch.tensor(1.4554275274276733)
-    assert torch.allclose(loss, expected_loss)
+    expected_loss = torch.tensor(2.911)
+    assert torch.allclose(loss, expected_loss, rtol=1e-3)
     logits = multicla_model(one_hot, logits=True)  # N, n_tasks, 1
     expected_preds = nn.functional.softmax(logits, 1)
     preds = multicla_model(one_hot)
@@ -335,3 +335,87 @@ def test_lightning_model_ensemble():
     udataset = SeqDataset(["AAG", "CGA"])
     preds = model.predict_on_dataset(dataset=udataset, devices="cpu")
     assert preds.shape == (2, 4, 1)
+
+
+bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
+bin_model.model_params["crop_len"] = 0
+bin_model.data_params["train_bin_size"] = 2
+
+crop_model = generate_model(task="binary", loss="bce", n_tasks=2)
+crop_model.model_params["crop_len"] = 3
+crop_model.data_params["train_bin_size"] = 1
+
+crop_bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
+crop_bin_model.model_params["crop_len"] = 3
+crop_bin_model.data_params["train_bin_size"] = 2
+
+
+def test_input_coord_to_output_bin():
+    assert bin_model.input_coord_to_output_bin(input_coord=6) == 3
+    assert bin_model.input_coord_to_output_bin(input_coord=7) == 3
+    assert bin_model.input_coord_to_output_bin(input_coord=8) == 4
+    assert bin_model.input_coord_to_output_bin(input_coord=8, start_pos=1) == 3
+
+    assert crop_model.input_coord_to_output_bin(input_coord=6) == 3
+    assert crop_model.input_coord_to_output_bin(input_coord=7) == 4
+    assert crop_model.input_coord_to_output_bin(input_coord=8) == 5
+    assert crop_model.input_coord_to_output_bin(input_coord=8, start_pos=1) == 4
+
+    assert crop_bin_model.input_coord_to_output_bin(input_coord=6) == 0
+    assert crop_bin_model.input_coord_to_output_bin(input_coord=7) == 0
+    assert crop_bin_model.input_coord_to_output_bin(input_coord=8) == 1
+    assert crop_bin_model.input_coord_to_output_bin(input_coord=8, start_pos=1) == 0
+
+
+def test_output_bin_to_input_coord():
+    assert bin_model.output_bin_to_input_coord(output_bin=1) == 2
+    assert bin_model.output_bin_to_input_coord(output_bin=1, return_pos="end") == 4
+    assert bin_model.output_bin_to_input_coord(output_bin=1, start_pos=1) == 3
+    assert (
+        bin_model.output_bin_to_input_coord(output_bin=1, return_pos="end", start_pos=1)
+        == 5
+    )
+
+    assert crop_model.output_bin_to_input_coord(output_bin=1) == 4
+    assert crop_model.output_bin_to_input_coord(output_bin=1, return_pos="end") == 5
+    assert crop_model.output_bin_to_input_coord(output_bin=1, start_pos=1) == 5
+    assert (
+        crop_model.output_bin_to_input_coord(
+            output_bin=1, return_pos="end", start_pos=1
+        )
+        == 6
+    )
+
+    assert crop_bin_model.output_bin_to_input_coord(output_bin=1) == 8
+    assert (
+        crop_bin_model.output_bin_to_input_coord(output_bin=1, return_pos="end") == 10
+    )
+    assert crop_bin_model.output_bin_to_input_coord(output_bin=1, start_pos=1) == 9
+    assert (
+        crop_bin_model.output_bin_to_input_coord(
+            output_bin=1, return_pos="end", start_pos=1
+        )
+        == 11
+    )
+
+
+def test_input_intervals_to_output_intervals():
+    intervals = pd.DataFrame({"chrom": ["chr1"], "start": [0], "end": [14]})
+
+    output = bin_model.input_intervals_to_output_intervals(intervals=intervals)
+    assert output.equals(intervals)
+    output = crop_model.input_intervals_to_output_intervals(intervals=intervals)
+    assert output.equals(pd.DataFrame({"chrom": ["chr1"], "start": [3], "end": [11]}))
+    output = crop_bin_model.input_intervals_to_output_intervals(intervals=intervals)
+    assert output.equals(pd.DataFrame({"chrom": ["chr1"], "start": [6], "end": [8]}))
+
+
+def test_input_intervals_to_output_bins():
+    intervals = pd.DataFrame({"chrom": ["chr1"], "start": [6], "end": [14]})
+
+    output = bin_model.input_intervals_to_output_bins(intervals=intervals)
+    assert output.equals(pd.DataFrame({"start": [3], "end": [8]}))
+    output = crop_model.input_intervals_to_output_bins(intervals=intervals)
+    assert output.equals(pd.DataFrame({"start": [3], "end": [12]}))
+    output = crop_bin_model.input_intervals_to_output_bins(intervals=intervals)
+    assert output.equals(pd.DataFrame({"start": [0], "end": [5]}))

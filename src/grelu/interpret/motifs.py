@@ -247,3 +247,73 @@ def marginalize_patterns(
         return before_preds, after_preds
     else:
         return get_compare_func(compare_func)(after_preds, before_preds)
+
+
+def compare_motifs(
+    ref_seq: Union[str, pd.DataFrame],
+    motifs: Union[Motif, List[Motif], str],
+    alt_seq: Optional[str] = None,
+    alt_allele: Optional[str] = None,
+    pos: Optional[int] = None,
+    names: Optional[List[str]] = None,
+    bg=None,
+    pthresh: float = 1e-3,
+    rc: bool = True,
+) -> pd.DataFrame:
+    """
+    Scan sequences containing the reference and alternate alleles
+    to identify affected motifs.
+
+    Args:
+        ref_seq: The reference sequence as a string
+        motifs: A list of pymemesuite.common.Motif objects,
+            or the path to a MEME file.
+        alt_seq: The alternate sequence as a string
+        ref_allele: The alternate allele as a string. Only used if
+            alt_seq is not supplied.
+        alt_allele: The alternate allele as a string. Only needed if
+            alt_seq is not supplied.
+        pos: The position at which to substitute the alternate allele.
+            Only needed if alt_seq is not supplied.
+        names: A list of motif names to read from the MEME file.
+            If None, all motifs in the file will be read.
+        bg: A background distribution for motif p-value calculations.
+            Only needed if a list of Motif objects is supplied instead
+            of a MEME file.
+        pthresh: p-value cutoff for binding sites
+        rc: If True, both the sequence and its reverse complement will be
+            scanned. If False, only the given sequence will be scanned.
+    """
+    from grelu.interpret.motifs import scan_sequences
+    from grelu.sequence.mutate import mutate
+
+    # Create alt sequence
+    if alt_seq is None:
+        assert alt_allele is not None, "Either alt_seq or alt_allele must be supplied."
+        alt_seq = mutate(seq=ref_seq, allele=alt_allele, pos=pos, input_type="strings")
+
+    # Scan sequences
+    scan = scan_sequences(
+        seqs=[ref_seq, alt_seq],
+        motifs=motifs,
+        names=names,
+        seq_ids=["ref", "alt"],
+        pthresh=pthresh,
+        rc=True,  # Scan both strands
+    )
+
+    # Compare the results for alt and ref sequences
+    scan = (
+        scan.pivot_table(
+            index=["motif", "start", "end", "strand"],
+            columns=["sequence"],
+            values="score",
+        )
+        .fillna(0)
+        .reset_index()
+    )
+
+    # Compute fold change
+    scan["foldChange"] = scan.alt / scan.ref
+    scan = scan.sort_values("foldChange").reset_index(drop=True)
+    return scan

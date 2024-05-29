@@ -31,19 +31,20 @@ def read_sizes(genome: str = "hg38") -> pd.DataFrame:
     )
 
 
-def get_genome(genome: str) -> genomepy.Genome:
+def get_genome(genome: str, **kwargs) -> genomepy.Genome:
     """
     Install a genome from genomepy and load it as a Genome object
 
     Args:
         genome: Name of the genome to load from genomepy
+        **kwargs: Additional arguments to pass to genomepy.install_genome
 
     Returns:
         Genome object
     """
     # Todo: add option to download genome from different sources.
     if genome not in genomepy.list_installed_genomes():
-        return genomepy.install_genome(genome, annotation=False)
+        return genomepy.install_genome(genome, annotation=False, **kwargs)
     else:
         return genomepy.Genome(genome)
 
