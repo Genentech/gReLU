@@ -1,6 +1,6 @@
 # gReLU
 
-gReLU is a python library to train, interpret, and apply deep learning models to DNA sequences. Code documentation is available at [http://go.gene.com/grelu](http://go.gene.com/grelu).
+gReLU is a python library to train, interpret, and apply deep learning models to DNA sequences. Code documentation is available [here](https://genentech.github.io/gReLU/).
 
 ![Flowchart](media/flowchart.jpg)
 
