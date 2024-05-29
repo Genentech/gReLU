@@ -5,7 +5,8 @@ name: Publish to PyPI
 
 on:
   push:
-    tags: "*"
+    tags: 
+      - "*"
 
 jobs:
   docs:
