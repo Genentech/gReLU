@@ -1,0 +1,180 @@
+grelu.transforms.prediction_transforms
+======================================
+
+.. py:module:: grelu.transforms.prediction_transforms
+
+.. autoapi-nested-parse::
+
+   Classes to perform transformations on the output of a predictive model.
+
+   The input to the `forward` method of these classes will be a tensor of shape (B, T, L).
+   The output should also be a 3-D tensor.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   grelu.transforms.prediction_transforms.Aggregate
+   grelu.transforms.prediction_transforms.Specificity
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   grelu.transforms.prediction_transforms.get_aggfunc
+   grelu.transforms.prediction_transforms.get_compare_func
+   grelu.transforms.prediction_transforms.make_list
+
+
+Module Contents
+---------------
+
+.. py:function:: get_aggfunc(func: Optional[Union[str, Callable]], tensor: bool = False) -> Callable
+
+   Return a function to aggregate values.
+
+   :param func: A function or the name of a function. Supported names
+                are "max", "min", "mean", and "sum". If a function is supplied, it
+                will be returned unchanged.
+   :param tensor: If True, it is assumed that the inputs will be torch tensors.
+                  If False, it is assumed that the inputs will be numpy arrays.
+
+   :returns: The desired function.
+
+   :raises NotImplementedError: If the input is neither a function nor
+       a supported function name.
+
+
+.. py:function:: get_compare_func(func: Optional[Union[str, Callable]], tensor: bool = False) -> Callable
+
+   Return a function to compare two values.
+
+   :param func: A function or the name of a function. Supported names are "subtract", "divide", and "log2FC".
+                If a function is supplied, it will be returned unchanged. func cannot be None.
+   :param tensor: If True, it is assumed that the inputs will be torch tensors.
+                  If False, it is assumed that the inputs will be numpy arrays.
+
+   :returns: The desired function.
+
+   :raises NotImplementedError: If the input is neither a function nor
+       a supported function name.
+
+
+.. py:function:: make_list(x: Optional[Union[pandas.Series, numpy.ndarray, torch.Tensor, Sequence, int, float, str]]) -> list
+
+   Convert various kinds of inputs into a list
+
+   :param x: An input value or sequence of values.
+
+   :returns: The input values in list format.
+
+
+.. py:class:: Aggregate(tasks: Optional[Union[List[int], List[str]]] = None, except_tasks: Optional[Union[List[int], List[str]]] = None, positions: Optional[List[int]] = None, length_aggfunc: Optional[Callable] = None, task_aggfunc: Optional[Callable] = None, model: Optional[Callable] = None, weight: Optional[float] = None)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   A class to filter and aggregate the model output over desired tasks and/or positions.
+
+   :param tasks: A list of task names or indices to include. If task names are supplied,
+                 "model" should not be None. If tasks and except_tasks are both None, all tasks
+                 will be considered.
+   :param except_tasks: A list of task names or indices to exclude if tasks is None. If task
+                        names are supplied, "model" should not be None. If tasks and except_tasks are
+                        both None, all tasks will be considered.
+   :param positions: A list of positions to include along the length axis. If None, all positions
+                     will be included.
+   :param length_aggfunc: A function or name of a function to apply along the length axis.
+                          Accepted values are "sum", "mean", "min" or "max".
+   :param task_aggfunc: A function or name of a function to apply along the task axis. Accepted
+                        values are "sum", "mean", "min" or "max".
+   :param model: A trained LightningModel object. Needed only if task names are supplied.
+   :param weight: A weight by which to multiply the aggregated prediction.
+
+
+   .. py:method:: filter(x: Union[torch.Tensor, numpy.ndarray]) -> Union[torch.Tensor, numpy.ndarray]
+
+      Filter the relevant tasks and positions in the predictions.
+
+
+
+   .. py:method:: torch_aggregate(x: torch.Tensor) -> torch.Tensor
+
+      Aggregate predictions in the form of a tensor.
+
+
+
+   .. py:method:: numpy_aggregate(x: numpy.ndarray) -> numpy.ndarray
+
+      Aggregate predictions in the form of a numpy array.
+
+
+
+   .. py:method:: forward(x: torch.Tensor) -> torch.Tensor
+
+      Forward pass
+
+      :param x: Output of the model forward pass
+
+
+
+   .. py:method:: compute(x: numpy.ndarray) -> numpy.ndarray
+
+      Compute the output score on a numpy array.
+
+
+
+.. py:class:: Specificity(on_tasks: Union[List[int], List[str]], off_tasks: Optional[Union[List[int], List[str]]] = None, on_aggfunc: Union[str, Callable] = 'mean', off_aggfunc: Union[str, Callable] = 'mean', off_weight: Optional[float] = 1.0, off_thresh: Optional[float] = None, positions: List[int] = None, length_aggfunc: Union[str, Callable] = 'sum', compare_func: Union[str, Callable] = 'divide', model: Optional[Callable] = None)
+
+   Bases: :py:obj:`torch.nn.Module`
+
+
+   Filter to calculate cell type specificity
+
+   :param on_tasks: A list of task names or indices for foreground tasks.
+   :param off_tasks: A list of task names or indices for background tasks.
+                     If None, all tasks other than on_tasks will be considered part
+                     of the background.
+   :param on_aggfunc: A function or name of a function to aggregate predictions for
+                      the foreground tasks. Accepted values are "sum", "mean", "min" or "max".
+   :param off_aggfunc: A function or name of a function to aggregate predictions for
+                       the background tasks. Accepted values are "sum", "mean", "min" or "max".
+   :param off_weight: Relative weight of the background tasks. If this is equal to 1,
+                      the background and foreground predictions will be equally weighted.
+                      If off_thresh if provided, the weight will be applied only to off-
+                      target predictions exceeding off_thresh.
+   :param off_thresh: A maximum threshold for the prediction in off_tasks.
+   :param positions: A list of positions to include along the length axis. If None, all positions
+                     will be included.
+   :param length_aggfunc: A function or name of a function to apply along the length axis.
+                          Accepted values are "sum", "mean", "min" or "max".
+   :param compare func: A function or name of a function to calculate specificity.
+                        Accepted values are "subtract" or "divide".
+   :param model: A trained LightningModel object. Needed if task names are supplied.
+
+
+   .. py:method:: weight_off(x: Union[numpy.ndarray, torch.Tensor]) -> None
+
+      Apply a weight to the off-target predictions.
+
+
+
+   .. py:method:: forward(x: torch.Tensor) -> torch.Tensor
+
+      Forward pass
+
+      :param x: Output of the model forward pass
+
+
+
+   .. py:method:: compute(x: numpy.ndarray) -> numpy.ndarray
+
+      Compute the output score on a numpy array.
+
+
+
