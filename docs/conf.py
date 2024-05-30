@@ -43,7 +43,7 @@ def linkcode_resolve(domain, info):
     if not info['module']:
         return None
     filename = info['module'].replace('.', '/')
-    return "https://code.roche.com/braid-relu/grelu/-/blob/main/src/%s.py" % filename
+    return "https://github.com/Genentech/gReLU/tree/main/src/%s.py" % filename
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -155,9 +155,9 @@ html_theme_options = {
     "show_version_warning_banner": True,
     "icon_links": [
         {
-            "name": "GitLab",
-            "url": "https://code.roche.com/braid-relu/grelu",
-            "icon": "fab fa-gitlab",
+            "name": "GitHub",
+            "url": "https://github.com/Genentech/gReLU",
+            "icon": "fab fa-github",
             "type": "fontawesome",
         },
     ],
@@ -171,10 +171,10 @@ html_theme_options = {
 }
 
 html_context = {
-    "gitlab_url": "https://code.roche.com",
-    "gitlab_user": "braid-relu",
-    "gitlab_repo": "grelu",
-    "gitlab_version": "main",
+    "github_url": "https://github.com",
+    "github_user": "Genentech",
+    "github_repo": "gReLU",
+    "github_version": "main",
     "doc_path": "docs",
 }
 html_show_sourcelink = True
