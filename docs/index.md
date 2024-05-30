@@ -8,12 +8,12 @@ This is the documentation of **gReLU**.
 :maxdepth: 1
 Overview <readme>
 Module reference <api/modules>
-Model inference <tutorials/1_inference>
-Model fine-tuning <tutorials/2_finetune>
-Model training <tutorials/3_train>
-Sequence design <tutorials/4_design>
-Variant effect predictions <tutorials/5_variant>
-Model zoo <tutorials/6_model_zoo>
+Tutorial: Inference <tutorials/1_inference>
+Tutorial: Fine-tuning <tutorials/2_finetune>
+Tutorial: Training <tutorials/3_train>
+Tutorial: Design <tutorials/4_design>
+Tutorial: Variant effect prediction <tutorials/5_variant>
+Tutorial: Model zoo <tutorials/6_model_zoo>
 contributing
 license
 authors
