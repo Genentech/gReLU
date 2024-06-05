@@ -1,6 +1,6 @@
 # gReLU
 
-gReLU is a python library to train, interpret, and apply deep learning models to DNA sequences. Code documentation is available [here](https://genentech.github.io/gReLU/).
+gReLU is a Python library to train, interpret, and apply deep learning models to DNA sequences. Code documentation is available [here](https://genentech.github.io/gReLU/).
 
 ![Flowchart](media/flowchart.jpg)
 
@@ -32,7 +32,7 @@ pre-commit autoupdate
 
 ## Additional requirements
 
-If you want to use genome annotation features through the function `grelu.io.read_gtf`, you will need to install the following UCSC utilities: `genePredToBed`, `genePredToGtf`, `bedToGenePred`, `gtfToGenePred`, `gff3ToGenePred`.
+If you want to use genome annotation features through the function `grelu.io.genome.read_gtf`, you will need to install the following UCSC utilities: `genePredToBed`, `genePredToGtf`, `bedToGenePred`, `gtfToGenePred`, `gff3ToGenePred`.
 
 If you want to create bigWig files through the function `grelu.data.preprocess.make_insertion_bigwig`, you will need to install the following UCSC utilities: `bedGraphToBigWig`.
 
@@ -50,10 +50,11 @@ rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/gff3ToGe
 or via bioconda:
 
 ```shell
-conda install bioconda::ucsc-bedgraphtobigwig
-conda install bioconda::ucsc-genepredtobed
-conda install bioconda::ucsc-genepredtogtf
-conda install bioconda::ucsc-bedtogenepred
-conda install bioconda::ucsc-gtftogenepred
-conda install bioconda::ucsc-gff3togenepred
+conda install -y \
+bioconda::ucsc-bedgraphtobigwig \
+bioconda::ucsc-genepredtobed    \
+bioconda::ucsc-genepredtogtf    \
+bioconda::ucsc-bedtogenepred    \
+bioconda::ucsc-gtftogenepred    \
+bioconda::ucsc-gff3togenepred
 ```
