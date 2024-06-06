@@ -18,7 +18,7 @@ guidelines.
 ## Issue Reports
 
 If you experience bugs or general issues with ``grelu``, please have a look
-on the [issue tracker](https://code.roche.com/gred-rb-ai-ml-regulatory-genomics/grelu/-/issues). If you don't see anything useful there, please feel
+on the [issue tracker](https://github.com/Genentech/gReLU/issues). If you don't see anything useful there, please feel
 free to fire an issue report.
 
 **Tip:** Please don't forget to include the closed issues in your search.
@@ -81,7 +81,7 @@ Submit an issue
 ---------------
 
 Before you work on any non-trivial code contribution it's best to first create
-a report in the [issue tracker](https://code.roche.com/gred-rb-ai-ml-regulatory-genomics/grelu/-/issues) to start a discussion on the subject.
+a report in the [issue tracker](https://github.com/Genentech/gReLU/issues) to start a discussion on the subject.
 This often provides additional considerations and avoids unnecessary work.
 
 Create an environment
@@ -102,9 +102,9 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)::
 Clone the repository
 --------------------
 
-1. Create an user account on [the repository service](https://code.roche.com/). if you do not already have one.
-2. Fork the project repository_: click on the *Fork* button near the top of the
-   page. This creates a copy of the code under your account on [the repository service](https://code.roche.com/).
+1. Create an user account on [the repository service](https://github.com). if you do not already have one.
+2. Fork the project repository_: click on the *Clone* button near the top of the
+   page. This creates a copy of the code under your account on [the repository service](https://github.com/).
 3. Clone this copy to your local disk::
 
     git clone git@github.com:YourLogin/grelu.git
@@ -176,7 +176,7 @@ Implement your changes
 Submit your contribution
 ------------------------
 
-1. If everything works fine, push your local branch to [the repository service](https://code.roche.com/) with::
+1. If everything works fine, push your local branch to [the repository service](https://github.com/) with::
 
     git push -u origin my-feature
 
@@ -273,6 +273,6 @@ on [PyPI](https://pypi.org/), the following steps can be used to release a new v
 .. |the repository service| replace:: GitLab
 .. |contribute button| replace:: "Create pull request"
 
-.. _repository: https://code.roche.com/gred-rb-ai-ml-regulatory-genomics/grelu/
-.. _issue tracker: https://code.roche.com/gred-rb-ai-ml-regulatory-genomics/grelu/-/issues
+.. _repository: https://github.com/Genentech/gReLU/
+.. _issue tracker: https://github.com/Genentech/gReLU/issues
 .. <-- end -->
