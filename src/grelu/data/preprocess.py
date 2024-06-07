@@ -624,7 +624,7 @@ def merge_intervals_by_column(intervals: pd.DataFrame, group_col: str) -> pd.Dat
     Returns:
         A dataframe containing one merged interval for each value in group_col.
     """
-    output = intervals.groupby("gene_name").apply(
+    output = intervals.groupby(group_col).apply(
         lambda x: (x.chrom.unique().tolist(), x.start.min(), x.end.max())
     )
     output = pd.DataFrame(output).reset_index()
