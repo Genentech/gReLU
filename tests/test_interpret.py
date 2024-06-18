@@ -98,9 +98,9 @@ def test_ISM_predict():
 def test_get_attributions():
     seq = generate_random_sequences(n=1, seq_len=50, seed=0, output_format="strings")[0]
     attrs = get_attributions(model, seq, hypothetical=False, n_shuffles=10)
-    assert attrs.shape == (1, 4, 3)
+    assert attrs.shape == (1, 4, 50)
     attrs = get_attributions(model, seq, hypothetical=True, n_shuffles=10)
-    assert attrs.shape == (1, 4, 3)
+    assert attrs.shape == (1, 4, 50)
 
 
 def test_get_attention_scores():
