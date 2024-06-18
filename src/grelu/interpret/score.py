@@ -156,7 +156,7 @@ def get_attributions(
 
     # Initialize the attributer
     if method == "deepshap":
-        attributions = deep_lift_shap(model, X=X, 
+        attributions = deep_lift_shap(model, X=seqs, 
             n_shuffles=n_shuffles, 
             hypothetical=hypothetical,
             device=device, 
