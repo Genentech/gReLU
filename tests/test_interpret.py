@@ -11,6 +11,7 @@ from grelu.interpret.motifs import (
 )
 from grelu.interpret.score import ISM_predict, get_attention_scores, get_attributions
 from grelu.lightning import LightningModel
+from grelu.sequence.utils import generate_random_sequences
 
 cwd = os.path.realpath(os.path.dirname(__file__))
 meme_file = os.path.join(cwd, "files", "test.meme")
@@ -95,10 +96,11 @@ def test_ISM_predict():
 
 
 def test_get_attributions():
-    attrs = get_attributions(model, "GGG", hypothetical=False, n_shuffles=10)
-    assert attrs.shape == (1, 4, 3)
-    attrs = get_attributions(model, "ACG", hypothetical=True, n_shuffles=10)
-    assert attrs.shape == (1, 4, 3)
+    seq = generate_random_sequences(n=1, seq_len=50, seed=0, output_format="strings")[0]
+    attrs = get_attributions(model, seq, hypothetical=False, n_shuffles=10)
+    assert attrs.shape == (1, 4, 50)
+    attrs = get_attributions(model, seq, hypothetical=True, n_shuffles=10)
+    assert attrs.shape == (1, 4, 50)
 
 
 def test_get_attention_scores():

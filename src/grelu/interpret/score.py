@@ -8,7 +8,8 @@ from typing import Callable, List, Optional, Union
 import numpy as np
 import pandas as pd
 import torch
-from captum.attr import DeepLiftShap, InputXGradient, IntegratedGradients
+from captum.attr import InputXGradient, IntegratedGradients
+from tangermeme.deep_lift_shap import deep_lift_shap
 from torch import Tensor
 
 from grelu.sequence.format import convert_input_type
@@ -156,46 +157,35 @@ def get_attributions(
 
     # Initialize the attributer
     if method == "deepshap":
-        from bpnetlite.attributions import (
-            dinucleotide_shuffle,
-            hypothetical_attributions,
-        )
+        attributions = deep_lift_shap(
+            model,
+            X=seqs,
+            n_shuffles=n_shuffles,
+            hypothetical=hypothetical,
+            device=device,
+            random_state=seed,
+        ).numpy(force=True)
 
-        attributer = DeepLiftShap(model.to(device))
-    elif method == "integratedgradients":
-        attributer = IntegratedGradients(model.to(device))
-    elif method == "inputxgradient":
-        attributer = InputXGradient(model.to(device))
     else:
-        raise NotImplementedError
+        if method == "integratedgradients":
+            attributer = IntegratedGradients(model.to(device))
+        elif method == "inputxgradient":
+            attributer = InputXGradient(model.to(device))
+        else:
+            raise NotImplementedError
 
-    # Calculate attributions for each sequence
-    with torch.no_grad():
-        for i in range(len(seqs)):
-            X_ = seqs[i : i + 1].to(device)  # 1, 4, L
-
-            if method == "deepshap":
-                reference = dinucleotide_shuffle(
-                    X_[0].cpu(), n_shuffles=n_shuffles, random_state=seed
-                ).to(device)
-
-                attr = attributer.attribute(
-                    X_,
-                    reference,
-                    target=0,
-                    custom_attribution_func=hypothetical_attributions,
-                )
-                if not hypothetical:
-                    attr = attr * X_
-            else:
+        # Calculate attributions for each sequence
+        with torch.no_grad():
+            for i in range(len(seqs)):
+                X_ = seqs[i : i + 1].to(device)  # 1, 4, L
                 attr = attributer.attribute(X_)
+                attributions.append(attr.cpu().numpy())
 
-            attributions.append(attr.cpu().numpy())
+        attributions = np.vstack(attributions)
 
     # Remove transform
     model.reset_transform()
-
-    return np.vstack(attributions)  # N, 4, L
+    return attributions  # N, 4, L
 
 
 def run_modisco(
