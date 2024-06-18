@@ -8,11 +8,12 @@ from typing import Callable, List, Optional, Union
 import numpy as np
 import pandas as pd
 import torch
-from captum.attr import DeepLiftShap, InputXGradient, IntegratedGradients
+from captum.attr import InputXGradient, IntegratedGradients
+from tangermeme.deep_lift_shap import deep_lift_shap
 from torch import Tensor
 
 from grelu.sequence.format import convert_input_type
-from tangermeme.deep_lift_shap import deep_lift_shap
+
 
 def ISM_predict(
     seqs: Union[pd.DataFrame, np.ndarray, str],
@@ -156,11 +157,14 @@ def get_attributions(
 
     # Initialize the attributer
     if method == "deepshap":
-        attributions = deep_lift_shap(model, X=seqs, 
-            n_shuffles=n_shuffles, 
+        attributions = deep_lift_shap(
+            model,
+            X=seqs,
+            n_shuffles=n_shuffles,
             hypothetical=hypothetical,
-            device=device, 
-            random_state=seed).numpy(force=True)
+            device=device,
+            random_state=seed,
+        ).numpy(force=True)
 
     else:
         if method == "integratedgradients":
@@ -177,8 +181,7 @@ def get_attributions(
                 attr = attributer.attribute(X_)
                 attributions.append(attr.cpu().numpy())
 
-        attributons = np.vstack(attributions)
-
+        attributions = np.vstack(attributions)
 
     # Remove transform
     model.reset_transform()
