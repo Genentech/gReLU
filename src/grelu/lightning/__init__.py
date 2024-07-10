@@ -555,6 +555,7 @@ class LightningModel(pl.LightningModule):
         if checkpoint_path is None:
             # First validation pass
             trainer.validate(model=self, dataloaders=val_dataloader)
+            self.val_metrics.reset()
 
         # Add data parameters
         self.data_params["tasks"] = train_dataset.tasks.reset_index(
