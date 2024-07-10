@@ -54,12 +54,12 @@ def get_blacklist_file(genome: str) -> str:
         Path to the specified blacklist file.
     """
     blacklist = (
-            importlib_resources.files("grelu")
-            / "resources"
-            / "blacklists"
-            / "encode"
-            / f"{genome}-blacklist.v2.bed"
-        )
+        importlib_resources.files("grelu")
+        / "resources"
+        / "blacklists"
+        / "encode"
+        / f"{genome}-blacklist.v2.bed"
+    )
     assert blacklist.exists()
     return str(blacklist)
 
