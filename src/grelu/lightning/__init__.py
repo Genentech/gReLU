@@ -346,6 +346,9 @@ class LightningModel(pl.LightningModule):
             self.log_dict(mean_val_metrics)
             self.log("val_loss", mean_losses)
 
+        self.val_metrics.reset()
+        self.val_losses = []
+
     def test_step(self, batch: Tensor, batch_idx: int) -> Tensor:
         """
         Calculate metrics after a single test step
@@ -367,6 +370,9 @@ class LightningModel(pl.LightningModule):
         self.log_dict({k: v.mean() for k, v in self.computed_test_metrics.items()})
         losses = torch.stack(self.test_losses)
         self.log("test_loss", torch.mean(losses))
+
+        self.test_metrics.reset()
+        self.test_losses = []
 
     def configure_optimizers(self) -> None:
         """
@@ -549,6 +555,7 @@ class LightningModel(pl.LightningModule):
         if checkpoint_path is None:
             # First validation pass
             trainer.validate(model=self, dataloaders=val_dataloader)
+            self.val_metrics.reset()
 
         # Add data parameters
         self.data_params["tasks"] = train_dataset.tasks.reset_index(
