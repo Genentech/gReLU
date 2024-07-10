@@ -42,24 +42,23 @@ def get_meme_file_path(meme_motif_db: str) -> str:
         raise Exception(f"{meme_motif_db} is not a valid file.")
 
 
-def get_blacklist_file(blacklist: str) -> str:
+def get_blacklist_file(genome: str) -> str:
     """
     Return the path to a blacklist file
 
     Args:
-        blacklist: Path to a blacklist file or the name of a genome whose blacklist file is
-            included with gReLU. Current name options are "hg19", "hg38" and "mm10".
+        genome: Name of a genome whose blacklist file is included with gReLU.
+            Current name options are "hg19", "hg38" and "mm10".
 
     Returns:
         Path to the specified blacklist file.
     """
-    if not os.path.isfile(blacklist):
-        blacklist = (
+    blacklist = (
             importlib_resources.files("grelu")
             / "resources"
             / "blacklists"
             / "encode"
-            / f"{blacklist}-blacklist.v2.bed"
+            / f"{genome}-blacklist.v2.bed"
         )
     assert blacklist.exists()
     return str(blacklist)
