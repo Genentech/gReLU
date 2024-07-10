@@ -137,7 +137,7 @@ def models(project:str, host:str=DEFAULT_WANDB_HOST) -> List[str]:
     return artifacts(project, host=host, type_contains='model')
 
 
-def datasets(project:str, host:str=DEFAULT_WANDB_HOST) -> List[str]
+def datasets(project:str, host:str=DEFAULT_WANDB_HOST) -> List[str]:
     """
     List all datasets associated with a project in the model zoo
 
