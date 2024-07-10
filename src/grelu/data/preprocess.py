@@ -514,6 +514,7 @@ def get_gc_matched_intervals(
         gc_bin_width=binwidth,
         chroms=chroms,
         verbose=False,
+        random_state=seed,
     )
 
     print("Filtering blacklist")
