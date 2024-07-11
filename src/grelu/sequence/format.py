@@ -373,6 +373,7 @@ def convert_input_type(
     output_type: str = "indices",
     genome: Optional[str] = None,
     add_batch_axis: bool = False,
+    input_type: Optional[str] = None,
 ) -> Union[pd.DataFrame, str, List[str], np.ndarray, Tensor]:
     """
     Convert input DNA sequence data into the desired format.
@@ -384,6 +385,7 @@ def convert_input_type(
         add_batch_axis: If True, a batch axis will be included in the output for single
             sequences. If False, the output for a single sequence will be a 2-dimensional
             tensor.
+        input_type: Format of the input sequence (optional)
 
     Returns:
         The converted DNA sequence(s) in the desired format.
@@ -393,7 +395,7 @@ def convert_input_type(
 
     """
     # Determine input type
-    input_type = get_input_type(inputs)
+    input_type = input_type or get_input_type(inputs)
 
     # If no conversion needed, return inputs as is
     if input_type == output_type:
