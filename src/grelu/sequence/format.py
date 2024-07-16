@@ -252,8 +252,11 @@ def strings_to_indices(
             strings
         ), "All input sequences must have the same length."
         return np.stack(
-            [[BASE_TO_INDEX_HASH[base] for base in string] for string in strings]
-        ).astype(np.int8)
+            [
+                np.array([BASE_TO_INDEX_HASH[base] for base in string], dtype(np.int8))
+                for string in strings
+            ]
+        )
 
 
 def indices_to_one_hot(indices: np.ndarray) -> Tensor:
