@@ -253,7 +253,7 @@ def strings_to_indices(
         ), "All input sequences must have the same length."
         return np.stack(
             [
-                np.array([BASE_TO_INDEX_HASH[base] for base in string], dtype(np.int8))
+                np.array([BASE_TO_INDEX_HASH[base] for base in string], dtype=np.int8)
                 for string in strings
             ]
         )
