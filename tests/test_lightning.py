@@ -252,7 +252,7 @@ def test_lightning_model_transform():
 
 
 def test_lightning_model_embed_on_dataset():
-    preds = single_task_reg_model.embed_on_dataset(dataset=udataset, devices="cpu")
+    preds = single_task_reg_model.embed_on_dataset(dataset=udataset, device="cpu")
     assert preds.shape == (2, 1, 3)
 
 
