@@ -127,12 +127,12 @@ def get_model_by_dataset(dataset_name, project, alias='latest'):
     return [x.name for x in runs[0].logged_artifacts()]
 
 
-def load_model(project, model_name, alias='latest', checkpoint_file='model.ckpt', map_location='cuda:0'):
+def load_model(project, model_name, device='cpu', alias='latest', checkpoint_file='model.ckpt'):
 
     art = get_artifact(model_name, project, alias=alias)
 
     with TemporaryDirectory() as d:
         art.download(d)
-        model = LightningModel.load_from_checkpoint(Path(d) / checkpoint_file, map_location=map_location)
+        model = LightningModel.load_from_checkpoint(Path(d) / checkpoint_file, map_location=device)
 
     return model
