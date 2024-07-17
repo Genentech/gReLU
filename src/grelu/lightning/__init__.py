@@ -820,7 +820,7 @@ class LightningModel(pl.LightningModule):
     def embed_on_dataset(
         self,
         dataset: Callable,
-        devices: Union[str, int, List[int]] = "cpu",
+        device: Union[str, int] = "cpu",
         num_workers: int = 1,
         batch_size: int = 256,
     ):
@@ -829,7 +829,7 @@ class LightningModel(pl.LightningModule):
 
         Args:
             dataset: Dataset object that yields one-hot encoded sequences
-            devices: Device IDs to use
+            device: Device ID to use
             num_workers: Number of workers for data loader
             batch_size: Batch size for data loader
 
@@ -844,13 +844,20 @@ class LightningModel(pl.LightningModule):
         )
 
         # Get device
-        orig_device = self.device
-        device = self.parse_devices(devices)[0]
         if isinstance(device, list):
             device = device[0]
             warnings.warn(
-                f"embed_on_dataset currently only uses a single GPU: {device}"
+                f"embed_on_dataset currently only uses a single GPU: Using {device}"
             )
+        if isinstance(device, str):
+            try:
+                device = int(device)
+            except Exception:
+                pass
+        device = torch.device(device)
+
+        # Move model to device
+        orig_device = self.device
         self.to(device)
 
         # Get embeddings
