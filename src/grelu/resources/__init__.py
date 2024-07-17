@@ -71,7 +71,7 @@ def _check_wandb(host:str=DEFAULT_WANDB_HOST) -> None:
     Args:
         host: URL of the Weights & Biases host
     """
-    assert wandb.login(host=host), f'Weights & Biases (wandb) is not configured, see {host}/authorize'
+    assert wandb.login(host=host, anonymous="allow"), f'Weights & Biases (wandb) is not configured, see {host}/authorize'
 
 
 def projects(host: str=DEFAULT_WANDB_HOST) -> List[str]:
