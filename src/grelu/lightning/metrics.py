@@ -38,8 +38,12 @@ class BestF1(Metric):
 
     def update(self, preds: torch.Tensor, target: torch.Tensor) -> None:
         _check_same_shape(preds, target)
-        preds = preds.swapaxes(1, 2).flatten(start_dim=0, end_dim=1)  # NxL, n_tasks
-        target = target.swapaxes(1, 2).flatten(start_dim=0, end_dim=1)  # NxL, n_tasks
+        preds = (
+            preds.swapaxes(1, 2).flatten(start_dim=0, end_dim=1).to(torch.float32)
+        )  # NxL, n_tasks
+        target = (
+            target.swapaxes(1, 2).flatten(start_dim=0, end_dim=1).to(torch.float32)
+        )  # NxL, n_tasks
         self.preds = torch.vstack([self.preds, preds])
         self.target = torch.vstack([self.target, target])
 
@@ -97,7 +101,7 @@ class MSE(Metric):
         else:
             self.total += len(target)
 
-        diff = preds - target  # (N, n_tasks, L)
+        diff = preds.to(torch.float32) - target.to(torch.float32)  # (N, n_tasks, L)
         self.sum_squared_error += diff.square().sum(axis=0).mean(axis=-1)
 
     def compute(self) -> torch.Tensor:
@@ -134,8 +138,12 @@ class PearsonCorrCoef(Metric):
         self.average = average
 
     def update(self, preds: torch.Tensor, target: torch.Tensor) -> None:
-        preds = preds.swapaxes(1, 2).flatten(start_dim=0, end_dim=1)  # Nx L, n_tasks
-        target = target.swapaxes(1, 2).flatten(start_dim=0, end_dim=1)  # Nx L, n_tasks
+        preds = (
+            preds.swapaxes(1, 2).flatten(start_dim=0, end_dim=1).to(torch.float32)
+        )  # Nx L, n_tasks
+        target = (
+            target.swapaxes(1, 2).flatten(start_dim=0, end_dim=1).to(torch.float32)
+        )  # Nx L, n_tasks
         self.pearson.update(preds, target)
 
     def compute(self) -> torch.Tensor:

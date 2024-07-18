@@ -41,11 +41,15 @@ class LinearBlock(nn.Module):
         dropout: float = 0.0,
         norm: bool = False,
         bias: bool = True,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
-        self.norm = Norm(func="layer" if norm else None, in_dim=in_len)
-        self.linear = nn.Linear(in_len, out_len, bias=bias)
+        self.norm = Norm(
+            func="layer" if norm else None, in_dim=in_len, dtype=dtype, device=device
+        )
+        self.linear = nn.Linear(in_len, out_len, bias=bias, dtype=dtype, device=device)
         self.dropout = Dropout(dropout)
         self.act = Activation(act_func)
 
@@ -111,6 +115,8 @@ class ConvBlock(nn.Module):
         order: str = "CDNRA",
         bias: bool = True,
         return_pre_pool: bool = False,
+        dtype=None,
+        device=None,
         **kwargs,
     ) -> None:
         super().__init__()
@@ -128,9 +134,13 @@ class ConvBlock(nn.Module):
         # Create batch norm
         if norm:
             if self.order.index("N") > self.order.index("C"):
-                self.norm = Norm("batch", in_dim=out_channels)
+                self.norm = Norm(
+                    "batch", in_dim=out_channels, dtype=dtype, device=device
+                )
             else:
-                self.norm = Norm("batch", in_dim=in_channels)
+                self.norm = Norm(
+                    "batch", in_dim=in_channels, dtype=dtype, device=device
+                )
         else:
             self.norm = Norm(None)
 
@@ -142,6 +152,8 @@ class ConvBlock(nn.Module):
             stride=1,
             padding="same",
             dilation=dilation,
+            dtype=dtype,
+            device=device,
             **kwargs,
         )
         self.act = Activation(act_func)
@@ -149,7 +161,9 @@ class ConvBlock(nn.Module):
         self.dropout = Dropout(dropout)
         self.residual = residual
         if self.residual:
-            self.channel_transform = ChannelTransform(in_channels, out_channels)
+            self.channel_transform = ChannelTransform(
+                in_channels, out_channels, dtype=dtype, device=device
+            )
         self.order = order
         assert (
             len(set(self.order).difference(set("CDNRA"))) == 0
@@ -212,6 +226,8 @@ class ChannelTransformBlock(nn.Module):
         dropout: float = 0.0,
         order: str = "CDNA",
         if_equal: bool = False,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -227,14 +243,20 @@ class ChannelTransformBlock(nn.Module):
         # Create batch norm
         if norm:
             if self.order.index("N") > self.order.index("C"):
-                self.norm = Norm("batch", in_dim=out_channels)
+                self.norm = Norm(
+                    "batch", in_dim=out_channels, dtype=dtype, device=device
+                )
             else:
-                self.norm = Norm("batch", in_dim=in_channels)
+                self.norm = Norm(
+                    "batch", in_dim=in_channels, dtype=dtype, device=device
+                )
         else:
             self.norm = Norm(None)
 
         # Create other layers
-        self.conv = ChannelTransform(in_channels, out_channels, if_equal=if_equal)
+        self.conv = ChannelTransform(
+            in_channels, out_channels, if_equal=if_equal, dtype=dtype, device=device
+        )
         self.act = Activation(act_func)
         self.dropout = Dropout(dropout)
         self.order = order
@@ -281,6 +303,8 @@ class Stem(nn.Module):
         act_func: str = "relu",
         pool_func: Optional[str] = None,
         pool_size: Optional[str] = None,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
         self.conv = nn.Conv1d(
@@ -291,6 +315,8 @@ class Stem(nn.Module):
             padding="same",
             dilation=1,
             bias=True,
+            dtype=dtype,
+            device=device,
         )
         self.act = Activation(act_func)
         self.pool = Pool(pool_func, pool_size=pool_size)
@@ -320,7 +346,9 @@ class SeparableConv(nn.Module):
         kernel_size: Convolutional kernel width
     """
 
-    def __init__(self, in_channels: int, kernel_size: int) -> None:
+    def __init__(
+        self, in_channels: int, kernel_size: int, dtype=None, device=None
+    ) -> None:
         super().__init__()
         self.depthwise = nn.Conv1d(
             in_channels,
@@ -329,8 +357,17 @@ class SeparableConv(nn.Module):
             groups=in_channels,
             padding="same",
             bias=False,
+            dtype=dtype,
+            device=device,
         )
-        self.pointwise = nn.Conv1d(in_channels, in_channels, kernel_size=1, bias=True)
+        self.pointwise = nn.Conv1d(
+            in_channels,
+            in_channels,
+            kernel_size=1,
+            bias=True,
+            dtype=dtype,
+            device=device,
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -393,13 +430,23 @@ class ConvTower(nn.Module):
         dropout: float = 0.0,
         order: str = "CDNRA",
         crop_len: Union[int, str] = 0,
+        dtype=None,
+        device=None,
     ):
         super().__init__()
 
         self.blocks = nn.ModuleList()
 
         # Add stem
-        self.blocks.append(Stem(stem_channels, stem_kernel_size, act_func=act_func))
+        self.blocks.append(
+            Stem(
+                stem_channels,
+                stem_kernel_size,
+                act_func=act_func,
+                dtype=dtype,
+                device=device,
+            )
+        )
         self.receptive_field = stem_kernel_size
         self.pool_factor = 1
         self.out_channels = stem_channels
@@ -424,6 +471,8 @@ class ConvTower(nn.Module):
                     pool_size=pool_size,
                     dropout=dropout,
                     order=order,
+                    dtype=dtype,
+                    device=device,
                 )
             )
 
@@ -477,14 +526,30 @@ class FeedForwardBlock(nn.Module):
     """
 
     def __init__(
-        self, in_len: int, dropout: float = 0.0, act_func: str = "relu"
+        self,
+        in_len: int,
+        dropout: float = 0.0,
+        act_func: str = "relu",
+        **kwargs,
     ) -> None:
         super().__init__()
         self.dense1 = LinearBlock(
-            in_len, in_len * 2, norm=True, dropout=dropout, act_func=act_func, bias=True
+            in_len,
+            in_len * 2,
+            norm=True,
+            dropout=dropout,
+            act_func=act_func,
+            bias=True,
+            **kwargs,
         )
         self.dense2 = LinearBlock(
-            in_len * 2, in_len, norm=False, dropout=dropout, act_func=None, bias=True
+            in_len * 2,
+            in_len,
+            norm=False,
+            dropout=dropout,
+            act_func=None,
+            bias=True,
+            **kwargs,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -523,6 +588,8 @@ class GRUBlock(nn.Module):
         dropout: float = 0.0,
         act_func: str = "relu",
         norm: bool = False,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -535,7 +602,11 @@ class GRUBlock(nn.Module):
             num_layers=n_layers,
         )
         self.ffn = FeedForwardBlock(
-            in_len=in_channels, dropout=dropout, act_func=act_func
+            in_len=in_channels,
+            dropout=dropout,
+            act_func=act_func,
+            dtype=dtype,
+            device=device,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -583,6 +654,8 @@ class TransformerBlock(nn.Module):
         pos_dropout: float,
         attn_dropout: float,
         ff_dropout: float,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
         self.norm = Norm("layer", in_len)
@@ -594,12 +667,16 @@ class TransformerBlock(nn.Module):
             value_len=value_len,
             pos_dropout=pos_dropout,
             attn_dropout=attn_dropout,
+            dtype=dtype,
+            device=device,
         )
         self.dropout = Dropout(ff_dropout)
         self.ffn = FeedForwardBlock(
             in_len=in_len,
             dropout=ff_dropout,
             act_func="relu",
+            dtype=dtype,
+            device=device,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -650,6 +727,8 @@ class TransformerTower(nn.Module):
         pos_dropout: float = 0.0,
         attn_dropout: float = 0.0,
         ff_dropout: float = 0.0,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
         self.blocks = nn.ModuleList(
@@ -663,6 +742,8 @@ class TransformerTower(nn.Module):
                     pos_dropout=pos_dropout,
                     attn_dropout=attn_dropout,
                     ff_dropout=ff_dropout,
+                    dtype=dtype,
+                    device=device,
                 )
                 for _ in range(n_blocks)
             ]
@@ -694,10 +775,23 @@ class UnetBlock(nn.Module):
         y_in_channels: Number of channels in the higher-resolution representation.
     """
 
-    def __init__(self, in_channels: int, y_in_channels: int) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        y_in_channels: int,
+        dtype=None,
+        device=None,
+    ) -> None:
         super().__init__()
         self.conv = ConvBlock(
-            in_channels, in_channels, 1, norm=True, act_func="gelu", order="NACDR"
+            in_channels,
+            in_channels,
+            1,
+            norm=True,
+            act_func="gelu",
+            order="NACDR",
+            dtype=dtype,
+            device=device,
         )
         self.upsample = nn.Upsample(scale_factor=2, mode="nearest")
         self.channel_transform = ChannelTransformBlock(
@@ -707,8 +801,10 @@ class UnetBlock(nn.Module):
             act_func="gelu",
             order="NACD",
             if_equal=True,
+            dtype=dtype,
+            device=device,
         )
-        self.sconv = SeparableConv(in_channels, 3)
+        self.sconv = SeparableConv(in_channels, 3, dtype=dtype, device=device)
 
     def forward(self, x: Tensor, y: Tensor) -> Tensor:
         """
@@ -738,12 +834,12 @@ class UnetTower(nn.Module):
     """
 
     def __init__(
-        self, in_channels: int, y_in_channels: List[int], n_blocks: int
+        self, in_channels: int, y_in_channels: List[int], n_blocks: int, **kwargs
     ) -> None:
         super().__init__()
         self.blocks = nn.ModuleList()
         for y_c in y_in_channels:
-            self.blocks.append(UnetBlock(in_channels, y_c))
+            self.blocks.append(UnetBlock(in_channels, y_c, **kwargs))
 
     def forward(self, x: Tensor, ys: List[Tensor]) -> Tensor:
         """

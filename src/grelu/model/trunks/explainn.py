@@ -17,6 +17,8 @@ class ExplaiNNConvBlock(nn.Module):
         groups: int,
         act_func: str,
         dropout: float,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -26,6 +28,8 @@ class ExplaiNNConvBlock(nn.Module):
                 out_channels=out_channels,
                 kernel_size=kernel_size,
                 groups=groups,
+                dtype=dtype,
+                device=device,
             ),
         )
         self.norm = (Norm("batch", out_channels, eps=1e-05, momentum=0.1, affine=True),)
@@ -69,6 +73,8 @@ class ExplaiNNTrunk(nn.Module):
         in_len: int,
         channels=300,
         kernel_size=19,
+        dtype=None,
+        device=None,
     ):
         self.channels = channels
         self.blocks = nn.ModuleList()
@@ -80,6 +86,8 @@ class ExplaiNNTrunk(nn.Module):
                 groups=channels,
                 dropout=0.0,
                 act_func="exp",
+                dtype=dtype,
+                device=device,
             )
         )
         self.blocks.append(
@@ -90,6 +98,8 @@ class ExplaiNNTrunk(nn.Module):
                 groups=channels,
                 dropout=0.3,
                 act_func="relu",
+                dtype=dtype,
+                device=device,
             )
         )
         self.blocks.append(
@@ -100,6 +110,8 @@ class ExplaiNNTrunk(nn.Module):
                 groups=channels,
                 dropout=0.0,
                 act_func="relu",
+                dtype=dtype,
+                device=device,
             )
         )
 
