@@ -57,6 +57,7 @@ class ConvTrunk(nn.Module):
         dropout: float = 0.0,
         # Crop
         crop_len: int = 0,
+        **kwargs,
     ) -> None:
         super().__init__()
 
@@ -77,6 +78,7 @@ class ConvTrunk(nn.Module):
             dropout=dropout,
             order="CDNRA",
             crop_len=crop_len,
+            **kwargs,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -117,6 +119,7 @@ class DilatedConvTrunk(nn.Module):
         act_func: str = "relu",
         n_conv: int = 8,
         crop_len: Union[str, int] = "auto",
+        **kwargs,
     ) -> None:
         super().__init__()
         self.conv_tower = ConvTower(
@@ -136,6 +139,7 @@ class DilatedConvTrunk(nn.Module):
             dropout=0.0,
             crop_len=crop_len,
             order="CDNRA",
+            **kwargs,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -195,6 +199,8 @@ class ConvGRUTrunk(nn.Module):
         n_gru: int = 1,
         dropout: float = 0.0,
         gru_norm: bool = False,
+        dtype=None,
+        device=None,
     ):
         super().__init__()
         self.conv_tower = ConvTower(
@@ -213,6 +219,8 @@ class ConvGRUTrunk(nn.Module):
             residual=residual,
             order="CDNRA",
             crop_len=crop_len,
+            device=device,
+            dtype=dtype,
         )
 
         self.gru_tower = GRUBlock(
@@ -221,6 +229,8 @@ class ConvGRUTrunk(nn.Module):
             dropout=dropout,
             act_func=act_func,
             norm=gru_norm,
+            device=device,
+            dtype=dtype,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -291,6 +301,8 @@ class ConvTransformerTrunk(nn.Module):
         pos_dropout: float = 0.0,
         attn_dropout: float = 0.0,
         ff_dropout: float = 0.0,
+        dtype=None,
+        device=None,
     ):
         super().__init__()
         self.conv_tower = ConvTower(
@@ -309,6 +321,8 @@ class ConvTransformerTrunk(nn.Module):
             residual=residual,
             order="CDNRA",
             crop_len=crop_len,
+            dtype=dtype,
+            device=device,
         )
 
         self.transformer_tower = TransformerTower(
@@ -321,6 +335,8 @@ class ConvTransformerTrunk(nn.Module):
             pos_dropout=pos_dropout,
             attn_dropout=attn_dropout,
             ff_dropout=ff_dropout,
+            dtype=dtype,
+            device=device,
         )
 
     def forward(self, x: Tensor) -> Tensor:

@@ -1,6 +1,7 @@
 """
 The Borzoi model architecture and its required classes.
 """
+
 from enformer_pytorch.modeling_enformer import exponential_linspace_int
 from torch import Tensor, nn
 
@@ -29,6 +30,8 @@ class BorzoiConvTower(nn.Module):
         out_channels: int,
         kernel_size: int,
         n_blocks: int,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -43,6 +46,8 @@ class BorzoiConvTower(nn.Module):
                 act_func=None,
                 pool_func="max",
                 pool_size=2,
+                dtype=dtype,
+                device=device,
             )
         )
 
@@ -63,6 +68,8 @@ class BorzoiConvTower(nn.Module):
                     pool_func="max",
                     pool_size=2,
                     return_pre_pool=(i > (n_blocks - 3)),
+                    dtype=dtype,
+                    device=device,
                 )
             )
         assert len(self.blocks) == n_blocks
@@ -109,6 +116,8 @@ class BorzoiTrunk(nn.Module):
         n_pos_features: int,
         # Crop
         crop_len: int,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -119,6 +128,8 @@ class BorzoiTrunk(nn.Module):
             out_channels=channels,
             kernel_size=kernel_size,
             n_blocks=n_conv,
+            dtype=dtype,
+            device=device,
         )
         self.transformer_tower = TransformerTower(
             n_blocks=n_transformers,
@@ -129,11 +140,15 @@ class BorzoiTrunk(nn.Module):
             attn_dropout=attn_dropout,
             n_heads=n_heads,
             n_pos_features=n_pos_features,
+            dtype=dtype,
+            device=device,
         )
         self.unet_tower = UnetTower(
             n_blocks=2,
             in_channels=channels,
             y_in_channels=[channels, self.conv_tower.filters[-2]],
+            dtype=dtype,
+            device=device,
         )
         self.pointwise_conv = ConvBlock(
             in_channels=channels,
@@ -143,6 +158,8 @@ class BorzoiTrunk(nn.Module):
             dropout=0.1,
             norm=True,
             order="NACDR",
+            device=device,
+            dtype=dtype,
         )
         self.act = Activation("gelu")
         self.crop = Crop(crop_len=crop_len)
