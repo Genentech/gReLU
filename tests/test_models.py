@@ -1,6 +1,5 @@
 import torch
 
-import wandb
 from grelu.model.models import (
     BorzoiModel,
     BorzoiPretrainedModel,
@@ -15,14 +14,6 @@ from grelu.model.models import (
 from grelu.sequence.format import convert_input_type
 
 inputs = convert_input_type(["A" * 128], "one_hot")
-
-
-try:
-    wandb.login(host="https://genentech.wandb.io", anonymous="never", timeout=0)
-except wandb.errors.UsageError:  # login anonymously if not logged in already
-    wandb.login(
-        host="https://genentech.wandb.io", relogin=True, anonymous="must", timeout=0
-    )
 
 
 # Test a fully convolutional model with residual connections and autocropping
