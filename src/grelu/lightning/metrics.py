@@ -144,3 +144,6 @@ class PearsonCorrCoef(Metric):
             return output.mean()
         else:
             return output
+
+    def reset(self) -> None:
+        self.pearson.reset()
