@@ -356,14 +356,16 @@ def filter_blacklist(
     from grelu.io.bed import read_bed
     from grelu.resources import get_blacklist_file
 
-    # Read blacklist
-    if genome is None:
+    # Get path to blacklist file
+    if genome is not None:
+        blacklist = get_blacklist_file(genome)
+    else:
         assert (
             blacklist is not None
         ), "Either genome name or blacklist file must be provided"
-        blacklist = read_bed(blacklist, str_index=False)
-    else:
-        blacklist = get_blacklist_file(genome)
+
+    # Read blacklist file
+    blacklist = read_bed(blacklist, str_index=False)
 
     # Filter
     return filter_overlapping(
