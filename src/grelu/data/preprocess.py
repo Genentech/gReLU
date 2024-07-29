@@ -332,7 +332,7 @@ def filter_overlapping(
 
 def filter_blacklist(
     data: Union[pd.DataFrame, AnnData],
-    genome: str,
+    genome: Optional[str] = None,
     blacklist: Optional[str] = None,
     inplace: bool = False,
     window: int = 0,
@@ -344,7 +344,7 @@ def filter_blacklist(
         data: Either a pandas dataframe of genomic intervals or an Anndata
             object with intervals in .var
         genome: name of the genome corresponding to intervals
-        blacklist (str): path to blacklist file. If not given, will be
+        blacklist: path to blacklist file. If not given, it will be
             extracted from the package resources.
         inplace: If True, the input is modified in place. If False, a new
             dataframe or anndata object is returned.
@@ -357,11 +357,13 @@ def filter_blacklist(
     from grelu.resources import get_blacklist_file
 
     # Read blacklist
-    if genome is not None:
-        blacklist = get_blacklist_file(genome)
-
-    if isinstance(blacklist, str):
+    if genome is None:
+        assert (
+            blacklist is not None
+        ), "Either genome name or blacklist file must be provided"
         blacklist = read_bed(blacklist, str_index=False)
+    else:
+        blacklist = get_blacklist_file(genome)
 
     # Filter
     return filter_overlapping(
