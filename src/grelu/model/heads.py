@@ -32,8 +32,6 @@ class ConvHead(nn.Module):
         act_func: Optional[str] = None,
         pool_func: Optional[str] = None,
         norm: bool = False,
-        dtype=None,
-        device=None,
     ) -> None:
         super().__init__()
         # Save all params
@@ -45,12 +43,7 @@ class ConvHead(nn.Module):
 
         # Create layers
         self.channel_transform = ChannelTransformBlock(
-            self.in_channels,
-            self.n_tasks,
-            act_func=self.act_func,
-            norm=self.norm,
-            dtype=dtype,
-            device=device,
+            self.in_channels, self.n_tasks, act_func=self.act_func, norm=self.norm
         )
         self.pool = AdaptivePool(self.pool_func)
 
@@ -87,8 +80,6 @@ class MLPHead(nn.Module):
         hidden_size: List[int] = [],
         norm: bool = False,
         dropout: float = 0.0,
-        dtype=None,
-        device=None,
     ) -> None:
         super().__init__()
 
@@ -114,8 +105,6 @@ class MLPHead(nn.Module):
                     norm=self.norm,
                     act_func=self.act_func,
                     dropout=self.dropout,
-                    dtype=dtype,
-                    device=device,
                 )
             )
             in_len = h  # Output len of this block is the input len of next block
@@ -128,8 +117,6 @@ class MLPHead(nn.Module):
                 norm=self.norm,
                 act_func=None,
                 dropout=self.dropout,
-                device=device,
-                dtype=dtype,
             )
         )
 

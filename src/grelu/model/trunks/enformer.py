@@ -1,7 +1,6 @@
 """
 The Enformer model architecture and its required classes
 """
-
 import torch
 from einops import rearrange
 from enformer_pytorch.modeling_enformer import Attention, exponential_linspace_int
@@ -22,8 +21,6 @@ class EnformerConvTower(nn.Module):
         self,
         n_blocks: int,
         out_channels: int,
-        dtype=None,
-        device=None,
     ) -> None:
         super().__init__()
         half_dim = out_channels // 2
@@ -34,7 +31,7 @@ class EnformerConvTower(nn.Module):
         # Add stem
         self.blocks.append(
             nn.Sequential(
-                nn.Conv1d(4, half_dim, 15, padding="same", device=device, dtype=dtype),
+                nn.Conv1d(4, half_dim, 15, padding="same"),
                 ConvBlock(
                     in_channels=half_dim,
                     out_channels=half_dim,
@@ -44,8 +41,6 @@ class EnformerConvTower(nn.Module):
                     order="NACDR",
                     pool_func="attn",
                     pool_size=2,
-                    dtype=dtype,
-                    device=device,
                 ),
             )
         )
@@ -66,8 +61,6 @@ class EnformerConvTower(nn.Module):
                         act_func="gelu_enformer",
                         residual=False,
                         order="NACDR",
-                        dtype=dtype,
-                        device=device,
                     ),
                     ConvBlock(
                         in_channels=filters[i],
@@ -78,8 +71,6 @@ class EnformerConvTower(nn.Module):
                         order="NACDR",
                         pool_func="attn",
                         pool_size=2,
-                        dtype=dtype,
-                        device=device,
                     ),
                 )
             )
@@ -123,8 +114,6 @@ class EnformerTransformerBlock(nn.Module):
         attn_dropout: float,
         pos_dropout: float,
         ff_dropout: float,
-        dtype=None,
-        device=None,
     ) -> None:
         super().__init__()
         self.norm = Norm("layer", in_len)
@@ -137,16 +126,12 @@ class EnformerTransformerBlock(nn.Module):
             pos_dropout=pos_dropout,
             num_rel_pos_features=in_len // n_heads,
             use_tf_gamma=False,
-            dtype=dtype,
-            device=device,
         )
         self.dropout = Dropout(ff_dropout)
         self.ffn = FeedForwardBlock(
             in_len=in_len,
             dropout=ff_dropout,
             act_func="relu",
-            dtype=dtype,
-            device=device,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -195,8 +180,6 @@ class EnformerTransformerTower(nn.Module):
         attn_dropout: float,
         pos_dropout: float,
         ff_dropout: float,
-        dtype=None,
-        device=None,
     ) -> None:
         super().__init__()
         self.blocks = nn.ModuleList(
@@ -208,8 +191,6 @@ class EnformerTransformerTower(nn.Module):
                     attn_dropout=attn_dropout,
                     pos_dropout=pos_dropout,
                     ff_dropout=ff_dropout,
-                    dtype=dtype,
-                    device=device,
                 )
                 for _ in range(n_blocks)
             ]
@@ -263,8 +244,6 @@ class EnformerTrunk(nn.Module):
         ff_dropout: float = 0.4,
         # Crop
         crop_len: int = 0,
-        dtype=None,
-        device=None,
     ) -> None:
         super().__init__()
 
@@ -277,8 +256,6 @@ class EnformerTrunk(nn.Module):
             attn_dropout=attn_dropout,
             pos_dropout=pos_dropout,
             ff_dropout=ff_dropout,
-            dtype=dtype,
-            device=device,
         )
         self.pointwise_conv = ConvBlock(
             in_channels=channels,
@@ -287,8 +264,6 @@ class EnformerTrunk(nn.Module):
             act_func="gelu_enformer",
             dropout=ff_dropout // 8,
             order="NACDR",
-            dtype=dtype,
-            device=device,
         )
         self.act = Activation("gelu_enformer")
         self.crop = Crop(crop_len)

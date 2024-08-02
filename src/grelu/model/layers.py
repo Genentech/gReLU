@@ -1,7 +1,6 @@
 """
 Commonly used layers to build deep learning models.
 """
-
 from typing import Optional
 
 import torch
@@ -298,8 +297,6 @@ class Attention(nn.Module):
         n_pos_features: int,
         pos_dropout: float = 0,
         attn_dropout: float = 0,
-        device=None,
-        dtype=None,
     ):
         """
         Multi-head Attention (MHA) layer. Modified from
@@ -324,46 +321,20 @@ class Attention(nn.Module):
         self.n_pos_features = n_pos_features
 
         # Create linear layers
-        self.to_q = nn.Linear(
-            self.in_len,
-            self.key_len * self.n_heads,
-            bias=False,
-            device=device,
-            dtype=dtype,
-        )
-        self.to_k = nn.Linear(
-            self.in_len,
-            self.key_len * self.n_heads,
-            bias=False,
-            device=device,
-            dtype=dtype,
-        )
-        self.to_v = nn.Linear(
-            self.in_len,
-            self.value_len * self.n_heads,
-            bias=False,
-            device=device,
-            dtype=dtype,
-        )
-        self.to_out = nn.Linear(
-            self.value_len * self.n_heads, self.in_len, device=device, dtype=dtype
-        )
+        self.to_q = nn.Linear(self.in_len, self.key_len * self.n_heads, bias=False)
+        self.to_k = nn.Linear(self.in_len, self.key_len * self.n_heads, bias=False)
+        self.to_v = nn.Linear(self.in_len, self.value_len * self.n_heads, bias=False)
+        self.to_out = nn.Linear(self.value_len * self.n_heads, self.in_len)
 
         # relative positional encoding
         self.positional_embed = get_central_mask
         self.to_pos_k = nn.Linear(
-            self.n_pos_features,
-            self.key_len * self.n_heads,
-            bias=False,
-            device=device,
-            dtype=dtype,
+            self.n_pos_features, self.key_len * self.n_heads, bias=False
         )
         self.rel_content_bias = nn.Parameter(
-            torch.randn(1, self.n_heads, 1, self.key_len, device=device, dtype=dtype)
+            torch.randn(1, self.n_heads, 1, self.key_len)
         )
-        self.rel_pos_bias = nn.Parameter(
-            torch.randn(1, self.n_heads, 1, self.key_len, device=device, dtype=dtype)
-        )
+        self.rel_pos_bias = nn.Parameter(torch.randn(1, self.n_heads, 1, self.key_len))
 
         # dropouts
         self.pos_dropout = nn.Dropout(pos_dropout)

@@ -1,7 +1,6 @@
 """
 Custom loss functions
 """
-
 import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
@@ -45,8 +44,6 @@ class PoissonMultinomialLoss(nn.Module):
             Loss value
         """
         seq_len = target.shape[-1]
-        input = input.to(torch.float32)
-        target = target.to(torch.float32)
 
         if self.log_input:
             input = torch.exp(input)

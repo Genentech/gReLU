@@ -253,17 +253,6 @@ def test_borzoi():
     assert pred.shape == (1, 5, 1)
 
 
-def test_borzoi_half_precision():
-
-    model = BorzoiModel(
-        n_tasks=5, crop_len=5, n_transformers=1, n_conv=4, dtype=torch.float16
-    ).eval()
-
-    pred = model.embedding(inputs.half())
-    assert pred.shape == (1, 1920, 22)
-    assert pred.dtype == torch.float16
-
-
 def test_pretrained_borzoi():
     # Build the model
     model = BorzoiPretrainedModel(
