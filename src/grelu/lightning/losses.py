@@ -48,11 +48,11 @@ class PoissonMultinomialLoss(nn.Module):
         if self.log_input:
             input = torch.exp(input)
         else:
-            input += self.epsilon
+            input += self.eps
 
         # Assuming count predictions
-        total_target = target.sum(axis=-1)
-        total_input = input.sum(axis=-1)
+        total_target = target.sum(axis=-1, keepdim=True)
+        total_input = input.sum(axis=-1, keepdim=True)
 
         # total count poisson loss, mean across targets
         poisson_term = F.poisson_nll_loss(
@@ -66,7 +66,7 @@ class PoissonMultinomialLoss(nn.Module):
 
         # multinomial loss
         multinomial_dot = -torch.multiply(target, log_p_input)  # B x T x L
-        multinomial_term = multinomial_dot.mean(axis=-1)  # B x T
+        multinomial_term = multinomial_dot.mean(axis=-1, keepdim=True)  # B x T
 
         # Combine
         loss = multinomial_term + self.total_weight * poisson_term
