@@ -111,6 +111,8 @@ class ConvBlock(nn.Module):
         pool_size: Optional[str] = None,
         dropout: float = 0.0,
         norm: bool = True,
+        norm_type='batch',
+        norm_kwargs=None,
         residual: bool = False,
         order: str = "CDNRA",
         bias: bool = True,
@@ -130,16 +132,17 @@ class ConvBlock(nn.Module):
             "R",
         ], "The string supplied in order must contain one occurrence each of A, C, D, N and R."
         self.order = order
+        norm_kwargs = norm_kwargs or dict()
 
-        # Create batch norm
+        # Create norm
         if norm:
             if self.order.index("N") > self.order.index("C"):
                 self.norm = Norm(
-                    "batch", in_dim=out_channels, dtype=dtype, device=device
+                    norm_type, in_dim=out_channels, dtype=dtype, device=device, **norm_kwargs
                 )
             else:
                 self.norm = Norm(
-                    "batch", in_dim=in_channels, dtype=dtype, device=device
+                    norm_type, in_dim=in_channels, dtype=dtype, device=device, **norm_kwargs
                 )
         else:
             self.norm = Norm(None)
@@ -225,6 +228,8 @@ class ChannelTransformBlock(nn.Module):
         act_func: str = "relu",
         dropout: float = 0.0,
         order: str = "CDNA",
+        norm_type='batch',
+        norm_kwargs=None,
         if_equal: bool = False,
         dtype=None,
         device=None,
@@ -239,16 +244,17 @@ class ChannelTransformBlock(nn.Module):
             "N",
         ], "The string supplied in order must contain one occurrence each of A, C, D and N."
         self.order = order
+        norm_kwargs = norm_kwargs or dict()
 
         # Create batch norm
         if norm:
             if self.order.index("N") > self.order.index("C"):
                 self.norm = Norm(
-                    "batch", in_dim=out_channels, dtype=dtype, device=device
+                    norm_type, in_dim=out_channels, dtype=dtype, device=device, **norm_kwargs
                 )
             else:
                 self.norm = Norm(
-                    "batch", in_dim=in_channels, dtype=dtype, device=device
+                    "batch", in_dim=in_channels, dtype=dtype, device=device, **norm_kwargs
                 )
         else:
             self.norm = Norm(None)
@@ -779,6 +785,8 @@ class UnetBlock(nn.Module):
         self,
         in_channels: int,
         y_in_channels: int,
+        norm_type='batch',
+        norm_kwargs=None,
         dtype=None,
         device=None,
     ) -> None:
@@ -790,6 +798,8 @@ class UnetBlock(nn.Module):
             norm=True,
             act_func="gelu",
             order="NACDR",
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
             dtype=dtype,
             device=device,
         )
@@ -798,6 +808,8 @@ class UnetBlock(nn.Module):
             y_in_channels,
             in_channels,
             norm=True,
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
             act_func="gelu",
             order="NACD",
             if_equal=True,

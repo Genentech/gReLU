@@ -30,6 +30,8 @@ class BorzoiConvTower(nn.Module):
         out_channels: int,
         kernel_size: int,
         n_blocks: int,
+        norm_type='batch',
+        norm_kwargs=None,
         dtype=None,
         device=None,
     ) -> None:
@@ -63,6 +65,8 @@ class BorzoiConvTower(nn.Module):
                     out_channels=self.filters[i],
                     kernel_size=kernel_size,
                     norm=True,
+                    norm_type=norm_type,
+                    norm_kwargs=norm_kwargs,
                     act_func="gelu",
                     order="NACDR",
                     pool_func="max",
@@ -116,6 +120,8 @@ class BorzoiTrunk(nn.Module):
         n_pos_features: int,
         # Crop
         crop_len: int,
+        norm_type='batch',
+        norm_kwargs=None,
         dtype=None,
         device=None,
     ) -> None:
@@ -128,6 +134,8 @@ class BorzoiTrunk(nn.Module):
             out_channels=channels,
             kernel_size=kernel_size,
             n_blocks=n_conv,
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
             dtype=dtype,
             device=device,
         )
@@ -147,6 +155,8 @@ class BorzoiTrunk(nn.Module):
             n_blocks=2,
             in_channels=channels,
             y_in_channels=[channels, self.conv_tower.filters[-2]],
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
             dtype=dtype,
             device=device,
         )
@@ -157,6 +167,8 @@ class BorzoiTrunk(nn.Module):
             act_func="gelu",
             dropout=0.1,
             norm=True,
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
             order="NACDR",
             device=device,
             dtype=dtype,

@@ -166,10 +166,24 @@ class Norm(nn.Module):
                 raise ValueError("Number of input features must be provided.")
             self.layer = nn.BatchNorm1d(in_dim, **kwargs)
 
+        elif func == "syncbatch":
+            if in_dim is None:
+                raise ValueError("Number of input features must be provided.")
+            self.layer = nn.SyncBatchNorm(in_dim, **kwargs)
+
         elif func == "layer":
             if in_dim is None:
                 raise ValueError("Number of input features must be provided.")
             self.layer = nn.LayerNorm(in_dim, **kwargs)
+
+        elif func == "instance":
+            if in_dim is None:
+                raise ValueError("Number of input features must be provided.")
+            # overwrite the defaults to make them consistant with batch norm
+            kwargs = kwargs.copy()
+            kwargs['affine'] = kwargs.get('affine', True)
+            kwargs['track_running_stats'] = kwargs.get('track_running_stats', True)
+            self.layer = nn.InstanceNorm1d(in_dim, **kwargs)
 
         elif func is None:
             self.layer = nn.Identity()
