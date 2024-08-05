@@ -7,9 +7,11 @@ or sequence-label pairs of shape (4, L) and (T, L).
 import os
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
+import h5py
 import numpy as np
 import pandas as pd
 import scipy
+import tqdm
 from einops import rearrange
 from torch import Tensor
 from torch.utils.data import Dataset
@@ -1011,3 +1013,91 @@ class MotifScanDataset(Dataset):
 
             # One-hot encode
             return indices_to_one_hot(seq)
+
+
+class HDF5Dataset(DFSeqDataset):
+    def __init__(
+        self,
+        seqs: pd.DataFrame,
+        labels: np.ndarray,
+        genome: str,
+        file: str,
+        threads: int = 1,
+        compression: int = 1,
+        chunk_size: int = 1000,
+        tasks: Optional[Union[Sequence, pd.DataFrame]] = None,
+        seq_len: Optional[int] = None,
+        end: str = "both",
+        rc: bool = False,
+        max_seq_shift: int = 0,
+        seed: Optional[int] = None,
+        augment_mode: str = "serial",
+    ):
+        super().__init__(
+            seqs=seqs,
+            labels=labels,
+            genome=genome,
+            tasks=tasks,
+            seq_len=seq_len,
+            end=end,
+            rc=rc,
+            max_seq_shift=max_seq_shift,
+            seed=seed,
+            augment_mode=augment_mode,
+        )
+        self.file = file
+        self.threads = threads
+        self.compression = compression
+        self.chunk_size = chunk_size
+
+        self.open()
+        self.write()
+
+        def _load_seqs(
+            self, seqs: Union[str, Sequence, pd.DataFrame, np.ndarray]
+        ) -> None:
+            seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
+            self.intervals = seqs
+            self.chroms = list(set(self.intervals.chrom))
+
+        def write(self):
+            with h5py.File(self.file, "w") as f:
+                f.create_dataset(
+                    "sequences",
+                    shape=self.seqs.shape,
+                    dtype=np.int8,
+                    chunks=(self.chunk_size, self.padded_seq_len),
+                    compression="gzip",
+                    compression_opts=self.compression,
+                )
+                f.create_dataset(
+                    "labels",
+                    shape=self.labels.shape,
+                    dtype=np.float32,
+                    chunks=(
+                        self.chunk_size,
+                        self.n_tasks,
+                        1,
+                    ),
+                    compression="gzip",
+                    compression_opts=self.compression,
+                )
+
+                for i in tqdm.tqdm(range(0, self.n_seqs, self.chunk_size)):
+                    chunk_start = i
+                    chunk_end = min(i + self.chunk_size, self.n_seqs)
+                    chunk_seqs = convert_input_type(
+                        self.seqs[chunk_start:chunk_end], "indices", genome=self.genome
+                    )
+                    f["sequences"][chunk_start:chunk_end] = chunk_seqs
+                    f["labels"][chunk_start:chunk_end] = self.labels[
+                        chunk_start:chunk_end
+                    ]
+
+        def open(self):
+            self.dataset = h5py.File(self.h5_file, "r")
+            self.seqs = self.dataset["sequences"]
+            self.labels = self.dataset["labels"]
+
+        def close(self):
+            self.dataset.close()
