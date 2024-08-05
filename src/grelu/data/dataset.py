@@ -1056,15 +1056,14 @@ class HDF5Dataset(DFSeqDataset):
         def _load_seqs(
             self, seqs: Union[str, Sequence, pd.DataFrame, np.ndarray]
         ) -> None:
-            seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
-            self.intervals = seqs
+            self.intervals = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
             self.chroms = list(set(self.intervals.chrom))
 
         def write(self):
             with h5py.File(self.file, "w") as f:
                 f.create_dataset(
                     "sequences",
-                    shape=self.seqs.shape,
+                    shape=(self.n_seqs, self.padded_seq_len),
                     dtype=np.int8,
                     chunks=(self.chunk_size, self.padded_seq_len),
                     compression="gzip",
@@ -1087,7 +1086,7 @@ class HDF5Dataset(DFSeqDataset):
                     chunk_start = i
                     chunk_end = min(i + self.chunk_size, self.n_seqs)
                     chunk_seqs = convert_input_type(
-                        self.seqs[chunk_start:chunk_end], "indices", genome=self.genome
+                        self.intervals.iloc[chunk_start:chunk_end], "indices", genome=self.genome
                     )
                     f["sequences"][chunk_start:chunk_end] = chunk_seqs
                     f["labels"][chunk_start:chunk_end] = self.labels[
