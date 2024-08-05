@@ -1,6 +1,7 @@
 """
 Functions to generate positional encodings.
 """
+
 import math
 
 import numpy as np

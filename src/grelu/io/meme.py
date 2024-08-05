@@ -1,6 +1,7 @@
 """
 Functions related to reading and writing MEME files
 """
+
 import os
 from typing import List, Optional
 

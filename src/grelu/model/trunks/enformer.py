@@ -1,6 +1,7 @@
 """
 The Enformer model architecture and its required classes
 """
+
 import torch
 from einops import rearrange
 from enformer_pytorch.modeling_enformer import Attention, exponential_linspace_int

@@ -3,6 +3,7 @@ Classes that perform transformations on labels
 
 The input to the forward method is assumed to be a numpy array of shape (N, T, L)
 """
+
 from typing import Callable, Optional, Union
 
 import numpy as np
