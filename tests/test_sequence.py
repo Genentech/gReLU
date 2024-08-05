@@ -125,6 +125,9 @@ def test_seq_formatting():
 
     # indices to one-hot
     assert torch.allclose(convert_input_type(indices, "one_hot"), batch)
+    assert torch.allclose(
+        convert_input_type(indices[0], "one_hot", add_batch_axis=True), batch[[0]]
+    )
 
 
 # Test Metrics functions
