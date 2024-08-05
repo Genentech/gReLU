@@ -1,6 +1,7 @@
 """
 Functions related to reading and writing FASTA files
 """
+
 import gzip
 import os
 from typing import List

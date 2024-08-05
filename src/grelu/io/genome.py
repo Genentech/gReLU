@@ -1,6 +1,7 @@
 """
 Functions for loading genomes and related annotation files
 """
+
 import os
 from typing import List, Optional, Union
 
