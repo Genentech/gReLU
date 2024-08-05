@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 from matplotlib.patches import Rectangle
 
 from grelu.utils import make_list
-
+from grelu.interpret.motifs import calculate_ism_weight 
 
 def _collect_preds_and_labels(
     preds: Union[np.ndarray, pd.DataFrame],
@@ -738,3 +738,67 @@ def plot_attention_matrix(
     ax.set_ylabel("Attended by")
     ax.set_xlabel("Attended to")
     return fig
+
+
+def _moving_average(a: Union[List[float], np.ndarray, pd.Series], n: int = 10) -> np.ndarray:
+    """
+    Calculate the moving average of an array.
+    
+    Args:
+    a (Union[List[float], np.ndarray, pd.Series]): Input array
+    n (int): Window size for moving average (default: 10)
+    
+    Returns:
+    np.ndarray: Moving average of the input array
+    """
+    if isinstance(a, pd.Series):
+        a = a.values
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / n
+
+def plot_motifs_on_ism(ism: np.ndarray, scan: pd.DataFrame, thresh: float = 0.3, 
+                       pval_thresh: float = 5e-6, rolling_buffer: int = 10) -> None:
+    """
+    Plot motifs on ISM (In Silico Mutagenesis) data.
+    
+    Args:
+    ism (np.ndarray): The ISM array
+    scan (pd.DataFrame): The motif scan DataFrame
+    thresh (float): Threshold for ISM weight (default: 0.3)
+    pval_thresh (float): Threshold for p-value (default: 5e-6)
+    rolling_buffer (int): Size of the rolling buffer for moving average (default: 10)
+    """
+    max_ism = np.abs(ism).max(axis=0)
+    
+    # Calculate motif center and ISM weight
+    scan['motif_center'] = scan.apply(lambda row: min(row['end'], row['start']) + abs(row['end'] - row['start']) // 2, axis=1)
+    if 'ism_weight' not in scan.columns:
+        scan['ism_weight'] = scan.apply(calculate_ism_weight, ism=ism, axis=1)
+    
+    # Filter and prepare data for plotting
+    plot_data = scan[
+        (scan['ism_weight'] > thresh) & 
+        (scan['pval'] <= pval_thresh)
+    ].drop_duplicates(subset=['motif', 'motif_center'])
+    plot_data = plot_data.sort_values(by='pval', ascending=True).head(15)
+    
+    # Calculate rolling average
+    rolling_max_ism = _moving_average(max_ism, n=rolling_buffer)
+    
+    # Create plot
+    plt.figure(figsize=(10, 4), dpi=200)
+    sns.scatterplot(data=plot_data, x='motif_center', y='ism_weight', hue='motif', 
+                         palette='tab20', s=40, alpha=0.8)
+    sns.lineplot(x=range(len(max_ism)), y=max_ism, alpha=0.4, color='grey', linestyle='dashed')
+    sns.lineplot(x=np.arange(len(rolling_max_ism)) + rolling_buffer//2, y=rolling_max_ism)
+    
+    # Set plot parameters
+    plt.xlim(0, len(max_ism))
+    plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', title='Motif Family')
+    plt.tight_layout()
+    plt.xlabel('Sequence Position')
+    plt.ylabel('ISM Weight')
+    plt.show()
+
+

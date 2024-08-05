@@ -317,3 +317,19 @@ def compare_motifs(
     scan["foldChange"] = scan.alt / scan.ref
     scan = scan.sort_values("foldChange").reset_index(drop=True)
     return scan
+
+
+def calculate_ism_weight(row: pd.Series, ism: np.ndarray) -> float:
+    """
+    Calculate the ISM weight for a given row.
+
+    Args:
+    row (pd.Series): A row from the scan DataFrame
+    ism (np.ndarray): The ISM array
+
+    Returns:
+    float: The calculated ISM weight
+    """
+    max_ism = np.abs(ism).max(axis=0)
+    start, end = min(row["start"], row["end"]), max(row["start"], row["end"])
+    return max_ism[start:end].mean()
