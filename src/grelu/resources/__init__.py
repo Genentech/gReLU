@@ -86,7 +86,7 @@ def projects(host: str=DEFAULT_WANDB_HOST) -> List[str]:
     """
     _check_wandb(host=host)
     
-    api = wandb.Api()
+    api = wandb.Api(overrides={'base_url':host})
     projects = api.projects(DEFAULT_WANDB_ENTITY)
     return [p.name for p in projects]
 
@@ -107,7 +107,7 @@ def artifacts(project: str, host: str=DEFAULT_WANDB_HOST, type_is: Optional[str]
     _check_wandb(host)
     project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
     
-    api = wandb.Api()
+    api = wandb.Api(overrides={'base_url':host})
     if type_is is not None:
         types = [x.name for x in api.artifact_types(project_path) if type_is == x.name]
     elif type_contains is not None:
@@ -166,7 +166,7 @@ def runs(project:str, host:str=DEFAULT_WANDB_HOST, field:str='id', filters: Opti
     _check_wandb(host=host)
     project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
     
-    api = wandb.Api()
+    api = wandb.Api(overrides={'base_url':host})
     return [getattr(run, field) for run in api.runs(project_path, filters=filters)]
 
 
@@ -186,7 +186,7 @@ def get_artifact(name:str, project:str, host:str=DEFAULT_WANDB_HOST, alias:str='
     _check_wandb(host=host)
     project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
     
-    api = wandb.Api()    
+    api = wandb.Api(overrides={'base_url':host})    
     return api.artifact(f'{project_path}/{name}:{alias}')
 
 

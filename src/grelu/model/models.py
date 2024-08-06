@@ -646,7 +646,7 @@ class EnformerModel(BaseModel):
 
 class EnformerPretrainedModel(BaseModel):
     """
-    Borzoi model with published weights (ported from Keras).
+    Enformer model with published weights (ported from Keras).
     """
 
     def __init__(
