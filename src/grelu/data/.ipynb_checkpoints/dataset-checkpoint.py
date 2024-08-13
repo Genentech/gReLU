@@ -1165,7 +1165,7 @@ class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
         self.intervals = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
         self.chroms = list(set(self.intervals.chrom))
 
-    def _load_labels(self,bw_files) -> None:
+    def _load_labels(self, bw_files) -> None:
         """
         Load the labels from the provided bigWig files in chunks and write them to the HDF5 file.
         Each bigWig file corresponds to a dataset in the HDF5 file. Overwrites superclass method
@@ -1174,19 +1174,19 @@ class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
         intervals = resize(
             self.intervals, self.padded_label_len, input_type="intervals"
         )
-        print('writing labels')
+        print("writing labels")
         # Create the labels dataset in the HDF5 file
         if self.writing:
             with h5py.File(self.file, "a") as f:
                 f.create_dataset(
                     "labels",
-                    shape=(self.n_seqs,len(bw_files),self.padded_label_len),
+                    shape=(self.n_seqs, len(bw_files), self.padded_label_len),
                     dtype=np.float32,
-                    chunks=(self.chunk_size,len(bw_files),self.padded_label_len),
+                    chunks=(self.chunk_size, len(bw_files), self.padded_label_len),
                     compression="gzip",
                     compression_opts=self.compression,
                 )
-                for j,bw_file in tqdm(enumerate(bw_files)):
+                for j, bw_file in tqdm(enumerate(bw_files)):
                     task_name = os.path.splitext(os.path.basename(bw_file))[0]
                     with pyBigWig.open(bw_file) as wig:
                         bigwig_array = []
@@ -1195,8 +1195,7 @@ class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
                             bigwig_values = wig.values(chrom, start, end)
                             bigwig_array.append(bigwig_values)
                         bigwig_array = np.array(bigwig_array)
-                        f['labels'][:,j, :] = bigwig_array
-
+                        f["labels"][:, j, :] = bigwig_array
 
     def write(self):
         with h5py.File(self.file, "a") as f:
