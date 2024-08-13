@@ -1086,7 +1086,9 @@ class HDF5Dataset(DFSeqDataset):
                     chunk_start = i
                     chunk_end = min(i + self.chunk_size, self.n_seqs)
                     chunk_seqs = convert_input_type(
-                        self.intervals.iloc[chunk_start:chunk_end], "indices", genome=self.genome
+                        self.intervals.iloc[chunk_start:chunk_end],
+                        "indices",
+                        genome=self.genome,
                     )
                     f["sequences"][chunk_start:chunk_end] = chunk_seqs
                     f["labels"][chunk_start:chunk_end] = self.labels[
@@ -1100,6 +1102,7 @@ class HDF5Dataset(DFSeqDataset):
 
         def close(self):
             self.dataset.close()
+
 
 class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
     def __init__(
@@ -1120,14 +1123,16 @@ class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
         max_seq_shift: int = 0,
         seed: Optional[int] = None,
         augment_mode: str = "serial",
-        stomp: bool = False
+        stomp: bool = False,
     ):
         self.seqs = intervals
         self.file = file
         self.threads = threads
         self.compression = compression
         self.chunk_size = chunk_size
-        self.tasks = tasks or [os.path.splitext(os.path.basename(f))[0] for f in bw_files]
+        self.tasks = tasks or [
+            os.path.splitext(os.path.basename(f))[0] for f in bw_files
+        ]
         self.n_seqs = intervals.shape[0]
         self.bw_files = bw_files  # Ensure bw_files are stored
         self.writing = True
@@ -1137,7 +1142,7 @@ class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
             else:
                 self.open()
             self.writing = False if not stomp else True
-        
+
         super().__init__(
             seqs=intervals,
             labels=bw_files,  # Labels will be handled differently
@@ -1154,13 +1159,13 @@ class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
         )
         if self.writing:
             self.write()  # Write the data first
-            self.open()   # Then open the file to read the data
+            self.open()  # Then open the file to read the data
 
     def _load_seqs(self, seqs: Union[str, Sequence, pd.DataFrame, np.ndarray]) -> None:
         self.intervals = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
         self.chroms = list(set(self.intervals.chrom))
 
-    def _load_labels(self,bw_files) -> None:
+    def _load_labels(self, bw_files) -> None:
         """
         Load the labels from the provided bigWig files in chunks and write them to the HDF5 file.
         Each bigWig file corresponds to a dataset in the HDF5 file. Overwrites superclass method
@@ -1169,25 +1174,25 @@ class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
         intervals = resize(
             self.intervals, self.padded_label_len, input_type="intervals"
         )
-        print('writing labels')
+        print("writing labels")
         # Create the labels dataset in the HDF5 file
         if self.writing:
             with h5py.File(self.file, "a") as f:
                 f.create_dataset(
                     "labels",
-                    shape=(self.n_seqs,len(bw_files),self.padded_label_len),
+                    shape=(self.n_seqs, len(bw_files), self.padded_label_len),
                     dtype=np.float32,
-                    chunks=(self.chunk_size,len(bw_files),self.padded_label_len),
+                    chunks=(self.chunk_size, len(bw_files), self.padded_label_len),
                     compression="gzip",
                     compression_opts=self.compression,
                 )
-                for j,bw_file in tqdm(enumerate(bw_files)):
+                for j, bw_file in tqdm(enumerate(bw_files)):
                     task_name = os.path.splitext(os.path.basename(bw_file))[0]
                     with pyBigWig.open(bw_file) as wig:
                         for i, region in enumerate(intervals.itertuples()):
                             chrom, start, end = region.chrom, region.start, region.end
                             bigwig_values = wig.values(chrom, start, end)
-                            f['labels'][i,j, :] = bigwig_values
+                            f["labels"][i, j, :] = bigwig_values
 
     def write(self):
         with h5py.File(self.file, "a") as f:
@@ -1199,13 +1204,13 @@ class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
                 compression="gzip",
                 compression_opts=self.compression,
             )
-            
-            print('writing sequences')
+
+            print("writing sequences")
             converted = convert_input_type(
-                    self.intervals, "indices", genome=self.genome
-                )
+                self.intervals, "indices", genome=self.genome
+            )
             for i in tqdm(range(converted.shape[0])):
-                f['sequences'][i,:] = converted[i,:]
+                f["sequences"][i, :] = converted[i, :]
 
     def open(self):
         self.dataset = h5py.File(self.file, "r")
