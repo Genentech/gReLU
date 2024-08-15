@@ -1124,14 +1124,16 @@ class HDF5BigWigDataset(LabeledSeqDataset):
         max_seq_shift: int = 0,
         seed: Optional[int] = None,
         augment_mode: str = "serial",
-        stomp: bool = False
+        stomp: bool = False,
     ):
         self.seqs = intervals
         self.file = file
         self.threads = threads
         self.compression = compression
         self.chunk_size = chunk_size
-        self.tasks = tasks or [os.path.splitext(os.path.basename(f))[0] for f in bw_files]
+        self.tasks = tasks or [
+            os.path.splitext(os.path.basename(f))[0] for f in bw_files
+        ]
         self.n_seqs = intervals.shape[0]
         self.bw_files = bw_files  # Ensure bw_files are stored
         self.writing = True
@@ -1141,7 +1143,7 @@ class HDF5BigWigDataset(LabeledSeqDataset):
             else:
                 self.open()
             self.writing = False if not stomp else True
-        
+
         super().__init__(
             seqs=intervals,
             labels=bw_files,  # Labels will be handled differently
@@ -1159,7 +1161,7 @@ class HDF5BigWigDataset(LabeledSeqDataset):
         )
         if self.writing:
             self.write()  # Write the data first
-            self.open()   # Then open the file to read the data
+            self.open()  # Then open the file to read the data
 
     def _load_seqs(self, seqs: Union[str, Sequence, pd.DataFrame, np.ndarray]) -> None:
         self.intervals = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
@@ -1174,7 +1176,7 @@ class HDF5BigWigDataset(LabeledSeqDataset):
         intervals = resize(
             self.intervals, self.padded_label_len, input_type="intervals"
         )
-        print('writing labels')
+        print("writing labels")
 
         # Create the labels dataset in the HDF5 file
         if self.writing:
@@ -1188,23 +1190,29 @@ class HDF5BigWigDataset(LabeledSeqDataset):
                     compression_opts=self.compression,
                 )
 
-                for i in tqdm(range(0, self.n_seqs, self.chunk_size*20)):
+                for i in tqdm(range(0, self.n_seqs, self.chunk_size * 20)):
                     chunk_start = i
-                    chunk_end = min(i + self.chunk_size*20, self.n_seqs)
-                    bigwig_chunk = np.zeros((chunk_end - chunk_start, len(bw_files), self.padded_label_len))
+                    chunk_end = min(i + self.chunk_size * 20, self.n_seqs)
+                    bigwig_chunk = np.zeros(
+                        (chunk_end - chunk_start, len(bw_files), self.padded_label_len)
+                    )
 
                     for j, bw_file in enumerate(bw_files):
                         with pyBigWig.open(bw_file) as wig:
-                            for k, region in enumerate(intervals.itertuples(index=False, name=None)):
+                            for k, region in enumerate(
+                                intervals.itertuples(index=False, name=None)
+                            ):
                                 if chunk_start <= k < chunk_end:
                                     try:
                                         chrom, start, end = region
                                         bigwig_values = wig.values(chrom, start, end)
-                                        bigwig_chunk[k - chunk_start, j, :] = bigwig_values
+                                        bigwig_chunk[
+                                            k - chunk_start, j, :
+                                        ] = bigwig_values
                                     except:
                                         bigwig_chunk[k - chunk_start, j, :] = 0
-                                        print(chrom,start,end)
-                    f['labels'][chunk_start:chunk_end] = np.nan_to_num(bigwig_chunk)
+                                        print(chrom, start, end)
+                    f["labels"][chunk_start:chunk_end] = np.nan_to_num(bigwig_chunk)
 
     def write(self):
         with h5py.File(self.file, "a") as f:
@@ -1217,15 +1225,17 @@ class HDF5BigWigDataset(LabeledSeqDataset):
                 compression_opts=self.compression,
             )
 
-            print('writing sequences')
+            print("writing sequences")
             for i in tqdm(range(0, self.n_seqs, self.chunk_size)):
                 chunk_start = i
                 chunk_end = min(i + self.chunk_size, self.n_seqs)
                 converted = convert_input_type(
-                    self.intervals.iloc[chunk_start:chunk_end, :], "indices", genome=self.genome
+                    self.intervals.iloc[chunk_start:chunk_end, :],
+                    "indices",
+                    genome=self.genome,
                 )
-                f['sequences'][chunk_start:chunk_end, :] = converted
-    
+                f["sequences"][chunk_start:chunk_end, :] = converted
+
     def open(self):
         self.dataset = h5py.File(self.file, "r")
         self.seqs = self.dataset["sequences"]
