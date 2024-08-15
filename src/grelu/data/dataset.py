@@ -1104,7 +1104,7 @@ class HDF5Dataset(DFSeqDataset):
             self.dataset.close()
 
 
-class HDF5BigWigDataset(grelu.data.dataset.LabeledSeqDataset):
+class HDF5BigWigDataset(LabeledSeqDataset):
     def __init__(
         self,
         intervals: pd.DataFrame,
