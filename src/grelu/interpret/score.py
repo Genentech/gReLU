@@ -14,6 +14,7 @@ from torch import Tensor
 
 from grelu.model.models import EnformerModel, EnformerPretrainedModel
 from grelu.sequence.format import convert_input_type
+from grelu.utils import get_aggfunc
 
 
 def ISM_predict(
@@ -23,7 +24,7 @@ def ISM_predict(
     prediction_transform: Optional[Callable] = None,
     start_pos: int = 0,
     end_pos: Optional[int] = None,
-    compare_func: Optional[Union[str, Callable]] = None,
+    compare_func: Optional[Union[str, Callable]] = "log2FC",
     devices: Union[str, List[int]] = "cpu",
     num_workers: int = 1,
     batch_size: int = 64,
@@ -111,6 +112,33 @@ def ISM_predict(
     # Remove transform
     model.reset_transform()
     return preds
+
+
+def ISM_to_attr(ism, base_aggfunc="mean") -> np.array:
+    """
+    Args:
+        ism: Direct output from the `ISM_predict` function. Either a dataframe of shape 4, L
+            or a numpy array of shape B, L, 4. It is assumed that the input is log2FCs with respect to
+            the reference sequence. Use `compare_func==log2FC` in `ISM_predict`.
+        base_aggfunc: Function to aggregate the ISM value for each of the four bases at a position.
+
+    Returns:
+        A numpy array of shape B, 4, L
+    """
+    # Format input
+    if isinstance(ism, pd.DataFrame):
+        ism = np.expand_dims(ism.values, 0)  # 1, 4, L
+
+    else:
+        ism = ism.swapaxes(1, 2)  # B, 4, L
+
+    # Aggregate over 4 bases
+    attrs = get_aggfunc(base_aggfunc)(-ism, axis=1, keepdims=True)  # B, 1, L
+
+    # Score the positions corresponding to the sequence in the one-hot encoded array
+    attrs = np.multiply(attrs, ism == 0)  # B, 4, L
+
+    return attrs.astype(np.float32)
 
 
 def get_attributions(
@@ -302,13 +330,10 @@ def run_modisco(
         model.reset_transform()
 
         # Get the negative log ratio
-        attrs = -np.log2(np.divide(ism_preds, ref_preds))  # B, l, 3
+        ism = -np.log2(np.divide(ism_preds, ref_preds))  # B, l, 3
 
-        # Mean over all possible mutations
-        attrs = np.expand_dims(attrs.mean(-1), 1)  # B, 1, l
-
-        # Multiply by original sequence
-        attrs = np.multiply(attrs, one_hot_arr)  # B, 4, l
+        # Get the attributions
+        attrs = ISM_to_attr(ism, base_aggfunc="mean")
 
     else:
         raise NotImplementedError

@@ -17,6 +17,14 @@ def torch_minval(x: Tensor, **kwargs) -> Tensor:
     return torch.min(x, **kwargs)[0]
 
 
+def torch_absmax(x: Tensor, **kwargs) -> Tensor:
+    return torch.max(torch.abs(x), **kwargs)
+
+
+def np_absmax(x: np.ndarray, **kwargs) -> np.ndarray:
+    return np.max(np.abs(x), **kwargs)
+
+
 def torch_log2fc(x: Tensor, y: Tensor) -> Tensor:
     return torch.log2(torch.divide(x, y))
 
@@ -31,7 +39,7 @@ def get_aggfunc(func: Optional[Union[str, Callable]], tensor: bool = False) -> C
 
     Args:
         func: A function or the name of a function. Supported names
-            are "max", "min", "mean", and "sum". If a function is supplied, it
+            are "max", "absmax", "min", "mean", and "sum". If a function is supplied, it
             will be returned unchanged.
         tensor: If True, it is assumed that the inputs will be torch tensors.
             If False, it is assumed that the inputs will be numpy arrays.
@@ -55,6 +63,8 @@ def get_aggfunc(func: Optional[Union[str, Callable]], tensor: bool = False) -> C
         return torch.mean if tensor else np.mean
     elif func == "sum":
         return torch.sum if tensor else np.sum
+    elif func == "absmax":
+        return torch_absmax if tensor else np_absmax
     else:
         raise NotImplementedError
 
