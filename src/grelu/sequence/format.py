@@ -259,12 +259,15 @@ def strings_to_indices(
         )
 
 
-def indices_to_one_hot(indices: np.ndarray) -> Tensor:
+def indices_to_one_hot(indices: np.ndarray, add_batch_axis: bool = False) -> Tensor:
     """
     Convert integer-encoded DNA sequences to one-hot encoded format.
 
     Args:
         indices: Integer-encoded DNA sequences.
+        add_batch_axis: If True, a batch axis will be included in the output for single
+            sequences. If False, the output for a single sequence will be a 2-dimensional
+            tensor.
 
     Returns:
         The one-hot encoded sequences.
@@ -274,9 +277,12 @@ def indices_to_one_hot(indices: np.ndarray) -> Tensor:
 
     # Convert a single sequence
     if indices.ndim == 1:
-        return one_hot(torch.LongTensor(indices.copy()), num_classes=5)[:, :4].T.type(
+        one_hot = one_hot(torch.LongTensor(indices.copy()), num_classes=5)[
+            :, :4
+        ].T.type(
             torch.float32
         )  # Output shape: 4, L
+        return one_hot.unsqueeze(0) if add_batch_axis else one_hot
 
     # Convert multiple sequences
     else:
@@ -370,6 +376,7 @@ def convert_input_type(
     output_type: str = "indices",
     genome: Optional[str] = None,
     add_batch_axis: bool = False,
+    input_type: Optional[str] = None,
 ) -> Union[pd.DataFrame, str, List[str], np.ndarray, Tensor]:
     """
     Convert input DNA sequence data into the desired format.
@@ -381,6 +388,7 @@ def convert_input_type(
         add_batch_axis: If True, a batch axis will be included in the output for single
             sequences. If False, the output for a single sequence will be a 2-dimensional
             tensor.
+        input_type: Format of the input sequence (optional)
 
     Returns:
         The converted DNA sequence(s) in the desired format.
@@ -390,7 +398,7 @@ def convert_input_type(
 
     """
     # Determine input type
-    input_type = get_input_type(inputs)
+    input_type = input_type or get_input_type(inputs)
 
     # If no conversion needed, return inputs as is
     if input_type == output_type:
@@ -419,7 +427,7 @@ def convert_input_type(
     # Convert indices
     if input_type == "indices":
         if output_type == "one_hot":
-            return indices_to_one_hot(inputs)
+            return indices_to_one_hot(inputs, add_batch_axis=add_batch_axis)
         elif output_type == "strings":
             return indices_to_strings(inputs)
 

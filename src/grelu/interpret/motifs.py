@@ -225,6 +225,7 @@ def marginalize_patterns(
         genome=genome,
         rc=rc,
         n_shuffles=n_shuffles,
+        seed=seed,
     )
 
     # Get predictions on the sequences before motif insertion

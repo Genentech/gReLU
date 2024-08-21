@@ -71,7 +71,7 @@ assert model.get_task_idxs("task") == 0
 
 
 def test_marginalize_patterns():
-    seqs = ["ACTGT", "GATCC"]
+    seqs = ["CATACGTGAGGC", "AGGAGGCCAAAG"]
     preds_before, preds_after = marginalize_patterns(
         model,
         patterns=["A"],
@@ -81,9 +81,14 @@ def test_marginalize_patterns():
         compare_func=None,
     )
     assert preds_before.shape == (2, 3, 1)
-    assert np.allclose(preds_before.squeeze(), [[0.4, 0.4, 0.4], [0, 0, 0]])
+    assert np.allclose(
+        preds_before.squeeze(), [[0.5, 0.5, 0.5], [1.3333334, 1.3333334, 1.3333334]]
+    )
     assert preds_after.shape == (2, 3, 1)
-    assert np.allclose(preds_after.squeeze(), [[1.2, 1.2, 1.2], [0.8, 0.8, 0.8]])
+    assert np.allclose(
+        preds_after.squeeze(),
+        [[0.5, 0.8333333, 0.8333333], [1.3333334, 1.6666666, 1.6666666]],
+    )
 
 
 def test_ISM_predict():
