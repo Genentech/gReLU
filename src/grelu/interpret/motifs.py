@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from pymemesuite.common import Motif
 
+from grelu.io.meme import read_meme_file
 from grelu.utils import make_list
 
 
@@ -136,8 +137,6 @@ def scan_sequences(
 
     from pymemesuite.common import Sequence
     from pymemesuite.fimo import FIMO
-
-    from grelu.io.meme import read_meme_file
 
     # Load motifs
     if isinstance(motifs, str):
@@ -317,3 +316,54 @@ def compare_motifs(
     scan["foldChange"] = scan.alt / scan.ref
     scan = scan.sort_values("foldChange").reset_index(drop=True)
     return scan
+
+
+def get_attr_weights(
+    sites: pd.DataFrame,
+    attr: np.ndarray,
+    method: str = "average",
+    motifs: Optional[Union[str, List[Motif]]] = None,
+) -> pd.DataFrame:
+    """
+    Calculate the absolute attribution weight for a given site.
+
+    Args:
+        sites: The dataframe produced by the `scan_sequences` function.
+        attr: A numpy array of shape (4, L).
+        method: Either "average" or "convolve"
+        motifs: A list of pymemesuite.common.Motif objects, or the
+            path to a MEME file.
+
+    Returns:
+        A modified dataframe containing column `attr`.
+    """
+    if method == "average":
+        attr_score = np.max(np.abs(attr), axis=0)  # L
+        sites["attr"] = sites.apply(
+            lambda row: attr_score[row.start : row.end].mean(), axis=1
+        )
+
+    elif method == "convolve":
+        # Load motifs
+        assert motifs is not None, "method=convolve requires motifs."
+        if isinstance(motifs, str):
+            motifs, _ = read_meme_file(motifs, names=sites.motif.unique().tolist())
+            motifs = {
+                motif.name.decode(): {
+                    "+": np.array(motif.frequencies).T,
+                    "-": np.flip(np.array(motif.frequencies).T, (0, 1)),
+                }
+                for motif in motifs
+            }
+
+        # Calculate attr x PWM product for each site
+        sites["attr"] = sites.apply(
+            lambda row: np.multiply(
+                attr[:, row.start : row.end], motifs[row.motif][row.strand]
+            ).sum(),
+            axis=1,
+        )
+
+    else:
+        raise NotImplementedError
+    return sites
