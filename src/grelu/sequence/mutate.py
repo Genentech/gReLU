@@ -1,6 +1,7 @@
 """
 Functions to mutate or alter DNA sequences in various ways.
 """
+
 from typing import List, Optional, Union
 
 import numpy as np

@@ -1,6 +1,7 @@
 """
 Functions to calculate metrics based on the content of a sequence
 """
+
 from typing import List, Optional, Union
 
 import numpy as np

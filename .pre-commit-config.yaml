@@ -2,7 +2,7 @@ exclude: '^docs/conf.py|src/grelu/resources'
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+  rev: v4.6.0
   hooks:
   - id: trailing-whitespace
   - id: check-added-large-files
@@ -36,12 +36,13 @@ repos:
 #     ]
 
 - repo: https://github.com/PyCQA/isort
-  rev: 5.12.0
+  rev: 5.13.2
   hooks:
   - id: isort
+    args: ["--profile", "black"]
 
 - repo: https://github.com/psf/black
-  rev: 23.3.0
+  rev: 24.8.0
   hooks:
   - id: black
     language_version: python3
@@ -54,7 +55,7 @@ repos:
 #     additional_dependencies: [black]
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 6.0.0
+  rev: 7.1.1
   hooks:
   - id: flake8
   ## You can add flake8 plugins via `additional_dependencies`:
