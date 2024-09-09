@@ -137,9 +137,7 @@ class EnformerTransformerBlock(nn.Module):
             pos_dropout=pos_dropout,
             num_rel_pos_features=in_len // n_heads,
             use_tf_gamma=False,
-            dtype=dtype,
-            device=device,
-        )
+        ).to(device=device, dtype=dtype)
         self.dropout = Dropout(ff_dropout)
         self.ffn = FeedForwardBlock(
             in_len=in_len,

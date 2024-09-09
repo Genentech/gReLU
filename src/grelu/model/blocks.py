@@ -86,7 +86,9 @@ class ConvBlock(nn.Module):
         pool_func: Name of the pooling function
         pool_size: Pooling width
         dropout: Dropout probability
-        norm: If True, apply batch norm
+        norm: If True, apply normalization layer
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norn_kwargs: Additional arguments to be passed to the normalization layer
         residual: If True, apply residual connection
         order: A string representing the order in which operations are
             to be performed on the input. For example, "CDNRA" means that the
@@ -111,7 +113,7 @@ class ConvBlock(nn.Module):
         pool_size: Optional[str] = None,
         dropout: float = 0.0,
         norm: bool = True,
-        norm_type='batch',
+        norm_type="batch",
         norm_kwargs=None,
         residual: bool = False,
         order: str = "CDNRA",
@@ -138,11 +140,19 @@ class ConvBlock(nn.Module):
         if norm:
             if self.order.index("N") > self.order.index("C"):
                 self.norm = Norm(
-                    norm_type, in_dim=out_channels, dtype=dtype, device=device, **norm_kwargs
+                    norm_type,
+                    in_dim=out_channels,
+                    dtype=dtype,
+                    device=device,
+                    **norm_kwargs,
                 )
             else:
                 self.norm = Norm(
-                    norm_type, in_dim=in_channels, dtype=dtype, device=device, **norm_kwargs
+                    norm_type,
+                    in_dim=in_channels,
+                    dtype=dtype,
+                    device=device,
+                    **norm_kwargs,
                 )
         else:
             self.norm = Norm(None)
@@ -212,7 +222,8 @@ class ChannelTransformBlock(nn.Module):
         out_channels: Number of channels in the output
         act_func: Name of the activation function
         dropout: Dropout probability
-        norm: If True, apply batch norm
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norn_kwargs: Additional arguments to be passed to the normalization layer
         order: A string representing the order in which operations are
             to be performed on the input. For example, "CDNA" means that the
             operations will be performed in the order: convolution, dropout,
@@ -228,7 +239,7 @@ class ChannelTransformBlock(nn.Module):
         act_func: str = "relu",
         dropout: float = 0.0,
         order: str = "CDNA",
-        norm_type='batch',
+        norm_type="batch",
         norm_kwargs=None,
         if_equal: bool = False,
         dtype=None,
@@ -250,11 +261,19 @@ class ChannelTransformBlock(nn.Module):
         if norm:
             if self.order.index("N") > self.order.index("C"):
                 self.norm = Norm(
-                    norm_type, in_dim=out_channels, dtype=dtype, device=device, **norm_kwargs
+                    norm_type,
+                    in_dim=out_channels,
+                    dtype=dtype,
+                    device=device,
+                    **norm_kwargs,
                 )
             else:
                 self.norm = Norm(
-                    "batch", in_dim=in_channels, dtype=dtype, device=device, **norm_kwargs
+                    "batch",
+                    in_dim=in_channels,
+                    dtype=dtype,
+                    device=device,
+                    **norm_kwargs,
                 )
         else:
             self.norm = Norm(None)
@@ -779,13 +798,15 @@ class UnetBlock(nn.Module):
     Args:
         in_channels: Number of channels in the input
         y_in_channels: Number of channels in the higher-resolution representation.
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norn_kwargs: Additional arguments to be passed to the normalization layer
     """
 
     def __init__(
         self,
         in_channels: int,
         y_in_channels: int,
-        norm_type='batch',
+        norm_type="batch",
         norm_kwargs=None,
         dtype=None,
         device=None,

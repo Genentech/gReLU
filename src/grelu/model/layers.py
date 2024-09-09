@@ -150,8 +150,8 @@ class Norm(nn.Module):
     A batch normalization or layer normalization layer.
 
     Args:
-        func: Type of normalization function. Supported values are 'batch' or 'layer'. If None,
-            will return nn.Identity.
+        func: Type of normalization function. Supported values are 'batch',
+            'syncbatch', 'instance',  or 'layer'. If None, will return nn.Identity.
         in_dim: Number of features in the input tensor.
         **kwargs: Additional arguments to pass to the normalization function.
     """
@@ -181,8 +181,8 @@ class Norm(nn.Module):
                 raise ValueError("Number of input features must be provided.")
             # overwrite the defaults to make them consistant with batch norm
             kwargs = kwargs.copy()
-            kwargs['affine'] = kwargs.get('affine', True)
-            kwargs['track_running_stats'] = kwargs.get('track_running_stats', True)
+            kwargs["affine"] = kwargs.get("affine", True)
+            kwargs["track_running_stats"] = kwargs.get("track_running_stats", True)
             self.layer = nn.InstanceNorm1d(in_dim, **kwargs)
 
         elif func is None:

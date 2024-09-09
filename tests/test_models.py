@@ -1,6 +1,6 @@
 import torch
-import wandb
 
+import wandb
 from grelu.model.models import (
     BorzoiModel,
     BorzoiPretrainedModel,
@@ -254,7 +254,6 @@ def test_borzoi():
 
 
 def test_borzoi_half_precision():
-
     model = BorzoiModel(
         n_tasks=5, crop_len=5, n_transformers=1, n_conv=4, dtype=torch.float16
     ).eval()

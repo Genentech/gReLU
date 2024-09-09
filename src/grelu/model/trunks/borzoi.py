@@ -20,6 +20,8 @@ class BorzoiConvTower(nn.Module):
         out_channels: Number of channels in the output
         kernel_size: Width of the convolutional kernel
         n_blocks: Number of convolutional/pooling blocks, including the stem
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norn_kwargs: Additional arguments to be passed to the normalization layer
     """
 
     def __init__(
@@ -30,7 +32,7 @@ class BorzoiConvTower(nn.Module):
         out_channels: int,
         kernel_size: int,
         n_blocks: int,
-        norm_type='batch',
+        norm_type="batch",
         norm_kwargs=None,
         dtype=None,
         device=None,
@@ -98,6 +100,24 @@ class BorzoiConvTower(nn.Module):
 class BorzoiTrunk(nn.Module):
     """
     Trunk consisting of conv, transformer and U-net layers for the Borzoi model.
+
+    Args:
+        stem_channels: Number of channels in the first (stem) convolutional layer
+        stem_kernel_size:  Width of the convolutional kernel in the first (stem) convolutional layer
+        init_channels: Number of channels in the first convolutional block after the stem
+        n_conv: Number of convolutional/pooling blocks, including the stem
+        kernel_size: Width of the convolutional kernel
+        channels: Number of channels in the output
+        n_transformers: Number of transformer blocks
+        key_len: Length of the key
+        value_len: Length of the value
+        pos_dropout: Dropout rate for positional embeddings
+        attn_dropout: Dropout rate for attention
+        n_heads: Number of attention heads
+        n_pos_features: Number of positional features
+        crop_len: Length of the crop
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norm_kwargs: Additional arguments to be passed to the normalization layer
     """
 
     def __init__(
@@ -120,7 +140,7 @@ class BorzoiTrunk(nn.Module):
         n_pos_features: int,
         # Crop
         crop_len: int,
-        norm_type='batch',
+        norm_type="batch",
         norm_kwargs=None,
         dtype=None,
         device=None,

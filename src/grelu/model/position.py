@@ -4,7 +4,6 @@ Functions to generate positional encodings.
 
 import math
 
-import numpy as np
 import torch
 from torch import Tensor
 
