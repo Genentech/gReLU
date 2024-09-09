@@ -3,7 +3,6 @@ Functions to preprocess genomic datasets.
 """
 import os
 import subprocess
-import tempfile
 from typing import Callable, List, Optional, Union
 
 import bioframe as bf
@@ -332,7 +331,7 @@ def filter_overlapping(
 
 def filter_blacklist(
     data: Union[pd.DataFrame, AnnData],
-    genome: str,
+    genome: Optional[str] = None,
     blacklist: Optional[str] = None,
     inplace: bool = False,
     window: int = 0,
@@ -344,7 +343,7 @@ def filter_blacklist(
         data: Either a pandas dataframe of genomic intervals or an Anndata
             object with intervals in .var
         genome: name of the genome corresponding to intervals
-        blacklist (str): path to blacklist file. If not given, will be
+        blacklist: path to blacklist file. If not given, it will be
             extracted from the package resources.
         inplace: If True, the input is modified in place. If False, a new
             dataframe or anndata object is returned.
@@ -356,12 +355,16 @@ def filter_blacklist(
     from grelu.io.bed import read_bed
     from grelu.resources import get_blacklist_file
 
-    # Read blacklist
+    # Get path to blacklist file
     if genome is not None:
         blacklist = get_blacklist_file(genome)
+    else:
+        assert (
+            blacklist is not None
+        ), "Either genome name or blacklist file must be provided"
 
-    if isinstance(blacklist, str):
-        blacklist = read_bed(blacklist, str_index=False)
+    # Read blacklist file
+    blacklist = read_bed(blacklist, str_index=False)
 
     # Filter
     return filter_overlapping(
@@ -479,7 +482,6 @@ def get_gc_matched_intervals(
     genome: str,
     binwidth: float = 0.1,
     chroms: str = "autosomes",
-    gc_bw_file: str = None,
     blacklist: str = "hg38",
     seed: Optional[int] = None,
 ) -> pd.DataFrame:
@@ -491,15 +493,13 @@ def get_gc_matched_intervals(
         genome: Name of the genome corresponding to intervals
         binwidth: Resolution of GC content
         chroms: Chromosomes to search for matched intervals
-        gc_bw_file: Path to a bigWig file of genomewide GC content.
-            If None, will be created.
         blacklist: Blacklist file of regions to exclude
         seed: Random seed
 
     Returns:
         A pandas dataframe containing GC-matched negative intervals.
     """
-    from bpnetlite.negatives import calculate_gc_genomewide, extract_matching_loci
+    from tangermeme.match import extract_matching_loci
 
     from grelu.io.genome import get_genome
     from grelu.sequence.utils import get_unique_length
@@ -510,25 +510,17 @@ def get_gc_matched_intervals(
     # Get seq_len
     seq_len = get_unique_length(intervals)
 
-    # Get bigWig file of GC content
-    if gc_bw_file is None:
-        gc_bw_file = "gc_{}_{}.bw".format(genome.name, seq_len)
-        print("Calculating GC content genomewide and saving to {}".format(gc_bw_file))
-        calculate_gc_genomewide(
-            fasta=genome.genome_file,
-            bigwig=gc_bw_file,
-            width=seq_len,
-            include_chroms=chroms,
-            verbose=True,
-        )
-
     print("Extracting matching intervals")
-    _, tmpfile = tempfile.mkstemp()
-    intervals.iloc[:, :3].to_csv(tmpfile, sep="\t", index=False, header=False)
     matched_loci = extract_matching_loci(
-        bed=tmpfile, bigwig=gc_bw_file, width=seq_len, bin_width=binwidth, verbose=True
+        intervals,
+        fasta=genome.genome_file,
+        in_window=seq_len,
+        gc_bin_width=binwidth,
+        chroms=chroms,
+        verbose=False,
+        random_state=seed,
     )
-    os.remove(tmpfile)
+
     print("Filtering blacklist")
     if blacklist is not None:
         matched_loci = filter_blacklist(matched_loci, blacklist)

@@ -330,7 +330,7 @@ class AnnDataSeqDataset(LabeledSeqDataset):
         # Get the labels
         if label_key is None:
             if scipy.sparse.issparse(adata.X):
-                labels = adata.X.A.T
+                labels = adata.X.toarray().T
             else:
                 labels = adata.X.T
 

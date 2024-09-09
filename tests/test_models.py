@@ -1,6 +1,6 @@
 import torch
-
 import wandb
+
 from grelu.model.models import (
     BorzoiModel,
     BorzoiPretrainedModel,

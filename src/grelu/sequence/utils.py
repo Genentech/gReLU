@@ -375,6 +375,8 @@ def reverse_complement(
 def dinuc_shuffle(
     seqs: Union[pd.DataFrame, np.ndarray, List[str]],
     n_shuffles: int = 1,
+    start=0,
+    end=-1,
     input_type: Optional[str] = None,
     seed: Optional[int] = None,
     genome: Optional[str] = None,
@@ -393,32 +395,22 @@ def dinuc_shuffle(
     Returns:
         Shuffled sequences in the same format as the input
     """
-    import torch
-    from bpnetlite.attributions import dinucleotide_shuffle
+    from einops import rearrange
+    from tangermeme.ersatz import dinucleotide_shuffle
 
     # Input format
     input_type = input_type or get_input_type(seqs)
 
     # One-hot encode
-    seqs = convert_input_type(seqs, "one_hot", genome=genome)  # N, 4, L
+    seqs = convert_input_type(
+        seqs, "one_hot", genome=genome, add_batch_axis=True
+    )  # B, 4, L
 
     # Shuffle sequences as many times as required
-    if n_shuffles > 0:
-        if seqs.ndim == 2:  # 4, L
-            shuf_seqs = dinucleotide_shuffle(
-                seqs, n_shuffles=n_shuffles, random_state=seed
-            )  # N, 4, L
-        else:
-            shuf_seqs = torch.vstack(
-                [
-                    dinucleotide_shuffle(seq, n_shuffles=n_shuffles, random_state=seed)
-                    for seq in seqs
-                ]
-            )  # B, 4, L
-
-    # If no shuffling is required, return the original sequences
-    else:
-        return seqs
+    shuf_seqs = dinucleotide_shuffle(
+        X=seqs, start=start, end=end, n=n_shuffles, random_state=seed, verbose=False
+    )  # B, n, 4, L
+    shuf_seqs = rearrange(shuf_seqs, "b n t l -> (b n) t l")
 
     return convert_input_type(shuf_seqs, input_type)
 
