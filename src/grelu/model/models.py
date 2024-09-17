@@ -70,6 +70,8 @@ class ConvModel(BaseModel):
         crop_len: Number of positions to crop at either end of the output
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -147,6 +149,8 @@ class DilatedConvModel(BaseModel):
         crop_len: Number of positions to crop at either end of the output
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -210,6 +214,8 @@ class ConvGRUModel(BaseModel):
         gru_norm: If True, include layer normalization in feed-forward network.
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -300,6 +306,8 @@ class ConvTransformerModel(BaseModel):
         ff_droppout: Dropout probability in the linear feed-forward layers
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -393,6 +401,8 @@ class ConvMLPModel(BaseModel):
         mlp_norm: If True, apply layer norm in the MLP layers
         mlp_hidden_size: A list containing the dimensions for each hidden layer of the MLP.
         dropout: Dropout probability for the MLP layers.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -474,6 +484,8 @@ class BorzoiModel(BaseModel):
         head_act_func: Name of the activation function to use in the final layer
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -609,6 +621,8 @@ class ExplaiNNModel(nn.Module):
         input_length (int): length of the input sequences
         channels (int): number of independent CNN units (default=300)
         kernel_size (int): size of each unit's conv. filter (default=19)
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(

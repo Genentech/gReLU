@@ -23,6 +23,8 @@ class ConvHead(nn.Module):
         norm: If True, batch normalization will be included.
         act_func: Activation function for the convolutional layer
         pool_func: Pooling function.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -76,6 +78,8 @@ class MLPHead(nn.Module):
         act_func: Activation function for the linear layers
         hidden_size: A list of dimensions for each hidden layer of the MLP.
         dropout: Dropout probability for the linear layers.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(

@@ -7,6 +7,16 @@ from grelu.model.layers import Activation, Dropout, Norm
 class ExplaiNNConvBlock(nn.Module):
     """
     Convolutional block for the ExplaiNN model.
+
+    Args:
+        in_channels: Number of input channels
+        out_channels: Number of output channels
+        kernel_size: Width of the convolutional kernel
+        groups: Number of groups for the convolutional layer
+        act_func: Activation function
+        dropout: Dropout rate
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -66,6 +76,8 @@ class ExplaiNNTrunk(nn.Module):
         input_length (int): length of the input sequences
         channels (int): number of independent CNN units (default=300)
         kernel_size (int): size of each unit's conv. filter (default=19)
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(

@@ -21,7 +21,9 @@ class BorzoiConvTower(nn.Module):
         kernel_size: Width of the convolutional kernel
         n_blocks: Number of convolutional/pooling blocks, including the stem
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
-        norn_kwargs: Additional arguments to be passed to the normalization layer
+        norm_kwargs: Additional arguments to be passed to the normalization layer
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -118,6 +120,8 @@ class BorzoiTrunk(nn.Module):
         crop_len: Length of the crop
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
         norm_kwargs: Additional arguments to be passed to the normalization layer
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(

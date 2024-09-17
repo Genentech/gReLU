@@ -35,6 +35,7 @@ class ConvTrunk(nn.Module):
             batch norm, residual addition, activation. Pooling is not included
             as it is always performed last.
         crop_len: Number of positions to crop at either end of the output
+        kwargs: Additional keyword arguments for the convolutional blocks
     """
 
     def __init__(
@@ -108,6 +109,7 @@ class DilatedConvTrunk(nn.Module):
         dilation_mult: Factor by which to multiply the dilation in each block
         act_func: Name of the activation function
         crop_len: Number of positions to crop at either end of the output
+        kwargs: Additional keyword arguments for the dilated-convolutional blocks
     """
 
     def __init__(
@@ -176,6 +178,8 @@ class ConvGRUTrunk(nn.Module):
         n_gru: Number of GRU layers
         dropout: Dropout for GRU and feed-forward layers
         gru_norm: If True, include layer normalization in feed-forward network.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(

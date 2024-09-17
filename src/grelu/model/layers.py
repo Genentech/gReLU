@@ -327,6 +327,8 @@ class Attention(nn.Module):
             n_pos_features: Number of positional embedding features
             pos_dropout: Dropout probability in the positional embeddings
             attn_dropout: Dropout probability in the output layer
+            device: Device for the layers.
+            dtype: Data type for the layers.
         """
         super().__init__()
 

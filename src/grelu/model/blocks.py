@@ -31,6 +31,8 @@ class LinearBlock(nn.Module):
         dropout: Dropout probability
         norm: If True, apply layer normalization
         bias: If True, include bias term.
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -88,7 +90,7 @@ class ConvBlock(nn.Module):
         dropout: Dropout probability
         norm: If True, apply normalization layer
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
-        norn_kwargs: Additional arguments to be passed to the normalization layer
+        norm_kwargs: Additional arguments to be passed to the normalization layer
         residual: If True, apply residual connection
         order: A string representing the order in which operations are
             to be performed on the input. For example, "CDNRA" means that the
@@ -99,6 +101,8 @@ class ConvBlock(nn.Module):
             output will be a tuple (output after pooling, output_before_pooling).
             This is useful if the output before pooling is required by a later
             layer.
+        dtype: Data type of the weights
+        device: Device on which to store the weights
         **kwargs: Additional arguments to be passed to nn.Conv1d
     """
 
@@ -223,12 +227,14 @@ class ChannelTransformBlock(nn.Module):
         act_func: Name of the activation function
         dropout: Dropout probability
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
-        norn_kwargs: Additional arguments to be passed to the normalization layer
+        norm_kwargs: Additional arguments to be passed to the normalization layer
         order: A string representing the order in which operations are
             to be performed on the input. For example, "CDNA" means that the
             operations will be performed in the order: convolution, dropout,
             batch norm, activation.
         if_equal: If True, create a layer even if the input and output channels are equal.
+        device: Device on which to store the weights
+        dtype: Data type of the weights
     """
 
     def __init__(
@@ -319,6 +325,8 @@ class Stem(nn.Module):
         act_func: Name of the activation function
         pool_func: Name of the pooling function
         pool_size: Width of pooling layer
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -369,6 +377,8 @@ class SeparableConv(nn.Module):
     Args:
         in_channels: Number of channels in the input
         kernel_size: Convolutional kernel width
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -435,6 +445,8 @@ class ConvTower(nn.Module):
             batch norm, residual addition, activation. Pooling is not included
             as it is always performed last.
         crop_len: Number of positions to crop at either end of the output
+        dtype: Data type of the weights
+        device: Device on which to store
     """
 
     def __init__(
@@ -548,6 +560,7 @@ class FeedForwardBlock(nn.Module):
         in_len: Length of the input tensor
         dropout: Dropout probability
         act_func: Name of the activation function
+        kwargs: Additional arguments to be passed to the linear layers
     """
 
     def __init__(
@@ -603,7 +616,8 @@ class GRUBlock(nn.Module):
         dropout: Dropout probability
         act_func: Name of the activation function for feed-forward network
         norm: If True, include layer normalization in feed-forward network.
-
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -667,6 +681,8 @@ class TransformerBlock(nn.Module):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -739,6 +755,8 @@ class TransformerTower(nn.Module):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -799,7 +817,9 @@ class UnetBlock(nn.Module):
         in_channels: Number of channels in the input
         y_in_channels: Number of channels in the higher-resolution representation.
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
-        norn_kwargs: Additional arguments to be passed to the normalization layer
+        norm_kwargs: Additional arguments to be passed to the normalization layer
+        device: Device on which to store the weights
+        dtype: Data type of the weights
     """
 
     def __init__(
@@ -864,6 +884,7 @@ class UnetTower(nn.Module):
         in_channels: Number of channels in the input
         y_in_channels: Number of channels in the higher-resolution representations.
         n_blocks: Number of U-net blocks
+        kwargs: Additional arguments to be passed to the U-net blocks
     """
 
     def __init__(

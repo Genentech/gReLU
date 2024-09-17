@@ -16,6 +16,8 @@ class EnformerConvTower(nn.Module):
     Args:
         n_blocks: Number of convolutional/pooling blocks including the stem.
         out_channels: Number of channels in the output
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -113,6 +115,8 @@ class EnformerTransformerBlock(nn.Module):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
