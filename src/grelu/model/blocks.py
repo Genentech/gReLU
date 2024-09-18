@@ -639,6 +639,8 @@ class GRUBlock(nn.Module):
             bidirectional=True,
             batch_first=True,
             num_layers=n_layers,
+            dtype=dtype,
+            device=device,
         )
         self.ffn = FeedForwardBlock(
             in_len=in_channels,

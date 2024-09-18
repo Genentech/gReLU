@@ -667,6 +667,8 @@ class EnformerModel(BaseModel):
         final_act_func: Name of the activation function to use in the final layer
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(

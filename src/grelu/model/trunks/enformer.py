@@ -186,6 +186,8 @@ class EnformerTransformerTower(nn.Module):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
+        device: Device for the layers.
+        dtype: Data type for the layers.
     """
 
     def __init__(
@@ -249,6 +251,8 @@ class EnformerTrunk(nn.Module):
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
         crop_len: Number of positions to crop at either end of the output
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(

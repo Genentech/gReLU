@@ -277,6 +277,8 @@ class ConvTransformerTrunk(nn.Module):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
+        device: Device for the layers.
+        dtype: Data type for the layers.
     """
 
     def __init__(
