@@ -31,6 +31,8 @@ class LinearBlock(nn.Module):
         dropout: Dropout probability
         norm: If True, apply layer normalization
         bias: If True, include bias term.
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -41,11 +43,15 @@ class LinearBlock(nn.Module):
         dropout: float = 0.0,
         norm: bool = False,
         bias: bool = True,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
-        self.norm = Norm(func="layer" if norm else None, in_dim=in_len)
-        self.linear = nn.Linear(in_len, out_len, bias=bias)
+        self.norm = Norm(
+            func="layer" if norm else None, in_dim=in_len, dtype=dtype, device=device
+        )
+        self.linear = nn.Linear(in_len, out_len, bias=bias, dtype=dtype, device=device)
         self.dropout = Dropout(dropout)
         self.act = Activation(act_func)
 
@@ -82,7 +88,9 @@ class ConvBlock(nn.Module):
         pool_func: Name of the pooling function
         pool_size: Pooling width
         dropout: Dropout probability
-        norm: If True, apply batch norm
+        norm: If True, apply normalization layer
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norm_kwargs: Additional arguments to be passed to the normalization layer
         residual: If True, apply residual connection
         order: A string representing the order in which operations are
             to be performed on the input. For example, "CDNRA" means that the
@@ -93,6 +101,8 @@ class ConvBlock(nn.Module):
             output will be a tuple (output after pooling, output_before_pooling).
             This is useful if the output before pooling is required by a later
             layer.
+        dtype: Data type of the weights
+        device: Device on which to store the weights
         **kwargs: Additional arguments to be passed to nn.Conv1d
     """
 
@@ -107,10 +117,14 @@ class ConvBlock(nn.Module):
         pool_size: Optional[str] = None,
         dropout: float = 0.0,
         norm: bool = True,
+        norm_type="batch",
+        norm_kwargs=None,
         residual: bool = False,
         order: str = "CDNRA",
         bias: bool = True,
         return_pre_pool: bool = False,
+        dtype=None,
+        device=None,
         **kwargs,
     ) -> None:
         super().__init__()
@@ -124,13 +138,26 @@ class ConvBlock(nn.Module):
             "R",
         ], "The string supplied in order must contain one occurrence each of A, C, D, N and R."
         self.order = order
+        norm_kwargs = norm_kwargs or dict()
 
-        # Create batch norm
+        # Create norm
         if norm:
             if self.order.index("N") > self.order.index("C"):
-                self.norm = Norm("batch", in_dim=out_channels)
+                self.norm = Norm(
+                    norm_type,
+                    in_dim=out_channels,
+                    dtype=dtype,
+                    device=device,
+                    **norm_kwargs,
+                )
             else:
-                self.norm = Norm("batch", in_dim=in_channels)
+                self.norm = Norm(
+                    norm_type,
+                    in_dim=in_channels,
+                    dtype=dtype,
+                    device=device,
+                    **norm_kwargs,
+                )
         else:
             self.norm = Norm(None)
 
@@ -142,6 +169,8 @@ class ConvBlock(nn.Module):
             stride=1,
             padding="same",
             dilation=dilation,
+            dtype=dtype,
+            device=device,
             **kwargs,
         )
         self.act = Activation(act_func)
@@ -149,7 +178,9 @@ class ConvBlock(nn.Module):
         self.dropout = Dropout(dropout)
         self.residual = residual
         if self.residual:
-            self.channel_transform = ChannelTransform(in_channels, out_channels)
+            self.channel_transform = ChannelTransform(
+                in_channels, out_channels, dtype=dtype, device=device
+            )
         self.order = order
         assert (
             len(set(self.order).difference(set("CDNRA"))) == 0
@@ -195,12 +226,15 @@ class ChannelTransformBlock(nn.Module):
         out_channels: Number of channels in the output
         act_func: Name of the activation function
         dropout: Dropout probability
-        norm: If True, apply batch norm
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norm_kwargs: Additional arguments to be passed to the normalization layer
         order: A string representing the order in which operations are
             to be performed on the input. For example, "CDNA" means that the
             operations will be performed in the order: convolution, dropout,
             batch norm, activation.
         if_equal: If True, create a layer even if the input and output channels are equal.
+        device: Device on which to store the weights
+        dtype: Data type of the weights
     """
 
     def __init__(
@@ -211,7 +245,11 @@ class ChannelTransformBlock(nn.Module):
         act_func: str = "relu",
         dropout: float = 0.0,
         order: str = "CDNA",
+        norm_type="batch",
+        norm_kwargs=None,
         if_equal: bool = False,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -223,18 +261,33 @@ class ChannelTransformBlock(nn.Module):
             "N",
         ], "The string supplied in order must contain one occurrence each of A, C, D and N."
         self.order = order
+        norm_kwargs = norm_kwargs or dict()
 
         # Create batch norm
         if norm:
             if self.order.index("N") > self.order.index("C"):
-                self.norm = Norm("batch", in_dim=out_channels)
+                self.norm = Norm(
+                    norm_type,
+                    in_dim=out_channels,
+                    dtype=dtype,
+                    device=device,
+                    **norm_kwargs,
+                )
             else:
-                self.norm = Norm("batch", in_dim=in_channels)
+                self.norm = Norm(
+                    "batch",
+                    in_dim=in_channels,
+                    dtype=dtype,
+                    device=device,
+                    **norm_kwargs,
+                )
         else:
             self.norm = Norm(None)
 
         # Create other layers
-        self.conv = ChannelTransform(in_channels, out_channels, if_equal=if_equal)
+        self.conv = ChannelTransform(
+            in_channels, out_channels, if_equal=if_equal, dtype=dtype, device=device
+        )
         self.act = Activation(act_func)
         self.dropout = Dropout(dropout)
         self.order = order
@@ -272,6 +325,8 @@ class Stem(nn.Module):
         act_func: Name of the activation function
         pool_func: Name of the pooling function
         pool_size: Width of pooling layer
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -281,6 +336,8 @@ class Stem(nn.Module):
         act_func: str = "relu",
         pool_func: Optional[str] = None,
         pool_size: Optional[str] = None,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
         self.conv = nn.Conv1d(
@@ -291,6 +348,8 @@ class Stem(nn.Module):
             padding="same",
             dilation=1,
             bias=True,
+            dtype=dtype,
+            device=device,
         )
         self.act = Activation(act_func)
         self.pool = Pool(pool_func, pool_size=pool_size)
@@ -318,9 +377,13 @@ class SeparableConv(nn.Module):
     Args:
         in_channels: Number of channels in the input
         kernel_size: Convolutional kernel width
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
-    def __init__(self, in_channels: int, kernel_size: int) -> None:
+    def __init__(
+        self, in_channels: int, kernel_size: int, dtype=None, device=None
+    ) -> None:
         super().__init__()
         self.depthwise = nn.Conv1d(
             in_channels,
@@ -329,8 +392,17 @@ class SeparableConv(nn.Module):
             groups=in_channels,
             padding="same",
             bias=False,
+            dtype=dtype,
+            device=device,
         )
-        self.pointwise = nn.Conv1d(in_channels, in_channels, kernel_size=1, bias=True)
+        self.pointwise = nn.Conv1d(
+            in_channels,
+            in_channels,
+            kernel_size=1,
+            bias=True,
+            dtype=dtype,
+            device=device,
+        )
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -373,6 +445,8 @@ class ConvTower(nn.Module):
             batch norm, residual addition, activation. Pooling is not included
             as it is always performed last.
         crop_len: Number of positions to crop at either end of the output
+        dtype: Data type of the weights
+        device: Device on which to store
     """
 
     def __init__(
@@ -393,13 +467,23 @@ class ConvTower(nn.Module):
         dropout: float = 0.0,
         order: str = "CDNRA",
         crop_len: Union[int, str] = 0,
+        dtype=None,
+        device=None,
     ):
         super().__init__()
 
         self.blocks = nn.ModuleList()
 
         # Add stem
-        self.blocks.append(Stem(stem_channels, stem_kernel_size, act_func=act_func))
+        self.blocks.append(
+            Stem(
+                stem_channels,
+                stem_kernel_size,
+                act_func=act_func,
+                dtype=dtype,
+                device=device,
+            )
+        )
         self.receptive_field = stem_kernel_size
         self.pool_factor = 1
         self.out_channels = stem_channels
@@ -424,6 +508,8 @@ class ConvTower(nn.Module):
                     pool_size=pool_size,
                     dropout=dropout,
                     order=order,
+                    dtype=dtype,
+                    device=device,
                 )
             )
 
@@ -474,17 +560,34 @@ class FeedForwardBlock(nn.Module):
         in_len: Length of the input tensor
         dropout: Dropout probability
         act_func: Name of the activation function
+        kwargs: Additional arguments to be passed to the linear layers
     """
 
     def __init__(
-        self, in_len: int, dropout: float = 0.0, act_func: str = "relu"
+        self,
+        in_len: int,
+        dropout: float = 0.0,
+        act_func: str = "relu",
+        **kwargs,
     ) -> None:
         super().__init__()
         self.dense1 = LinearBlock(
-            in_len, in_len * 2, norm=True, dropout=dropout, act_func=act_func, bias=True
+            in_len,
+            in_len * 2,
+            norm=True,
+            dropout=dropout,
+            act_func=act_func,
+            bias=True,
+            **kwargs,
         )
         self.dense2 = LinearBlock(
-            in_len * 2, in_len, norm=False, dropout=dropout, act_func=None, bias=True
+            in_len * 2,
+            in_len,
+            norm=False,
+            dropout=dropout,
+            act_func=None,
+            bias=True,
+            **kwargs,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -513,7 +616,8 @@ class GRUBlock(nn.Module):
         dropout: Dropout probability
         act_func: Name of the activation function for feed-forward network
         norm: If True, include layer normalization in feed-forward network.
-
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -523,6 +627,8 @@ class GRUBlock(nn.Module):
         dropout: float = 0.0,
         act_func: str = "relu",
         norm: bool = False,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -533,9 +639,15 @@ class GRUBlock(nn.Module):
             bidirectional=True,
             batch_first=True,
             num_layers=n_layers,
+            dtype=dtype,
+            device=device,
         )
         self.ffn = FeedForwardBlock(
-            in_len=in_channels, dropout=dropout, act_func=act_func
+            in_len=in_channels,
+            dropout=dropout,
+            act_func=act_func,
+            dtype=dtype,
+            device=device,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -571,6 +683,8 @@ class TransformerBlock(nn.Module):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -583,6 +697,8 @@ class TransformerBlock(nn.Module):
         pos_dropout: float,
         attn_dropout: float,
         ff_dropout: float,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
         self.norm = Norm("layer", in_len)
@@ -594,12 +710,16 @@ class TransformerBlock(nn.Module):
             value_len=value_len,
             pos_dropout=pos_dropout,
             attn_dropout=attn_dropout,
+            dtype=dtype,
+            device=device,
         )
         self.dropout = Dropout(ff_dropout)
         self.ffn = FeedForwardBlock(
             in_len=in_len,
             dropout=ff_dropout,
             act_func="relu",
+            dtype=dtype,
+            device=device,
         )
 
     def forward(self, x: Tensor) -> Tensor:
@@ -637,6 +757,8 @@ class TransformerTower(nn.Module):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
+        dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -650,6 +772,8 @@ class TransformerTower(nn.Module):
         pos_dropout: float = 0.0,
         attn_dropout: float = 0.0,
         ff_dropout: float = 0.0,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
         self.blocks = nn.ModuleList(
@@ -663,6 +787,8 @@ class TransformerTower(nn.Module):
                     pos_dropout=pos_dropout,
                     attn_dropout=attn_dropout,
                     ff_dropout=ff_dropout,
+                    dtype=dtype,
+                    device=device,
                 )
                 for _ in range(n_blocks)
             ]
@@ -692,23 +818,48 @@ class UnetBlock(nn.Module):
     Args:
         in_channels: Number of channels in the input
         y_in_channels: Number of channels in the higher-resolution representation.
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norm_kwargs: Additional arguments to be passed to the normalization layer
+        device: Device on which to store the weights
+        dtype: Data type of the weights
     """
 
-    def __init__(self, in_channels: int, y_in_channels: int) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        y_in_channels: int,
+        norm_type="batch",
+        norm_kwargs=None,
+        dtype=None,
+        device=None,
+    ) -> None:
         super().__init__()
         self.conv = ConvBlock(
-            in_channels, in_channels, 1, norm=True, act_func="gelu", order="NACDR"
+            in_channels,
+            in_channels,
+            1,
+            norm=True,
+            act_func="gelu",
+            order="NACDR",
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
+            dtype=dtype,
+            device=device,
         )
         self.upsample = nn.Upsample(scale_factor=2, mode="nearest")
         self.channel_transform = ChannelTransformBlock(
             y_in_channels,
             in_channels,
             norm=True,
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
             act_func="gelu",
             order="NACD",
             if_equal=True,
+            dtype=dtype,
+            device=device,
         )
-        self.sconv = SeparableConv(in_channels, 3)
+        self.sconv = SeparableConv(in_channels, 3, dtype=dtype, device=device)
 
     def forward(self, x: Tensor, y: Tensor) -> Tensor:
         """
@@ -735,15 +886,16 @@ class UnetTower(nn.Module):
         in_channels: Number of channels in the input
         y_in_channels: Number of channels in the higher-resolution representations.
         n_blocks: Number of U-net blocks
+        kwargs: Additional arguments to be passed to the U-net blocks
     """
 
     def __init__(
-        self, in_channels: int, y_in_channels: List[int], n_blocks: int
+        self, in_channels: int, y_in_channels: List[int], n_blocks: int, **kwargs
     ) -> None:
         super().__init__()
         self.blocks = nn.ModuleList()
         for y_c in y_in_channels:
-            self.blocks.append(UnetBlock(in_channels, y_c))
+            self.blocks.append(UnetBlock(in_channels, y_c, **kwargs))
 
     def forward(self, x: Tensor, ys: List[Tensor]) -> Tensor:
         """

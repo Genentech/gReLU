@@ -20,6 +20,10 @@ class BorzoiConvTower(nn.Module):
         out_channels: Number of channels in the output
         kernel_size: Width of the convolutional kernel
         n_blocks: Number of convolutional/pooling blocks, including the stem
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norm_kwargs: Additional arguments to be passed to the normalization layer
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -30,6 +34,10 @@ class BorzoiConvTower(nn.Module):
         out_channels: int,
         kernel_size: int,
         n_blocks: int,
+        norm_type="batch",
+        norm_kwargs=None,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -44,6 +52,8 @@ class BorzoiConvTower(nn.Module):
                 act_func=None,
                 pool_func="max",
                 pool_size=2,
+                dtype=dtype,
+                device=device,
             )
         )
 
@@ -59,11 +69,15 @@ class BorzoiConvTower(nn.Module):
                     out_channels=self.filters[i],
                     kernel_size=kernel_size,
                     norm=True,
+                    norm_type=norm_type,
+                    norm_kwargs=norm_kwargs,
                     act_func="gelu",
                     order="NACDR",
                     pool_func="max",
                     pool_size=2,
                     return_pre_pool=(i > (n_blocks - 3)),
+                    dtype=dtype,
+                    device=device,
                 )
             )
         assert len(self.blocks) == n_blocks
@@ -88,6 +102,26 @@ class BorzoiConvTower(nn.Module):
 class BorzoiTrunk(nn.Module):
     """
     Trunk consisting of conv, transformer and U-net layers for the Borzoi model.
+
+    Args:
+        stem_channels: Number of channels in the first (stem) convolutional layer
+        stem_kernel_size:  Width of the convolutional kernel in the first (stem) convolutional layer
+        init_channels: Number of channels in the first convolutional block after the stem
+        n_conv: Number of convolutional/pooling blocks, including the stem
+        kernel_size: Width of the convolutional kernel
+        channels: Number of channels in the output
+        n_transformers: Number of transformer blocks
+        key_len: Length of the key
+        value_len: Length of the value
+        pos_dropout: Dropout rate for positional embeddings
+        attn_dropout: Dropout rate for attention
+        n_heads: Number of attention heads
+        n_pos_features: Number of positional features
+        crop_len: Length of the crop
+        norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
+        norm_kwargs: Additional arguments to be passed to the normalization layer
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -110,6 +144,10 @@ class BorzoiTrunk(nn.Module):
         n_pos_features: int,
         # Crop
         crop_len: int,
+        norm_type="batch",
+        norm_kwargs=None,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -120,6 +158,10 @@ class BorzoiTrunk(nn.Module):
             out_channels=channels,
             kernel_size=kernel_size,
             n_blocks=n_conv,
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
+            dtype=dtype,
+            device=device,
         )
         self.transformer_tower = TransformerTower(
             n_blocks=n_transformers,
@@ -130,11 +172,17 @@ class BorzoiTrunk(nn.Module):
             attn_dropout=attn_dropout,
             n_heads=n_heads,
             n_pos_features=n_pos_features,
+            dtype=dtype,
+            device=device,
         )
         self.unet_tower = UnetTower(
             n_blocks=2,
             in_channels=channels,
             y_in_channels=[channels, self.conv_tower.filters[-2]],
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
+            dtype=dtype,
+            device=device,
         )
         self.pointwise_conv = ConvBlock(
             in_channels=channels,
@@ -143,7 +191,11 @@ class BorzoiTrunk(nn.Module):
             act_func="gelu",
             dropout=0.1,
             norm=True,
+            norm_type=norm_type,
+            norm_kwargs=norm_kwargs,
             order="NACDR",
+            device=device,
+            dtype=dtype,
         )
         self.act = Activation("gelu")
         self.crop = Crop(crop_len=crop_len)

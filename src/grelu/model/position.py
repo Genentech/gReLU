@@ -4,7 +4,6 @@ Functions to generate positional encodings.
 
 import math
 
-import numpy as np
 import torch
 from torch import Tensor
 
@@ -22,14 +21,18 @@ def get_central_mask(x: Tensor, out_channels: int) -> Tensor:
     """
     seq_len = x.shape[-2]
     features = out_channels // 2
-    pow_rate = np.exp(np.log(seq_len + 1) / features).astype("float32")
+
+    pow_rate = torch.exp(
+        torch.log(torch.tensor([seq_len], device=x.device, dtype=x.dtype) + 1)
+        / features
+    )
 
     # Get the distance of each position from the center
-    positions = torch.arange(-seq_len + 1, seq_len, device=x.device).to(torch.float32)
+    positions = torch.arange(-seq_len + 1, seq_len, device=x.device, dtype=x.dtype)
 
     # Create center widths
     center_widths = (
-        pow_rate ** torch.arange(1, features + 1, device=x.device).to(torch.float32) - 1
+        pow_rate ** torch.arange(1, features + 1, device=x.device, dtype=x.dtype) - 1
     )
 
     # Create embeddings
@@ -63,10 +66,12 @@ def get_exponential_embedding(
     max_range = math.log(seq_len) / math.log(2.0)
 
     # Get distances
-    positions = torch.arange(-seq_len + 1, seq_len, device=x.device).to(torch.float32)
+    positions = torch.arange(-seq_len + 1, seq_len, device=x.device, dtype=x.dtype)
 
     # Calculate half-lives
-    half_life = 2 ** torch.linspace(min_half_life, max_range, features, device=x.device)
+    half_life = 2 ** torch.linspace(
+        min_half_life, max_range, features, device=x.device, dtype=x.dtype
+    )
     half_life = half_life[None, ...]
 
     # Calculate embeddings

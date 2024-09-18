@@ -70,6 +70,8 @@ class ConvModel(BaseModel):
         crop_len: Number of positions to crop at either end of the output
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -95,6 +97,8 @@ class ConvModel(BaseModel):
         crop_len: int = 0,
         # Final pool
         final_pool_func: str = "avg",
+        dtype=None,
+        device=None,
     ) -> None:
         embedding = ConvTrunk(
             stem_channels=stem_channels,
@@ -112,6 +116,8 @@ class ConvModel(BaseModel):
             residual=residual,
             dropout=dropout,
             crop_len=crop_len,
+            dtype=dtype,
+            device=device,
         )
         super().__init__(
             embedding=embedding,
@@ -121,6 +127,8 @@ class ConvModel(BaseModel):
                 pool_func=final_pool_func,
                 act_func=None,
                 norm=False,
+                dtype=dtype,
+                device=device,
             ),
         )
 
@@ -141,6 +149,8 @@ class DilatedConvModel(BaseModel):
         crop_len: Number of positions to crop at either end of the output
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -154,6 +164,8 @@ class DilatedConvModel(BaseModel):
         n_conv: int = 8,
         crop_len: Union[str, int] = "auto",
         final_pool_func: str = "avg",
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__(
             embedding=DilatedConvTrunk(
@@ -164,6 +176,8 @@ class DilatedConvModel(BaseModel):
                 dilation_mult=dilation_mult,
                 act_func=act_func,
                 crop_len=crop_len,
+                dtype=dtype,
+                device=device,
             ),
             head=ConvHead(
                 n_tasks,
@@ -171,6 +185,8 @@ class DilatedConvModel(BaseModel):
                 pool_func=final_pool_func,
                 act_func=None,
                 norm=False,
+                dtype=dtype,
+                device=device,
             ),
         )
 
@@ -198,6 +214,8 @@ class ConvGRUModel(BaseModel):
         gru_norm: If True, include layer normalization in feed-forward network.
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -224,6 +242,8 @@ class ConvGRUModel(BaseModel):
         gru_norm: bool = False,
         # Final pool
         final_pool_func: str = "avg",
+        dtype=None,
+        device=None,
     ):
         embedding = ConvGRUTrunk(
             stem_channels=stem_channels,
@@ -241,6 +261,8 @@ class ConvGRUModel(BaseModel):
             n_gru=n_gru,
             dropout=dropout,
             gru_norm=gru_norm,
+            dtype=dtype,
+            device=device,
         )
         super().__init__(
             embedding=embedding,
@@ -250,6 +272,8 @@ class ConvGRUModel(BaseModel):
                 pool_func=final_pool_func,
                 act_func=None,
                 norm=False,
+                dtype=dtype,
+                device=device,
             ),
         )
 
@@ -282,6 +306,8 @@ class ConvTransformerModel(BaseModel):
         ff_droppout: Dropout probability in the linear feed-forward layers
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -313,6 +339,8 @@ class ConvTransformerModel(BaseModel):
         ff_dropout: float = 0.0,
         # Final pool
         final_pool_func: str = "avg",
+        dtype=None,
+        device=None,
     ):
         embedding = ConvTransformerTrunk(
             stem_channels=stem_channels,
@@ -335,6 +363,8 @@ class ConvTransformerModel(BaseModel):
             pos_dropout=pos_dropout,
             attn_dropout=attn_dropout,
             ff_dropout=ff_dropout,
+            dtype=dtype,
+            device=device,
         )
         super().__init__(
             embedding=embedding,
@@ -344,6 +374,8 @@ class ConvTransformerModel(BaseModel):
                 pool_func=final_pool_func,
                 act_func=None,
                 norm=False,
+                dtype=dtype,
+                device=device,
             ),
         )
 
@@ -369,6 +401,8 @@ class ConvMLPModel(BaseModel):
         mlp_norm: If True, apply layer norm in the MLP layers
         mlp_hidden_size: A list containing the dimensions for each hidden layer of the MLP.
         dropout: Dropout probability for the MLP layers.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -393,6 +427,8 @@ class ConvMLPModel(BaseModel):
         mlp_act_func: Optional[str] = "relu",
         mlp_hidden_size: List[int] = [8],
         dropout: float = 0.0,
+        dtype=None,
+        device=None,
     ) -> None:
         embedding = ConvTrunk(
             stem_channels=stem_channels,
@@ -420,6 +456,8 @@ class ConvMLPModel(BaseModel):
                 norm=mlp_norm,
                 act_func=mlp_act_func,
                 dropout=dropout,
+                dtype=dtype,
+                device=device,
             ),
         )
 
@@ -446,6 +484,8 @@ class BorzoiModel(BaseModel):
         head_act_func: Name of the activation function to use in the final layer
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -471,6 +511,8 @@ class BorzoiModel(BaseModel):
         crop_len: int = 16,
         final_act_func: Optional[str] = None,
         final_pool_func: Optional[str] = "avg",
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__(
             embedding=BorzoiTrunk(
@@ -488,6 +530,8 @@ class BorzoiModel(BaseModel):
                 n_heads=n_heads,
                 n_pos_features=n_pos_features,
                 crop_len=crop_len,
+                dtype=dtype,
+                device=device,
             ),
             head=ConvHead(
                 n_tasks,
@@ -495,6 +539,8 @@ class BorzoiModel(BaseModel):
                 norm=False,
                 act_func=final_act_func,
                 pool_func=final_pool_func,
+                dtype=dtype,
+                device=device,
             ),
         )
 
@@ -513,6 +559,8 @@ class BorzoiPretrainedModel(BaseModel):
         # head
         crop_len=0,
         final_pool_func="avg",
+        dtype=None,
+        device=None,
     ):
         model = BorzoiModel(
             crop_len=crop_len,
@@ -531,6 +579,8 @@ class BorzoiPretrainedModel(BaseModel):
             n_pos_features=32,
             final_act_func=None,
             final_pool_func=None,
+            dtype=dtype,
+            device=device,
         )
 
         # Load state dict
@@ -551,7 +601,13 @@ class BorzoiPretrainedModel(BaseModel):
         )
 
         # Change head
-        head = ConvHead(n_tasks=n_tasks, in_channels=1920, pool_func=final_pool_func)
+        head = ConvHead(
+            n_tasks=n_tasks,
+            in_channels=1920,
+            pool_func=final_pool_func,
+            dtype=dtype,
+            device=device,
+        )
 
         super().__init__(embedding=model.embedding, head=head)
 
@@ -565,6 +621,8 @@ class ExplaiNNModel(nn.Module):
         input_length (int): length of the input sequences
         channels (int): number of independent CNN units (default=300)
         kernel_size (int): size of each unit's conv. filter (default=19)
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -573,12 +631,20 @@ class ExplaiNNModel(nn.Module):
         in_len: int,
         channels=300,
         kernel_size=19,
+        dtype=None,
+        device=None,
     ):
         super().__init__(
             embedding=ExplaiNNTrunk(
-                in_len=in_len, channels=channels, kernel_size=kernel_size
+                in_len=in_len,
+                channels=channels,
+                kernel_size=kernel_size,
+                dtype=dtype,
+                device=device,
             ),
-            head=ConvHead(n_tasks=n_tasks, in_channels=channels),
+            head=ConvHead(
+                n_tasks=n_tasks, in_channels=channels, dtype=dtype, device=device
+            ),
         )
 
 
@@ -601,6 +667,8 @@ class EnformerModel(BaseModel):
         final_act_func: Name of the activation function to use in the final layer
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -621,6 +689,8 @@ class EnformerModel(BaseModel):
         # Head
         final_act_func: Optional[str] = None,
         final_pool_func: Optional[str] = "avg",
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__(
             embedding=EnformerTrunk(
@@ -633,6 +703,8 @@ class EnformerModel(BaseModel):
                 pos_dropout=pos_dropout,
                 ff_dropout=ff_dropout,
                 crop_len=crop_len,
+                dtype=dtype,
+                device=device,
             ),
             head=ConvHead(
                 n_tasks=n_tasks,
@@ -640,6 +712,8 @@ class EnformerModel(BaseModel):
                 act_func=final_act_func,
                 norm=False,
                 pool_func=final_pool_func,
+                dtype=dtype,
+                device=device,
             ),
         )
 
@@ -656,6 +730,8 @@ class EnformerPretrainedModel(BaseModel):
         # head
         crop_len=0,
         final_pool_func="avg",
+        dtype=None,
+        device=None,
     ):
         model = EnformerModel(
             crop_len=crop_len,
@@ -669,6 +745,8 @@ class EnformerPretrainedModel(BaseModel):
             ff_dropout=0.4,
             final_act_func=None,
             final_pool_func=None,
+            dtype=dtype,
+            device=device,
         )
 
         # Load state dict
@@ -687,6 +765,12 @@ class EnformerPretrainedModel(BaseModel):
         )
 
         # Change head
-        head = ConvHead(n_tasks=n_tasks, in_channels=3072, pool_func=final_pool_func)
+        head = ConvHead(
+            n_tasks=n_tasks,
+            in_channels=3072,
+            pool_func=final_pool_func,
+            dtype=dtype,
+            device=device,
+        )
 
         super().__init__(embedding=model.embedding, head=head)
