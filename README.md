@@ -64,3 +64,7 @@ bioconda::ucsc-bedtogenepred    \
 bioconda::ucsc-gtftogenepred    \
 bioconda::ucsc-gff3togenepred
 ```
+
+## Citation
+
+Please cite our preprint: https://www.biorxiv.org/content/10.1101/2024.09.18.613778v1
