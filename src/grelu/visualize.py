@@ -518,7 +518,6 @@ def plot_ISM(
     start_pos: Optional[int] = None,
     end_pos: Optional[int] = None,
     figsize: Tuple[float, float] = (8, 1.5),
-    method: str = "heatmap",
     **kwargs,
 ):
     """
@@ -529,12 +528,10 @@ def plot_ISM(
         start_pos: Start position of region to plot
         end_pos: End position of region to plot
         figsize: Tuple containing (width, height)
-        method:'heatmap' or 'logo'
-        **kwargs: Additional arguments to be passed to sns.heatmap (in case type='heatmap')
-        or plot_attributions (in case type = 'logo'
+        **kwargs: Additional arguments to be passed to sns.heatmap
 
     Returns:
-        Heatmap or sequence logo for the specified region.
+        Heatmap for the specified region.
 
     """
     # Positions to plot
@@ -547,34 +544,16 @@ def plot_ISM(
     ism_preds = ism_preds.iloc[:, start_pos:end_pos].copy()
 
     # Plot heatmap
-    if method == "heatmap":
-        fig, ax = plt.subplots(figsize=figsize)
-        g = sns.heatmap(
-            ism_preds,
-            xticklabels=1,
-            yticklabels=1,
-            cmap="vlag",
-            **kwargs,
-        )
-        g.set_yticklabels(g.get_yticklabels(), rotation=0, fontsize=8)
-        g.set_xticklabels(g.get_xticklabels(), rotation=0, fontsize=8)
-
-    # Plot logo
-    elif method == "logo":
-        from grelu.sequence.format import BASE_TO_INDEX_HASH
-
-        # Calculate mean mutation effect
-        means = -ism_preds.mean(0)
-
-        # Make attribution array - everything is set to 0
-        attrs = np.zeros((4, end_pos - start_pos)).astype(np.float32)
-
-        # Add score for the reference base
-        for i in range(end_pos - start_pos):
-            attrs[BASE_TO_INDEX_HASH[means.index[i]], i] = np.float32(means.iloc[i])
-
-        # Make logo
-        g = plot_attributions(attrs, figsize=figsize, **kwargs)
+    fig, ax = plt.subplots(figsize=figsize)
+    g = sns.heatmap(
+        ism_preds,
+        xticklabels=1,
+        yticklabels=1,
+        cmap="vlag",
+        **kwargs,
+    )
+    g.set_yticklabels(g.get_yticklabels(), rotation=0, fontsize=8)
+    g.set_xticklabels(g.get_xticklabels(), rotation=0, fontsize=8)
 
     return g
 

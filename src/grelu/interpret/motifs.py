@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from pymemesuite.common import Motif
 
+from grelu.io.meme import read_meme_file
 from grelu.utils import make_list
 
 
@@ -110,6 +111,7 @@ def scan_sequences(
     seq_ids: Optional[List[str]] = None,
     pthresh: float = 1e-3,
     rc: bool = True,
+    attrs: Optional[np.ndarray] = None,
 ):
     """
     Scan a DNA sequence using motifs
@@ -127,17 +129,17 @@ def scan_sequences(
         pthresh: p-value cutoff for binding sites
         rc: If True, both the sequence and its reverse complement will be
             scanned. If False, only the given sequence will be scanned.
+        attrs: An optional numpy array of shape (B, 4, L) containing attributions
+            for the sequences.
 
     Returns:
         pd.DataFrame containing columns 'motif', 'sequence', 'start', 'end',
-        'strand', 'score' and 'pval'.
+        'strand', 'match_score', 'pval', and optionally 'attr_score'.
     """
     from collections import defaultdict
 
     from pymemesuite.common import Sequence
     from pymemesuite.fimo import FIMO
-
-    from grelu.io.meme import read_meme_file
 
     # Load motifs
     if isinstance(motifs, str):
@@ -161,13 +163,43 @@ def scan_sequences(
         for m in match:
             out["motif"].append(motif.name.decode())
             out["sequence"].append(m.source.accession.decode())
-            out["start"].append(m.start)
-            out["end"].append(m.stop)
+
+            if m.strand == "-":
+                out["start"].append(m.stop - 1)
+                out["end"].append(m.start)
+            else:
+                out["start"].append(m.start - 1)
+                out["end"].append(m.stop)
             out["strand"].append(m.strand)
-            out["score"].append(m.score)
+            out["match_score"].append(m.score)
             out["pval"].append(m.pvalue)
 
-    return pd.DataFrame(out)
+    out = pd.DataFrame(out)
+
+    # Score with attributions
+    if attrs is not None:
+        motifs = {
+            motif.name.decode(): {
+                "+": np.array(motif.frequencies).T,
+                "-": np.flip(np.array(motif.frequencies).T, (0, 1)),
+            }
+            for motif in motifs
+        }
+
+        attrs = {id: attr for id, attr in zip(seq_ids, attrs)}
+
+        # Calculate attr x PWM product for each site
+        out["attr_score"] = out.apply(
+            lambda row: np.multiply(
+                attrs[row.sequence][:, row.start : row.end],
+                motifs[row.motif][row.strand],
+            )
+            .sum(0)
+            .mean(),
+            axis=1,
+        )
+
+    return out
 
 
 def marginalize_patterns(
@@ -260,6 +292,8 @@ def compare_motifs(
     bg=None,
     pthresh: float = 1e-3,
     rc: bool = True,
+    ref_attrs: Optional[np.ndarray] = None,
+    alt_attrs: Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
     """
     Scan sequences containing the reference and alternate alleles
@@ -284,6 +318,10 @@ def compare_motifs(
         pthresh: p-value cutoff for binding sites
         rc: If True, both the sequence and its reverse complement will be
             scanned. If False, only the given sequence will be scanned.
+        ref_attrs: An optional numpy array of shape (1, 4, L) containing attributions
+            for the reference sequence.
+        alt_attrs: An optional numpy array of shape (1, 4, L) containing attributions
+            for the sequences.
     """
     from grelu.interpret.motifs import scan_sequences
     from grelu.sequence.mutate import mutate
@@ -293,6 +331,13 @@ def compare_motifs(
         assert alt_allele is not None, "Either alt_seq or alt_allele must be supplied."
         alt_seq = mutate(seq=ref_seq, allele=alt_allele, pos=pos, input_type="strings")
 
+    # Create attributions
+    if ref_attrs is not None:
+        assert alt_attrs is not None
+        attrs = np.vstack([ref_attrs, alt_attrs])
+    else:
+        attrs = None
+
     # Scan sequences
     scan = scan_sequences(
         seqs=[ref_seq, alt_seq],
@@ -301,20 +346,32 @@ def compare_motifs(
         seq_ids=["ref", "alt"],
         pthresh=pthresh,
         rc=True,  # Scan both strands
+        attrs=attrs,
     )
 
     # Compare the results for alt and ref sequences
-    scan = (
-        scan.pivot_table(
+    if attrs is None:
+        scan = scan.pivot_table(
             index=["motif", "start", "end", "strand"],
             columns=["sequence"],
-            values="score",
-        )
-        .fillna(0)
-        .reset_index()
-    )
+            values=["match_score"],
+        ).fillna(0)
+        scan.columns = ["alt_match_score", "ref_match_score"]
+    else:
+        scan = scan.pivot_table(
+            index=["motif", "start", "end", "strand"],
+            columns=["sequence"],
+            values=["match_score", "attr_score"],
+        ).fillna(0)
+        scan.columns = [
+            "alt_attr_score",
+            "ref_attr_score",
+            "alt_match_score",
+            "ref_match_score",
+        ]
+        scan["attr_foldChange"] = scan.alt_attr_score / scan.ref_attr_score
 
-    # Compute fold change
-    scan["foldChange"] = scan.alt / scan.ref
-    scan = scan.sort_values("foldChange").reset_index(drop=True)
+    scan = scan.reset_index()
+    scan["match_foldChange"] = scan.alt_match_score / scan.ref_match_score
+    scan = scan.sort_values("match_foldChange").reset_index(drop=True)
     return scan
