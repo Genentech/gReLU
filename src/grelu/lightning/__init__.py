@@ -804,7 +804,7 @@ class LightningModel(pl.LightningModule):
             devices: Device IDs to use for inference
             num_workers: Number of workers for data loader
             batch_size: Batch size for data loader
-            precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.            
+            precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
 
         Returns:
             Dataframe containing all calculated metrics on the test set.
