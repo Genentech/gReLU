@@ -18,7 +18,7 @@ from torch import Tensor, nn, optim
 from torch.utils.data import DataLoader
 from torchmetrics import AUROC, Accuracy, AveragePrecision, MetricCollection
 
-import grelu.model.models
+from grelu.model.models import BaseModel
 from grelu.data.dataset import (
     ISMDataset,
     LabeledSeqDataset,
@@ -33,84 +33,23 @@ from grelu.model.heads import ConvHead
 from grelu.sequence.format import strings_to_one_hot
 from grelu.utils import get_aggfunc, get_compare_func, make_list
 
-default_train_params = {
-    "task": "binary",  # binary, multiclass, or regression
-    "lr": 1e-4,
-    "optimizer": "adam",
-    "batch_size": 512,
-    "num_workers": 1,
-    "devices": "cpu",
-    "logger": None,
-    "save_dir": ".",
-    "max_epochs": 1,
-    "checkpoint": True,
-    "loss": "bce",
-    "clip": 0,
-    "pos_weight": None,
-    "class_weights": None,
-    "total_weight": None,
-}
-
 
 class LightningModel(pl.LightningModule):
     """
     Wrapper for predictive sequence models
 
     Args:
-        model_params: Dictionary of parameters specifying model architecture
-        train_params: Dictionary specifying training parameters
-        data_params: Dictionary specifying parameters of the training data.
-            This is empty by default and will be filled at the time of
-            training.
+        model: An object of class grelu.models.BaseModel
     """
 
-    def __init__(
-        self, model_params: dict, train_params: dict = {}, data_params: dict = {}
-    ) -> None:
+    def __init__(self, model) -> None:
         super().__init__()
 
         self.save_hyperparameters(ignore=["model"])
-
-        # Add default training parameters
-        for key in default_train_params.keys():
-            if key not in train_params:
-                train_params[key] = default_train_params[key]
-            if key in ["loss", "task", "optimizer"]:
-                train_params[key] = train_params[key].lower()
-
-        # Save params
-        self.model_params = model_params
-        self.train_params = train_params
-        self.data_params = data_params
-
-        # Build model
-        self.build_model()
-
-        # Set up loss function
-        self.initialize_loss()
-
-        # Set up activation function
-        self.initialize_activation()
-
-        # Inititalize metrics
-        self.initialize_metrics()
-
-        # Initialize prediction transform
-        self.reset_transform()
-
-    def build_model(self) -> None:
-        """
-        Build a model from parameter dictionary
-        """
-        model_type = self.model_params["model_type"]
-        if hasattr(grelu.model.models, model_type):
-            self.model = getattr(grelu.model.models, model_type)
-        else:
-            raise Exception("Unknown model type")
-
-        self.model = self.model(
-            **{k: v for k, v in self.model_params.items() if k not in ["model_type"]}
-        )
+        self.model = model
+        self.model_params = { k:v for k,v in vars(model).items() if not k.startswith('_') }
+        self.train_params = {}
+        self.data_params = {}
 
     def initialize_loss(self) -> None:
         """
@@ -503,16 +442,48 @@ class LightningModel(pl.LightningModule):
 
     def train_on_dataset(
         self,
+        task: str,
+        loss: str,
         train_dataset: Callable,
         val_dataset: Callable,
+        lr: float = 1e-4,
+        optimizer: str = "adam",
+        batch_size: int = 512,
+        num_workers: int = 1,
+        devices: Union[str, int, List[int]] = "cpu",
+        logger: Optional[str] = None,
+        save_dir: str = ".",
+        max_epochs: str = 1,
+        checkpoint: bool = True,
+        clip: float = 0,
+        pos_weight: Optional[float] = None,
+        class_weights: Optional[List[float]] = None,
+        multinomial_weight: Optional[float] = None,
+        multinomial_axis: int = 1,
         checkpoint_path: Optional[str] = None,
     ):
         """
         Train model and optionally log metrics to wandb.
 
         Args:
-            train_dataset (Dataset): Dataset object that yields training examples
-            val_dataset (Dataset) : Dataset object that yields training examples
+            task: binary, multiclass, or regression
+            loss: loss function
+            train_dataset: Dataset object that yields training examples
+            val_dataset: Dataset object that yields training examples
+            lr: learning rate
+            optimizer: "adam", "sgd"
+            batch_size: batch size
+            num_workers: number of CPU workers
+            devices: Either "cpu" or index of GPU to use
+            logger: "csv", "wandb", or None
+            save_dir: Directory to save logs and checkpoints
+            max_epochs: Number of epochs
+            checkpoint: Whether to save checkpoints during training
+            clip: gradient clipping,
+            pos_weight: Loss weight for positive class
+            class_weights: Loss weights for examples belonging to different classes
+            multinomial_weight: Weight for the multinomial component of PoissonMultinomialLoss
+            multinomial_axis: Axis for PoissonMultinomialLoss
             checkpoint_path (str): Path to model checkpoint from which to resume training.
                 The optimizer will be set to its checkpointed state.
 
@@ -521,16 +492,34 @@ class LightningModel(pl.LightningModule):
         """
         torch.set_float32_matmul_precision("medium")
 
-        # Checkpointing
-        if self.train_params["checkpoint"] is True:
-            checkpoint_callbacks = [
-                ModelCheckpoint(monitor="val_loss", mode="min", save_last=True)
-            ]
-        elif isinstance(self.train_params["checkpoint"], dict):
-            checkpoint_callbacks = [ModelCheckpoint(**self.train_params["checkpoint"])]
-        else:
-            raise Exception("Checkpoint type must be a bool or dict")
+        # Save train parameters
+        self.train_params = {
+            'task': task,
+            'loss': loss,
+            'lr': lr,
+            'optimizer': optimizer,
+            'batch_size': batch_size,
+            'num_workers': num_workers,
+            'devices': devices,
+            'logger': logger,
+            'save_dir': save_dir,
+            'max_epochs': max_epochs,
+            'clip': clip,
+            'pos_weight': pos_weight,
+            'class_weights': class_weights,
+            'multinomial_weight': multinomial_weight,
+            'multinomial_axis': multinomial_axis,
+        }
 
+        # Set up loss function
+        self.initialize_loss()
+
+        # Set up activation function
+        self.initialize_activation()
+
+        # Inititalize metrics
+        self.initialize_metrics()
+        
         # Get device
         accelerator, devices = self.parse_devices(self.train_params["devices"])
 
@@ -539,13 +528,15 @@ class LightningModel(pl.LightningModule):
 
         # Set up trainer
         trainer = pl.Trainer(
-            max_epochs=self.train_params["max_epochs"],
+            max_epochs=max_epochs,
             accelerator=accelerator,
             devices=devices,
             logger=logger,
-            callbacks=checkpoint_callbacks,
-            default_root_dir=self.train_params["save_dir"],
-            gradient_clip_val=self.train_params["clip"],
+            callbacks=[
+                ModelCheckpoint(monitor="val_loss", mode="min", save_last=True)
+            ],
+            default_root_dir=save_dir,
+            gradient_clip_val=clip,
         )
 
         # Make dataloaders
@@ -656,6 +647,8 @@ class LightningModel(pl.LightningModule):
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
         checkpoint["hyper_parameters"]["data_params"] = self.data_params
+        checkpoint["hyper_parameters"]["train_params"] = self.train_params
+        checkpoint["hyper_parameters"]["model_params"] = self.model_params
 
     def predict_on_seqs(
         self,

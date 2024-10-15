@@ -11,6 +11,54 @@ from grelu.sequence.format import STANDARD_BASES, get_input_type
 
 def mutate(
     seq: Union[str, np.ndarray],
+    ref: Union[str, int],
+    alt: Union[str, int],
+    pos: Optional[int] = None,
+    input_type: Optional[str] = None,
+) -> Union[str, np.ndarray]:
+    """
+    Introduce a mutation (substitution) in one or more bases of the sequence.
+
+    Args:
+        seq: A single DNA sequence in string or integer encoded format.
+        ref: The reference allele at the given position. The allele should be
+            in the same format as the sequence.
+        alt: The allele to substitute at the given position. The allele should be
+            in the same format as the sequence.
+        pos: The start position at which to insert the allele into the input sequence.
+            If None, the allele will be centered in the input sequence.
+        input_type: Format of the input sequence. Accepted values are "strings" or "indices".
+
+    Returns:
+        Mutated sequence in the same format as the input.
+
+    Raises:
+        ValueError: if the input is not a string or integer encoded DNA sequence.
+    """
+    # Get input type
+    input_type = input_type or get_input_type(seq)
+
+    # Get allele
+    ref_len = len(ref)
+
+    # Get position at which to insert allele
+    if pos is None:
+        pos = int(np.floor(len(seq) / 2 - ref_len / 2))
+
+    # Introduce the substitution
+    if input_type == "strings":
+        return seq[:pos] + alt + seq[pos + ref_len :]
+
+    elif input_type == "indices":
+        return np.concatenate([seq[:pos], allele, seq[pos + ref_len :]])
+
+    else:
+        raise ValueError("Input should be a string or an integer encoded sequence")
+
+
+
+def substitute(
+    seq: Union[str, np.ndarray],
     allele: Union[str, int],
     pos: Optional[int] = None,
     input_type: Optional[str] = None,
@@ -167,7 +215,7 @@ def delete(
     return seq
 
 
-def random_mutate(
+def random_substitute(
     seq: Union[str, np.ndarray],
     rng: Optional[np.random.RandomState] = None,
     pos: Optional[int] = None,

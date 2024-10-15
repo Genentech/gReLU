@@ -8,7 +8,6 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
-from grelu.sequence.mutate import random_mutate
 from grelu.sequence.utils import reverse_complement
 
 # This is the number of output sequences expected from each type of augmentation
@@ -16,7 +15,6 @@ AUGMENTATION_MULTIPLIER_FUNCS = {
     "rc": lambda x: 2**x,
     "max_seq_shift": lambda x: (2 * x) + 1,
     "max_pair_shift": lambda x: (2 * x) + 1,
-    "n_mutated_seqs": lambda x: max(1, x),
 }
 
 
@@ -91,11 +89,6 @@ class Augmenter:
             This is normally a small value (< 10).
         max_pair_shift: Maximum number of bases by which the sequence and label can be jointly
             shifted. This can be a larger value.
-        n_mutated_seqs: Number of augmented sequences to generate by random mutation
-        n_mutated_bases: The number of bases to mutate in each augmented sequence. Only used
-            if n_mutated_seqs is greater than 0.
-        protect: A list of positions to protect from random mutation. Only used
-            if n_mutated_seqs is greater than 0.
         seq_len: Length of the augmented sequences
         label_len: Length of the augmented labels
         seed: Random seed for reproducibility.
@@ -107,28 +100,21 @@ class Augmenter:
         rc: bool = False,
         max_seq_shift: int = 0,
         max_pair_shift: int = 0,
-        n_mutated_seqs: int = 0,
-        n_mutated_bases: Optional[int] = None,
-        protect: List[int] = [],
         seq_len: Optional[int] = None,
         label_len: Optional[int] = None,
         seed: Optional[int] = None,
         mode: str = "serial",
     ):
         # Save general params
-        self.protect = protect
         self.seq_len = seq_len
         self.label_len = label_len
-        self.n_mutated_bases = n_mutated_bases
 
         # Save augmentation params
         self.rc = rc
         self.max_seq_shift = max_seq_shift
         self.max_pair_shift = max_pair_shift
-        self.n_mutated_seqs = n_mutated_seqs
         self.shift_label = self.max_pair_shift > 0
         self.shift_seq = (self.max_seq_shift > 0) or (self.shift_label)
-        self.mutate = (self.n_mutated_seqs > 0) and (self.n_mutated_bases > 0)
 
         # Create settings
         self.max_values = _get_multipliers(
@@ -198,18 +184,6 @@ class Augmenter:
         # Reverse complement sequence
         if self.rc:
             seq = rc_seq(seq, idx=rc_idx)
-
-        # Introduce random mutations into the sequence
-        if self.mutate:
-            for _ in range(self.n_mutated_bases):
-                seq = random_mutate(
-                    seq,
-                    pos=None,
-                    drop_ref=True,
-                    protect=self.protect,
-                    input_type="indices",
-                    rng=self.rng,
-                )
 
         # If no label is provided, return only the sequence
         if label is None:

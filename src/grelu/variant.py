@@ -12,6 +12,10 @@ from anndata import AnnData
 from grelu.data.dataset import VariantDataset
 
 
+def max_deletion_len(variants, del_char='-'):
+    return variants.ref[variants.alt == del_char].apply(len).max()
+
+
 def filter_variants(
     variants,
     standard_bases: bool = True,
@@ -71,7 +75,7 @@ def filter_variants(
 
 
 def variants_to_intervals(
-    variants: pd.DataFrame, seq_len: int = 1, inplace: bool = False
+    variants: pd.DataFrame, seq_len: int = 1, inplace: bool = False,
 ) -> pd.DataFrame:
     """
     Return genomic intervals centered around each variant.

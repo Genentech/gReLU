@@ -138,12 +138,13 @@ class PearsonCorrCoef(Metric):
         self.average = average
 
     def update(self, preds: torch.Tensor, target: torch.Tensor) -> None:
-        preds = (
-            preds.swapaxes(1, 2).flatten(start_dim=0, end_dim=1).to(torch.float32)
-        )  # Nx L, n_tasks
-        target = (
-            target.swapaxes(1, 2).flatten(start_dim=0, end_dim=1).to(torch.float32)
-        )  # Nx L, n_tasks
+
+        preds = preds.transpose(1,2) # B, L, T
+        target = target.transpose(1,2) # B, L, T
+        
+        preds = preds.flatten(start_dim=0, end_dim=1).to(torch.float32)  # Bx L, T
+        target = target.flatten(start_dim=0, end_dim=1).to(torch.float32) # Bx L, T
+
         self.pearson.update(preds, target)
 
     def compute(self) -> torch.Tensor:

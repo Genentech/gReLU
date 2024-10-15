@@ -54,13 +54,13 @@ def read_gtf(
     genome: str, features: Optional[Union[str, List[str]]] = None
 ) -> pd.DataFrame:
     """
-    Install a genome annotation from genomepy and load it as a dataframe.
-    UCSC tools may need to be installed for this to work. See
+    Load a gtf annotation file from disk or from genomepy as a dataframe.
+    UCSC tools may need to be installed for this to work via genomepy. See
     https://github.com/vanheeringen-lab/genomepy?tab=readme-ov-file#installation
     for details.
 
     Args:
-        genome: Name of the genome to load from genomepy
+        genome: Name of the genome to load from genomepy, or path to a .gtf file
         features: A list of specific features to return, such as "exon", "CDS" or
             "transcript"
 
@@ -70,12 +70,16 @@ def read_gtf(
     from grelu.utils import make_list
 
     # Read GTF annotations
-    try:
-        gtf = genomepy.Annotation(genome).named_gtf
-    except FileNotFoundError:
-        print("Genome annotation files not found. Installing genome annotation files.")
-        genomepy.install_genome(genome, only_annotation=True)
-        gtf = genomepy.Annotation(genome).named_gtf
+    if os.path.isfile(genome):
+        from gtfparse import read_gtf as parse_gtf
+        gtf = pd.DataFrame(parse_gtf(genome))
+    else:
+        try:
+            gtf = genomepy.Annotation(genome).named_gtf
+        except FileNotFoundError:
+            print("Genome annotation files not found. Installing genome annotation files.")
+            genomepy.install_genome(genome, only_annotation=True)
+            gtf = genomepy.Annotation(genome).named_gtf
 
     gtf = gtf.reset_index()
 

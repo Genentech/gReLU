@@ -26,8 +26,9 @@ from grelu.sequence.format import (
     strings_to_indices,
 )
 from grelu.sequence.mutate import mutate
-from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
+from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize, trim
 from grelu.utils import get_aggfunc, get_transform_func
+from grelu.variant import max_deletion_len, variants_to_intervals
 
 
 class LabeledSeqDataset(Dataset):
@@ -538,10 +539,6 @@ class VariantDataset(Dataset):
         max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
             This is normally a small value (< 10). If 0, sequences will not
             be augmented by shifting.
-        frac_mutation: Fraction of bases to randomly mutate for data augmentation.
-        protect: A list of positions to protect from mutation.
-        n_mutated_seqs: Number of mutated sequences to generate from each input
-            sequence for data augmentation.
     """
 
     def __init__(
@@ -551,12 +548,10 @@ class VariantDataset(Dataset):
         genome: Optional[str] = None,
         rc: bool = False,
         max_seq_shift: int = 0,
-        frac_mutation: float = 0.0,
-        n_mutated_seqs: int = 1,
-        protect: Optional[List[int]] = None,
         seed: Optional[int] = None,
         augment_mode: str = "serial",
     ) -> None:
+        
         # Save params
         self.genome = genome
         self.seq_len = seq_len
@@ -564,9 +559,6 @@ class VariantDataset(Dataset):
         # Save augmentation params
         self.rc = rc
         self.max_seq_shift = max_seq_shift
-        self.frac_mutated_bases = frac_mutation
-        self.n_mutated_bases = int(self.frac_mutated_bases * self.seq_len)
-        self.n_mutated_seqs = n_mutated_seqs
 
         # Ingest alleles
         self._load_alleles(variants)
@@ -576,19 +568,10 @@ class VariantDataset(Dataset):
         self._load_seqs(variants)
         self.n_seqs = self.seqs.shape[0]
 
-        # Protect central positions for mutation
-        if protect is None:
-            self.protect = [seq_len // 2]
-        else:
-            self.protect = protect
-
         # Create augmenter
         self.augmenter = Augmenter(
             rc=self.rc,
             max_seq_shift=self.max_seq_shift,
-            n_mutated_seqs=self.n_mutated_seqs,
-            n_mutated_bases=self.n_mutated_bases,
-            protect=self.protect,
             seq_len=self.seq_len,
             seed=seed,
             mode=augment_mode,
@@ -598,13 +581,14 @@ class VariantDataset(Dataset):
     def _load_alleles(self, variants: pd.DataFrame) -> None:
         self.ref = strings_to_indices(variants.ref.tolist())
         self.alt = strings_to_indices(variants.alt.tolist())
+        self.max_del_len = max_deletion_len(variants, del_char='-')
 
     def _load_seqs(self, variants: pd.DataFrame) -> None:
-        from grelu.variant import variants_to_intervals
-
         self.padded_seq_len = self.seq_len + (2 * self.max_seq_shift)
-        self.intervals = variants_to_intervals(variants, seq_len=self.padded_seq_len)
+        self.padded_seq_len_for_deletion =  self.padded_seq_len + self.max_del_len
+        self.intervals = variants_to_intervals(variants, seq_len=self.padded_seq_len_for_deletion)
         self.seqs = convert_input_type(self.intervals, "indices", genome=self.genome)
+        
 
     def __len__(self) -> int:
         return self.n_seqs * self.n_augmented * 2
@@ -618,14 +602,13 @@ class VariantDataset(Dataset):
         # Extract current sequence and alleles
         seq = self.seqs[seq_idx]
 
-        # Insert the allele
-        if allele_idx:
-            alt = self.alt[seq_idx]
-            seq = mutate(seq, alt, input_type="indices")
-        else:
-            ref = self.ref[seq_idx]
-            seq = mutate(seq, ref, input_type="indices")
+        # Insert the allele into the sequence
+        allele = self.alt[seq_idx] if allele_idx else self.ref[seq_idx]
+        seq = mutate(seq, allele, input_type="indices")
 
+        # Trim the extra bases that were added to account for deletion
+        seq = trim(seq, seq_len=self.padded_seq_len, end='both', input_type='indices')
+        
         # Augment current sequence
         seq = self.augmenter(seq=seq, idx=augment_idx)
 
