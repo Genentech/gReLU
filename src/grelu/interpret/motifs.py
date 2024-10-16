@@ -103,7 +103,7 @@ def trim_pwm(
 
 def scan_sequences(
     seqs: Union[str, List[str]],
-    motifs: Union[str, np.ndarray, Dict[str, np.ndarray]],
+    motifs: Union[str, Dict[str, np.ndarray]],
     names: Optional[List[str]] = None,
     seq_ids: Optional[List[str]] = None,
     pthresh: float = 1e-3,
@@ -117,8 +117,8 @@ def scan_sequences(
 
     Args:
         seqs: A string or a list of DNA sequences as strings
-        motifs: A single PPM of shape (L, 4), a dictionary whose values are
-            PPMs, or the path to a MEME file.
+        motifs: A dictionary whose values are PPMs of shape (L, 4),
+            or the path to a MEME file.
         names: A list of motif names to read from the MEME file.
             If None, all motifs in the file will be read.
         seq_ids: Optional list of IDs for sequences
@@ -139,9 +139,15 @@ def scan_sequences(
 
     from grelu.sequence.format import strings_to_one_hot
 
+    # Format sequences
     seqs = make_list(seqs)
     seq_ids = seq_ids or [str(i) for i in range(len(seqs))]
 
+    # Format motifs
+    if isinstance(motifs, Dict):
+        motifs = {k: v.T for k, v in motifs.items()}
+
+    # Scan each sequence in seqs
     results = []
     for seq, seq_id in zip(seqs, seq_ids):
         one_hot = strings_to_one_hot(seq, add_batch_axis=True)
@@ -176,6 +182,7 @@ def scan_sequences(
                 ]
             )
 
+    # Concatenate results from all sequences
     results = pd.concat(results).reset_index(drop=True)
     results = results.rename(columns={"motif_name": "motif"})
     return results
