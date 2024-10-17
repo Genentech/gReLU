@@ -33,7 +33,7 @@ def test_pattern_score():
 
 
 def test_motif_score():
-    t = MotifScore(meme_file=meme_file, weights=[-1, 0.5], rc=False)
+    t = MotifScore(motifs=meme_file, weights=[-1, 0.5], rc=False)
     assert t(seqs) == [0, 0, 0]
     assert t(["CCCACGTGAA", "AATGCGTGGG"]) == [-1, 0.5]
 

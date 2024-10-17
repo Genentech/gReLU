@@ -6,6 +6,7 @@ from typing import Callable, Dict, Generator, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+from torch import Tensor
 
 from grelu.io.motifs import read_meme_file
 from grelu.utils import make_list
@@ -145,10 +146,10 @@ def scan_sequences(
 
     # Format motifs
     if isinstance(motifs, Dict):
-        motifs = {k: v.T for k, v in motifs.items()}
+        motifs = {k: Tensor(v.T) for k, v in motifs.items()}
 
     # Scan each sequence in seqs
-    results = []
+    results = pd.DataFrame()
     for seq, seq_id in zip(seqs, seq_ids):
         one_hot = strings_to_one_hot(seq, add_batch_axis=True)
         curr_results = _fimo(
@@ -167,24 +168,24 @@ def scan_sequences(
             curr_results["matched_seq"] = curr_results.apply(
                 lambda row: seq[row.start : row.end], axis=1
             )
-            results.append(
-                curr_results[
-                    [
-                        "motif_name",
-                        "sequence",
-                        "start",
-                        "end",
-                        "strand",
-                        "score",
-                        "p-value",
-                        "matched_seq",
-                    ]
+            curr_results = curr_results[
+                [
+                    "motif_name",
+                    "sequence",
+                    "start",
+                    "end",
+                    "strand",
+                    "score",
+                    "p-value",
+                    "matched_seq",
                 ]
-            )
+            ]
+            results = pd.concat([results, curr_results])
 
     # Concatenate results from all sequences
-    results = pd.concat(results).reset_index(drop=True)
-    results = results.rename(columns={"motif_name": "motif"})
+    if len(results) > 0:
+        results = results.reset_index(drop=True)
+        results = results.rename(columns={"motif_name": "motif"})
     return results
 
 
