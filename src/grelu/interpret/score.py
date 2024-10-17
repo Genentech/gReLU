@@ -9,7 +9,7 @@ from typing import Callable, List, Optional, Union
 import numpy as np
 import pandas as pd
 import torch
-from captum.attr import InputXGradient, IntegratedGradients
+from captum.attr import InputXGradient, IntegratedGradients, Saliency
 from tangermeme.deep_lift_shap import deep_lift_shap
 from torch import Tensor
 
@@ -157,7 +157,10 @@ def get_attributions(
 
     # Check hypothetical
     if hypothetical:
-        assert method == "deepshap", "hypothetical = True requires deepshap."
+        if method != "deepshap":
+            warnings.warn(
+                "hypothetical = True will be ignored as method is not deepshap."
+            )
 
     # Initialize the attributer
     if method == "deepshap":
@@ -183,6 +186,8 @@ def get_attributions(
             attributer = IntegratedGradients(model.to(device))
         elif method == "inputxgradient":
             attributer = InputXGradient(model.to(device))
+        elif method == "saliency":
+            attributer = Saliency(model.to(device))
         else:
             raise NotImplementedError
 
@@ -233,7 +238,7 @@ def run_modisco(
         batch_size: Batch size to use for model inference
         n_shuffles: Number of times to shuffle the background sequences for deepshap.
         seed: Random seed
-        method: Either "deepshap" or "ism".
+        method: Either "deepshap", "saliency" or "ism".
         **kwargs: Additional arguments to pass to TF-Modisco.
 
     Raises:
@@ -258,7 +263,7 @@ def run_modisco(
     one_hot = convert_input_type(seqs, "one_hot", genome=genome)
     one_hot_arr = one_hot[:, :, start:end].numpy()
 
-    if method == "deepshap":
+    if method in ["deepshap", "saliency"]:
         print("Getting attributions")
         attrs = get_attributions(
             model=model,
