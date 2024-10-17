@@ -9,7 +9,7 @@ from typing import Callable, List, Optional, Union
 import numpy as np
 import pandas as pd
 import torch
-from captum.attr import InputXGradient, IntegratedGradients
+from captum.attr import InputXGradient, IntegratedGradients, Saliency
 from tangermeme.deep_lift_shap import deep_lift_shap
 from torch import Tensor
 
@@ -137,7 +137,8 @@ def get_attributions(
         devices: Indices of the devices to use for inference
         method: One of "deepshap", "saliency", "inputxgradient" or "integratedgradients"
         hypothetical: whether to calculate hypothetical importance scores.
-            Set this to True to obtain input for tf-modisco, False otherwise
+            Set this to True to obtain input for tf-modisco with deepshap,
+            False otherwise
         n_shuffles: Number of times to dinucleotide shuffle sequence
         seed: Random seed
         **kwargs: Additional arguments to pass to tangermeme.deep_lift_shap.deep_lift_shap
@@ -157,7 +158,10 @@ def get_attributions(
 
     # Check hypothetical
     if hypothetical:
-        assert method == "deepshap", "hypothetical = True requires deepshap."
+        if method != "deepshap":
+            warnings.warn(
+                "hypothetical = True will be ignored unless method = deepshap."
+            )
 
     # Initialize the attributer
     if method == "deepshap":
@@ -183,6 +187,8 @@ def get_attributions(
             attributer = IntegratedGradients(model.to(device))
         elif method == "inputxgradient":
             attributer = InputXGradient(model.to(device))
+        elif method == "saliency":
+            attributer = Saliency(model.to(device))
         else:
             raise NotImplementedError
 
@@ -213,7 +219,7 @@ def run_modisco(
     batch_size: int = 64,
     n_shuffles: int = 10,
     seed=None,
-    method: str = "deepshap",
+    method: str = "saliency",
     **kwargs,
 ):
     """
@@ -233,17 +239,23 @@ def run_modisco(
         batch_size: Batch size to use for model inference
         n_shuffles: Number of times to shuffle the background sequences for deepshap.
         seed: Random seed
-        method: Either "deepshap" or "ism".
+        method: Either "deepshap", "saliency", or "ism".
         **kwargs: Additional arguments to pass to TF-Modisco.
 
     Raises:
         NotImplementedError: if the method is neither "deepshap" nor "ism"
     """
-    import modiscolite
+    import h5py
+    from modiscolite.io import save_hdf5
+    from modiscolite.report import create_modisco_logos, make_logo, path_to_image_html
+    from modiscolite.tfmodisco import TFMoDISco
 
     from grelu.data.dataset import ISMDataset, SeqDataset
-    from grelu.resources import get_meme_file_path
+    from grelu.interpret.motifs import run_tomtom
+    from grelu.io.motifs import read_modisco_report
     from grelu.sequence.utils import get_unique_length
+
+    top_n_matches = 10
 
     # Get start and end positions
     if window is None:
@@ -258,7 +270,7 @@ def run_modisco(
     one_hot = convert_input_type(seqs, "one_hot", genome=genome)
     one_hot_arr = one_hot[:, :, start:end].numpy()
 
-    if method == "deepshap":
+    if method.isin(["deepshap", "saliency"]):
         print("Getting attributions")
         attrs = get_attributions(
             model=model,
@@ -317,30 +329,122 @@ def run_modisco(
     print("Running modisco")
     one_hot_arr = one_hot_arr.transpose(0, 2, 1).astype("float32")
     attrs = attrs.transpose(0, 2, 1).astype("float32")
-    pos_patterns, neg_patterns = modiscolite.tfmodisco.TFMoDISco(
-        hypothetical_contribs=attrs,
-        one_hot=one_hot_arr,
-        **kwargs,
+    pos_patterns, neg_patterns = TFMoDISco(
+        hypothetical_contribs=attrs, one_hot=one_hot_arr, **kwargs
     )
 
-    print("Writing modisco output")
+    print("Writing modisco report")
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
-
     h5_file = os.path.join(out_dir, "modisco_report.h5")
-    modiscolite.io.save_hdf5(h5_file, pos_patterns, neg_patterns, window_size=20)
+    save_hdf5(h5_file, pos_patterns, neg_patterns, window_size=20)
+
+    print("Creating sequence logos")
+    modisco_logo_dir = os.path.join(out_dir, "trimmed_logos")
+    if not os.path.isdir(modisco_logo_dir):
+        os.mkdir(modisco_logo_dir)
+    create_modisco_logos(
+        h5_file,
+        modisco_logo_dir,
+        trim_threshold=0.2,
+        pattern_groups=["pos_patterns", "neg_patterns"],
+    )
+
+    print("Creating dataframe of discovered motifs")
+    results = {
+        "pattern": [],
+        "num_seqlets": [],
+        "modisco_cwm_fwd": [],
+        "modisco_cwm_rev": [],
+    }
+    with h5py.File(h5_file, "r") as f:
+        for metacluster in ["pos_patterns", "neg_patterns"]:
+            if metacluster not in f.keys():
+                continue
+
+            for pattern_name, pattern in sorted(
+                f[metacluster].items(), key=lambda x: int(x[0].split("_")[-1])
+            ):
+                num_seqlets = pattern["seqlets"]["n_seqlets"][:][0]
+                pattern_tag = f"{metacluster}.{pattern_name}"
+                results["pattern"].append(pattern_tag)
+                results["num_seqlets"].append(num_seqlets)
+                results["modisco_cwm_fwd"].append(
+                    os.path.join(modisco_logo_dir, f"{pattern_tag}.cwm.fwd.png")
+                )
+                results["modisco_cwm_rev"].append(
+                    os.path.join(modisco_logo_dir, f"{pattern_tag}.cwm.rev.png")
+                )
+
+    patterns_df = pd.DataFrame(results)
+    reordered_columns = ["pattern", "num_seqlets", "modisco_cwm_fwd", "modisco_cwm_rev"]
 
     if meme_file is not None:
-        print("Making report")
-        meme_file = get_meme_file_path(meme_file)
-        modiscolite.report.report_motifs(
-            h5_file,
-            out_dir,
-            is_writing_tomtom_matrix=True,
-            top_n_matches=10,
-            meme_motif_db=meme_file,
-            img_path_suffix="./",
-            trim_threshold=0.2,
+        print("Running TOMTOM")
+        motifs = read_modisco_report(h5_file, trim_threshold=0.2)
+        tomtom_results = run_tomtom(motifs, meme_file)
+        tomtom_results.to_csv(os.path.join(out_dir, "tomtom.csv"))
+
+        print("Compiling top TOMTOM matches")
+        tomtom_results = {}
+        for i in range(top_n_matches):
+            tomtom_results[f"match{i}"] = []
+            tomtom_results[f"qval{i}"] = []
+
+        with h5py.File(h5_file, "r") as f:
+            for metacluster in ["pos_patterns", "neg_patterns"]:
+                if metacluster not in f.keys():
+                    continue
+                pattern_names = sorted(
+                    f[metacluster].keys(), key=lambda x: int(x[0].split("_")[-1])
+                )
+                for k in pattern_names:
+                    r = tomtom_results.loc[
+                        tomtom_results.Query_ID == k, ["Target_ID", "q-value"]
+                    ].sort_values("q-value")[:top_n_matches]
+
+                    i = -1
+                    for i, (target, qval) in r.iterrows():
+                        tomtom_results[f"match{i}"].append(target)
+                        tomtom_results[f"qval{i}"].append(qval)
+
+                    for j in range(i + 1, top_n_matches):
+                        tomtom_results[f"match{j}"].append(None)
+                        tomtom_results[f"qval{j}"].append(None)
+
+        tomtom_df = pd.DataFrame(tomtom_results)
+        patterns_df = pd.concat([patterns_df, tomtom_df], axis=1)
+
+    print("Saving html")
+    for i in range(top_n_matches):
+        name = f"match{i}"
+        logos = []
+        for _, row in patterns_df.iterrows():
+            if name in patterns_df.columns:
+                if pd.isnull(row[name]):
+                    logos.append("NA")
+                else:
+                    make_logo(row[name], out_dir, motifs)
+                    logos.append(f"{row[name]}.png")
+            else:
+                break
+
+        patterns_df[f"{name}_logo"] = logos
+        reordered_columns.extend([name, f"qval{i}", f"{name}_logo"])
+
+    patterns_df = patterns_df[reordered_columns]
+    with open(os.path.join(out_dir, "motifs.html"), "w") as f:
+        patterns_df.to_html(
+            f,
+            escape=False,
+            formatters=dict(
+                modisco_cwm_fwd=path_to_image_html,
+                modisco_cwm_rev=path_to_image_html,
+                match0_logo=path_to_image_html,
+                match1_logo=path_to_image_html,
+                match2_logo=path_to_image_html,
+            ),
+            index=False,
         )
 
 

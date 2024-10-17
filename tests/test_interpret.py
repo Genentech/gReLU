@@ -139,3 +139,7 @@ def test_scan_sequences():
     out = scan_sequences(seqs, motifs=meme_file, rc=True)
     assert out.motif.tolist() == ["Arnt", "Arnt", "Ahr::Arnt", "Ahr::Arnt"]
     assert out.sequence.tolist() == ["0", "0", "1", "2"]
+
+
+def test_run_tomtom():
+    pass

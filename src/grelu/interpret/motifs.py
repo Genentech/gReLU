@@ -2,7 +2,7 @@
 Functions related to manipulating sequence motifs and scanning DNA sequences with motifs.
 """
 
-from typing import Callable, Generator, List, Optional, Tuple, Union
+from typing import Callable, Dict, Generator, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -318,3 +318,37 @@ def compare_motifs(
     scan["foldChange"] = scan.alt / scan.ref
     scan = scan.sort_values("foldChange").reset_index(drop=True)
     return scan
+
+
+def run_tomtom(motifs: Dict[str, np.ndarray], meme_file: str):
+    from statsmodels.stats.multitest import fdrcorrection
+    from tangermeme.io import read_meme
+    from tangermeme.tools.tomtom import tomtom
+
+    from grelu.interpret.motifs import motifs_to_strings
+    from grelu.resources import get_meme_file_path
+
+    meme_file = get_meme_file_path(meme_file)
+    ref_motifs = read_meme(meme_file)
+    query_consensuses = {k: motifs_to_strings(v) for k, v in motifs.items()}
+    target_consensuses = {k: motifs_to_strings(v) for k, v in ref_motifs.items()}
+    pvals, scores, offsets, overlaps, strands = tomtom(
+        list(motifs.values()), list(ref_motifs.values())
+    )
+
+    df = pd.DataFrame(
+        {
+            "Query_ID": np.repeat(list(motifs.keys()), len(ref_motifs)),
+            "Target_ID": list(ref_motifs.keys()) * len(motifs),
+            "Optimal_offset": offsets.flatten(),
+            "p-value": pvals.flatten(),
+        }
+    )
+    df["E-value"] = df["p-value"] * len(ref_motifs)
+    df["q-value"] = fdrcorrection(df["p-value"])
+    df["Overlap"] = overlaps.flatten()
+    df["Query_consensus"] = df.Query_ID.map(query_consensuses)
+    df["Target_consensus"] = df.Target_ID.map(target_consensuses)
+    df["Orientation"] = ["+" if x == 0 else "-" for x in strands.flatten()]
+
+    return df
