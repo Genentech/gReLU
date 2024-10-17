@@ -738,3 +738,9 @@ def plot_attention_matrix(
     ax.set_ylabel("Attended by")
     ax.set_xlabel("Attended to")
     return fig
+
+
+def plot_motif(motif, name=None):
+    from tangermeme.plot import plot_pwm
+
+    return plot_pwm(motif.T, name=name)
