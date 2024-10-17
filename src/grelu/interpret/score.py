@@ -263,7 +263,7 @@ def run_modisco(
     one_hot = convert_input_type(seqs, "one_hot", genome=genome)
     one_hot_arr = one_hot[:, :, start:end].numpy()
 
-    if method == "deepshap":
+    if method in ["deepshap", "saliency"]:
         print("Getting attributions")
         attrs = get_attributions(
             model=model,
