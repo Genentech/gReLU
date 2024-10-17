@@ -103,9 +103,11 @@ def test_ISM_predict():
 def test_get_attributions():
     seq = generate_random_sequences(n=1, seq_len=50, seed=0, output_format="strings")[0]
     for hypothetical in [True, False]:
-        attrs = get_attributions(model, seq, hypothetical=hypothetical, n_shuffles=10, method='deepshap')
+        attrs = get_attributions(
+            model, seq, hypothetical=hypothetical, n_shuffles=10, method="deepshap"
+        )
         assert attrs.shape == (1, 4, 50)
-    for method in ['saliency', 'inputxgradient', 'integratedgradients']:
+    for method in ["saliency", "inputxgradient", "integratedgradients"]:
         attrs = get_attributions(model, seq, method=method)
         assert attrs.shape == (1, 4, 50)
 
