@@ -22,11 +22,13 @@ def motifs_to_strings(
     Extracts a matching DNA sequence from a motif
 
     Args:
-        motifs: Either a numpy array containing a PPM of shape (L, 4), or a
-            dictionary containing motif names as keys and PPMs of shape (L, 4) as
-            values, or the path to a MEME file.
-        names: A list of motif names to read from the MEME file, in case a MEME
-            file is supplied in motifs. If None, all motifs in the file will be read.
+        motifs: Either a numpy array containing a Position Probability
+            Matrix (PPM) of shape (4, L), or a dictionary containing
+            motif names as keys and PPMs of shape (4, L) as values, or the
+            path to a MEME file.
+        names: A list of motif names to read from the MEME file, in case a
+            MEME file is supplied in motifs. If None, all motifs in the
+            file will be read.
         sample: If True, a sequence will be sampled from the motif.
             Otherwise, the best match sequence will be returned.
         rng: np.random.RandomState object
@@ -45,10 +47,10 @@ def motifs_to_strings(
         # Extract sequence as indices
         if sample:
             indices = np.array(
-                [rng.multinomial(1, pos).argmax() for pos in motifs], dtype=np.int8
+                [rng.multinomial(1, pos).argmax() for pos in motifs.T], dtype=np.int8
             )
         else:
-            indices = motifs.argmax(1).astype(np.int8)
+            indices = motifs.argmax(0).astype(np.int8)
 
         # Return strings
         return indices_to_strings(indices)
@@ -70,10 +72,11 @@ def trim_pwm(
     return_indices: bool = False,
 ) -> Union[Tuple[int], np.ndarray]:
     """
-    Trims the edges of a PWM based on information content.
+    Trims the edges of a Position Weight Matrix (PWM) based on the
+    information content of each position.
 
     Args:
-        pwm: PWM array of shape (L, 4)
+        pwm: A numpy array of shape (4, L) containing the PWM
         trim_threshold: Threshold ranging from 0 to 1 to trim edge positions
         return_indices: If True, only the indices of the positions to keep
             will be returned. If False, the trimmed motif will be returned.
@@ -84,7 +87,7 @@ def trim_pwm(
         (if return_indices = False).
     """
     # Get per position score
-    score = np.sum(np.abs(pwm), axis=1)
+    score = np.sum(np.abs(pwm), axis=0)
 
     # Calculate score threshold
     trim_thresh = np.max(score) * trim_threshold
@@ -99,7 +102,7 @@ def trim_pwm(
     if return_indices:
         return start, end
     else:
-        return pwm[start:end]
+        return pwm[:, start:end]
 
 
 def scan_sequences(
@@ -118,8 +121,8 @@ def scan_sequences(
 
     Args:
         seqs: A string or a list of DNA sequences as strings
-        motifs: A dictionary whose values are PPMs of shape (L, 4),
-            or the path to a MEME file.
+        motifs: A dictionary whose values are Position Probability Matrices
+            (PPMs) of shape (4, L), or the path to a MEME file.
         names: A list of motif names to read from the MEME file.
             If None, all motifs in the file will be read.
         seq_ids: Optional list of IDs for sequences
@@ -136,7 +139,7 @@ def scan_sequences(
         pd.DataFrame containing columns 'motif', 'sequence', 'start', 'end',
         'strand', 'score', 'pval', and 'matched_seq'.
     """
-    from tangermeme.tools.fimo import fimo as _fimo
+    from tangermeme.tools.fimo import fimo
 
     from grelu.sequence.format import strings_to_one_hot
 
@@ -146,13 +149,13 @@ def scan_sequences(
 
     # Format motifs
     if isinstance(motifs, Dict):
-        motifs = {k: Tensor(v.T) for k, v in motifs.items()}
+        motifs = {k: Tensor(v) for k, v in motifs.items()}
 
     # Scan each sequence in seqs
     results = pd.DataFrame()
     for seq, seq_id in zip(seqs, seq_ids):
         one_hot = strings_to_one_hot(seq, add_batch_axis=True)
-        curr_results = _fimo(
+        curr_results = fimo(
             motifs,
             sequences=one_hot,
             alphabet=["A", "C", "G", "T"],
@@ -285,8 +288,8 @@ def compare_motifs(
 
     Args:
         ref_seq: The reference sequence as a string
-        motifs: A single PPM of shape (L, 4), a dictionary whose values are
-            PPMs, or the path to a MEME file.
+        motifs: A dictionary whose values are Position Probability Matrices
+            (PPMs) of shape (4, L), or the path to a MEME file.
         alt_seq: The alternate sequence as a string
         ref_allele: The alternate allele as a string. Only used if
             alt_seq is not supplied.

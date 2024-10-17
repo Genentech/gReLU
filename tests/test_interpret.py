@@ -32,18 +32,17 @@ def test_trim_pwm():
         np.log2(
             np.array(
                 [
-                    [0.25, 0.25, 0.24, 0.26],
-                    [0.5, 0.2, 0.2, 0.1],
-                    [0.97, 0.01, 0.01, 0.01],
-                    [0.01, 0.97, 0.01, 0.01],
-                    [0.01, 0.97, 0.01, 0.01],
+                    [0.25, 0.5, 0.97, 0.01, 0.01],
+                    [0.25, 0.2, 0.01, 0.97, 0.97],
+                    [0.24, 0.2, 0.01, 0.01, 0.01],
+                    [0.26, 0.1, 0.01, 0.01, 0.01],
                 ]
             )
         )
         + 2
     )
-    assert np.all(trim_pwm(pwm, trim_threshold=0.3) == pwm[2:, :])
-    assert np.all(trim_pwm(pwm, trim_threshold=0.01) == pwm[1:, :])
+    assert np.all(trim_pwm(pwm, trim_threshold=0.3) == pwm[:, 2:])
+    assert np.all(trim_pwm(pwm, trim_threshold=0.01) == pwm[:, 1:])
 
 
 # Create test model

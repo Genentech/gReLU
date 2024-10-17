@@ -55,7 +55,7 @@ class MotifScore:
     A scorer that returns a weighted score based on the number of occurrences of given subsequences.
 
     Args:
-        motifs: Either the path to a MEME file, or a dictionary whose values are numpy arrays of shape (L, 4).
+        motifs: Either the path to a MEME file, or a dictionary whose values are numpy arrays of shape (4, L).
         names: List of names of motifs to read from the meme file. If None, all motifs will be read
             from the file.
         weights: List of weights for each motif. If None, all motifs will receive a weight of 1.

@@ -19,7 +19,9 @@ def read_meme_file(
         n_motifs: Number of motifs to read
 
     Returns:
-        a dictionary in which the keys are PPM names and the values are the PPMs in numpy arrays of shape (L, 4)
+        a dictionary in which the keys are motif names and the
+        values are the motif position probability matrices (PPMs)
+        as numpy arrays of shape (4, L).
     """
     from grelu.resources import get_meme_file_path
 
@@ -56,9 +58,9 @@ def read_meme_file(
             else:
                 # Add the new motif to motifs dict
                 if names is None:
-                    motifs[name] = ppm
+                    motifs[name] = ppm.T
                 elif name in names:
-                    motifs[name] = ppm
+                    motifs[name] = ppm.T
 
                 # If all the required motifs have been read, stop
                 if n_motifs is not None:
@@ -139,11 +141,11 @@ def read_modisco_report(
                 ds = f[f"{group}_patterns"][name]
 
                 # Read and normalize PPM
-                ppm = ds["sequence"][:] / np.sum(
-                    ds["sequence"][:], axis=1, keepdims=True
-                )
+                ppm = (
+                    ds["sequence"][:] / np.sum(ds["sequence"][:], axis=1, keepdims=True)
+                ).T
                 # Read CWM
-                cwm = ds["contrib_scores"][:]
+                cwm = ds["contrib_scores"][:].T
 
                 # Trim PPMs based on information content
                 start, end = trim_pwm(
@@ -151,6 +153,6 @@ def read_modisco_report(
                 )
 
                 # Add the new motif to motifs dict
-                motifs[f"{group}_{name}"] = ppm[start:end]
+                motifs[f"{group}_{name}"] = ppm[:, start:end]
 
     return motifs
