@@ -133,6 +133,8 @@ def test_get_attention_scores():
 
 def test_scan_sequences():
     seqs = ["TCACGTGA", "CCTGCGTGA", "CACGCAGG"]
+
+    # No reverse complement
     out = scan_sequences(seqs, motifs=meme_file, rc=False, pthresh=1e-3)
     assert out.motif.tolist() == ["MA0004.1 Arnt", "MA0006.1 Ahr::Arnt"]
     assert out.sequence.tolist() == ["0", "1"]
@@ -141,6 +143,7 @@ def test_scan_sequences():
     assert out.strand.tolist() == ["+", "+"]
     assert out.matched_seq.tolist() == ["CACGTG", "TGCGTG"]
 
+    # Allow reverse complement
     out = scan_sequences(seqs, motifs=meme_file, rc=True, pthresh=1e-3)
     assert out.motif.tolist() == [
         "MA0004.1 Arnt",
@@ -153,3 +156,9 @@ def test_scan_sequences():
     assert out.end.tolist() == [7, 7, 8, 6]
     assert out.strand.tolist() == ["+", "-", "+", "-"]
     assert out.matched_seq.tolist() == ["CACGTG", "CACGTG", "TGCGTG", "CACGCA"]
+
+    # Reverse complement with attributions
+    attrs = get_attributions(model, seqs, method="inputxgradient")
+    out = scan_sequences(seqs, motifs=meme_file, rc=True, pthresh=1e-3, attrs=attrs)
+    assert np.allclose(out.site_attr_score, [0.0, 0.0, -0.009259, 0.009259])
+    assert np.allclose(out.motif_attr_score, [0.003704, 0.0, -0.035494, 0.0])
