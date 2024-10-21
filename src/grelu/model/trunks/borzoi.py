@@ -144,6 +144,7 @@ class BorzoiTrunk(nn.Module):
         n_pos_features: int,
         # Crop
         crop_len: int,
+        flash_attn: bool,
         norm_type="batch",
         norm_kwargs=None,
         dtype=None,
@@ -172,6 +173,7 @@ class BorzoiTrunk(nn.Module):
             attn_dropout=attn_dropout,
             n_heads=n_heads,
             n_pos_features=n_pos_features,
+            flash_attn=flash_attn,
             dtype=dtype,
             device=device,
         )

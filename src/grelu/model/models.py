@@ -511,6 +511,7 @@ class BorzoiModel(BaseModel):
         crop_len: int = 16,
         final_act_func: Optional[str] = None,
         final_pool_func: Optional[str] = "avg",
+        flash_attn=False,
         dtype=None,
         device=None,
     ) -> None:
@@ -530,6 +531,7 @@ class BorzoiModel(BaseModel):
                 n_heads=n_heads,
                 n_pos_features=n_pos_features,
                 crop_len=crop_len,
+                flash_attn=flash_attn,
                 dtype=dtype,
                 device=device,
             ),

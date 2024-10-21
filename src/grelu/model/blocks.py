@@ -10,6 +10,7 @@ from torch import Tensor, nn
 
 from grelu.model.layers import (
     Activation,
+    FlashAttention,
     Attention,
     ChannelTransform,
     Crop,
@@ -697,21 +698,33 @@ class TransformerBlock(nn.Module):
         pos_dropout: float,
         attn_dropout: float,
         ff_dropout: float,
+        flash_attn: bool,
         dtype=None,
         device=None,
     ) -> None:
         super().__init__()
         self.norm = Norm("layer", in_len)
-        self.mha = Attention(
-            in_len=in_len,
-            n_heads=n_heads,
-            n_pos_features=n_pos_features,
-            key_len=key_len,
-            value_len=value_len,
-            pos_dropout=pos_dropout,
-            attn_dropout=attn_dropout,
-            dtype=dtype,
-            device=device,
+
+        if flash_attn:
+            # note pos_dropout, key_len, value_len, n_pos_features not used
+            self.mha = FlashAttention(
+                embed_dim=in_len,
+                n_heads=n_heads,
+                dropout_p=attn_dropout,
+                dtype=dtype,
+                device=device
+            )
+        else:
+            self.mha = Attention(
+                in_len=in_len,
+                n_heads=n_heads,
+                n_pos_features=n_pos_features,
+                key_len=key_len,
+                value_len=value_len,
+                pos_dropout=pos_dropout,
+                attn_dropout=attn_dropout,
+                dtype=dtype,
+                device=device,
         )
         self.dropout = Dropout(ff_dropout)
         self.ffn = FeedForwardBlock(
@@ -772,6 +785,7 @@ class TransformerTower(nn.Module):
         pos_dropout: float = 0.0,
         attn_dropout: float = 0.0,
         ff_dropout: float = 0.0,
+        flash_attn: bool = False,
         dtype=None,
         device=None,
     ) -> None:
@@ -787,6 +801,7 @@ class TransformerTower(nn.Module):
                     pos_dropout=pos_dropout,
                     attn_dropout=attn_dropout,
                     ff_dropout=ff_dropout,
+                    flash_attn=flash_attn,
                     dtype=dtype,
                     device=device,
                 )
