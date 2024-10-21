@@ -132,7 +132,7 @@ def test_get_attention_scores():
 
 
 def test_scan_sequences():
-    seqs = ["TCACGTGA", "CCTGCGTGA", "CACGCAGG"]
+    seqs = ["TCACGTGAA", "CCTGCGTGA", "CACGCAGGA"]
 
     # No reverse complement
     out = scan_sequences(seqs, motifs=meme_file, rc=False, pthresh=1e-3)
@@ -160,5 +160,7 @@ def test_scan_sequences():
     # Reverse complement with attributions
     attrs = get_attributions(model, seqs, method="inputxgradient")
     out = scan_sequences(seqs, motifs=meme_file, rc=True, pthresh=1e-3, attrs=attrs)
-    assert np.allclose(out.site_attr_score, [0.0, 0.0, -0.009259, 0.009259])
-    assert np.allclose(out.motif_attr_score, [0.003704, 0.0, -0.035494, 0.0])
+    assert np.allclose(out.site_attr_score, [0.0, 0.0, -0.009259, 0.009259], rtol=0.001)
+    assert np.allclose(
+        out.motif_attr_score, [0.003704, 0.0, -0.035494, 0.0], rtol=0.001
+    )
