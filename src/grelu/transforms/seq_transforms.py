@@ -2,13 +2,12 @@
 Classes to assign each sequence a score based on its content.
 """
 
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 
 import numpy as np
 import regex
 
 from grelu.interpret.motifs import scan_sequences
-from grelu.io.meme import read_meme_file
 
 
 class PatternScore:
@@ -56,10 +55,9 @@ class MotifScore:
     A scorer that returns a weighted score based on the number of occurrences of given subsequences.
 
     Args:
-        meme_file: Path to MEME file
+        motifs: Either the path to a MEME file, or a dictionary whose values are numpy arrays of shape (4, L).
         names: List of names of motifs to read from the meme file. If None, all motifs will be read
             from the file.
-        motifs: A list of pymemesuite.common.Motif objects, if no meme file is supplied.
         weights: List of weights for each motif. If None, all motifs will receive a weight of 1.
         pthresh: p-value cutoff to define binding sites
         rc: Whether to scan the sequence reverse complement as well
@@ -67,33 +65,27 @@ class MotifScore:
 
     def __init__(
         self,
-        meme_file: Optional[str] = None,
+        motifs: Union[str, Dict[str, np.ndarray]] = None,
         names: Optional[List[str]] = None,
-        motifs: Optional[List] = None,
-        bg=None,
         weights: Optional[List[float]] = None,
         pthresh: float = 1e-3,
         rc: bool = True,
     ) -> None:
+
         # Load motifs
-        if meme_file is None:
-            assert (motifs is not None) and (
-                bg is not None
-            ), "motifs and bg must be supplied in the absence of meme_file."
-        else:
-            motifs, bg = read_meme_file(meme_file, names=names)
+        if isinstance(motifs, str):
+            from grelu.io.motifs import read_meme_file
+
+            motifs = read_meme_file(motifs, names=names)
         self.motifs = motifs
-        self.bg = bg
 
         # Save weights
         if weights is None:
             self.weights = weights
         else:
-            assert len(weights) == len(self.motifs)
-            self.weights = {
-                motif.name.decode(): weight
-                for motif, weight in zip(self.motifs, weights)
-            }
+            motif_names = list(self.motifs.keys())
+            assert len(weights) == len(motif_names)
+            self.weights = {m: w for m, w in zip(motif_names, weights)}
 
         # Store other params
         self.pthresh = pthresh
@@ -108,7 +100,7 @@ class MotifScore:
         """
         # Scan sequences
         sites = scan_sequences(
-            seqs, motifs=self.motifs, bg=self.bg, pthresh=self.pthresh, rc=self.rc
+            seqs, motifs=self.motifs, pthresh=self.pthresh, rc=self.rc
         )
 
         # If no sites are present, return a score of 0 for each sequence
