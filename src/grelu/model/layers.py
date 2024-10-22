@@ -450,7 +450,6 @@ class FlashAttention(nn.Module):
         self,
         embed_dim: int,
         n_heads: int,
-        window_size=(256, 256),
         dropout_p=0.0,
         device=None,
         dtype=None
