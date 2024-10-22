@@ -19,9 +19,11 @@ meme_file = os.path.join(cwd, "files", "test.meme")
 
 def test_motifs_to_strings(motifs=meme_file):
     assert motifs_to_strings(motifs, sample=False) == ["CACGTG", "TGCGTG"]
-    assert motifs_to_strings(motifs, names=["Arnt"], sample=False) == ["CACGTG"]
+    assert motifs_to_strings(motifs, names=["MA0004.1 Arnt"], sample=False) == [
+        "CACGTG"
+    ]
     assert motifs_to_strings(
-        motifs, names=["Ahr::Arnt"], sample=True, rng=np.random.RandomState(0)
+        motifs, names=["MA0006.1 Ahr::Arnt"], sample=True, rng=np.random.RandomState(0)
     ) == ["CGCGTG"]
 
 
@@ -30,19 +32,17 @@ def test_trim_pwm():
         np.log2(
             np.array(
                 [
-                    [0.25, 0.25, 0.24, 0.26],
-                    [0.5, 0.2, 0.2, 0.1],
-                    [0.97, 0.01, 0.01, 0.01],
-                    [0.01, 0.97, 0.01, 0.01],
-                    [0.01, 0.97, 0.01, 0.01],
+                    [0.25, 0.5, 0.97, 0.01, 0.01],
+                    [0.25, 0.2, 0.01, 0.97, 0.97],
+                    [0.24, 0.2, 0.01, 0.01, 0.01],
+                    [0.26, 0.1, 0.01, 0.01, 0.01],
                 ]
             )
         )
         + 2
     )
-    assert np.all(trim_pwm(pwm, trim_threshold=0.3, padding=0) == pwm[2:, :])
-    assert np.all(trim_pwm(pwm, trim_threshold=0.01, padding=0) == pwm[1:, :])
-    assert np.all(trim_pwm(pwm, trim_threshold=0.01, padding=4) == pwm)
+    assert np.all(trim_pwm(pwm, trim_threshold=0.3) == pwm[:, 2:])
+    assert np.all(trim_pwm(pwm, trim_threshold=0.01) == pwm[:, 1:])
 
 
 # Create test model
@@ -137,9 +137,23 @@ def test_get_attention_scores():
 
 def test_scan_sequences():
     seqs = ["TCACGTGA", "CCTGCGTGA", "CACGCAGG"]
-    out = scan_sequences(seqs, motifs=meme_file, rc=False)
-    assert out.motif.tolist() == ["Arnt", "Ahr::Arnt"]
+    out = scan_sequences(seqs, motifs=meme_file, rc=False, pthresh=1e-3)
+    assert out.motif.tolist() == ["MA0004.1 Arnt", "MA0006.1 Ahr::Arnt"]
     assert out.sequence.tolist() == ["0", "1"]
-    out = scan_sequences(seqs, motifs=meme_file, rc=True)
-    assert out.motif.tolist() == ["Arnt", "Arnt", "Ahr::Arnt", "Ahr::Arnt"]
+    assert out.start.tolist() == [1, 2]
+    assert out.end.tolist() == [7, 8]
+    assert out.strand.tolist() == ["+", "+"]
+    assert out.matched_seq.tolist() == ["CACGTG", "TGCGTG"]
+
+    out = scan_sequences(seqs, motifs=meme_file, rc=True, pthresh=1e-3)
+    assert out.motif.tolist() == [
+        "MA0004.1 Arnt",
+        "MA0004.1 Arnt",
+        "MA0006.1 Ahr::Arnt",
+        "MA0006.1 Ahr::Arnt",
+    ]
     assert out.sequence.tolist() == ["0", "0", "1", "2"]
+    assert out.start.tolist() == [1, 1, 2, 0]
+    assert out.end.tolist() == [7, 7, 8, 6]
+    assert out.strand.tolist() == ["+", "-", "+", "-"]
+    assert out.matched_seq.tolist() == ["CACGTG", "CACGTG", "TGCGTG", "CACGCA"]
