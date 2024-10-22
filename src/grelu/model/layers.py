@@ -11,8 +11,6 @@ from torch import Tensor, einsum, nn
 
 from grelu.model.position import get_central_mask
 
-from flash_attn import flash_attn_qkvpacked_func
-from flash_attn.layers.rotary import RotaryEmbedding
 
 class Activation(nn.Module):
     """
@@ -455,7 +453,10 @@ class FlashAttention(nn.Module):
         dtype=None
     ):
         super().__init__()
-        
+
+        from flash_attn.layers.rotary import RotaryEmbedding
+        from flash_attn import flash_attn_qkvpacked_func
+
         self.embed_dim = embed_dim
         self.n_heads = n_heads
         self.head_dim = embed_dim // n_heads
@@ -469,6 +470,9 @@ class FlashAttention(nn.Module):
 
         # positional encoding
         self.rotary_embed = RotaryEmbedding(self.head_dim, device=device)
+        
+        # no parameters, just an operation
+        self.flash_attn_qkvpacked_func = flash_attn_qkvpacked_func
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -489,7 +493,7 @@ class FlashAttention(nn.Module):
         )
         qkv = self.rotary_embed(qkv)
         out = rearrange(
-            flash_attn_qkvpacked_func(
+            self.flash_attn_qkvpacked_func(
                 qkv, self.dropout_p, window_size=(-1,-1)
             ),
             "b l nheads headdim -> b l (nheads headdim)",
