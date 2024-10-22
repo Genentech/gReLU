@@ -1,4 +1,4 @@
-FROM pytorchlightning/pytorch_lightning:base-cuda-py3.11-torch2.2-cuda12.1.0
+FROM pytorch/pytorch:2.4.1-cuda12.1-cudnn9-devel
 
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -31,6 +31,7 @@ RUN rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/gff3
 
 
 # Install python packages
+RUN pip install flash-attn --no-build-isolation
 RUN pip install cython setuptools jupyterlab pandas scikit-learn tables lxml html5lib
 RUN pip install pytest pytest-cov pre-commit
 RUN pip install black flake8 isort
@@ -54,4 +55,4 @@ RUN wget https://meme-suite.org/meme/meme-software/5.5.1/meme-5.5.1.tar.gz && \
 
 # Run jupyterlab
 WORKDIR /
-CMD jupyter lab --no-browser --allow-root --port 8891 --ip 0.0.0.0 --NotebookApp.token=''
+# CMD jupyter lab --no-browser --allow-root --port 8891 --ip 0.0.0.0 --NotebookApp.token=''
