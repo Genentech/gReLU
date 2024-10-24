@@ -125,6 +125,13 @@ class LabeledOneHotDataset(Dataset):
         # Ingest labels
         self._load_labels(labels)
 
+        # Create label transformer
+        self.label_transform = LabelTransform(
+            min_clip=self.min_label_clip,
+            max_clip=self.max_label_clip,
+            transform_func=self.label_transform_func,
+        )
+
         self.n_alleles = 1
 
         # Set mode
@@ -178,9 +185,17 @@ class LabeledOneHotDataset(Dataset):
         if self.predict:
             return seq
 
-        # Otherwise, return the sequence/label pair
         else:
-            return seq, Tensor([[label]])
+            # Aggregate label
+            if self.label_aggfunc is not None:
+                label = rearrange(label, "t (l b) -> t l b", b=self.bin_size)
+                label = self.label_aggfunc(label, axis=-1)
+
+            # Transform label
+            if self.label_transform is not None:
+                label = self.label_transform(label)
+
+            return seq, Tensor(label)
 
 
 
