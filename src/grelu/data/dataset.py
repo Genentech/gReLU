@@ -132,7 +132,21 @@ class LabeledOneHotDataset(Dataset):
             transform_func=self.label_transform_func,
         )
 
+        # Create augmenter
+        self.augmenter = Augmenter(
+            rc=self.rc,
+            max_seq_shift=self.max_seq_shift,
+            max_pair_shift=self.max_pair_shift,
+            seq_len=self.seq_len,
+            label_len=self.label_len,
+            seed=seed,
+            mode=augment_mode,
+        )
+        self.n_augmented = len(self.augmenter)
         self.n_alleles = 1
+
+        # Set mode
+        self.predict = False
 
         # Set mode
         self.predict = False
