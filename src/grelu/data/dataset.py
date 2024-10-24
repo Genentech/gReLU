@@ -198,7 +198,6 @@ class LabeledOneHotDataset(Dataset):
             return seq, Tensor(label)
 
 
-
 class LabeledSeqDataset(Dataset):
     """
     A general Dataset class for DNA sequences and labels. All sequences and
