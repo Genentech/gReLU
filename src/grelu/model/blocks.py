@@ -10,11 +10,11 @@ from torch import Tensor, nn
 
 from grelu.model.layers import (
     Activation,
-    FlashAttention,
     Attention,
     ChannelTransform,
     Crop,
     Dropout,
+    FlashAttention,
     Norm,
     Pool,
 )
@@ -707,14 +707,16 @@ class TransformerBlock(nn.Module):
 
         if flash_attn:
 
-            print("WARNING: FlashAttention does not use pos_dropout, key_len, value_len, n_pos_features arguments. Ignore if you are loading a pre-trained model.")
+            print(
+                "WARNING: FlashAttention does not use pos_dropout, key_len, value_len, n_pos_features arguments. Ignore if you are loading a pre-trained model."
+            )
             # note pos_dropout, key_len, value_len, n_pos_features not used
             self.mha = FlashAttention(
                 embed_dim=in_len,
                 n_heads=n_heads,
                 dropout_p=attn_dropout,
                 dtype=dtype,
-                device=device
+                device=device,
             )
         else:
             self.mha = Attention(
@@ -727,7 +729,7 @@ class TransformerBlock(nn.Module):
                 attn_dropout=attn_dropout,
                 dtype=dtype,
                 device=device,
-        )
+            )
         self.dropout = Dropout(ff_dropout)
         self.ffn = FeedForwardBlock(
             in_len=in_len,

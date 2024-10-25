@@ -443,14 +443,10 @@ class Attention(nn.Module):
         out = rearrange(out, "b h n d -> b n (h d)")
         return self.to_out(out)
 
+
 class FlashAttention(nn.Module):
     def __init__(
-        self,
-        embed_dim: int,
-        n_heads: int,
-        dropout_p=0.0,
-        device=None,
-        dtype=None
+        self, embed_dim: int, n_heads: int, dropout_p=0.0, device=None, dtype=None
     ):
         """
         Flash Attention layer with RoPE for positional encoding.
@@ -466,10 +462,12 @@ class FlashAttention(nn.Module):
         super().__init__()
 
         try:
-            from flash_attn.layers.rotary import RotaryEmbedding
             from flash_attn import flash_attn_qkvpacked_func
+            from flash_attn.layers.rotary import RotaryEmbedding
         except ImportError:
-            raise ImportError("gReLU needs to be installed with flash-attn to use Flash Attention. Please see README for instructions.")
+            raise ImportError(
+                "gReLU needs to be installed with flash-attn to use Flash Attention. Please see README for instructions."
+            )
 
         self.embed_dim = embed_dim
         self.n_heads = n_heads
@@ -484,7 +482,7 @@ class FlashAttention(nn.Module):
 
         # positional encoding
         self.rotary_embed = RotaryEmbedding(self.head_dim, device=device)
-        
+
         # no parameters, just an operation
         self.flash_attn_qkvpacked_func = flash_attn_qkvpacked_func
 
@@ -507,9 +505,7 @@ class FlashAttention(nn.Module):
         )
         qkv = self.rotary_embed(qkv)
         out = rearrange(
-            self.flash_attn_qkvpacked_func(
-                qkv, self.dropout_p, window_size=(-1,-1)
-            ),
+            self.flash_attn_qkvpacked_func(qkv, self.dropout_p, window_size=(-1, -1)),
             "b l nheads headdim -> b l (nheads headdim)",
         )
         return self.out(out)

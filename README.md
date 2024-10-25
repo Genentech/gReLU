@@ -26,7 +26,7 @@ conda install -c conda-forge cudatoolkit-dev -y
 pip install torch ninja
 pip install flash-attn --no-build-isolation
 pip install gReLU
-``` 
+```
 
 ## Contributing
 
