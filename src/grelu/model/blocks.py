@@ -708,9 +708,9 @@ class TransformerBlock(nn.Module):
         if flash_attn:
 
             print(
-                "WARNING: FlashAttention does not use pos_dropout, key_len, value_len, n_pos_features arguments. Ignore if you are loading a pre-trained model."
+                "WARNING: FlashAttention does not use pos_dropout, key_len, value_len, n_pos_features arguments. \
+                Ignore if you are loading a pre-trained model."
             )
-            # note pos_dropout, key_len, value_len, n_pos_features not used
             self.mha = FlashAttention(
                 embed_dim=in_len,
                 n_heads=n_heads,

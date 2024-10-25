@@ -466,7 +466,8 @@ class FlashAttention(nn.Module):
             from flash_attn.layers.rotary import RotaryEmbedding
         except ImportError:
             raise ImportError(
-                "gReLU needs to be installed with flash-attn to use Flash Attention. Please see README for instructions."
+                "gReLU needs to be installed with flash-attn to use Flash Attention. \
+                    Please see README for instructions."
             )
 
         self.embed_dim = embed_dim
