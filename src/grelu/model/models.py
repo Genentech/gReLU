@@ -484,6 +484,8 @@ class BorzoiModel(BaseModel):
         head_act_func: Name of the activation function to use in the final layer
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        flash_attn: If True, uses Flash Attention with Rotational Position Embeddings. key_len, value_len,
+            pos_dropout and n_pos_features are ignored.
         dtype: Data type for the layers.
         device: Device for the layers.
     """

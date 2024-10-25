@@ -20,7 +20,7 @@ To install using pip:
 pip install gReLU
 ```
 
-To install and use [flash-attn](https://github.com/Dao-AILab/flash-attention), flash-attn needs to be installed first:
+To train or use transformer models containing flash attention layers, [flash-attn](https://github.com/Dao-AILab/flash-attention) needs to be installed first:
 ```shell
 conda install -c conda-forge cudatoolkit-dev -y
 pip install torch ninja

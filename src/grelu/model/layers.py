@@ -452,10 +452,24 @@ class FlashAttention(nn.Module):
         device=None,
         dtype=None
     ):
+        """
+        Flash Attention layer with RoPE for positional encoding.
+
+        Args:
+            embed_dim: Number of channels
+            n_heads: Number of attention heads
+            dropout_p: Dropout probability for attention
+            device: Device for the layers.
+            dtype: Data type for the layers.
+        """
+
         super().__init__()
 
-        from flash_attn.layers.rotary import RotaryEmbedding
-        from flash_attn import flash_attn_qkvpacked_func
+        try:
+            from flash_attn.layers.rotary import RotaryEmbedding
+            from flash_attn import flash_attn_qkvpacked_func
+        except ImportError:
+            raise ImportError("gReLU needs to be installed with flash-attn to use Flash Attention. Please see README for instructions.")
 
         self.embed_dim = embed_dim
         self.n_heads = n_heads
