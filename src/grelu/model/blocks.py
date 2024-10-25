@@ -774,6 +774,8 @@ class TransformerTower(nn.Module):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the output layer
         ff_droppout: Dropout probability in the linear feed-forward layers
+        flash_attn: If True, uses Flash Attention with Rotational Position Embeddings. key_len, value_len,
+            pos_dropout and n_pos_features are ignored.
         dtype: Data type of the weights
         device: Device on which to store the weights
     """
