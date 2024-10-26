@@ -3,6 +3,7 @@ Blocks composed of multiple layers.
 """
 
 from typing import List, Optional, Union
+import warnings
 
 import torch
 from einops import rearrange
@@ -678,27 +679,31 @@ class TransformerBlock(nn.Module):
     Args:
         in_len: Length of the input
         n_heads: Number of attention heads
+        attn_dropout: Dropout probability in the output layer
+        ff_droppout: Dropout probability in the linear feed-forward layers
+        flash_attn: If True, uses Flash Attention with Rotational Position Embeddings. key_len, value_len,
+            pos_dropout and n_pos_features are ignored.
         n_pos_features: Number of positional embedding features
         key_len: Length of the key vectors
         value_len: Length of the value vectors.
         pos_dropout: Dropout probability in the positional embeddings
-        attn_dropout: Dropout probability in the output layer
-        ff_droppout: Dropout probability in the linear feed-forward layers
         dtype: Data type of the weights
         device: Device on which to store the weights
     """
+
+    flash_attn_warn = False
 
     def __init__(
         self,
         in_len: int,
         n_heads: int,
-        n_pos_features: int,
-        key_len: int,
-        value_len: int,
-        pos_dropout: float,
         attn_dropout: float,
         ff_dropout: float,
         flash_attn: bool,
+        n_pos_features: Optional[int] = None,
+        key_len: Optional[int] = None,
+        value_len: Optional[int] = None,
+        pos_dropout: Optional[float] = None,
         dtype=None,
         device=None,
     ) -> None:
@@ -706,11 +711,21 @@ class TransformerBlock(nn.Module):
         self.norm = Norm("layer", in_len)
 
         if flash_attn:
+            if (
+                not (
+                    n_pos_features is None
+                    and key_len is None
+                    and value_len is None
+                    and pos_dropout is None
+                )
+                and not TransformerBlock.flash_attn_warn
+            ):
+                warnings.warn(
+                    "WARNING: FlashAttention does not use pos_dropout, key_len, value_len, n_pos_features arguments. \
+                        Ignore if you are loading a pre-trained model."
+                )
+                TransformerBlock.flash_attn_warn = True
 
-            print(
-                "WARNING: FlashAttention does not use pos_dropout, key_len, value_len, n_pos_features arguments. \
-                Ignore if you are loading a pre-trained model."
-            )
             self.mha = FlashAttention(
                 embed_dim=in_len,
                 n_heads=n_heads,
@@ -801,13 +816,13 @@ class TransformerTower(nn.Module):
                 TransformerBlock(
                     in_len=in_channels,
                     n_heads=n_heads,
+                    attn_dropout=attn_dropout,
+                    ff_dropout=ff_dropout,
+                    flash_attn=flash_attn,
                     n_pos_features=n_pos_features,
                     key_len=key_len,
                     value_len=value_len,
                     pos_dropout=pos_dropout,
-                    attn_dropout=attn_dropout,
-                    ff_dropout=ff_dropout,
-                    flash_attn=flash_attn,
                     dtype=dtype,
                     device=device,
                 )
