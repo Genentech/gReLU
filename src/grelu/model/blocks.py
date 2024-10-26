@@ -2,8 +2,8 @@
 Blocks composed of multiple layers.
 """
 
-from typing import List, Optional, Union
 import warnings
+from typing import List, Optional, Union
 
 import torch
 from einops import rearrange
