@@ -3,6 +3,7 @@ Functions related to reading and writing MEME files
 """
 
 from typing import Dict, List, Optional
+from warnings import warn
 
 import numpy as np
 
@@ -23,59 +24,29 @@ def read_meme_file(
         values are the motif position probability matrices (PPMs)
         as numpy arrays of shape (4, L).
     """
+    from tangermeme.io import read_meme
+
     from grelu.resources import get_meme_file_path
 
     # Get file path
     file = get_meme_file_path(file)
 
-    # Empty dictionary to store motifs read
-    motifs = dict()
+    # Read all motifs
+    motifs = read_meme(file, n_motifs=n_motifs)
 
-    # Number of motifs to read
+    # Subset to desired list of motifs
     if names is not None:
-        n_motifs = len(names)
-
-    # Read
-    with open(file, "r") as f:
-        name, width, i = None, None, 0
-
-        for line in f:
-            if name is None:
-                if line[:5] == "MOTIF":
-                    name = line.replace("MOTIF ", "").strip("\r\n")
-                else:
-                    continue
-
-            elif width is None:
-                if line[:6] == "letter":
-                    width = int(line.split()[5])
-                    ppm = np.zeros((width, 4))
-
-            elif i < width:
-                ppm[i] = list(map(float, line.strip("\r\n").split()))
-                i += 1
-
+        motifs_subset = dict()
+        for name in names:
+            if name in motifs:
+                motifs_subset[name] = motifs[name]
             else:
-                # Add the new motif to motifs dict
-                if names is None:
-                    motifs[name] = ppm.T
-                elif name in names:
-                    motifs[name] = ppm.T
+                warn(f"Motif {name} was not found in the file.")
 
-                # If all the required motifs have been read, stop
-                if n_motifs is not None:
-                    if len(motifs) == n_motifs:
-                        break
+        motifs = motifs_subset
 
-                # Otherwise, reset
-                name, width, i = None, None, 0
-
-    # Check how many motifs were found
-    print(f"Read {len(motifs)} motifs from file.")
-    if names is not None:
-        missing = set(names).difference(motifs.keys())
-        if len(missing) > 0:
-            print(f"{len(missing)} motifs were not found in the file: {missing}")
+    # Convert to numpy
+    motifs = {k: v.numpy() for k, v in motifs.items()}
 
     return motifs
 
