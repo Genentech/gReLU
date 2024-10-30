@@ -19,7 +19,9 @@ def motifs_to_strings(
     rng: Optional[Generator] = None,
 ) -> str:
     """
-    Extracts a matching DNA sequence from a motif
+    Extracts a matching DNA sequence from a motif. If sample=True, the best match sequence
+    is returned, otherwise a sequence is sampled from the probability distribution at each
+    position of the motif.
 
     Args:
         motifs: Either a numpy array containing a Position Probability
