@@ -590,6 +590,7 @@ def plot_tracks(
     edgecolor: Optional[str] = None,
     alpha: Optional[float] = 0.15,
     annotations: Dict[str, pd.DataFrame] = {},
+    annot_height_ratio: float = 1.0,
 ):
     """
     Plot genomic coverage tracks
@@ -606,6 +607,8 @@ def plot_tracks(
         alpha: Opacity of highlight box
         annotations: Dictionary of (key, value) pairs where the keys are strings
             and the values are pandas dataframes containing annotated genomic intervals
+        annot_height_ratio: Ratio between the height of an annotation and the height of
+            a track. By default, both are of equal height.
     """
     from pygenomeviz.track import FeatureTrack
 
@@ -624,7 +627,14 @@ def plot_tracks(
 
     # Make axes
     fig, axes = plt.subplots(
-        n_tracks + n_annotations, 1, figsize=figsize, sharex=True, tight_layout=True
+        n_tracks + n_annotations,
+        1,
+        figsize=figsize,
+        sharex=True,
+        tight_layout=True,
+        gridspec_kw={
+            "height_ratios": [1] * n_tracks + [annot_height_ratio] * n_annotations
+        },
     )
     if n_tracks + n_annotations == 1:
         axes = [axes]
@@ -654,7 +664,9 @@ def plot_tracks(
     for ax, (title, ann) in zip(axes[n_tracks:], annotations.items()):
         # Add strand to annotations
         if "strand" not in ann.columns:
-            ann["strand"] = "+"
+            ann["strand"] = 1
+        else:
+            ann.strand = ann.strand.map({"+": 1, "-": -1})
         # Make tracks
         track = FeatureTrack(name=title, size=coord_len, start_pos=start_pos)
         for row in ann.itertuples():

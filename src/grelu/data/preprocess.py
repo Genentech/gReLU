@@ -617,16 +617,38 @@ def merge_intervals_by_column(intervals: pd.DataFrame, group_col: str) -> pd.Dat
     Returns:
         A dataframe containing one merged interval for each value in group_col.
     """
-    output = intervals.groupby(group_col).apply(
-        lambda x: (x.chrom.unique().tolist(), x.start.min(), x.end.max())
-    )
+    check_unique_cols = ["chrom"]
+    keep_cols = ["chrom", "start", "end"]
+
+    # Collect all intervals with the same value in `group_col`
+    if "strand" in intervals.columns:
+        keep_cols.append("strand")
+        check_unique_cols.append("strand")
+        output = intervals.groupby(group_col).apply(
+            lambda x: (
+                x.chrom.unique().tolist(),
+                x.start.min(),
+                x.end.max(),
+                x.strand.unique().tolist(),
+            )
+        )
+    else:
+        output = intervals.groupby(group_col).apply(
+            lambda x: (x.chrom.unique().tolist(), x.start.min(), x.end.max()),
+        )
+
+    # Create a dataframe of merged intervals
     output = pd.DataFrame(output).reset_index()
-    output[["chrom", "start", "end"]] = pd.DataFrame(output[0].tolist())
+    output[keep_cols] = pd.DataFrame(output[0].tolist())
     output = output.drop(columns=0)
-    assert (
-        output.chrom.apply(len).unique() == 1
-    ), "At least one group of intervals spans multiple chromosomes"
-    output.chrom = output.chrom.apply(lambda x: x[0])
+
+    # Each merged interval should have a single value for chrom and strand
+    for col in check_unique_cols:
+        assert np.all(
+            output[col].apply(len).unique() == 1
+        ), f"At least one group of intervals has multiple values in field {col}"
+        output[col] = output[col].apply(lambda x: x[0])
+
     return output
 
 

@@ -118,6 +118,8 @@ class BorzoiTrunk(nn.Module):
         n_heads: Number of attention heads
         n_pos_features: Number of positional features
         crop_len: Length of the crop
+        flash_attn: If True, uses Flash Attention with Rotational Position Embeddings. key_len, value_len,
+            pos_dropout and n_pos_features are ignored.
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
         norm_kwargs: Additional arguments to be passed to the normalization layer
         dtype: Data type for the layers.
@@ -144,6 +146,7 @@ class BorzoiTrunk(nn.Module):
         n_pos_features: int,
         # Crop
         crop_len: int,
+        flash_attn: bool,
         norm_type="batch",
         norm_kwargs=None,
         dtype=None,
@@ -172,6 +175,7 @@ class BorzoiTrunk(nn.Module):
             attn_dropout=attn_dropout,
             n_heads=n_heads,
             n_pos_features=n_pos_features,
+            flash_attn=flash_attn,
             dtype=dtype,
             device=device,
         )

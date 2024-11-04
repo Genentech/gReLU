@@ -484,6 +484,8 @@ class BorzoiModel(BaseModel):
         head_act_func: Name of the activation function to use in the final layer
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        flash_attn: If True, uses Flash Attention with Rotational Position Embeddings. key_len, value_len,
+            pos_dropout and n_pos_features are ignored.
         dtype: Data type for the layers.
         device: Device for the layers.
     """
@@ -511,6 +513,7 @@ class BorzoiModel(BaseModel):
         crop_len: int = 16,
         final_act_func: Optional[str] = None,
         final_pool_func: Optional[str] = "avg",
+        flash_attn=False,
         dtype=None,
         device=None,
     ) -> None:
@@ -530,6 +533,7 @@ class BorzoiModel(BaseModel):
                 n_heads=n_heads,
                 n_pos_features=n_pos_features,
                 crop_len=crop_len,
+                flash_attn=flash_attn,
                 dtype=dtype,
                 device=device,
             ),
