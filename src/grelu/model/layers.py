@@ -442,3 +442,71 @@ class Attention(nn.Module):
         out = einsum("b h i j, b h j d -> b h i d", attn, v)
         out = rearrange(out, "b h n d -> b n (h d)")
         return self.to_out(out)
+
+
+class FlashAttention(nn.Module):
+    def __init__(
+        self, embed_dim: int, n_heads: int, dropout_p=0.0, device=None, dtype=None
+    ):
+        """
+        Flash Attention layer with RoPE for positional encoding.
+
+        Args:
+            embed_dim: Number of channels
+            n_heads: Number of attention heads
+            dropout_p: Dropout probability for attention
+            device: Device for the layers.
+            dtype: Data type for the layers.
+        """
+
+        super().__init__()
+
+        try:
+            from flash_attn import flash_attn_qkvpacked_func
+            from flash_attn.layers.rotary import RotaryEmbedding
+        except ImportError:
+            raise ImportError(
+                "gReLU needs to be installed with flash-attn to use Flash Attention. \
+                    Please see README for instructions."
+            )
+
+        self.embed_dim = embed_dim
+        self.n_heads = n_heads
+        self.head_dim = embed_dim // n_heads
+        self.dropout_p = dropout_p
+
+        # Create linear layers
+        self.qkv = nn.Linear(
+            self.embed_dim, self.embed_dim * 3, bias=False, device=device, dtype=dtype
+        )
+        self.out = nn.Linear(self.embed_dim, self.embed_dim, device=device, dtype=dtype)
+
+        # positional encoding
+        self.rotary_embed = RotaryEmbedding(self.head_dim, device=device)
+
+        # no parameters, just an operation
+        self.flash_attn_qkvpacked_func = flash_attn_qkvpacked_func
+
+    def forward(self, x: Tensor) -> Tensor:
+        """
+        Forward pass
+
+        Args:
+            x : Input tensor of shape (batch_size, seq_len, embed_dim)
+
+        Returns:
+            Output tensor
+        """
+        qkv = rearrange(
+            self.qkv(x),
+            "b l (qkv nheads headdim) -> b l qkv nheads headdim",
+            qkv=3,
+            nheads=self.n_heads,
+            headdim=self.head_dim,
+        )
+        qkv = self.rotary_embed(qkv)
+        out = rearrange(
+            self.flash_attn_qkvpacked_func(qkv, self.dropout_p, window_size=(-1, -1)),
+            "b l nheads headdim -> b l (nheads headdim)",
+        )
+        return self.out(out)
