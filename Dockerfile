@@ -38,7 +38,7 @@ RUN pip install black flake8 isort
 RUN pip install captum==0.5.0 wandb tensorboard plotnine
 
 RUN pip install bioframe biopython genomepy scanpy \
-                pyjaspar pymemesuite pyBigWig pyfaidx pytabix
+                pyjaspar pyBigWig pyfaidx pytabix
 RUN pip install bpnet-lite>=0.5.7 ledidi enformer-pytorch genomepy
 RUN pip install pygenomeviz
 
