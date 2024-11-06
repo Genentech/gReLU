@@ -150,8 +150,9 @@ def scan_sequences(
     seq_ids = seq_ids or [str(i) for i in range(len(seqs))]
 
     # Format motifs
-    if isinstance(motifs, Dict):
-        motifs = {k: Tensor(v) for k, v in motifs.items()}
+    if isinstance(motifs, str):
+        motifs = read_meme_file(motifs)
+    motifs = {k: Tensor(v) for k, v in motifs.items()}        
 
     # Scan each sequence in seqs
     results = pd.DataFrame()
