@@ -152,7 +152,7 @@ def scan_sequences(
     # Format motifs
     if isinstance(motifs, str):
         motifs = read_meme_file(motifs)
-    motifs = {k: Tensor(v) for k, v in motifs.items()}        
+    motifs = {k: Tensor(v) for k, v in motifs.items()}
 
     # Scan each sequence in seqs
     results = pd.DataFrame()
