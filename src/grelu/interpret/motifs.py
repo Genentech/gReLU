@@ -152,6 +152,7 @@ def scan_sequences(
     # Format motifs
     if isinstance(motifs, str):
         motifs = read_meme_file(motifs)
+
     motifs = {k: Tensor(v) for k, v in motifs.items()}
 
     # Scan each sequence in seqs
@@ -306,7 +307,6 @@ def compare_motifs(
         rc: If True, both the sequence and its reverse complement will be
             scanned. If False, only the given sequence will be scanned.
     """
-    from grelu.interpret.motifs import scan_sequences
     from grelu.sequence.mutate import mutate
 
     # Create alt sequence
