@@ -450,7 +450,7 @@ def run_modisco(
         **kwargs,
     )
 
-    print("Writing modisco report")
+    print("Writing modisco output")
     if not os.path.exists(out_dir):
         os.makedirs(out_dir)
 
