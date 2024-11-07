@@ -211,17 +211,19 @@ def _make_modisco_html(
     modisco_logo_dir,
     tomtom_file,
     out_dir,
-    motifs,
     top_n_matches=10,
     meme_file=None,
 ):
     """
     Modified from https://github.com/jmschrei/tfmodisco-lite/blob/main/modiscolite/report.py#L245
     """
-    from modiscolite.report import make_logo, path_to_image_html
+    from modiscolite.report import make_logo, path_to_image_html, read_meme
+
+    from grelu.resources import get_meme_file_path
 
     print("Creating dataframe of discovered motifs")
     results = {
+        "query": [],
         "pattern": [],
         "num_seqlets": [],
         "modisco_cwm_fwd": [],
@@ -237,6 +239,7 @@ def _make_modisco_html(
             ):
                 num_seqlets = pattern["seqlets"]["n_seqlets"][:][0]
                 pattern_tag = f"{metacluster}.{pattern_name}"
+                results["query"].append(metacluster[:3] + "_" + pattern_name)
                 results["pattern"].append(pattern_tag)
                 results["num_seqlets"].append(num_seqlets)
                 results["modisco_cwm_fwd"].append(
@@ -247,59 +250,64 @@ def _make_modisco_html(
                 )
 
     patterns_df = pd.DataFrame(results)
-    reordered_columns = ["pattern", "num_seqlets", "modisco_cwm_fwd", "modisco_cwm_rev"]
+    reordered_columns = [
+        "query",
+        "pattern",
+        "num_seqlets",
+        "modisco_cwm_fwd",
+        "modisco_cwm_rev",
+    ]
 
     if meme_file is not None:
 
         print("Compiling top TOMTOM matches")
-        tomtom_results = pd.read_table(tomtom_file, usecols=(1, 5))
+        tomtom_results = pd.read_csv(tomtom_file, usecols=(1, 2, 6))
         pattern_dict = dict()
-
         for i in range(top_n_matches):
             pattern_dict[f"match{i}"] = []
             pattern_dict[f"qval{i}"] = []
 
-        with h5py.File(h5_file, "r") as f:
-            for metacluster in ["pos_patterns", "neg_patterns"]:
-                if metacluster not in f.keys():
-                    continue
-                pattern_names = sorted(
-                    f[metacluster].keys(), key=lambda x: int(x[0].split("_")[-1])
-                )
-                for k in pattern_names:
-                    r = tomtom_results.loc[
-                        tomtom_results.Query_ID == k, ["Target_ID", "q-value"]
-                    ].sort_values("q-value")[:top_n_matches]
+        for row in patterns_df.itertuples():
+            query_tomtom = tomtom_results.loc[
+                tomtom_results.Query_ID == row.query, ["Target_ID", "q-value"]
+            ].sort_values("q-value")[:top_n_matches]
 
-                    i = -1
-                    for i, (target, qval) in r.iterrows():
-                        pattern_dict[f"match{i}"].append(target)
-                        pattern_dict[f"qval{i}"].append(qval)
+            i = -1
+            for i, row in enumerate(query_tomtom.itertuples()):
+                pattern_dict[f"match{i}"].append(row[1])
+                pattern_dict[f"qval{i}"].append(row[2])
 
-                    for j in range(i + 1, top_n_matches):
-                        pattern_dict[f"match{j}"].append(None)
-                        pattern_dict[f"qval{j}"].append(None)
+            for j in range(i + 1, top_n_matches):
+                pattern_dict[f"match{j}"].append(None)
+                pattern_dict[f"qval{j}"].append(None)
 
-        tomtom_df = pd.DataFrame(tomtom_results)
+        tomtom_df = pd.DataFrame(pattern_dict)
         patterns_df = pd.concat([patterns_df, tomtom_df], axis=1)
 
-    print("Saving html")
-    for i in range(top_n_matches):
-        name = f"match{i}"
-        logos = []
-        for _, row in patterns_df.iterrows():
-            if name in patterns_df.columns:
-                if pd.isnull(row[name]):
-                    logos.append("NA")
-                else:
-                    make_logo(row[name], out_dir, motifs)
-                    logos.append(f"{row[name]}.png")
-            else:
-                break
+        print("Reading meme file")
+        meme_file = get_meme_file_path(meme_file)
+        motifs = read_meme(meme_file)
+        meme_logo_dir = os.path.join(out_dir, "trimmed_meme_logos")
+        if not os.path.exists(meme_logo_dir):
+            os.makedirs(meme_logo_dir)
 
+        print("Generating logos")
+        for i in range(top_n_matches):
+            name = f"match{i}"
+            logos = []
+            for _, row in patterns_df.iterrows():
+                if name in patterns_df.columns:
+                    if pd.isnull(row[name]):
+                        logos.append("NA")
+                    else:
+                        make_logo(row[name], meme_logo_dir, motifs)
+                        logos.append(os.path.join(meme_logo_dir, f"{row[name]}.png"))
+                else:
+                    break
         patterns_df[f"{name}_logo"] = logos
         reordered_columns.extend([name, f"qval{i}", f"{name}_logo"])
 
+    print("Saving html")
     patterns_df = patterns_df[reordered_columns]
     with open(os.path.join(out_dir, "motifs.html"), "w") as f:
         patterns_df.to_html(
@@ -474,7 +482,6 @@ def run_modisco(
         out_dir,
         top_n_matches=10,
         meme_file=meme_file,
-        motifs=motifs,
     )
 
 
