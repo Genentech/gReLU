@@ -1,6 +1,7 @@
 import anndata
 import numpy as np
 import pandas as pd
+import pytest
 
 from grelu.data.preprocess import (
     filter_blacklist,
@@ -8,6 +9,7 @@ from grelu.data.preprocess import (
     filter_chrom_ends,
     filter_coverage,
     filter_overlapping,
+    merge_intervals_by_column,
     split,
 )
 
@@ -129,3 +131,70 @@ def test_filter_chrom_ends():
     assert filter_chrom_ends(intervals, genome="hg38", pad=100).equals(
         intervals.iloc[[2], :]
     )
+
+
+def test_merge_intervals_by_column():
+    intervals = pd.DataFrame(
+        {
+            "chrom": ["chr10", "chr10", "chr10", "chr10", "chr10"],
+            "start": [10, 1000, 46000, 45000, 48000],
+            "end": [1010, 2000, 47000, 47500, 49000],
+            "strand": ["+", "+", "-", "-", "-"],
+            "gene": ["A", "A", "B", "B", "B"],
+        }
+    )
+
+    # Test merge
+    merged = merge_intervals_by_column(intervals, group_col="gene")
+    assert merged.equals(
+        pd.DataFrame(
+            {
+                "gene": ["A", "B"],
+                "chrom": ["chr10", "chr10"],
+                "start": [10, 45000],
+                "end": [2000, 49000],
+                "strand": ["+", "-"],
+            }
+        )
+    )
+
+    # Test merge without strand
+    merged = merge_intervals_by_column(
+        intervals[["chrom", "start", "end", "gene"]], group_col="gene"
+    )
+    assert merged.equals(
+        pd.DataFrame(
+            {
+                "gene": ["A", "B"],
+                "chrom": ["chr10", "chr10"],
+                "start": [10, 45000],
+                "end": [2000, 49000],
+            }
+        )
+    )
+
+    # Test merge with non-unique chromosomes
+    with pytest.raises(AssertionError):
+        intervals = pd.DataFrame(
+            {
+                "chrom": ["chr10", "chr10", "chr1", "chr10", "chr10"],
+                "start": [10, 1000, 45000, 46000, 48000],
+                "end": [1010, 2000, 46000, 47000, 49000],
+                "strand": ["+", "+", "-", "-", "-"],
+                "gene": ["A", "A", "B", "B", "B"],
+            }
+        )
+        merge_intervals_by_column(intervals, group_col="gene")
+
+    # Test merge with non-unique strand
+    with pytest.raises(AssertionError):
+        intervals = pd.DataFrame(
+            {
+                "chrom": ["chr10", "chr10", "chr10", "chr10", "chr10"],
+                "start": [10, 1000, 45000, 46000, 48000],
+                "end": [1010, 2000, 46000, 47000, 49000],
+                "strand": ["+", "+", "+", "-", "-"],
+                "gene": ["A", "A", "B", "B", "B"],
+            }
+        )
+        merge_intervals_by_column(intervals, group_col="gene")

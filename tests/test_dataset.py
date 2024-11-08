@@ -797,34 +797,37 @@ def test_ism_dataset():
 def test_marginalize_dataset_variants():
     # Marginalize variants
     ds = VariantMarginalizeDataset(
-        variants=variants, genome="hg38", seq_len=6, n_shuffles=2, seed=0
+        variants=variants, genome="hg38", seq_len=12, n_shuffles=2, seed=0
     )
     assert (
         (ds.n_shuffles == 2)
-        and (ds.seq_len == 6)
+        and (ds.seq_len == 12)
         and (ds.n_seqs == 2)
         and (ds.ref.shape == (2, 1))
         and (ds.alt.shape == (2, 1))
         and (len(ds) == 8)
         and (ds.n_augmented == 2)
+        and (np.allclose(ds.ref, np.array([[2], [2]])))
+        and (np.allclose(ds.alt, np.array([[0], [0]])))
     )
+    assert convert_input_type(ds.seqs, "strings") == ["CATACGTGAGGC", "AGGAGGCCAAAG"]
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
     assert xs == [
-        "ACGTGA",
-        "ACATGA",
-        "ACGTGA",
-        "ACATGA",
-        "AGGCCA",
-        "AGACCA",
-        "AGGCCA",
-        "AGACCA",
+        "CACGTGTGAGGC",
+        "CACGTATGAGGC",
+        "CACGAGAGTGGC",
+        "CACGAAAGTGGC",
+        "AAGGGGGCCAAG",
+        "AAGGGAGCCAAG",
+        "AAGAGGGCCAAG",
+        "AAGAGAGCCAAG",
     ]
 
 
 def test_marginalize_dataset_motifs():
     # Marginalize motifs
     ds = PatternMarginalizeDataset(
-        seqs=["ACCTACACT"], patterns=["AAA"], n_shuffles=2, seed=0
+        seqs=["AAGACATACAACGCGCGCTAACATAGCAAC"], patterns=["AAA"], n_shuffles=2, seed=0
     )
     assert (
         (ds.n_shuffles == 2)
@@ -836,7 +839,12 @@ def test_marginalize_dataset_motifs():
     )
 
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
-    assert xs == ["ACACCGACG", "ACAAAAACG", "ACACGACCG", "ACAAAACCG"]
+    assert xs == [
+        "ACGCATACGAGCGCTACAGCAACATAAAAC",
+        "ACGCATACGAGCGAAACAGCAACATAAAAC",
+        "ACTAACAACAGCACGCGCGATATAAGCAAC",
+        "ACTAACAACAGCAAAAGCGATATAAGCAAC",
+    ]
 
 
 # Test Motif scanning dataset

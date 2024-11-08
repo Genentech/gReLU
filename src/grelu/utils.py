@@ -1,6 +1,7 @@
 """
 General utility functions
 """
+
 from typing import Callable, Optional, Sequence, Union
 
 import numpy as np

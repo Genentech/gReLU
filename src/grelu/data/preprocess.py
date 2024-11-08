@@ -1,9 +1,9 @@
 """
 Functions to preprocess genomic datasets.
 """
+
 import os
 import subprocess
-import tempfile
 from typing import Callable, List, Optional, Union
 
 import bioframe as bf
@@ -483,7 +483,6 @@ def get_gc_matched_intervals(
     genome: str,
     binwidth: float = 0.1,
     chroms: str = "autosomes",
-    gc_bw_file: str = None,
     blacklist: str = "hg38",
     seed: Optional[int] = None,
 ) -> pd.DataFrame:
@@ -495,15 +494,13 @@ def get_gc_matched_intervals(
         genome: Name of the genome corresponding to intervals
         binwidth: Resolution of GC content
         chroms: Chromosomes to search for matched intervals
-        gc_bw_file: Path to a bigWig file of genomewide GC content.
-            If None, will be created.
         blacklist: Blacklist file of regions to exclude
         seed: Random seed
 
     Returns:
         A pandas dataframe containing GC-matched negative intervals.
     """
-    from bpnetlite.negatives import calculate_gc_genomewide, extract_matching_loci
+    from tangermeme.match import extract_matching_loci
 
     from grelu.io.genome import get_genome
     from grelu.sequence.utils import get_unique_length
@@ -514,25 +511,17 @@ def get_gc_matched_intervals(
     # Get seq_len
     seq_len = get_unique_length(intervals)
 
-    # Get bigWig file of GC content
-    if gc_bw_file is None:
-        gc_bw_file = "gc_{}_{}.bw".format(genome.name, seq_len)
-        print("Calculating GC content genomewide and saving to {}".format(gc_bw_file))
-        calculate_gc_genomewide(
-            fasta=genome.genome_file,
-            bigwig=gc_bw_file,
-            width=seq_len,
-            include_chroms=chroms,
-            verbose=True,
-        )
-
     print("Extracting matching intervals")
-    _, tmpfile = tempfile.mkstemp()
-    intervals.iloc[:, :3].to_csv(tmpfile, sep="\t", index=False, header=False)
     matched_loci = extract_matching_loci(
-        bed=tmpfile, bigwig=gc_bw_file, width=seq_len, bin_width=binwidth, verbose=True
+        intervals,
+        fasta=genome.genome_file,
+        in_window=seq_len,
+        gc_bin_width=binwidth,
+        chroms=chroms,
+        verbose=False,
+        random_state=seed,
     )
-    os.remove(tmpfile)
+
     print("Filtering blacklist")
     if blacklist is not None:
         matched_loci = filter_blacklist(matched_loci, blacklist)
@@ -628,16 +617,38 @@ def merge_intervals_by_column(intervals: pd.DataFrame, group_col: str) -> pd.Dat
     Returns:
         A dataframe containing one merged interval for each value in group_col.
     """
-    output = intervals.groupby(group_col).apply(
-        lambda x: (x.chrom.unique().tolist(), x.start.min(), x.end.max())
-    )
+    check_unique_cols = ["chrom"]
+    keep_cols = ["chrom", "start", "end"]
+
+    # Collect all intervals with the same value in `group_col`
+    if "strand" in intervals.columns:
+        keep_cols.append("strand")
+        check_unique_cols.append("strand")
+        output = intervals.groupby(group_col).apply(
+            lambda x: (
+                x.chrom.unique().tolist(),
+                x.start.min(),
+                x.end.max(),
+                x.strand.unique().tolist(),
+            )
+        )
+    else:
+        output = intervals.groupby(group_col).apply(
+            lambda x: (x.chrom.unique().tolist(), x.start.min(), x.end.max()),
+        )
+
+    # Create a dataframe of merged intervals
     output = pd.DataFrame(output).reset_index()
-    output[["chrom", "start", "end"]] = pd.DataFrame(output[0].tolist())
+    output[keep_cols] = pd.DataFrame(output[0].tolist())
     output = output.drop(columns=0)
-    assert (
-        output.chrom.apply(len).unique() == 1
-    ), "At least one group of intervals spans multiple chromosomes"
-    output.chrom = output.chrom.apply(lambda x: x[0])
+
+    # Each merged interval should have a single value for chrom and strand
+    for col in check_unique_cols:
+        assert np.all(
+            output[col].apply(len).unique() == 1
+        ), f"At least one group of intervals has multiple values in field {col}"
+        output[col] = output[col].apply(lambda x: x[0])
+
     return output
 
 
@@ -692,7 +703,7 @@ def make_insertion_bigwig(
     filter_cmd = (
         ""
         if chroms is None
-        else f"""grep {"".join([ f"-e ^{chrom} " for chrom in get_chromosomes(chroms)])} | """
+        else f"""grep {"".join([f"-e ^{chrom} " for chrom in get_chromosomes(chroms)])} | """
     )
     bedgraph_cmd = f"bedtools genomecov -bg -5 -i stdin -g {genome.sizes_file} | "
     sort_cmd = f"bedtools sort -i stdin > {bedgraph_file}"
