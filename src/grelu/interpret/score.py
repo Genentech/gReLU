@@ -208,9 +208,9 @@ def get_attributions(
 def _add_tomtom_to_modisco_report(
     modisco_dir: str,
     tomtom_results: pd.DataFrame,
-    top_n_matches: int = 10,
-    meme_file: Optional[str] = None,
-):
+    meme_file: str,
+    top_n_matches: int,
+) -> None:
     """
     Modified from https://github.com/jmschrei/tfmodisco-lite/blob/main/modiscolite/report.py#L245
     """
@@ -312,7 +312,7 @@ def run_modisco(
     seed=None,
     method: str = "deepshap",
     **kwargs,
-):
+) -> None:
     """
     Run TF-Modisco to get relevant motifs for a set of inputs, and optionally score the
     motifs against a reference set of motifs using TOMTOM
@@ -459,8 +459,8 @@ def run_modisco(
         _add_tomtom_to_modisco_report(
             modisco_dir=out_dir,
             tomtom_results=tomtom_results,
-            top_n_matches=10,
             meme_file=meme_file,
+            top_n_matches=10,
         )
 
 

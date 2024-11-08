@@ -341,7 +341,19 @@ def compare_motifs(
     return scan
 
 
-def run_tomtom(motifs: Dict[str, np.ndarray], meme_file: str):
+def run_tomtom(motifs: Dict[str, np.ndarray], meme_file: str) -> pd.DataFrame:
+    """
+    Function to compare given motifs to reference motifs using the
+    tomtom algorithm, as implemented in tangermeme.
+
+    Args:
+        motifs: A dictionary whose values are Position Probability Matrices
+                (PPMs) of shape (4, L).
+        meme_file: Path to a meme file containing reference motifs.
+
+    Returns:
+        df: Pandas dataframe containing all tomtom results.
+    """
     from statsmodels.stats.multitest import fdrcorrection
     from tangermeme.tools.tomtom import tomtom
 
