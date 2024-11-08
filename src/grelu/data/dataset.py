@@ -1212,7 +1212,7 @@ class HDF5BigWigDataset(LabeledSeqDataset):
                                         ] = bigwig_values
                                     except (RuntimeError, ValueError) as e:
                                         bigwig_chunk[k - chunk_start, j, :] = 0
-                                        print(chrom, start, end)
+                                        print(f"Error processing region {chrom}:{start}-{end}: {e}")    
                     f["labels"][chunk_start:chunk_end] = np.nan_to_num(bigwig_chunk)
 
     def write(self):
