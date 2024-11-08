@@ -4,6 +4,7 @@ Pytorch dataset classes to load sequence data
 All dataset classes produce either one-hot encoded sequences of shape (4, L)
 or sequence-label pairs of shape (4, L) and (T, L).
 """
+
 import os
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 
@@ -1206,9 +1207,9 @@ class HDF5BigWigDataset(LabeledSeqDataset):
                                     try:
                                         chrom, start, end = region
                                         bigwig_values = wig.values(chrom, start, end)
-                                        bigwig_chunk[
-                                            k - chunk_start, j, :
-                                        ] = bigwig_values
+                                        bigwig_chunk[k - chunk_start, j, :] = (
+                                            bigwig_values
+                                        )
                                     except:
                                         bigwig_chunk[k - chunk_start, j, :] = 0
                                         print(chrom, start, end)

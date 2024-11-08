@@ -1207,9 +1207,9 @@ class HDF5BigWigDataset(LabeledSeqDataset):
                                     try:
                                         chrom, start, end = region
                                         bigwig_values = wig.values(chrom, start, end)
-                                        bigwig_chunk[
-                                            k - chunk_start, j, :
-                                        ] = bigwig_values
+                                        bigwig_chunk[k - chunk_start, j, :] = (
+                                            bigwig_values
+                                        )
                                     except:
                                         bigwig_chunk[k - chunk_start, j, :] = 0
                                         print(chrom, start, end)
