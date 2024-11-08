@@ -30,7 +30,7 @@ from grelu.sequence.format import (
 from grelu.sequence.mutate import mutate
 from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
 from grelu.utils import get_aggfunc, get_transform_func
-
+import pyBigWig
 
 class LabeledSeqDataset(Dataset):
     """
@@ -1207,10 +1207,10 @@ class HDF5BigWigDataset(LabeledSeqDataset):
                                     try:
                                         chrom, start, end = region
                                         bigwig_values = wig.values(chrom, start, end)
-                                        bigwig_chunk[k - chunk_start, j, :] = (
-                                            bigwig_values
-                                        )
-                                    except:
+                                        bigwig_chunk[
+                                            k - chunk_start, j, :
+                                        ] = bigwig_values
+                                    except (RuntimeError, ValueError) as e:
                                         bigwig_chunk[k - chunk_start, j, :] = 0
                                         print(chrom, start, end)
                     f["labels"][chunk_start:chunk_end] = np.nan_to_num(bigwig_chunk)
