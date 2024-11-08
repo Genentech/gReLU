@@ -6,7 +6,6 @@ import os
 import warnings
 from typing import Callable, List, Optional, Union
 
-import h5py
 import numpy as np
 import pandas as pd
 import torch
@@ -206,13 +205,11 @@ def get_attributions(
     return attributions  # N, 4, L
 
 
-def _make_modisco_html(
-    h5_file,
-    modisco_logo_dir,
-    tomtom_file,
-    out_dir,
-    top_n_matches=10,
-    meme_file=None,
+def _add_tomtom_to_modisco_report(
+    modisco_dir: str,
+    tomtom_results: pd.DataFrame,
+    top_n_matches: int = 10,
+    meme_file: Optional[str] = None,
 ):
     """
     Modified from https://github.com/jmschrei/tfmodisco-lite/blob/main/modiscolite/report.py#L245
@@ -221,96 +218,72 @@ def _make_modisco_html(
 
     from grelu.resources import get_meme_file_path
 
-    print("Creating dataframe of discovered motifs")
-    results = {
-        "query": [],
-        "pattern": [],
-        "num_seqlets": [],
-        "modisco_cwm_fwd": [],
-        "modisco_cwm_rev": [],
-    }
-    with h5py.File(h5_file, "r") as f:
-        for metacluster in ["pos_patterns", "neg_patterns"]:
-            if metacluster not in f.keys():
-                continue
+    # Paths to outputs
+    html_file = os.path.join(modisco_dir, "motifs.html")
+    meme_logo_dir = os.path.join(modisco_dir, "trimmed_meme_logos")
+    modisco_logo_dir = os.path.join(modisco_dir, "trimmed_logos")
 
-            for pattern_name, pattern in sorted(
-                f[metacluster].items(), key=lambda x: int(x[0].split("_")[-1])
-            ):
-                num_seqlets = pattern["seqlets"]["n_seqlets"][:][0]
-                pattern_tag = f"{metacluster}.{pattern_name}"
-                results["query"].append(metacluster[:3] + "_" + pattern_name)
-                results["pattern"].append(pattern_tag)
-                results["num_seqlets"].append(num_seqlets)
-                results["modisco_cwm_fwd"].append(
-                    os.path.join(modisco_logo_dir, f"{pattern_tag}.cwm.fwd.png")
-                )
-                results["modisco_cwm_rev"].append(
-                    os.path.join(modisco_logo_dir, f"{pattern_tag}.cwm.rev.png")
-                )
+    # Loading html report
+    report = pd.read_html(html_file)[0]
+    cols = report.columns.tolist()
+    report["query"] = report.apply(
+        lambda row: row.pattern[:3] + "_" + row.pattern.split(".")[-1], axis=1
+    )
+    report["modisco_cwm_fwd"] = report.pattern.apply(
+        lambda x: os.path.join(modisco_logo_dir, f"{x}.cwm.fwd.png")
+    )
+    report["modisco_cwm_rev"] = report.pattern.apply(
+        lambda x: os.path.join(modisco_logo_dir, f"{x}.cwm.rev.png")
+    )
 
-    patterns_df = pd.DataFrame(results)
-    reordered_columns = [
-        "query",
-        "pattern",
-        "num_seqlets",
-        "modisco_cwm_fwd",
-        "modisco_cwm_rev",
-    ]
+    # Compiling top TOMTOM matches
+    tomtom_dict = dict()
+    for i in range(top_n_matches):
+        tomtom_dict[f"match{i}"] = []
+        tomtom_dict[f"qval{i}"] = []
 
-    if meme_file is not None:
+    for row in report.itertuples():
+        query_tomtom = tomtom_results.loc[
+            tomtom_results.Query_ID == row.query, ["Target_ID", "q-value"]
+        ].sort_values("q-value")[:top_n_matches]
 
-        print("Compiling top TOMTOM matches")
-        tomtom_results = pd.read_csv(tomtom_file, usecols=(1, 2, 6))
-        pattern_dict = dict()
-        for i in range(top_n_matches):
-            pattern_dict[f"match{i}"] = []
-            pattern_dict[f"qval{i}"] = []
+        i = -1
+        for i, row in enumerate(query_tomtom.itertuples()):
+            tomtom_dict[f"match{i}"].append(row[1])
+            tomtom_dict[f"qval{i}"].append(row[2])
 
-        for row in patterns_df.itertuples():
-            query_tomtom = tomtom_results.loc[
-                tomtom_results.Query_ID == row.query, ["Target_ID", "q-value"]
-            ].sort_values("q-value")[:top_n_matches]
+        for j in range(i + 1, top_n_matches):
+            tomtom_dict[f"match{j}"].append(None)
+            tomtom_dict[f"qval{j}"].append(None)
 
-            i = -1
-            for i, row in enumerate(query_tomtom.itertuples()):
-                pattern_dict[f"match{i}"].append(row[1])
-                pattern_dict[f"qval{i}"].append(row[2])
+    report = pd.concat([report, pd.DataFrame(tomtom_dict)], axis=1)
 
-            for j in range(i + 1, top_n_matches):
-                pattern_dict[f"match{j}"].append(None)
-                pattern_dict[f"qval{j}"].append(None)
+    # Reading reference motifs from the meme file
+    meme_file = get_meme_file_path(meme_file)
+    motifs = read_meme(meme_file)
 
-        tomtom_df = pd.DataFrame(pattern_dict)
-        patterns_df = pd.concat([patterns_df, tomtom_df], axis=1)
+    # Generating logos for the reference motifs
+    if not os.path.exists(meme_logo_dir):
+        os.makedirs(meme_logo_dir)
 
-        print("Reading meme file")
-        meme_file = get_meme_file_path(meme_file)
-        motifs = read_meme(meme_file)
-        meme_logo_dir = os.path.join(out_dir, "trimmed_meme_logos")
-        if not os.path.exists(meme_logo_dir):
-            os.makedirs(meme_logo_dir)
-
-        print("Generating logos")
-        for i in range(top_n_matches):
-            name = f"match{i}"
-            logos = []
-            for _, row in patterns_df.iterrows():
-                if name in patterns_df.columns:
-                    if pd.isnull(row[name]):
-                        logos.append("NA")
-                    else:
-                        make_logo(row[name], meme_logo_dir, motifs)
-                        logos.append(os.path.join(meme_logo_dir, f"{row[name]}.png"))
+    for i in range(top_n_matches):
+        name = f"match{i}"
+        logos = []
+        for _, row in report.iterrows():
+            if name in report.columns:
+                if pd.isnull(row[name]):
+                    logos.append("NA")
                 else:
-                    break
-        patterns_df[f"{name}_logo"] = logos
-        reordered_columns.extend([name, f"qval{i}", f"{name}_logo"])
+                    make_logo(row[name], meme_logo_dir, motifs)
+                    logos.append(os.path.join(meme_logo_dir, f"{row[name]}.png"))
+            else:
+                break
+        report[f"{name}_logo"] = logos
+        cols.extend([name, f"qval{i}", f"{name}_logo"])
 
-    print("Saving html")
-    patterns_df = patterns_df[reordered_columns]
-    with open(os.path.join(out_dir, "motifs.html"), "w") as f:
-        patterns_df.to_html(
+    # Saving html file
+    with open(html_file, "w") as f:
+        report[cols].to_html(
             f,
             escape=False,
             formatters=dict(
@@ -364,7 +337,7 @@ def run_modisco(
         NotImplementedError: if the method is neither "deepshap" nor "ism"
     """
     from modiscolite.io import save_hdf5
-    from modiscolite.report import create_modisco_logos
+    from modiscolite.report import create_modisco_logos, report_motifs
     from modiscolite.tfmodisco import TFMoDISco
 
     from grelu.data.dataset import ISMDataset, SeqDataset
@@ -468,21 +441,27 @@ def run_modisco(
         pattern_groups=["pos_patterns", "neg_patterns"],
     )
 
+    print("Creating html report")
+    report_motifs(
+        modisco_h5py=h5_file,
+        output_dir=out_dir,
+        img_path_suffix=out_dir,
+        meme_motif_db=None,
+        is_writing_tomtom_matrix=False,
+    )
+
     if meme_file is not None:
         print("Running TOMTOM")
         tomtom_file = os.path.join(out_dir, "tomtom.csv")
-        motifs = read_modisco_report(h5_file, trim_threshold=0.2)
+        motifs = read_modisco_report(h5_file, trim_threshold=0.3)
         tomtom_results = run_tomtom(motifs, meme_file)
         tomtom_results.to_csv(tomtom_file)
-
-    _make_modisco_html(
-        h5_file,
-        modisco_logo_dir,
-        tomtom_file,
-        out_dir,
-        top_n_matches=10,
-        meme_file=meme_file,
-    )
+        _add_tomtom_to_modisco_report(
+            modisco_dir=out_dir,
+            tomtom_results=tomtom_results,
+            top_n_matches=10,
+            meme_file=meme_file,
+        )
 
 
 def get_attention_scores(
