@@ -58,7 +58,7 @@ def motifs_to_strings(
         return indices_to_strings(indices)
 
     # Convert multiple motifs
-    elif isinstance(motifs, Dict):
+    elif isinstance(motifs, dict):
         return [
             motifs_to_strings(motif, rng=rng, sample=sample)
             for motif in motifs.values()
@@ -339,3 +339,48 @@ def compare_motifs(
     scan["foldChange"] = scan.alt / scan.ref
     scan = scan.sort_values("foldChange").reset_index(drop=True)
     return scan
+
+
+def run_tomtom(motifs: Dict[str, np.ndarray], meme_file: str) -> pd.DataFrame:
+    """
+    Function to compare given motifs to reference motifs using the
+    tomtom algorithm, as implemented in tangermeme.
+
+    Args:
+        motifs: A dictionary whose values are Position Probability Matrices
+                (PPMs) of shape (4, L).
+        meme_file: Path to a meme file containing reference motifs.
+
+    Returns:
+        df: Pandas dataframe containing all tomtom results.
+    """
+    from statsmodels.stats.multitest import fdrcorrection
+    from tangermeme.tools.tomtom import tomtom
+
+    from grelu.interpret.motifs import motifs_to_strings
+    from grelu.resources import get_meme_file_path
+
+    meme_file = get_meme_file_path(meme_file)
+    ref_motifs = read_meme_file(meme_file)
+    query_consensuses = {k: motifs_to_strings(v) for k, v in motifs.items()}
+    target_consensuses = {k: motifs_to_strings(v) for k, v in ref_motifs.items()}
+    pvals, scores, offsets, overlaps, strands = tomtom(
+        list(motifs.values()), list(ref_motifs.values())
+    )
+
+    df = pd.DataFrame(
+        {
+            "Query_ID": np.repeat(list(motifs.keys()), len(ref_motifs)),
+            "Target_ID": list(ref_motifs.keys()) * len(motifs),
+            "Optimal_offset": offsets.flatten(),
+            "p-value": pvals.flatten(),
+        }
+    )
+    df["E-value"] = df["p-value"] * len(ref_motifs)
+    df["q-value"] = fdrcorrection(df["p-value"])[1]
+    df["Overlap"] = overlaps.flatten()
+    df["Query_consensus"] = df.Query_ID.map(query_consensuses)
+    df["Target_consensus"] = df.Target_ID.map(target_consensuses)
+    df["Orientation"] = ["+" if x == 0 else "-" for x in strands.flatten()]
+
+    return df

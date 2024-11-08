@@ -6,6 +6,7 @@ from torch import Tensor, nn
 from grelu.interpret.motifs import (
     marginalize_patterns,
     motifs_to_strings,
+    run_tomtom,
     scan_sequences,
     trim_pwm,
 )
@@ -157,3 +158,73 @@ def test_scan_sequences():
     assert out.end.tolist() == [7, 7, 8, 6]
     assert out.strand.tolist() == ["+", "-", "+", "-"]
     assert out.matched_seq.tolist() == ["CACGTG", "CACGTG", "TGCGTG", "CACGCA"]
+
+
+def test_run_tomtom():
+
+    motifs = {
+        "MA0004.1 Arnt": np.array(
+            [
+                [0.2, 0.95, 0.0, 0.0, 0.0, 0.0],
+                [0.8, 0.0, 1.0, 0.0, 0.0, 0.0],
+                [0.0, 0.05, 0.0, 1.0, 0.0, 1.0],
+                [0.0, 0.0, 0.0, 0.0, 1.0, 0.0],
+            ]
+        ),
+        "MA0006.1 Ahr::Arnt": np.array(
+            [
+                [0.125, 0.0, 0.0, 0.0, 0.0, 0.0],
+                [0.333333, 0.0, 0.958333, 0.0, 0.0, 0.0],
+                [0.083333, 0.958333, 0.0, 0.958333, 0.0, 1.0],
+                [0.458333, 0.041667, 0.041667, 0.041667, 1.0, 0.0],
+            ]
+        ),
+    }
+    df = run_tomtom(motifs=motifs, meme_file=meme_file)
+    assert df.Query_ID.tolist() == [
+        "MA0004.1 Arnt",
+        "MA0004.1 Arnt",
+        "MA0006.1 Ahr::Arnt",
+        "MA0006.1 Ahr::Arnt",
+    ]
+    assert df.Target_ID.tolist() == [
+        "MA0004.1 Arnt",
+        "MA0006.1 Ahr::Arnt",
+        "MA0004.1 Arnt",
+        "MA0006.1 Ahr::Arnt",
+    ]
+    assert np.allclose(df.Optimal_offset, [0.0, 0.0, 0.0, 0.0])
+    assert np.allclose(
+        df["p-value"],
+        [
+            1.339591458093814e-06,
+            0.013090962390804095,
+            0.017318747323072148,
+            3.348979505934935e-07,
+        ],
+        rtol=1e-3,
+    )
+    assert np.allclose(
+        df["E-value"],
+        [
+            2.679182916187628e-06,
+            0.02618192478160819,
+            0.034637494646144296,
+            6.69795901186987e-07,
+        ],
+        rtol=1e-3,
+    )
+    assert np.allclose(
+        df["q-value"],
+        [
+            2.679182916187628e-06,
+            0.017318747323072148,
+            0.017318747323072148,
+            1.339591802373974e-06,
+        ],
+        rtol=1e-3,
+    )
+    assert np.allclose(df.Overlap, [6.0, 6.0, 6.0, 6.0])
+    assert df.Query_consensus.tolist() == ["CACGTG", "CACGTG", "TGCGTG", "TGCGTG"]
+    assert df.Target_consensus.tolist() == ["CACGTG", "TGCGTG", "CACGTG", "TGCGTG"]
+    assert df.Orientation.tolist() == ["+", "+", "+", "+"]
