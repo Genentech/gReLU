@@ -1,7 +1,8 @@
 import os
+from typing import Callable, List, Optional, Union
+
 import numpy as np
 import pandas as pd
-from typing import Union, Optional, List, Callable
 
 
 def _add_tomtom_to_modisco_report(
@@ -143,8 +144,8 @@ def run_modisco(
     from grelu.interpret.motifs import run_tomtom
     from grelu.interpret.score import get_attributions
     from grelu.io.motifs import read_modisco_report
-    from grelu.sequence.utils import get_unique_length
     from grelu.sequence.format import convert_input_type
+    from grelu.sequence.utils import get_unique_length
 
     # Get start and end positions
     if window is None:
