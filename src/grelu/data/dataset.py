@@ -11,6 +11,7 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 import h5py
 import numpy as np
 import pandas as pd
+import pyBigWig
 import scipy
 import tqdm
 from einops import rearrange
@@ -30,7 +31,7 @@ from grelu.sequence.format import (
 from grelu.sequence.mutate import mutate
 from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
 from grelu.utils import get_aggfunc, get_transform_func
-import pyBigWig
+
 
 class LabeledSeqDataset(Dataset):
     """
@@ -1207,9 +1208,9 @@ class HDF5BigWigDataset(LabeledSeqDataset):
                                     try:
                                         chrom, start, end = region
                                         bigwig_values = wig.values(chrom, start, end)
-                                        bigwig_chunk[
-                                            k - chunk_start, j, :
-                                        ] = bigwig_values
+                                        bigwig_chunk[k - chunk_start, j, :] = (
+                                            bigwig_values
+                                        )
                                     except (RuntimeError, ValueError) as e:
                                         bigwig_chunk[k - chunk_start, j, :] = 0
                                         print(f"Error processing region {chrom}:{start}-{end}: {e}")    
