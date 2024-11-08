@@ -1,0 +1,1823 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Model-guided design of regulatory elements &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!-- 
+    this give us a css class that will be invisible only if js is disabled 
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=26a4bc78f4c0ddb94549" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=266695fe" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=26a4bc78f4c0ddb94549"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549" />
+
+    <script src="../_static/documentation_options.js?v=4e48d009"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://braid-relu.pages.roche.com/grelu/latest/index.html/tutorials/4_design.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Predict Effects of Alzheimer’s Variants Using ATAC Models" href="5_variant.html" />
+    <link rel="prev" title="Train a single-task regression model from scratch" href="3_train.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="unknown" />
+    <meta name="docbuild:last-update" content="Nov 08, 2024"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Design
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Model-guided design of regulatory elements</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="model-guided-design-of-regulatory-elements">
+<h1>Model-guided design of regulatory elements<a class="headerlink" href="#model-guided-design-of-regulatory-elements" title="Link to this heading">#</a></h1>
+<p>In this example, we use gReLU to perform model-guided design of accessible DNA elements for microglial cells.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">anndata</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+</div>
+<section id="load-the-pre-trained-catlas-model-from-the-model-zoo">
+<h2>Load the pre-trained Catlas model from the model zoo<a class="headerlink" href="#load-the-pre-trained-catlas-model-from-the-model-zoo" title="Link to this heading">#</a></h2>
+<p>This is a binary classification model trained on snATAC-seq data from Catlas (<a class="reference external" href="http://catlas.org/humanenhancer/">http://catlas.org/humanenhancer/</a>).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.resources</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="s1">&#39;human-atac-catlas&#39;</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;model&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+</section>
+<section id="view-the-model-s-metadata">
+<h2>View the model’s metadata<a class="headerlink" href="#view-the-model-s-metadata" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">model.data_params</span></code> is a dictionary containing metadata about the data used to train the model. Let’s look at what information is stored:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="o">.</span><span class="n">keys</span><span class="p">())[:</span><span class="mi">21</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span><span class="s2">&quot;tasks&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>train_bin_size 1
+train_chroms [&#39;chr18&#39;, &#39;chr5&#39;, &#39;chr1&#39;, &#39;chr17&#39;, &#39;chr9&#39;, &#39;chr19&#39;, &#39;chr8&#39;, &#39;chr21&#39;, &#39;chr14&#39;, &#39;chr20&#39;, &#39;chr22&#39;, &#39;chr10&#39;, &#39;chr15&#39;, &#39;chr12&#39;, &#39;chr16&#39;, &#39;chr3&#39;, &#39;chr4&#39;, &#39;chr11&#39;, &#39;chr2&#39;, &#39;chr6&#39;]
+train_end both
+train_genome hg38
+train_label_aggfunc None
+train_label_len 200
+train_label_transform_func None
+train_max_label_clip None
+train_max_pair_shift 0
+train_max_seq_shift 1
+train_min_label_clip None
+train_n_alleles 1
+train_n_augmented 1
+train_n_seqs 1022128
+train_n_tasks 204
+train_padded_label_len 200
+train_padded_seq_len 202
+train_predict False
+train_rc True
+train_seq_len 200
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note the parameter <code class="docutils literal notranslate"><span class="pre">train_seq_len</span></code>. This tells us that the model was trained on 200 bp long sequences.</p>
+<p><code class="docutils literal notranslate"><span class="pre">model.data_params['tasks']</span></code> is a large dictionary containing metadata about the output tracks that the model predicts. We can collect these into a dataframe called tasks:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tasks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s2">&quot;tasks&quot;</span><span class="p">])</span>
+<span class="n">tasks</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>cell type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Follicular</td>
+      <td>Follicular</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Fibro General</td>
+      <td>Fibro General</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Acinar</td>
+      <td>Acinar</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>T Lymphocyte 1 (CD8+)</td>
+      <td>T Lymphocyte 1 (CD8+)</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>T lymphocyte 2 (CD4+)</td>
+      <td>T lymphocyte 2 (CD4+)</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="example-1-starting-from-a-random-sequence-evolve-a-sequence-with-high-accessibility-in-microglia-using-directed-evolution">
+<h2>Example 1: Starting from a random sequence, evolve a sequence with high accessibility in microglia using directed evolution.<a class="headerlink" href="#example-1-starting-from-a-random-sequence-evolve-a-sequence-with-high-accessibility-in-microglia-using-directed-evolution" title="Link to this heading">#</a></h2>
+<section id="generate-a-random-starting-sequence">
+<h3>Generate a random starting sequence<a class="headerlink" href="#generate-a-random-starting-sequence" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.sequence.utils</span>
+<span class="n">start_seq</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">sequence</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">generate_random_sequences</span><span class="p">(</span>
+    <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># number of sequences to generate</span>
+    <span class="n">seq_len</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">&#39;train_seq_len&#39;</span><span class="p">],</span> <span class="c1"># Length of the generated sequence</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">output_format</span><span class="o">=</span><span class="s2">&quot;strings&quot;</span>
+<span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">start_seq</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;ATCATTTTCTCGATGAAAGCGTTGACCCCACATATCGTTAGTACTCTTGTACCCTATGATTGTGTAGAAACCGAACTACGGTACCTCCTGTTGGTAGTCACGATAGATTATAAAAGTATGTTCCCACCCTATCGACGAGACTGGCATCCTAGGTGTTTGCGGTGTTGGTACGTGCGCAGGTATGTAAGAGTGGTAAACGA&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="create-the-objective-to-optimize-predictions-in-microglia">
+<h3>Create the objective to optimize - predictions in microglia<a class="headerlink" href="#create-the-objective-to-optimize-predictions-in-microglia" title="Link to this heading">#</a></h3>
+<p>In the first example, we want to create a sequence that has a high probability of accessibility in microglia (regardless of what it does in other cell types). We first must define the objective that we want to optimize. Such objective functions are defined in <code class="docutils literal notranslate"><span class="pre">grelu.transforms.prediction_transforms</span></code>. We pick the <code class="docutils literal notranslate"><span class="pre">Aggregate</span></code> class, which tells the model to aggregate predictions over a subset of output tasks or positions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grelu.transforms.prediction_transforms</span> <span class="kn">import</span> <span class="n">Aggregate</span>
+
+<span class="n">microglia_score</span> <span class="o">=</span> <span class="n">Aggregate</span><span class="p">(</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Microglia&quot;</span><span class="p">],</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-directed-evolution-to-maximize-the-prediction-in-microglia-ignoring-other-cell-types">
+<h3>Run directed evolution to maximize the prediction in microglia, ignoring other cell types<a class="headerlink" href="#run-directed-evolution-to-maximize-the-prediction-in-microglia-ignoring-other-cell-types" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">grelu.design</span></code> contains algorithms for model-guided sequence design. We pick the <code class="docutils literal notranslate"><span class="pre">evolve</span></code> function, which performs directed evolution. Note that it selects the sequence with the highest objective function value at every iteration, which in this case is the highest predicted accessibility in microglia. If you wanted to instead select the sequence with the lowest prediction in microglia, you could add <code class="docutils literal notranslate"><span class="pre">weight=-1</span></code> to the <code class="docutils literal notranslate"><span class="pre">Aggregate</span></code> object.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.design</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">start_seq</span><span class="p">],</span> <span class="c1"># The initial sequences</span>
+    <span class="n">model</span><span class="p">,</span> 
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span> <span class="c1"># Objective to optimize </span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="c1"># Number of iterations for directed evolution</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">return_seqs</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="c1"># Return all the evolved sequences</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Iteration 0
+Predicting DataLoader 0: 100%|████████████████████████████████████████████████████████████| 1/1 [00:01&lt;00:00,  0.75it/s]
+Best value at iteration 0: 0.193
+Iteration 1
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 26.08it/s]
+Best value at iteration 1: 0.449
+Iteration 2
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 29.53it/s]
+Best value at iteration 2: 0.654
+Iteration 3
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 30.54it/s]
+Best value at iteration 3: 0.896
+Iteration 4
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 32.75it/s]
+Best value at iteration 4: 0.976
+Iteration 5
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 34.97it/s]
+Best value at iteration 5: 0.991
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 47/47 [00:01&lt;00:00, 34.37it/s]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="examine-the-output">
+<h3>Examine the output<a class="headerlink" href="#examine-the-output" title="Link to this heading">#</a></h3>
+<p>The output of <code class="docutils literal notranslate"><span class="pre">grelu.design.evolve</span></code> is a dataframe which contains all the sequences generated during directed evolution, and the model’s predictions. It also contains the position that was mutated and the base that was substituted at that position.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>iter</th>
+      <th>start_seq</th>
+      <th>best_in_iter</th>
+      <th>prediction_score</th>
+      <th>seq_score</th>
+      <th>total_score</th>
+      <th>seq</th>
+      <th>position</th>
+      <th>allele</th>
+      <th>Microglia</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>True</td>
+      <td>0.193436</td>
+      <td>0</td>
+      <td>0.193436</td>
+      <td>ATCATTTTCTCGATGAAAGCGTTGACCCCACATATCGTTAGTACTC...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.193184</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>0</td>
+      <td>False</td>
+      <td>0.172949</td>
+      <td>0</td>
+      <td>0.172949</td>
+      <td>CTCATTTTCTCGATGAAAGCGTTGACCCCACATATCGTTAGTACTC...</td>
+      <td>0.0</td>
+      <td>C</td>
+      <td>0.172949</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>0</td>
+      <td>False</td>
+      <td>0.176766</td>
+      <td>0</td>
+      <td>0.176766</td>
+      <td>GTCATTTTCTCGATGAAAGCGTTGACCCCACATATCGTTAGTACTC...</td>
+      <td>0.0</td>
+      <td>G</td>
+      <td>0.176766</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>0</td>
+      <td>False</td>
+      <td>0.185231</td>
+      <td>0</td>
+      <td>0.185231</td>
+      <td>TTCATTTTCTCGATGAAAGCGTTGACCCCACATATCGTTAGTACTC...</td>
+      <td>0.0</td>
+      <td>T</td>
+      <td>0.185231</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>0</td>
+      <td>False</td>
+      <td>0.180554</td>
+      <td>0</td>
+      <td>0.180554</td>
+      <td>AACATTTTCTCGATGAAAGCGTTGACCCCACATATCGTTAGTACTC...</td>
+      <td>1.0</td>
+      <td>A</td>
+      <td>0.180554</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>We can visualize the model’s predictions on the sequences generated at each iteration:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.visualize</span>
+<span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_evolution</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">outlier_size</span><span class="o">=</span><span class="mf">.1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/fe60b33a7790ba0fd2f60b671a54e0013eb316603ad610e74f7f6d801833879d.png"><img alt="../_images/fe60b33a7790ba0fd2f60b671a54e0013eb316603ad610e74f7f6d801833879d.png" src="../_images/fe60b33a7790ba0fd2f60b671a54e0013eb316603ad610e74f7f6d801833879d.png" style="width: 400px; height: 300px;" /></a>
+</div>
+</div>
+<p>We see that the predicted probability of accessibility in Microglia increases at each iteration.</p>
+</section>
+<section id="compare-the-initial-and-final-sequence">
+<h3>Compare the initial and final sequence<a class="headerlink" href="#compare-the-initial-and-final-sequence" title="Link to this heading">#</a></h3>
+<p>Let us take the best sequence from the final iteration (iteration 5):</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">end_seq</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="n">output</span><span class="o">.</span><span class="n">iter</span><span class="o">==</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;total_score&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">seq</span>
+<span class="n">end_seq</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;ATCATTTTCTCGATGAAAGCGTTGACCCCACATATCGTTAGTACTCTTGTACCCTATGATTGGGTAGAAACCGAACTACGGTACTTCCTGTTGGTAGTCACGATAGATTATAAAAGTATGTTCCCGCCCTCTCGACGAGACTGGCATCCTAGGTGTTTGCGGTGTTGGTACGTGCGCAGTTATGTAAGAGTGGTAAACGA&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can compare this to the sequence we started with to see what changes were made:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.sequence.mutate</span>
+<span class="n">mutated_positions</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">sequence</span><span class="o">.</span><span class="n">mutate</span><span class="o">.</span><span class="n">seq_differences</span><span class="p">(</span><span class="n">start_seq</span><span class="p">,</span> <span class="n">end_seq</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Position: 62 Reference base: T Alternate base: G Reference sequence: GATTGTGTAG
+Position: 84 Reference base: C Alternate base: T Reference sequence: GGTACCTCCT
+Position: 125 Reference base: A Alternate base: G Reference sequence: TTCCCACCCT
+Position: 130 Reference base: A Alternate base: C Reference sequence: ACCCTATCGA
+Position: 179 Reference base: G Alternate base: T Reference sequence: CGCAGGTATG
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we will use the <code class="docutils literal notranslate"><span class="pre">grelu.interpret</span></code> module to understand why these changes were made. One way to do this is by calculating per-base importance scores for the start and end sequence. gReLU provides several methods to do this, including In Silico Mutagenesis (ISM), DeepShap, InputxGradient and Integrated Gradients. Let’s first try inputxgradient on the start and end sequences.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.interpret.score</span>
+
+<span class="n">start_attrs</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">get_attributions</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">start_seq</span><span class="p">,</span> <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;inputxgradient&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">end_attrs</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">get_attributions</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">end_seq</span><span class="p">,</span> <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;inputxgradient&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_attributions</span><span class="p">(</span>
+    <span class="n">start_attrs</span><span class="p">,</span> 
+    <span class="n">highlight_positions</span><span class="o">=</span><span class="n">mutated_positions</span><span class="p">,</span> <span class="c1"># Highlight the mutated positions</span>
+    <span class="n">ticks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x7f56f979cd10&gt;
+</pre></div>
+</div>
+<img alt="../_images/a887a42eed533da48c654f6a239551d445a34967eba5a6e5290af3af8ee3698a.png" src="../_images/a887a42eed533da48c654f6a239551d445a34967eba5a6e5290af3af8ee3698a.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_attributions</span><span class="p">(</span>
+    <span class="n">end_attrs</span><span class="p">,</span>
+    <span class="n">highlight_positions</span><span class="o">=</span><span class="n">mutated_positions</span><span class="p">,</span> <span class="c1"># Highlight the mutated positions,</span>
+    <span class="n">ticks</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x7f56f9771290&gt;
+</pre></div>
+</div>
+<img alt="../_images/9c10436275d2e63d141e220248e7f0c64c06712d846cdbfaba6d0c3e5601ff09.png" src="../_images/9c10436275d2e63d141e220248e7f0c64c06712d846cdbfaba6d0c3e5601ff09.png" />
+</div>
+</div>
+<p>We see that several of the mutated bases are in regions of negative attributions, i.e. which reduce the model’s predictions.</p>
+</section>
+</section>
+<section id="example-2-use-sequence-constraints">
+<h2>Example 2: Use sequence constraints<a class="headerlink" href="#example-2-use-sequence-constraints" title="Link to this heading">#</a></h2>
+<p>gReLU’s evolution function allows you to impose additional constraints upon the evolutionary process. For example, we can try to promote or avoid instances of a specific pattern or motif in our designed sequences. In this example, we suppose that we want to avoid occurrences of the sequence pattern <code class="docutils literal notranslate"><span class="pre">CG</span></code> or its reverse complement <code class="docutils literal notranslate"><span class="pre">GC</span></code>.</p>
+<p>Let us count how many times this pattern occurs in our initial and final sequences.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">unwanted_seqs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;CG&quot;</span><span class="p">,</span> <span class="s2">&quot;GC&quot;</span><span class="p">]</span>
+
+<span class="n">n_initial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">start_seq</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">unwanted_seqs</span><span class="p">])</span>
+<span class="n">n_final</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">end_seq</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">unwanted_seqs</span><span class="p">])</span>
+
+<span class="n">n_initial</span><span class="p">,</span> <span class="n">n_final</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(17, 19)
+</pre></div>
+</div>
+</div>
+</div>
+<section id="create-additional-design-objective-a-sequence-transform">
+<h3>Create additional design objective: A sequence transform<a class="headerlink" href="#create-additional-design-objective-a-sequence-transform" title="Link to this heading">#</a></h3>
+<p>We see that although directed evolution improved the predicted accessibility of the sequence in microglia, it also increased the number of unwanted sequence patterns. So, we want to add a penalty for these patterns in our evolutionary process. We accomplish this by creating another transform, this time one that operates on the sequence instead of the model’s predictions. These transforms are found in the <code class="docutils literal notranslate"><span class="pre">grelu.transforms.seq_transforms</span></code> module.</p>
+<p>Here, we use the <code class="docutils literal notranslate"><span class="pre">PatternScore</span></code> class, which counts the number of times given subsequences occur in a sequence, and assigns the sequence a score based on this count. If you want to instead count the number of matches of a motif, use the <code class="docutils literal notranslate"><span class="pre">MotifScore</span></code> class.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grelu.transforms.seq_transforms</span> <span class="kn">import</span> <span class="n">PatternScore</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We create an instance of this class that counts the occurrences of the unwanted subsequences and assigns a score of -0.1 for each occurrence. The negative sign means that sequences containing these subsequences will be penalized during evolution.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gc_penalizer</span> <span class="o">=</span> <span class="n">PatternScore</span><span class="p">(</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="n">unwanted_seqs</span><span class="p">,</span> <span class="c1"># Patterns to count</span>
+    <span class="n">weights</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mf">.1</span><span class="p">,</span> <span class="o">-</span><span class="mf">.1</span><span class="p">],</span> <span class="c1"># Score to assign to each occurrence of each pattern</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-directed-evolution-including-the-sequence-penalty">
+<h3>Run directed evolution including the sequence penalty<a class="headerlink" href="#run-directed-evolution-including-the-sequence-penalty" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">start_seq</span><span class="p">],</span> <span class="c1"># The initial sequences</span>
+    <span class="n">model</span><span class="p">,</span> 
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span> <span class="c1"># Prediction objective to optimize </span>
+    <span class="n">seq_transform</span><span class="o">=</span><span class="n">gc_penalizer</span><span class="p">,</span> <span class="c1"># Sequence objective to optimize</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="c1"># Number of iterations for directed evolution</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">return_seqs</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="c1"># Return all the evolved sequences</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Iteration 0
+Predicting DataLoader 0: 100%|████████████████████████████████████████████████████████████| 1/1 [00:00&lt;00:00, 53.09it/s]
+Best value at iteration 0: -1.507
+Iteration 1
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 34.72it/s]
+Best value at iteration 1: -1.251
+Iteration 2
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 31.38it/s]
+Best value at iteration 2: -1.046
+Iteration 3
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 53.27it/s]
+Best value at iteration 3: -0.810
+Iteration 4
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 48.11it/s]
+Best value at iteration 4: -0.638
+Iteration 5
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 42.47it/s]
+Best value at iteration 5: -0.501
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 47/47 [00:00&lt;00:00, 49.57it/s]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="examine-results">
+<h3>Examine results<a class="headerlink" href="#examine-results" title="Link to this heading">#</a></h3>
+<p>Let’s examine the new optimized sequence and see whether it has fewer instances of <code class="docutils literal notranslate"><span class="pre">GC</span></code> and <code class="docutils literal notranslate"><span class="pre">CG</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">end_seq</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="n">output</span><span class="o">.</span><span class="n">iter</span><span class="o">==</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;total_score&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">seq</span>
+<span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">end_seq</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">unwanted_seqs</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>14
+</pre></div>
+</div>
+</div>
+</div>
+<p>We see that the number of GC/CG occurrences has been reduced. When we visualize the output of evolution, we see that both the prediction objective (accessibility in microglia) and the sequence objective have been optimized:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_evolution</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">outlier_size</span><span class="o">=</span><span class="mf">.1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/44a21024121e986faa764484c97d949477e9331fa9af4899539441a9e2de82f3.png"><img alt="../_images/44a21024121e986faa764484c97d949477e9331fa9af4899539441a9e2de82f3.png" src="../_images/44a21024121e986faa764484c97d949477e9331fa9af4899539441a9e2de82f3.png" style="width: 400px; height: 300px;" /></a>
+</div>
+</div>
+</section>
+</section>
+<section id="example-3-evolve-a-real-genomic-sequence-toward-microglia-specific-accessibility-using-directed-evolution">
+<h2>Example 3: Evolve a real genomic sequence toward microglia-specific accessibility using directed evolution<a class="headerlink" href="#example-3-evolve-a-real-genomic-sequence-toward-microglia-specific-accessibility-using-directed-evolution" title="Link to this heading">#</a></h2>
+<p>In this example, we want to evolve a sequence that has a high predicted probability of being accessible in microglia, but low predicted probability of accessibility in other cell types (e.g. neurons). To increase the realism of the final sequence, we also want to start with a set of real genomic sequences instead of random sequences. These should be sequences that were not seen by the model during training or validation.</p>
+<p>We can examine the model’s <code class="docutils literal notranslate"><span class="pre">data_params</span></code> to see which chromosomes were used for training and validation:</p>
+<section id="select-genomic-starting-sequences">
+<h3>Select genomic starting sequences<a class="headerlink" href="#select-genomic-starting-sequences" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.data.utils</span>
+
+<span class="n">chromosomes_seen_by_model</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s2">&quot;train_chroms&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s2">&quot;val_chroms&quot;</span><span class="p">]</span>
+<span class="n">all_autosomes</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_chromosomes</span><span class="p">(</span><span class="s2">&quot;autosomes&quot;</span><span class="p">)</span>
+<span class="nb">set</span><span class="p">(</span><span class="n">all_autosomes</span><span class="p">)</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span><span class="n">chromosomes_seen_by_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;chr13&#39;}
+</pre></div>
+</div>
+</div>
+</div>
+<p>We find that chromosome 13 was not seen by the model during training. We can now generate some random regions from this chromosome:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grelu.io.genome</span> <span class="kn">import</span> <span class="n">read_sizes</span>
+<span class="n">sizes</span> <span class="o">=</span> <span class="n">read_sizes</span><span class="p">(</span><span class="n">genome</span><span class="o">=</span><span class="s2">&quot;hg38&quot;</span><span class="p">)</span>
+<span class="n">chr_size</span> <span class="o">=</span> <span class="n">sizes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">sizes</span><span class="o">.</span><span class="n">chrom</span><span class="o">==</span><span class="s2">&quot;chr13&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">chr_size</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>114364328
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">starts</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="n">low</span><span class="o">=</span><span class="mi">1000000</span><span class="p">,</span> <span class="n">high</span><span class="o">=</span><span class="n">chr_size</span><span class="o">-</span><span class="mi">1000000</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">start_intervals</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;chrom&quot;</span><span class="p">:</span><span class="s2">&quot;chr11&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">starts</span><span class="p">,</span>
+    <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">starts</span> <span class="o">+</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s2">&quot;train_seq_len&quot;</span><span class="p">],</span>
+<span class="p">})</span>
+
+<span class="n">start_intervals</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr11</td>
+      <td>76434668</td>
+      <td>76434868</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr11</td>
+      <td>3215104</td>
+      <td>3215304</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr11</td>
+      <td>39712131</td>
+      <td>39712331</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr11</td>
+      <td>61969723</td>
+      <td>61969923</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr11</td>
+      <td>59554051</td>
+      <td>59554251</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>chr11</td>
+      <td>16039847</td>
+      <td>16040047</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>chr11</td>
+      <td>75753033</td>
+      <td>75753233</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>chr11</td>
+      <td>90739541</td>
+      <td>90739741</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>chr11</td>
+      <td>41294130</td>
+      <td>41294330</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>chr11</td>
+      <td>1374564</td>
+      <td>1374764</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="define-design-objective-cell-type-specific-accessibility-in-microglia">
+<h3>Define design objective: cell type-specific accessibility in microglia<a class="headerlink" href="#define-design-objective-cell-type-specific-accessibility-in-microglia" title="Link to this heading">#</a></h3>
+<p>We now want to optimize a more complicated objective. We want to create sequences that have a high probability of accessibility in microglia but low probability of accessibility in neurons. We begin by identifying neuron-related cell types in the model’s output:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">neuron_tasks</span> <span class="o">=</span> <span class="n">tasks</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="n">tasks</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;Neuron&quot;</span><span class="p">)]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">neuron_tasks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>51                 Enteric Neuron
+109     Fetal Excitatory Neuron 3
+110     Fetal Excitatory Neuron 4
+111     Fetal Excitatory Neuron 5
+112     Fetal Excitatory Neuron 6
+113     Fetal Excitatory Neuron 7
+114     Fetal Excitatory Neuron 8
+125          Fetal Adrenal Neuron
+145          Fetal Retinal Neuron
+146          Fetal Enteric Neuron
+148        Fetal Placental Neuron
+164     Fetal Inhibitory Neuron 1
+165     Fetal Inhibitory Neuron 2
+166     Fetal Excitatory Neuron 9
+167    Fetal Excitatory Neuron 10
+202     Fetal Excitatory Neuron 1
+203     Fetal Excitatory Neuron 2
+Name: name, dtype: object
+</pre></div>
+</div>
+</div>
+</div>
+<p>We now define our objective using the <code class="docutils literal notranslate"><span class="pre">Specificity</span></code> class of transforms. This class takes the model’s predictions and calculates a score by comparing predictions in defined on-target tasks (in this case Microglia) and off-target tasks (in this case, neurons). We can also specify a relative weight for the off-target tasks, how to aggregate the on- and off-target predictions, and soft thresholds for off-target expression.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">grelu.transforms.prediction_transforms</span> <span class="kn">import</span> <span class="n">Specificity</span>
+
+<span class="n">mcg_specificity</span> <span class="o">=</span> <span class="n">Specificity</span><span class="p">(</span>
+    <span class="n">on_tasks</span> <span class="o">=</span> <span class="s2">&quot;Microglia&quot;</span><span class="p">,</span> <span class="c1"># We want high predictions in these</span>
+    <span class="n">off_tasks</span> <span class="o">=</span> <span class="n">neuron_tasks</span><span class="p">,</span> <span class="c1"># We want low predictions in these</span>
+    <span class="n">on_aggfunc</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> 
+    <span class="n">off_aggfunc</span> <span class="o">=</span> <span class="s2">&quot;max&quot;</span><span class="p">,</span> <span class="c1"># Compare the on-target prediction to the highest prediction in any off-target task.</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">compare_func</span><span class="o">=</span><span class="s2">&quot;subtract&quot;</span><span class="p">,</span> <span class="c1"># Each sequence will get a score which is the ratio of the on-target and off-target scores</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-directed-evolution">
+<h3>Run directed evolution<a class="headerlink" href="#run-directed-evolution" title="Link to this heading">#</a></h3>
+<p>Note that here, we start with multiple sequences and set <code class="docutils literal notranslate"><span class="pre">for_each=False</span></code>. This means that the model will evaluate all the starting sequences, choose the best one (with highest microglia-specific predicted accessibility) and continue with that sequence. If we set <code class="docutils literal notranslate"><span class="pre">for_each=True</span></code> instead, we would run directed evolution independently on each starting sequence. That option can be used to generate a more diverse set of evolved sequences.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span>
+    <span class="n">start_intervals</span><span class="p">,</span> <span class="c1"># Start from the natural sequences</span>
+    <span class="n">model</span><span class="p">,</span> 
+    <span class="n">genome</span><span class="o">=</span><span class="s2">&quot;hg38&quot;</span><span class="p">,</span>
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">mcg_specificity</span><span class="p">,</span> <span class="c1"># Optimize the specific accessibility score</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">return_seqs</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="n">for_each</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Iteration 0
+Predicting DataLoader 0: 100%|████████████████████████████████████████████████████████████| 1/1 [00:00&lt;00:00, 12.60it/s]
+Best value at iteration 0: 0.094
+Iteration 1
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 26.05it/s]
+Best value at iteration 1: 0.284
+Iteration 2
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 29.81it/s]
+Best value at iteration 2: 0.436
+Iteration 3
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 27.81it/s]
+Best value at iteration 3: 0.549
+Iteration 4
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 32.82it/s]
+Best value at iteration 4: 0.677
+Iteration 5
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 10/10 [00:00&lt;00:00, 39.96it/s]
+Best value at iteration 5: 0.744
+Predicting DataLoader 0: 100%|██████████████████████████████████████████████████████████| 48/48 [00:01&lt;00:00, 46.71it/s]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualize-the-output">
+<h3>Visualize the output<a class="headerlink" href="#visualize-the-output" title="Link to this heading">#</a></h3>
+<p>We can plot the accessibility of the sequences at each iteration:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_evolution</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span> <span class="n">outlier_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/1d7ecc69a4c56265b844bf9e54bcc9d7408ac4452a423036dea2f617f75831c8.png"><img alt="../_images/1d7ecc69a4c56265b844bf9e54bcc9d7408ac4452a423036dea2f617f75831c8.png" src="../_images/1d7ecc69a4c56265b844bf9e54bcc9d7408ac4452a423036dea2f617f75831c8.png" style="width: 600px; height: 1400px;" /></a>
+</div>
+</div>
+</section>
+<section id="compare-start-and-end-sequences">
+<h3>Compare start and end sequences<a class="headerlink" href="#compare-start-and-end-sequences" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_seq</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="n">output</span><span class="o">.</span><span class="n">iter</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;total_score&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">seq</span>
+<span class="n">end_seq</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="n">output</span><span class="o">.</span><span class="n">iter</span><span class="o">==</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;total_score&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">seq</span>
+
+<span class="n">mutated_positions</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">sequence</span><span class="o">.</span><span class="n">mutate</span><span class="o">.</span><span class="n">seq_differences</span><span class="p">(</span><span class="n">start_seq</span><span class="p">,</span> <span class="n">end_seq</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Position: 68 Reference base: G Alternate base: A Reference sequence: GCGGAGGTTG
+Position: 111 Reference base: C Alternate base: A Reference sequence: CTGGGCGACA
+Position: 149 Reference base: A Alternate base: G Reference sequence: AAAGAAGAAG
+Position: 160 Reference base: A Alternate base: G Reference sequence: AAAAAAAGAA
+Position: 170 Reference base: G Alternate base: A Reference sequence: GTGGAGGTTC
+</pre></div>
+</div>
+</div>
+</div>
+<p>This time, let’s use Integrated Gradients to visualize the importance of these bases that were mutated at each iteration of evolution. Note also that we supply <code class="docutils literal notranslate"><span class="pre">prediction_transform=mcg_specificity</span></code>, so that we calculate the importance of each base to the specificity of accessibility in microglia.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_attrs</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">get_attributions</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">start_seq</span><span class="p">,</span> <span class="n">prediction_transform</span><span class="o">=</span><span class="n">mcg_specificity</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;integratedgradients&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">end_attrs</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">get_attributions</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">end_seq</span><span class="p">,</span> <span class="n">prediction_transform</span><span class="o">=</span><span class="n">mcg_specificity</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;integratedgradients&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_attributions</span><span class="p">(</span><span class="n">start_attrs</span><span class="p">,</span> <span class="n">highlight_positions</span><span class="o">=</span><span class="n">mutated_positions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x7f57b1afae10&gt;
+</pre></div>
+</div>
+<img alt="../_images/d0f0e8843f26196bd6d88ac31de8eeae51152fa9d6fb1c5fc234032c3d0b1499.png" src="../_images/d0f0e8843f26196bd6d88ac31de8eeae51152fa9d6fb1c5fc234032c3d0b1499.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_attributions</span><span class="p">(</span><span class="n">end_attrs</span><span class="p">,</span> <span class="n">highlight_positions</span><span class="o">=</span><span class="n">mutated_positions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x7f57b0e99290&gt;
+</pre></div>
+</div>
+<img alt="../_images/5dedaa2aad8428050f3f1dac3bfc5c597a03479d76f522f2fd1912ec115d6ee7.png" src="../_images/5dedaa2aad8428050f3f1dac3bfc5c597a03479d76f522f2fd1912ec115d6ee7.png" />
+</div>
+</div>
+<p>It seems that the evolution process has created new motifs. We can identify the specific motifs that were altered by scanning the reference and alternate sequence with consensus JASPAR motifs and comparing the output.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.interpret.motifs</span>
+
+<span class="n">comparison</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">motifs</span><span class="o">.</span><span class="n">compare_motifs</span><span class="p">(</span>
+    <span class="n">ref_seq</span> <span class="o">=</span> <span class="n">start_seq</span><span class="p">,</span>
+    <span class="n">alt_seq</span> <span class="o">=</span> <span class="n">end_seq</span><span class="p">,</span>
+    <span class="n">motifs</span><span class="o">=</span><span class="s2">&quot;consensus&quot;</span><span class="p">,</span>
+    <span class="n">pthresh</span><span class="o">=</span><span class="mf">5e-4</span><span class="p">,</span>
+    <span class="n">rc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Scan both strands of the sequence</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Read 637 motifs from file.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">comparison</span><span class="p">[</span><span class="n">comparison</span><span class="o">.</span><span class="n">motif</span><span class="o">==</span><span class="s2">&quot;AC0622:ELF_SPIB:Ets&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>sequence</th>
+      <th>motif</th>
+      <th>start</th>
+      <th>end</th>
+      <th>strand</th>
+      <th>alt</th>
+      <th>ref</th>
+      <th>foldChange</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>201</th>
+      <td>AC0622:ELF_SPIB:Ets</td>
+      <td>33</td>
+      <td>42</td>
+      <td>+</td>
+      <td>9.398374</td>
+      <td>9.398374</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>394</th>
+      <td>AC0622:ELF_SPIB:Ets</td>
+      <td>62</td>
+      <td>71</td>
+      <td>+</td>
+      <td>12.853659</td>
+      <td>0.000000</td>
+      <td>inf</td>
+    </tr>
+    <tr>
+      <th>393</th>
+      <td>AC0622:ELF_SPIB:Ets</td>
+      <td>146</td>
+      <td>155</td>
+      <td>+</td>
+      <td>10.869919</td>
+      <td>0.000000</td>
+      <td>inf</td>
+    </tr>
+    <tr>
+      <th>390</th>
+      <td>AC0622:ELF_SPIB:Ets</td>
+      <td>164</td>
+      <td>173</td>
+      <td>+</td>
+      <td>9.341463</td>
+      <td>0.000000</td>
+      <td>inf</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">ref</span></code> column contains the score for the motif in the original sequence and the <code class="docutils literal notranslate"><span class="pre">alt</span></code> column contains the score in the end sequence. We see that the evolution process has created new instances of the <code class="docutils literal notranslate"><span class="pre">AC0622:ELF_SPIB:Ets</span></code> motif, while leaving the already existing instance unchanged.</p>
+</section>
+</section>
+<section id="example-4-evolution-by-motif-scanning">
+<h2>Example 4: Evolution by motif scanning<a class="headerlink" href="#example-4-evolution-by-motif-scanning" title="Link to this heading">#</a></h2>
+<p>So far, we have been performing directed evolution by in silico mutagenesis: at each iteration, we create all possible single-base substitutions and choose the best one. Another approach is to insert a given motif into every possible position in the starting sequence, and choose the best one. We can run this approach by choosing <code class="docutils literal notranslate"><span class="pre">method=&quot;pattern&quot;</span></code> in <code class="docutils literal notranslate"><span class="pre">grelu.design.evolve</span></code>.</p>
+<p>Let’s start by getting the sequence of the <code class="docutils literal notranslate"><span class="pre">AC0622:ELF_SPIB:Ets</span></code> motif.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">grelu.io.meme</span>
+
+<span class="n">motifs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">meme</span><span class="o">.</span><span class="n">read_meme_file</span><span class="p">(</span><span class="s2">&quot;consensus&quot;</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;AC0622:ELF_SPIB:Ets&quot;</span><span class="p">])</span>
+<span class="n">patterns</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">motifs</span><span class="o">.</span><span class="n">motifs_to_strings</span><span class="p">(</span><span class="n">motifs</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">patterns</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Read 1 motifs from file.
+[&#39;AAGAGGAAGT&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<section id="run-evolution">
+<h3>Run evolution<a class="headerlink" href="#run-evolution" title="Link to this heading">#</a></h3>
+<p>We will now try to run the evolution function for microglia-specific accessibility, this time by scanning the starting sequence with the motif and finding the best position to substitute in this motif. You can do this with multiple motifs with different weights or penalties.</p>
+<p>In addition, we demonstrate another constraint in the <code class="docutils literal notranslate"><span class="pre">grelu.design.evolve</span></code> function; you can constrain which positions can be altered, whether by ISM or by motif substitution. Here, we will specify that the motif should only be substituted in the first 100 bases of the sequence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span>
+    <span class="n">start_intervals</span><span class="p">,</span> <span class="c1"># Start from the natural sequences</span>
+    <span class="n">model</span><span class="p">,</span> 
+    <span class="n">genome</span><span class="o">=</span><span class="s2">&quot;hg38&quot;</span><span class="p">,</span>
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">mcg_specificity</span><span class="p">,</span> <span class="c1"># Optimize the specific accessibility score</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="c1"># Since we are modifying a whole motif, we only run 2 iterations</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;pattern&quot;</span><span class="p">,</span> <span class="c1"># Evolution by pattern substitution</span>
+    <span class="n">patterns</span><span class="o">=</span><span class="n">patterns</span><span class="p">,</span> <span class="c1"># SPIB motif</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">return_seqs</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="n">for_each</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">positions</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span> <span class="c1"># Positions allowed for substitution</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Iteration 0
+Predicting DataLoader 0: 100%|████████████████████████████████████████████████████████████| 1/1 [00:00&lt;00:00, 36.25it/s]
+Best value at iteration 0: 0.094
+Iteration 1
+Predicting DataLoader 0: 100%|████████████████████████████████████████████████████████████| 2/2 [00:00&lt;00:00, 17.69it/s]
+Best value at iteration 1: 0.743
+Iteration 2
+Predicting DataLoader 0: 100%|████████████████████████████████████████████████████████████| 2/2 [00:00&lt;00:00, 38.50it/s]
+Best value at iteration 2: 0.920
+Predicting DataLoader 0: 100%|████████████████████████████████████████████████████████████| 4/4 [00:00&lt;00:00, 25.61it/s]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_evolution</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/86a32a427797d646d45d32e6f97221aabdc96fe82f0830411a820f22147ac6fd.png"><img alt="../_images/86a32a427797d646d45d32e6f97221aabdc96fe82f0830411a820f22147ac6fd.png" src="../_images/86a32a427797d646d45d32e6f97221aabdc96fe82f0830411a820f22147ac6fd.png" style="width: 500px; height: 1000px;" /></a>
+</div>
+</div>
+<p>Let’s see where the motifs were inserted:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">end_seq</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="n">output</span><span class="o">.</span><span class="n">iter</span><span class="o">==</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;total_score&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">seq</span>
+<span class="n">end_attrs</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">get_attributions</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">end_seq</span><span class="p">,</span> <span class="n">prediction_transform</span><span class="o">=</span><span class="n">mcg_specificity</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;integratedgradients&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_attributions</span><span class="p">(</span><span class="n">end_attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x7f57b12f1290&gt;
+</pre></div>
+</div>
+<img alt="../_images/3ea9d561c8f5ca7988ee0cec6b560befd213ee390b3904cd19813cd15d70cf06.png" src="../_images/3ea9d561c8f5ca7988ee0cec6b560befd213ee390b3904cd19813cd15d70cf06.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="example-5-ledidi">
+<h2>Example 5: Ledidi<a class="headerlink" href="#example-5-ledidi" title="Link to this heading">#</a></h2>
+<p>We also offer the Ledidi method by Schreiber et al. (2020) (<a class="reference external" href="https://www.biorxiv.org/content/10.1101/2020.05.21.109686v1">https://www.biorxiv.org/content/10.1101/2020.05.21.109686v1</a>). This is a gradient-based approach for sequence optimization. Here, we run Ledidi for the same objective as in example 3.</p>
+<p>Ledidi requires a single starting sequence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">start_seq</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;GCGTGCGCCTTTAATCCTGGCTACTAAGGAGGCCGAGGAAGGAGAATAGCTTGACCTCAGGAGGCGGAGGTTGCAGTGAGCTGAGATTGCGCCACTGCACTCCAGCCTGGGCGACAGAGCGAGACTCCGTCTCAAAAAAAAAAAAAAGAAGAAGAAAAAAAAGAAGTGGAGGTTCAGAGGTTTGGAAAGAAACAGACCAA&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">design</span><span class="o">.</span><span class="n">ledidi</span><span class="p">(</span>
+    <span class="n">start_seq</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">mcg_specificity</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">lr</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>iter=I	input_loss=0.125	output_loss=-0.09096	total_loss=-8.971	time=0.08252
+iter=100	input_loss=0.03125	output_loss=-0.09281	total_loss=-9.25	time=4.342
+iter=200	input_loss=0.2188	output_loss=-0.09313	total_loss=-9.095	time=4.306
+iter=300	input_loss=0.3438	output_loss=-0.09482	total_loss=-9.138	time=3.766
+iter=400	input_loss=1.719	output_loss=-0.1258	total_loss=-10.86	time=2.839
+iter=500	input_loss=5.688	output_loss=-0.3885	total_loss=-33.16	time=2.881
+iter=600	input_loss=12.94	output_loss=-0.7369	total_loss=-60.75	time=2.877
+iter=700	input_loss=15.75	output_loss=-0.7877	total_loss=-63.02	time=2.958
+iter=800	input_loss=16.22	output_loss=-0.7989	total_loss=-63.67	time=4.355
+iter=900	input_loss=16.69	output_loss=-0.853	total_loss=-68.61	time=4.34
+iter=1000	input_loss=17.12	output_loss=-0.8325	total_loss=-66.12	time=4.314
+iter=1100	input_loss=16.75	output_loss=-0.8865	total_loss=-71.9	time=3.075
+iter=1200	input_loss=16.91	output_loss=-0.8726	total_loss=-70.35	time=4.247
+iter=1300	input_loss=16.31	output_loss=-0.9044	total_loss=-74.13	time=4.308
+iter=1400	input_loss=16.62	output_loss=-0.927	total_loss=-76.08	time=4.351
+iter=1500	input_loss=17.12	output_loss=-0.9269	total_loss=-75.56	time=3.128
+iter=1600	input_loss=17.22	output_loss=-0.9321	total_loss=-76.0	time=2.851
+iter=1700	input_loss=15.62	output_loss=-0.9353	total_loss=-77.91	time=2.866
+iter=1800	input_loss=16.66	output_loss=-0.9333	total_loss=-76.67	time=2.852
+iter=1900	input_loss=16.34	output_loss=-0.9431	total_loss=-77.97	time=3.152
+iter=2000	input_loss=16.5	output_loss=-0.9504	total_loss=-78.54	time=4.382
+</pre></div>
+</div>
+</div>
+</div>
+<p>This returns a list of optimized sequences. Let’s look at the first sequence in the list:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">end_seq</span> <span class="o">=</span> <span class="n">output</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">end_seq</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;GCGTGCGCCTTTAATCCTGGCTACTAAGGAGGAAGAGGAAGGAGAATAGCTTGACCACAGAAGGAGGAAGTTGCAGTGAGCTGAGATTGCGACACTCCACTCCAGCCTGGGTGACAGAGCCAGACTCCGTCTCAAAAAAAACAAAAAGGAGAAGTAAAAGGGGAAGTGGAGGTTCAGAGGTTTGGAAAGAAACAGACCAA&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mutated_positions</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">sequence</span><span class="o">.</span><span class="n">mutate</span><span class="o">.</span><span class="n">seq_differences</span><span class="p">(</span><span class="n">start_seq</span><span class="p">,</span> <span class="n">end_seq</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Position: 32 Reference base: C Alternate base: A Reference sequence: GGAGGCCGAG
+Position: 33 Reference base: C Alternate base: A Reference sequence: GAGGCCGAGG
+Position: 56 Reference base: T Alternate base: A Reference sequence: TGACCTCAGG
+Position: 60 Reference base: G Alternate base: A Reference sequence: CTCAGGAGGC
+Position: 64 Reference base: C Alternate base: A Reference sequence: GGAGGCGGAG
+Position: 68 Reference base: G Alternate base: A Reference sequence: GCGGAGGTTG
+Position: 91 Reference base: C Alternate base: A Reference sequence: TTGCGCCACT
+Position: 96 Reference base: G Alternate base: C Reference sequence: CCACTGCACT
+Position: 111 Reference base: C Alternate base: T Reference sequence: CTGGGCGACA
+Position: 120 Reference base: G Alternate base: C Reference sequence: AGAGCGAGAC
+Position: 141 Reference base: A Alternate base: C Reference sequence: AAAAAAAAAA
+Position: 148 Reference base: A Alternate base: G Reference sequence: AAAAGAAGAA
+Position: 154 Reference base: A Alternate base: T Reference sequence: AGAAGAAAAA
+Position: 159 Reference base: A Alternate base: G Reference sequence: AAAAAAAAGA
+Position: 160 Reference base: A Alternate base: G Reference sequence: AAAAAAAGAA
+Position: 161 Reference base: A Alternate base: G Reference sequence: AAAAAAGAAG
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="3_train.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Train a single-task regression model from scratch</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="5_variant.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Predict Effects of Alzheimer’s Variants Using ATAC Models</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-pre-trained-catlas-model-from-the-model-zoo">Load the pre-trained Catlas model from the model zoo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#view-the-model-s-metadata">View the model’s metadata</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-1-starting-from-a-random-sequence-evolve-a-sequence-with-high-accessibility-in-microglia-using-directed-evolution">Example 1: Starting from a random sequence, evolve a sequence with high accessibility in microglia using directed evolution.</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generate-a-random-starting-sequence">Generate a random starting sequence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-the-objective-to-optimize-predictions-in-microglia">Create the objective to optimize - predictions in microglia</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-directed-evolution-to-maximize-the-prediction-in-microglia-ignoring-other-cell-types">Run directed evolution to maximize the prediction in microglia, ignoring other cell types</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examine-the-output">Examine the output</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-the-initial-and-final-sequence">Compare the initial and final sequence</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-2-use-sequence-constraints">Example 2: Use sequence constraints</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-additional-design-objective-a-sequence-transform">Create additional design objective: A sequence transform</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-directed-evolution-including-the-sequence-penalty">Run directed evolution including the sequence penalty</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examine-results">Examine results</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-3-evolve-a-real-genomic-sequence-toward-microglia-specific-accessibility-using-directed-evolution">Example 3: Evolve a real genomic sequence toward microglia-specific accessibility using directed evolution</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#select-genomic-starting-sequences">Select genomic starting sequences</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#define-design-objective-cell-type-specific-accessibility-in-microglia">Define design objective: cell type-specific accessibility in microglia</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-directed-evolution">Run directed evolution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-the-output">Visualize the output</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-start-and-end-sequences">Compare start and end sequences</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-4-evolution-by-motif-scanning">Example 4: Evolution by motif scanning</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#run-evolution">Run evolution</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-5-ledidi">Example 5: Ledidi</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/tutorials/4_design.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/4_design.ipynb">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=26a4bc78f4c0ddb94549"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=26a4bc78f4c0ddb94549"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
