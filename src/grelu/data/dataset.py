@@ -4,6 +4,7 @@ Pytorch dataset classes to load sequence data
 All dataset classes produce either one-hot encoded sequences of shape (4, L)
 or sequence-label pairs of shape (4, L) and (T, L).
 """
+
 import os
 from typing import Callable, List, Optional, Sequence, Tuple, Union
 

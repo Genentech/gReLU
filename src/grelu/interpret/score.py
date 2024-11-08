@@ -1,14 +1,14 @@
 """
 Functions related to scoring the importance of individual DNA bases.
 """
-import os
+
 import warnings
 from typing import Callable, List, Optional, Union
 
 import numpy as np
 import pandas as pd
 import torch
-from captum.attr import InputXGradient, IntegratedGradients
+from captum.attr import InputXGradient, IntegratedGradients, Saliency
 from tangermeme.deep_lift_shap import deep_lift_shap
 from torch import Tensor
 
@@ -156,7 +156,10 @@ def get_attributions(
 
     # Check hypothetical
     if hypothetical:
-        assert method == "deepshap", "hypothetical = True requires deepshap."
+        if method != "deepshap":
+            warnings.warn(
+                "hypothetical = True will be ignored as method is not deepshap."
+            )
 
     # Initialize the attributer
     if method == "deepshap":
@@ -182,6 +185,8 @@ def get_attributions(
             attributer = IntegratedGradients(model.to(device))
         elif method == "inputxgradient":
             attributer = InputXGradient(model.to(device))
+        elif method == "saliency":
+            attributer = Saliency(model.to(device))
         else:
             raise NotImplementedError
 
@@ -197,150 +202,6 @@ def get_attributions(
     # Remove transform
     model.reset_transform()
     return attributions  # N, 4, L
-
-
-def run_modisco(
-    model,
-    seqs: Union[pd.DataFrame, np.array, List[str]],
-    genome: Optional[str] = None,
-    prediction_transform: Optional[Callable] = None,
-    window: int = None,
-    meme_file: str = None,
-    out_dir: str = "outputs",
-    devices: Union[str, int] = "cpu",
-    num_workers: int = 1,
-    batch_size: int = 64,
-    n_shuffles: int = 10,
-    seed=None,
-    method: str = "deepshap",
-    **kwargs,
-):
-    """
-    Run TF-Modisco to get relevant motifs for a set of inputs, and optionally score the
-    motifs against a reference set of motifs using TOMTOM
-
-    Args:
-        model: A trained deep learning model
-        seqs: Input DNA sequences as genomic intervals, strings, or integer-encoded form.
-        genome: Name of the genome to use. Only used if genomic intervals are provided.
-        prediction_transform: A module to transform the model output
-        window: Sequence length over which to consider attributions
-        meme_file: Path to a MEME file containing reference motifs for TOMTOM.
-        out_dir: Output directory
-        devices: Indices of devices to use for model inference
-        num_workers: Number of workers to use for model inference
-        batch_size: Batch size to use for model inference
-        n_shuffles: Number of times to shuffle the background sequences for deepshap.
-        seed: Random seed
-        method: Either "deepshap" or "ism".
-        **kwargs: Additional arguments to pass to TF-Modisco.
-
-    Raises:
-        NotImplementedError: if the method is neither "deepshap" nor "ism"
-    """
-    import modiscolite
-
-    from grelu.data.dataset import ISMDataset, SeqDataset
-    from grelu.resources import get_meme_file_path
-    from grelu.sequence.utils import get_unique_length
-
-    # Get start and end positions
-    if window is None:
-        start = 0
-        end = get_unique_length(seqs)
-    else:
-        center = get_unique_length(seqs) // 2
-        start = center - window // 2
-        end = start + window
-
-    # Get one-hot encoded sequence
-    one_hot = convert_input_type(seqs, "one_hot", genome=genome)
-    one_hot_arr = one_hot[:, :, start:end].numpy()
-
-    if method == "deepshap":
-        print("Getting attributions")
-        attrs = get_attributions(
-            model=model,
-            seqs=one_hot,
-            prediction_transform=prediction_transform,
-            device=devices,
-            n_shuffles=n_shuffles,
-            method=method,
-            hypothetical=True,
-            genome=genome,
-            seed=seed,
-        )
-        attrs = attrs[:, :, start:end]
-
-    elif method == "ism":
-        print("Performing ISM")
-        ref_ds = SeqDataset(seqs, genome=genome)
-        ism_ds = ISMDataset(
-            seqs, drop_ref=True, positions=range(start, end), genome=genome
-        )
-
-        # Add transform to model
-        model.add_transform(prediction_transform)
-
-        # Get predictions for reference sequences
-        ref_preds = model.predict_on_dataset(
-            ref_ds, devices=devices, num_workers=num_workers, batch_size=batch_size
-        )  # B, 1, T, L
-        assert (ref_preds.shape[-1] == 1) and (ref_preds.shape[-2] == 1)
-
-        # Get predictions for all mutated sequences
-        ism_preds = model.predict_on_dataset(
-            ism_ds,
-            devices=devices,
-            num_workers=num_workers,
-            batch_size=batch_size,
-        )  # B, l, 3, 1, 1
-        assert (ism_preds.shape[-1] == 1) and (ism_preds.shape[-2] == 1)
-        ism_preds = ism_preds.squeeze((-1, -2))  # B, l, 3
-
-        # Remove transform
-        model.reset_transform()
-
-        # Get the negative log ratio
-        attrs = -np.log2(np.divide(ism_preds, ref_preds))  # B, l, 3
-
-        # Mean over all possible mutations
-        attrs = np.expand_dims(attrs.mean(-1), 1)  # B, 1, l
-
-        # Multiply by original sequence
-        attrs = np.multiply(attrs, one_hot_arr)  # B, 4, l
-
-    else:
-        raise NotImplementedError
-
-    print("Running modisco")
-    one_hot_arr = one_hot_arr.transpose(0, 2, 1).astype("float32")
-    attrs = attrs.transpose(0, 2, 1).astype("float32")
-    pos_patterns, neg_patterns = modiscolite.tfmodisco.TFMoDISco(
-        hypothetical_contribs=attrs,
-        one_hot=one_hot_arr,
-        **kwargs,
-    )
-
-    print("Writing modisco output")
-    if not os.path.exists(out_dir):
-        os.makedirs(out_dir)
-
-    h5_file = os.path.join(out_dir, "modisco_report.h5")
-    modiscolite.io.save_hdf5(h5_file, pos_patterns, neg_patterns, window_size=20)
-
-    if meme_file is not None:
-        print("Making report")
-        meme_file = get_meme_file_path(meme_file)
-        modiscolite.report.report_motifs(
-            h5_file,
-            out_dir,
-            is_writing_tomtom_matrix=True,
-            top_n_matches=10,
-            meme_motif_db=meme_file,
-            img_path_suffix="./",
-            trim_threshold=0.2,
-        )
 
 
 def get_attention_scores(

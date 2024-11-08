@@ -78,38 +78,38 @@ def update_ckpt(ckpt_file: str, out_file: Optional[str] = None) -> None:
     }
 
     for i in range(6):
-        keys_dict[
-            f"model.conv_tower.{i}.0.0"
-        ] = f"model.embedding.conv_tower.blocks.{i+1}.0.norm.layer"
-        keys_dict[
-            f"model.conv_tower.{i}.0.2"
-        ] = f"model.embedding.conv_tower.blocks.{i+1}.0.conv"
-        keys_dict[
-            f"model.conv_tower.{i}.1.fn.0"
-        ] = f"model.embedding.conv_tower.blocks.{i+1}.1.norm.layer"
-        keys_dict[
-            f"model.conv_tower.{i}.1.fn.2"
-        ] = f"model.embedding.conv_tower.blocks.{i+1}.1.conv"
-        keys_dict[
-            f"model.conv_tower.{i}.2"
-        ] = f"model.embedding.conv_tower.blocks.{i+1}.1.pool.layer"
+        keys_dict[f"model.conv_tower.{i}.0.0"] = (
+            f"model.embedding.conv_tower.blocks.{i+1}.0.norm.layer"
+        )
+        keys_dict[f"model.conv_tower.{i}.0.2"] = (
+            f"model.embedding.conv_tower.blocks.{i+1}.0.conv"
+        )
+        keys_dict[f"model.conv_tower.{i}.1.fn.0"] = (
+            f"model.embedding.conv_tower.blocks.{i+1}.1.norm.layer"
+        )
+        keys_dict[f"model.conv_tower.{i}.1.fn.2"] = (
+            f"model.embedding.conv_tower.blocks.{i+1}.1.conv"
+        )
+        keys_dict[f"model.conv_tower.{i}.2"] = (
+            f"model.embedding.conv_tower.blocks.{i+1}.1.pool.layer"
+        )
 
     for i in range(ckpt["hyper_parameters"]["model_params"]["n_transformers"]):
-        keys_dict[
-            f"model.transformer.{i}.0.fn.0"
-        ] = f"model.embedding.transformer_tower.blocks.{i}.norm.layer"
-        keys_dict[
-            f"model.transformer.{i}.0.fn.1"
-        ] = f"model.embedding.transformer_tower.blocks.{i}.mha"
-        keys_dict[
-            f"model.transformer.{i}.1.fn.0"
-        ] = f"model.embedding.transformer_tower.blocks.{i}.ffn.dense1.norm.layer"
-        keys_dict[
-            f"model.transformer.{i}.1.fn.1"
-        ] = f"model.embedding.transformer_tower.blocks.{i}.ffn.dense1.linear"
-        keys_dict[
-            f"model.transformer.{i}.1.fn.4"
-        ] = f"model.embedding.transformer_tower.blocks.{i}.ffn.dense2.linear"
+        keys_dict[f"model.transformer.{i}.0.fn.0"] = (
+            f"model.embedding.transformer_tower.blocks.{i}.norm.layer"
+        )
+        keys_dict[f"model.transformer.{i}.0.fn.1"] = (
+            f"model.embedding.transformer_tower.blocks.{i}.mha"
+        )
+        keys_dict[f"model.transformer.{i}.1.fn.0"] = (
+            f"model.embedding.transformer_tower.blocks.{i}.ffn.dense1.norm.layer"
+        )
+        keys_dict[f"model.transformer.{i}.1.fn.1"] = (
+            f"model.embedding.transformer_tower.blocks.{i}.ffn.dense1.linear"
+        )
+        keys_dict[f"model.transformer.{i}.1.fn.4"] = (
+            f"model.embedding.transformer_tower.blocks.{i}.ffn.dense2.linear"
+        )
 
     # Make new state dict in which old names are replaced by new ones
     new_state_dict = OrderedDict()

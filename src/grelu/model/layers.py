@@ -1,6 +1,7 @@
 """
 Commonly used layers to build deep learning models.
 """
+
 from typing import Optional
 
 import torch
@@ -149,8 +150,8 @@ class Norm(nn.Module):
     A batch normalization or layer normalization layer.
 
     Args:
-        func: Type of normalization function. Supported values are 'batch' or 'layer'. If None,
-            will return nn.Identity.
+        func: Type of normalization function. Supported values are 'batch',
+            'syncbatch', 'instance',  or 'layer'. If None, will return nn.Identity.
         in_dim: Number of features in the input tensor.
         **kwargs: Additional arguments to pass to the normalization function.
     """
@@ -165,10 +166,24 @@ class Norm(nn.Module):
                 raise ValueError("Number of input features must be provided.")
             self.layer = nn.BatchNorm1d(in_dim, **kwargs)
 
+        elif func == "syncbatch":
+            if in_dim is None:
+                raise ValueError("Number of input features must be provided.")
+            self.layer = nn.SyncBatchNorm(in_dim, **kwargs)
+
         elif func == "layer":
             if in_dim is None:
                 raise ValueError("Number of input features must be provided.")
             self.layer = nn.LayerNorm(in_dim, **kwargs)
+
+        elif func == "instance":
+            if in_dim is None:
+                raise ValueError("Number of input features must be provided.")
+            # overwrite the defaults to make them consistant with batch norm
+            kwargs = kwargs.copy()
+            kwargs["affine"] = kwargs.get("affine", True)
+            kwargs["track_running_stats"] = kwargs.get("track_running_stats", True)
+            self.layer = nn.InstanceNorm1d(in_dim, **kwargs)
 
         elif func is None:
             self.layer = nn.Identity()
@@ -297,6 +312,8 @@ class Attention(nn.Module):
         n_pos_features: int,
         pos_dropout: float = 0,
         attn_dropout: float = 0,
+        device=None,
+        dtype=None,
     ):
         """
         Multi-head Attention (MHA) layer. Modified from
@@ -310,6 +327,8 @@ class Attention(nn.Module):
             n_pos_features: Number of positional embedding features
             pos_dropout: Dropout probability in the positional embeddings
             attn_dropout: Dropout probability in the output layer
+            device: Device for the layers.
+            dtype: Data type for the layers.
         """
         super().__init__()
 
@@ -321,20 +340,46 @@ class Attention(nn.Module):
         self.n_pos_features = n_pos_features
 
         # Create linear layers
-        self.to_q = nn.Linear(self.in_len, self.key_len * self.n_heads, bias=False)
-        self.to_k = nn.Linear(self.in_len, self.key_len * self.n_heads, bias=False)
-        self.to_v = nn.Linear(self.in_len, self.value_len * self.n_heads, bias=False)
-        self.to_out = nn.Linear(self.value_len * self.n_heads, self.in_len)
+        self.to_q = nn.Linear(
+            self.in_len,
+            self.key_len * self.n_heads,
+            bias=False,
+            device=device,
+            dtype=dtype,
+        )
+        self.to_k = nn.Linear(
+            self.in_len,
+            self.key_len * self.n_heads,
+            bias=False,
+            device=device,
+            dtype=dtype,
+        )
+        self.to_v = nn.Linear(
+            self.in_len,
+            self.value_len * self.n_heads,
+            bias=False,
+            device=device,
+            dtype=dtype,
+        )
+        self.to_out = nn.Linear(
+            self.value_len * self.n_heads, self.in_len, device=device, dtype=dtype
+        )
 
         # relative positional encoding
         self.positional_embed = get_central_mask
         self.to_pos_k = nn.Linear(
-            self.n_pos_features, self.key_len * self.n_heads, bias=False
+            self.n_pos_features,
+            self.key_len * self.n_heads,
+            bias=False,
+            device=device,
+            dtype=dtype,
         )
         self.rel_content_bias = nn.Parameter(
-            torch.randn(1, self.n_heads, 1, self.key_len)
+            torch.randn(1, self.n_heads, 1, self.key_len, device=device, dtype=dtype)
         )
-        self.rel_pos_bias = nn.Parameter(torch.randn(1, self.n_heads, 1, self.key_len))
+        self.rel_pos_bias = nn.Parameter(
+            torch.randn(1, self.n_heads, 1, self.key_len, device=device, dtype=dtype)
+        )
 
         # dropouts
         self.pos_dropout = nn.Dropout(pos_dropout)
@@ -397,3 +442,71 @@ class Attention(nn.Module):
         out = einsum("b h i j, b h j d -> b h i d", attn, v)
         out = rearrange(out, "b h n d -> b n (h d)")
         return self.to_out(out)
+
+
+class FlashAttention(nn.Module):
+    def __init__(
+        self, embed_dim: int, n_heads: int, dropout_p=0.0, device=None, dtype=None
+    ):
+        """
+        Flash Attention layer with RoPE for positional encoding.
+
+        Args:
+            embed_dim: Number of channels
+            n_heads: Number of attention heads
+            dropout_p: Dropout probability for attention
+            device: Device for the layers.
+            dtype: Data type for the layers.
+        """
+
+        super().__init__()
+
+        try:
+            from flash_attn import flash_attn_qkvpacked_func
+            from flash_attn.layers.rotary import RotaryEmbedding
+        except ImportError:
+            raise ImportError(
+                "gReLU needs to be installed with flash-attn to use Flash Attention. \
+                    Please see README for instructions."
+            )
+
+        self.embed_dim = embed_dim
+        self.n_heads = n_heads
+        self.head_dim = embed_dim // n_heads
+        self.dropout_p = dropout_p
+
+        # Create linear layers
+        self.qkv = nn.Linear(
+            self.embed_dim, self.embed_dim * 3, bias=False, device=device, dtype=dtype
+        )
+        self.out = nn.Linear(self.embed_dim, self.embed_dim, device=device, dtype=dtype)
+
+        # positional encoding
+        self.rotary_embed = RotaryEmbedding(self.head_dim, device=device)
+
+        # no parameters, just an operation
+        self.flash_attn_qkvpacked_func = flash_attn_qkvpacked_func
+
+    def forward(self, x: Tensor) -> Tensor:
+        """
+        Forward pass
+
+        Args:
+            x : Input tensor of shape (batch_size, seq_len, embed_dim)
+
+        Returns:
+            Output tensor
+        """
+        qkv = rearrange(
+            self.qkv(x),
+            "b l (qkv nheads headdim) -> b l qkv nheads headdim",
+            qkv=3,
+            nheads=self.n_heads,
+            headdim=self.head_dim,
+        )
+        qkv = self.rotary_embed(qkv)
+        out = rearrange(
+            self.flash_attn_qkvpacked_func(qkv, self.dropout_p, window_size=(-1, -1)),
+            "b l nheads headdim -> b l (nheads headdim)",
+        )
+        return self.out(out)

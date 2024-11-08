@@ -690,6 +690,7 @@ class LightningModel(pl.LightningModule):
         augment_aggfunc: Union[str, Callable] = "mean",
         compare_func: Optional[Union[str, Callable]] = None,
         return_df: bool = False,
+        precision: Optional[str] = None,
     ):
         """
         Predict for a dataset of sequences or variants
@@ -703,6 +704,7 @@ class LightningModel(pl.LightningModule):
                 versions of a sequence
             compare_func: Return the alt/ref difference for variants
             return_df: Return the predictions as a Pandas dataframe
+            precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
 
         Returns:
             Model predictions as a numpy array or dataframe
@@ -714,7 +716,12 @@ class LightningModel(pl.LightningModule):
             batch_size=batch_size,
         )
         accelerator, devices = self.parse_devices(devices)
-        trainer = pl.Trainer(accelerator=accelerator, devices=devices, logger=None)
+        trainer = pl.Trainer(
+            accelerator=accelerator,
+            devices=devices,
+            logger=None,
+            precision=precision,
+        )
 
         # Predict
         preds = torch.concat(trainer.predict(self, dataloader))
@@ -787,6 +794,7 @@ class LightningModel(pl.LightningModule):
         devices: Union[str, int, List[int]] = "cpu",
         num_workers: int = 1,
         batch_size: int = 256,
+        precision: Optional[str] = None,
     ):
         """
         Run test loop for a dataset
@@ -796,6 +804,7 @@ class LightningModel(pl.LightningModule):
             devices: Device IDs to use for inference
             num_workers: Number of workers for data loader
             batch_size: Batch size for data loader
+            precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
 
         Returns:
             Dataframe containing all calculated metrics on the test set.
@@ -807,7 +816,12 @@ class LightningModel(pl.LightningModule):
             batch_size=batch_size,
         )
         accelerator, devices = self.parse_devices(devices)
-        trainer = pl.Trainer(accelerator=accelerator, devices=devices, logger=None)
+        trainer = pl.Trainer(
+            accelerator=accelerator,
+            devices=devices,
+            logger=None,
+            precision=precision,
+        )
         self.test_metrics.reset()
         trainer.test(model=self, dataloaders=dataloader, verbose=True)
 

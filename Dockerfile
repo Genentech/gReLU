@@ -1,4 +1,4 @@
-FROM pytorchlightning/pytorch_lightning:base-cuda-py3.11-torch2.2-cuda12.1.0
+FROM pytorch/pytorch:2.4.1-cuda12.1-cudnn9-devel
 
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
@@ -31,26 +31,19 @@ RUN rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/gff3
 
 
 # Install python packages
+RUN pip install flash-attn --no-build-isolation
 RUN pip install cython setuptools jupyterlab pandas scikit-learn tables lxml html5lib
 RUN pip install pytest pytest-cov pre-commit
 RUN pip install black flake8 isort
 RUN pip install captum==0.5.0 wandb tensorboard plotnine
 
 RUN pip install bioframe biopython genomepy scanpy \
-                pyjaspar pymemesuite pyBigWig pyfaidx pytabix
-RUN pip install bpnet-lite>=0.5.7 ledidi enformer-pytorch genomepy
+                pyjaspar pyBigWig pyfaidx pytabix
+RUN pip install bpnet-lite>=0.5.7 ledidi enformer-pytorch genomepy statsmodels
 RUN pip install pygenomeviz
 
 # Install modiscolite
 RUN pip install modisco-lite@git+https://github.com/jmschrei/tfmodisco-lite.git
-
-# Install MEME suite
-RUN wget https://meme-suite.org/meme/meme-software/5.5.1/meme-5.5.1.tar.gz && \
-    tar -xvzf meme-5.5.1.tar.gz && \
-    cd meme-5.5.1 && \
-    ./configure --prefix=/usr --enable-build-libxml2 --enable-build-libxslt && \
-    make && \
-    make install
 
 # Run jupyterlab
 WORKDIR /

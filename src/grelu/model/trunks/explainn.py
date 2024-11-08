@@ -7,6 +7,16 @@ from grelu.model.layers import Activation, Dropout, Norm
 class ExplaiNNConvBlock(nn.Module):
     """
     Convolutional block for the ExplaiNN model.
+
+    Args:
+        in_channels: Number of input channels
+        out_channels: Number of output channels
+        kernel_size: Width of the convolutional kernel
+        groups: Number of groups for the convolutional layer
+        act_func: Activation function
+        dropout: Dropout rate
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -17,6 +27,8 @@ class ExplaiNNConvBlock(nn.Module):
         groups: int,
         act_func: str,
         dropout: float,
+        dtype=None,
+        device=None,
     ) -> None:
         super().__init__()
 
@@ -26,6 +38,8 @@ class ExplaiNNConvBlock(nn.Module):
                 out_channels=out_channels,
                 kernel_size=kernel_size,
                 groups=groups,
+                dtype=dtype,
+                device=device,
             ),
         )
         self.norm = (Norm("batch", out_channels, eps=1e-05, momentum=0.1, affine=True),)
@@ -62,6 +76,8 @@ class ExplaiNNTrunk(nn.Module):
         input_length (int): length of the input sequences
         channels (int): number of independent CNN units (default=300)
         kernel_size (int): size of each unit's conv. filter (default=19)
+        dtype: Data type for the layers.
+        device: Device for the layers.
     """
 
     def __init__(
@@ -69,6 +85,8 @@ class ExplaiNNTrunk(nn.Module):
         in_len: int,
         channels=300,
         kernel_size=19,
+        dtype=None,
+        device=None,
     ):
         self.channels = channels
         self.blocks = nn.ModuleList()
@@ -80,6 +98,8 @@ class ExplaiNNTrunk(nn.Module):
                 groups=channels,
                 dropout=0.0,
                 act_func="exp",
+                dtype=dtype,
+                device=device,
             )
         )
         self.blocks.append(
@@ -90,6 +110,8 @@ class ExplaiNNTrunk(nn.Module):
                 groups=channels,
                 dropout=0.3,
                 act_func="relu",
+                dtype=dtype,
+                device=device,
             )
         )
         self.blocks.append(
@@ -100,6 +122,8 @@ class ExplaiNNTrunk(nn.Module):
                 groups=channels,
                 dropout=0.0,
                 act_func="relu",
+                dtype=dtype,
+                device=device,
             )
         )
 

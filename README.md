@@ -19,6 +19,15 @@ To install using pip:
 ```shell
 pip install gReLU
 ```
+Typical installation time including all dependencies is under 10 minutes.
+
+To train or use transformer models containing flash attention layers, [flash-attn](https://github.com/Dao-AILab/flash-attention) needs to be installed first:
+```shell
+conda install -c conda-forge cudatoolkit-dev -y
+pip install torch ninja
+pip install flash-attn --no-build-isolation
+pip install gReLU
+```
 
 ## Contributing
 
@@ -64,3 +73,7 @@ bioconda::ucsc-bedtogenepred    \
 bioconda::ucsc-gtftogenepred    \
 bioconda::ucsc-gff3togenepred
 ```
+
+## Citation
+
+Please cite our preprint: https://www.biorxiv.org/content/10.1101/2024.09.18.613778v1
