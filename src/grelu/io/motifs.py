@@ -95,8 +95,10 @@ def read_modisco_report(
     else:
         with h5py.File(h5_file, "r") as f:
             if group is None:
-                names_to_read["pos"] = list(f["pos_patterns"].keys())
-                names_to_read["neg"] = list(f["neg_patterns"].keys())
+                if "pos_patterns" in f.keys():
+                    names_to_read["pos"] = list(f["pos_patterns"].keys())
+                if "neg_patterns" in f.keys():
+                    names_to_read["neg"] = list(f["neg_patterns"].keys())
             elif group == "pos":
                 names_to_read["pos"] = list(f["pos_patterns"].keys())
             elif group == "neg":
