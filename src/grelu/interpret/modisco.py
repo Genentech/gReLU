@@ -20,7 +20,6 @@ def _add_tomtom_to_modisco_report(
 
     # Paths to outputs
     html_file = os.path.join(modisco_dir, "motifs.html")
-    meme_logo_dir = os.path.join(modisco_dir, "trimmed_meme_logos")
     modisco_logo_dir = os.path.join(modisco_dir, "trimmed_logos")
 
     # Loading html report
@@ -63,9 +62,6 @@ def _add_tomtom_to_modisco_report(
     motifs = read_meme(meme_file)
 
     # Generating logos for the reference motifs
-    if not os.path.exists(meme_logo_dir):
-        os.makedirs(meme_logo_dir)
-
     for i in range(top_n_matches):
         name = f"match{i}"
         logos = []
@@ -74,8 +70,8 @@ def _add_tomtom_to_modisco_report(
                 if pd.isnull(row[name]):
                     logos.append("NA")
                 else:
-                    make_logo(row[name], meme_logo_dir, motifs)
-                    logos.append(os.path.join(meme_logo_dir, f"{row[name]}.png"))
+                    make_logo(row[name], modisco_dir, motifs)
+                    logos.append(os.path.join(modisco_dir, f"{row[name]}.png"))
             else:
                 break
         report[f"{name}_logo"] = logos
