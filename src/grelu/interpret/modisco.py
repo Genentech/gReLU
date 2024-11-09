@@ -20,6 +20,9 @@ def _add_tomtom_to_modisco_report(
 
     # Paths to outputs
     html_file = os.path.join(modisco_dir, "motifs.html")
+    meme_logo_dir = os.path.join(modisco_dir, "trimmed_meme_logos")
+    if not os.path.exists(meme_logo_dir):
+        os.makedirs(meme_logo_dir)
 
     # Loading html report
     report = pd.read_html(html_file)[0]
@@ -27,8 +30,12 @@ def _add_tomtom_to_modisco_report(
     report["query"] = report.apply(
         lambda row: row.pattern[:3] + "_" + row.pattern.split(".")[-1], axis=1
     )
-    report["modisco_cwm_fwd"] = report.pattern.apply(lambda x: f"{x}.cwm.fwd.png")
-    report["modisco_cwm_rev"] = report.pattern.apply(lambda x: f"{x}.cwm.rev.png")
+    report["modisco_cwm_fwd"] = report.pattern.apply(
+        lambda x: os.path.join("trimmed_logos", f"{x}.cwm.fwd.png")
+    )
+    report["modisco_cwm_rev"] = report.pattern.apply(
+        lambda x: os.path.join("trimmed_logos", f"{x}.cwm.rev.png")
+    )
 
     # Compiling top TOMTOM matches
     tomtom_dict = dict()
@@ -65,8 +72,12 @@ def _add_tomtom_to_modisco_report(
                 if pd.isnull(row[name]):
                     logos.append("NA")
                 else:
-                    make_logo(row[name], modisco_dir, motifs)
-                    logos.append(f"{row[name]}.png")
+                    make_logo(
+                        row[name],
+                        meme_logo_dir,
+                        motifs,
+                    )
+                    logos.append(os.path.join("trimmed_meme_logos", f"{row[name]}.png"))
             else:
                 break
         report[f"{name}_logo"] = logos
