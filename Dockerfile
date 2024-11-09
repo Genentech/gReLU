@@ -40,7 +40,7 @@ RUN pip install captum==0.5.0 wandb tensorboard plotnine
 RUN pip install bioframe biopython genomepy scanpy \
                 pyjaspar pyBigWig pyfaidx pytabix
 RUN pip install bpnet-lite>=0.5.7 ledidi enformer-pytorch genomepy statsmodels
-RUN pip install pygenomeviz
+RUN pip install pygenomeviz tangermeme >= 0.4.0
 
 # Install modiscolite
 RUN pip install modisco-lite@git+https://github.com/jmschrei/tfmodisco-lite.git
