@@ -71,7 +71,7 @@ def _add_tomtom_to_modisco_report(
                     logos.append("NA")
                 else:
                     make_logo(row[name], modisco_dir, motifs)
-                    logos.append(os.path.join(modisco_dir, f"{row[name]}.png"))
+                    logos.append(f"{row[name]}.png")
             else:
                 break
         report[f"{name}_logo"] = logos
@@ -252,11 +252,12 @@ def run_modisco(
         print("Running TOMTOM")
         tomtom_file = os.path.join(out_dir, "tomtom.csv")
         motifs = read_modisco_report(h5_file, trim_threshold=0.3)
-        tomtom_results = run_tomtom(motifs, meme_file)
-        tomtom_results.to_csv(tomtom_file)
-        _add_tomtom_to_modisco_report(
-            modisco_dir=out_dir,
-            tomtom_results=tomtom_results,
-            meme_file=meme_file,
-            top_n_matches=10,
-        )
+        if len(motifs) > 0:
+            tomtom_results = run_tomtom(motifs, meme_file)
+            tomtom_results.to_csv(tomtom_file)
+            _add_tomtom_to_modisco_report(
+                modisco_dir=out_dir,
+                tomtom_results=tomtom_results,
+                meme_file=meme_file,
+                top_n_matches=10,
+            )
