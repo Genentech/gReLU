@@ -20,7 +20,6 @@ def _add_tomtom_to_modisco_report(
 
     # Paths to outputs
     html_file = os.path.join(modisco_dir, "motifs.html")
-    modisco_logo_dir = os.path.join(modisco_dir, "trimmed_logos")
 
     # Loading html report
     report = pd.read_html(html_file)[0]
@@ -28,12 +27,8 @@ def _add_tomtom_to_modisco_report(
     report["query"] = report.apply(
         lambda row: row.pattern[:3] + "_" + row.pattern.split(".")[-1], axis=1
     )
-    report["modisco_cwm_fwd"] = report.pattern.apply(
-        lambda x: os.path.join(modisco_logo_dir, f"{x}.cwm.fwd.png")
-    )
-    report["modisco_cwm_rev"] = report.pattern.apply(
-        lambda x: os.path.join(modisco_logo_dir, f"{x}.cwm.rev.png")
-    )
+    report["modisco_cwm_fwd"] = report.pattern.apply(lambda x: f"{x}.cwm.fwd.png")
+    report["modisco_cwm_rev"] = report.pattern.apply(lambda x: f"{x}.cwm.rev.png")
 
     # Compiling top TOMTOM matches
     tomtom_dict = dict()
