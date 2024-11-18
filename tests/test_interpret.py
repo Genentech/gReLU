@@ -170,6 +170,7 @@ def test_scan_sequences():
         out.motif_attr_score, [0.003704, 0.0, -0.035494, 0.0], rtol=0.001
     )
 
+
 def test_run_tomtom():
 
     motifs = {
