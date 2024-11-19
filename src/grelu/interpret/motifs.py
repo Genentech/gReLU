@@ -157,14 +157,12 @@ def scan_sequences(
     if isinstance(motifs, str):
         motifs = read_meme_file(motifs)
 
-    motifs = {k: Tensor(v) for k, v in motifs.items()}
-
     # Scan each sequence in seqs
     sites = pd.DataFrame()
     for i, (seq, seq_id) in enumerate(zip(seqs, seq_ids)):
         one_hot = strings_to_one_hot(seq, add_batch_axis=True)
         curr_sites = fimo(
-            motifs,
+            motifs={k: Tensor(v) for k, v in motifs.items()},
             sequences=one_hot,
             alphabet=["A", "C", "G", "T"],
             bin_size=bin_size,
@@ -246,7 +244,7 @@ def score_sites(
 
 
 def score_motifs(
-    sites: pd.DataFrame, attrs: np.ndarray, motifs: Union[str, List[str]]
+    sites: pd.DataFrame, attrs: np.ndarray, motifs: Union[Dict[str, np.ndarray], str]
 ) -> pd.DataFrame:
     """
     Given a dataframe of motif matching sites identified by FIMO and a set of attributions, this
