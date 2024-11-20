@@ -22,20 +22,22 @@ def get_meme_file_path(meme_motif_db: str) -> str:
     Returns:
         Path to the specified MEME file.
     """
-    if meme_motif_db == "jaspar":
+    if meme_motif_db == "hocomoco_v12":
         meme_motif_db = (
             importlib_resources.files("grelu")
             / "resources"
             / "meme"
-            / "JASPAR2022_CORE_non-redundant_pfms_meme.txt"
+            / "H12CORE_meme_format.meme"
         )
     elif meme_motif_db == "consensus":
         meme_motif_db = (
             importlib_resources.files("grelu")
             / "resources"
             / "meme"
-            / "jvierstra_consensus_pwms.meme"
+            / "jaspar_2024_consensus.meme"
         )
+    elif meme_motif_db == 'jaspar':
+        raise Exception("'jaspar' can no longer be supplied as a meme file name. Please see the function grelu.io.motifs.get_jaspar to load motifs from the JASPAR database.")
     if os.path.isfile(meme_motif_db):
         return str(meme_motif_db)
     else:

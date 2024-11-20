@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 from warnings import warn
 
 import numpy as np
+from pyjaspar import jaspardb
 
 
 def read_meme_file(
@@ -70,7 +71,9 @@ def read_modisco_report(
             trim_threshold = 0 will result in no trimming.
 
     Returns:
-        motifs: A list of motifs as pymemesuite.common.Motif objects
+        motifs: a dictionary in which the keys are motif names and the
+        values are the motif position probability matrices (PPMs)
+        as numpy arrays of shape (4, L).
     """
     import h5py
 
@@ -129,3 +132,41 @@ def read_modisco_report(
                 motifs[f"{group}_{name}"] = ppm[:, start:end]
 
     return motifs
+
+
+def get_jaspar(
+    release: str = "JASPAR2024",
+    collection: str = "CORE",
+    tax_group: Optional[str] = None,
+    species: Optional[str] = None,
+    **kwargs,
+) -> Dict[str, np.ndarray]:
+    """
+    Retrieve motifs from the JASPAR database (https://jaspar.elixir.no/)
+
+    Args:
+        release: Only motifs from the specified JASPAR release are returned.
+        collection: Only motifs from the specified JASPAR collection(s)
+                  are returned.
+        tax_group: Only motifs belonging to the given taxonomic supergroups are
+            returned.
+        species: Only motifs derived from the given species are returned.
+            Species are specified as taxonomy IDs.
+        **kwargs: Additional arguments to pass to jdb_obj.fetch_motifs.
+
+    Returns:
+        a dictionary in which the keys are motif names and the
+        values are the motif position probability matrices (PPMs)
+        as numpy arrays of shape (4, L).
+    """
+    if species == "human":
+        species = "9606"
+    elif species == "mouse":
+        species = "10090"
+
+    jdb_obj = jaspardb(release=release)
+    motifs = jdb_obj.fetch_motifs(
+        collection="CORE", tax_group=tax_group, species=species, **kwargs
+    )
+
+    return {f"{m.matrix_id}_{m.name}": np.array(list(m.pwm.values())) for m in motifs}
