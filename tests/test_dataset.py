@@ -839,6 +839,10 @@ def test_marginalize_dataset_motifs():
     )
 
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
+    bg = convert_input_type(ds.bg, "strings")
+
+    assert bg == ["ACGCATACGAGCGCTACAGCAACATAAAAC", "ACTAACAACAGCACGCGCGATATAAGCAAC"]
+
     assert xs == [
         "ACGCATACGAGCGCTACAGCAACATAAAAC",
         "ACGCATACGAGCGAAACAGCAACATAAAAC",
