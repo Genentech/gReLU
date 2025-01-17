@@ -93,12 +93,40 @@ def test_marginalize_patterns():
 
 
 def test_ISM_predict():
+
+    # Single sequence
     seq = "AA"
     expected_preds = np.array([[4.0, 1.0, 2.0, 2.0], [4.0, 1.0, 2.0, 2.0]]).T
     preds = ISM_predict(seq, model, compare_func=None)
     assert np.allclose(preds.values, expected_preds)
     preds = ISM_predict(seq, model, compare_func="log2FC")
     assert np.allclose(preds.values, np.log2(expected_preds / 4))
+
+    # Multiple sequences
+    seqs = ["AAA", "CCC"]
+    expected_preds = np.expand_dims(
+        np.array(
+            [
+                [
+                    [4.0, 2.0, 2.6666667, 2.6666667],
+                    [4.0, 2.0, 2.6666667, 2.6666667],
+                    [4.0, 2.0, 2.6666667, 2.6666667],
+                ],
+                [
+                    [0.0, -2.0, -1.3333334, -1.3333334],
+                    [0.0, -2.0, -1.3333334, -1.3333334],
+                    [0.0, -2.0, -1.3333334, -1.3333334],
+                ],
+            ]
+        ),
+        (3, 4),
+    )
+    preds = ISM_predict(seqs, model, compare_func=None, return_df=False)
+    assert np.allclose(preds, expected_preds)
+    preds = ISM_predict(seqs, model, compare_func="log2FC", return_df=False)
+    assert np.allclose(
+        preds, np.log2(np.stack([expected_preds[0] / 4, -expected_preds[1] / 2]))
+    )
 
 
 def test_get_attributions():
