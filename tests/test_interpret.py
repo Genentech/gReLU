@@ -88,7 +88,7 @@ def test_marginalize_patterns():
     assert preds_after.shape == (2, 3, 1)
     assert np.allclose(
         preds_after.squeeze(),
-        [[0.5, 0.8333333, 0.8333333], [1.3333334, 1.6666666, 1.6666666]],
+        [[0.8333333, 0.5, 0.8333333], [1.6666666, 1.3333334, 1.6666666]],
     )
 
 
