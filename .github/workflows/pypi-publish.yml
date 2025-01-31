@@ -31,6 +31,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: _build/
           force_orphan: true
+      - name: Build Project
+        run: |
+          python -m tox -e clean,build
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
         with:
