@@ -17,7 +17,7 @@ from grelu.sequence.format import convert_input_type
 
 
 def ISM_predict(
-    seqs: Union[pd.DataFrame, np.ndarray, str],
+    seqs: Union[pd.DataFrame, np.ndarray, str, List[str]],
     model: Callable,
     genome: Optional[str] = None,
     prediction_transform: Optional[Callable] = None,
@@ -87,11 +87,16 @@ def ISM_predict(
     )
     # B, L, 4, T, L
 
-    # Calculate log ratio w.r.t reference sequence
     if compare_func is not None:
+
+        # Slice the prediction corresponding to each reference sequence
         ref_bases = [BASE_TO_INDEX_HASH[seq[start_pos]] for seq in seqs]
-        ref_pred = preds[:, [0], [ref_bases], :]  # B, 1, 1, T, L
-        preds = get_compare_func(compare_func, tensor=False)(preds, ref_pred)
+        ref_preds = np.concatenate(
+            [preds[None, None, None, i, 0, x] for i, x in enumerate(ref_bases)]
+        )  # B, L, 1, T, L
+
+        # Compare all predictions to the prediction for the corresponding reference sequence
+        preds = get_compare_func(compare_func, tensor=False)(preds, ref_preds)
 
     # Convert into a dataframe
     if return_df:
