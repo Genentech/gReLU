@@ -813,14 +813,14 @@ def test_marginalize_dataset_variants():
     assert convert_input_type(ds.seqs, "strings") == ["CATACGTGAGGC", "AGGAGGCCAAAG"]
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
     assert xs == [
-        "CACGTGTGAGGC",
-        "CACGTATGAGGC",
-        "CACGAGAGTGGC",
-        "CACGAAAGTGGC",
-        "AAGGGGGCCAAG",
-        "AAGGGAGCCAAG",
-        "AAGAGGGCCAAG",
-        "AAGAGAGCCAAG",
+        "CACGGGATGAGC",
+        "CACGGAATGAGC",
+        "CACGGGTAGTGC",
+        "CACGGATAGTGC",
+        "AAAGGGAGCCAG",
+        "AAAGGAAGCCAG",
+        "AGGGAGGCCAAG",
+        "AGGGAAGCCAAG",
     ]
 
 
@@ -839,11 +839,15 @@ def test_marginalize_dataset_motifs():
     )
 
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
+    bg = convert_input_type(ds.bg, "strings")
+
+    assert bg == ["ACAACGCTAGACACGCGCAGCAATATAAAC", "AAAACAGCGCTAACGAGCACGCATATACAC"]
+
     assert xs == [
-        "ACGCATACGAGCGCTACAGCAACATAAAAC",
-        "ACGCATACGAGCGAAACAGCAACATAAAAC",
-        "ACTAACAACAGCACGCGCGATATAAGCAAC",
-        "ACTAACAACAGCAAAAGCGATATAAGCAAC",
+        "ACAACGCTAGACACGCGCAGCAATATAAAC",
+        "ACAACGCTAGACAAAAGCAGCAATATAAAC",
+        "AAAACAGCGCTAACGAGCACGCATATACAC",
+        "AAAACAGCGCTAAAAAGCACGCATATACAC",
     ]
 
 
