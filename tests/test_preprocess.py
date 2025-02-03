@@ -4,6 +4,7 @@ import pandas as pd
 import pytest
 
 from grelu.data.preprocess import (
+    check_chrom_ends,
     filter_blacklist,
     filter_cells,
     filter_chrom_ends,
@@ -117,20 +118,34 @@ def test_filter_blacklist():
     assert filter_blacklist(intervals, genome="hg38").equals(intervals.iloc[-2:, :])
 
 
+chrom_end_intervals = pd.DataFrame(
+    {
+        "chrom": ["chr1", "chr1", "chr1", "chr1", "chr1"],
+        "start": [-10, 10, 1000, 248956300, 248956350],
+        "end": [90, 110, 1100, 248956400, 248956450],
+    }
+)
+
+
 def test_filter_chrom_ends():
-    intervals = pd.DataFrame(
-        {
-            "chrom": ["chr1", "chr1", "chr1", "chr1", "chr1"],
-            "start": [-10, 10, 1000, 248956300, 248956350],
-            "end": [90, 110, 1100, 248956400, 248956450],
-        }
+
+    assert filter_chrom_ends(chrom_end_intervals, genome="hg38").equals(
+        chrom_end_intervals.iloc[[1, 2, 3], :]
     )
-    assert filter_chrom_ends(intervals, genome="hg38").equals(
-        intervals.iloc[[1, 2, 3], :]
+    assert filter_chrom_ends(chrom_end_intervals, genome="hg38", pad=100).equals(
+        chrom_end_intervals.iloc[[2], :]
     )
-    assert filter_chrom_ends(intervals, genome="hg38", pad=100).equals(
-        intervals.iloc[[2], :]
-    )
+
+
+def test_check_chrom_ends():
+    with pytest.raises(Exception) as e_info:
+        check_chrom_ends(chrom_end_intervals, genome="hg38")
+        assert (
+            str(e_info.value)
+            == "Indices of intervals that extend beyond the chromosome ends: 0,4."
+        )
+
+    check_chrom_ends(chrom_end_intervals.iloc[1:2], genome="hg38")
 
 
 def test_merge_intervals_by_column():
