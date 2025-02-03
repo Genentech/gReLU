@@ -4,6 +4,7 @@ Functions to preprocess genomic datasets.
 
 import os
 import subprocess
+import warnings
 from typing import Callable, List, Optional, Union
 
 import bioframe as bf
@@ -33,15 +34,22 @@ def filter_intervals(
     Returns:
         Filtered intervals in the same format (if inplace = False)
     """
-    if sum(keep) < data.shape[0]:
-        print("Keeping {} of {} intervals".format(sum(keep), data.shape[0]))
-        if isinstance(data, pd.DataFrame):
+
+    if isinstance(data, pd.DataFrame):
+        if sum(keep) < data.shape[0]:
+            print("Keeping {} of {} intervals".format(sum(keep), data.shape[0]))
             return data.drop(index=data.index[~keep], inplace=inplace)
-        elif isinstance(data, AnnData):
+        else:
+            return data
+    elif isinstance(data, AnnData):
+        if sum(keep) < data.shape[1]:
+            print("Keeping {} of {} intervals".format(sum(keep), data.shape[1]))
             if inplace:
                 data._inplace_subset_var(index=data.var_names[keep])
             else:
                 return data[:, keep]
+        else:
+            return data
 
 
 def filter_obs(
@@ -372,6 +380,51 @@ def filter_blacklist(
     return filter_overlapping(
         data, blacklist, invert=True, inplace=inplace, window=window
     )
+
+
+def check_chrom_ends(
+    data: Union[pd.DataFrame, AnnData],
+    genome: Optional[str] = None,
+):
+    """
+    Check that intervals do not exceed the ends of the chromosome.
+
+    Args:
+        data: Either a pandas dataframe of genomic intervals or an Anndata
+            object with intervals in .var
+        genome: name of the genome corresponding to intervals
+
+    Raises:
+        ValueError if any interval exceeds the chtomosome ends
+    """
+    from grelu.io.genome import read_sizes
+
+    # Get genomic intervals
+    if isinstance(data, AnnData):
+        intervals = data.var
+    elif isinstance(data, pd.DataFrame):
+        intervals = data
+
+    # Check start
+    fail = intervals[intervals.start < 0].index
+
+    # Filter end if the genome is provided
+    if genome is None:
+        warnings.warn(
+            "No genome is provided; only intervals with negative start values will be flagged."
+        )
+    else:
+        sizes = read_sizes(genome)
+        for chrom, size in sizes.values:
+            fail = fail.append(
+                intervals[(intervals.chrom == chrom) & (intervals.end > size)].index
+            )
+
+    fail = np.unique(fail)
+    if len(fail) > 0:
+        raise ValueError(
+            f"Indices of intervals that extend beyond the chromosome ends: {','.join(fail.astype(str))}."
+        )
 
 
 def filter_chrom_ends(

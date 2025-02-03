@@ -16,7 +16,7 @@ from torch import Tensor
 from torch.utils.data import Dataset
 
 from grelu.data.augment import Augmenter, _split_overall_idx
-from grelu.data.preprocess import filter_chrom_ends
+from grelu.data.preprocess import check_chrom_ends
 from grelu.data.utils import _check_multiclass, _create_task_data
 from grelu.sequence.format import (
     INDEX_TO_BASE_HASH,
@@ -153,7 +153,7 @@ class LabeledSeqDataset(Dataset):
         seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
 
         if get_input_type(seqs) == "intervals":
-            seqs = filter_chrom_ends(seqs, genome=self.genome)
+            check_chrom_ends(seqs, genome=self.genome)
             self.intervals = seqs
             self.chroms = list(set(self.intervals.chrom))
         else:
@@ -605,8 +605,8 @@ class VariantDataset(Dataset):
         from grelu.variant import variants_to_intervals
 
         self.padded_seq_len = self.seq_len + (2 * self.max_seq_shift)
-        intervals = variants_to_intervals(variants, seq_len=self.padded_seq_len)
-        self.intervals = filter_chrom_ends(intervals, genome=self.genome)
+        self.intervals = variants_to_intervals(variants, seq_len=self.padded_seq_len)
+        check_chrom_ends(self.intervals, genome=self.genome)
         self.seqs = convert_input_type(self.intervals, "indices", genome=self.genome)
 
     def __len__(self) -> int:
@@ -713,8 +713,8 @@ class VariantMarginalizeDataset(Dataset):
         from grelu.variant import variants_to_intervals
 
         self.padded_seq_len = self.seq_len + (2 * self.max_seq_shift)
-        intervals = variants_to_intervals(variants, seq_len=self.padded_seq_len)
-        self.intervals = filter_chrom_ends(intervals, genome=self.genome)
+        self.intervals = variants_to_intervals(variants, seq_len=self.padded_seq_len)
+        check_chrom_ends(self.intervals, genome=self.genome)
         self.seqs = convert_input_type(self.intervals, "indices", genome=self.genome)
         self.n_seqs = self.seqs.shape[0]
 
