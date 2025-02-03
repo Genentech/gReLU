@@ -49,6 +49,7 @@ default_train_params = {
     "pos_weight": None,
     "class_weights": None,
     "total_weight": None,
+    "accumulate_grad_batches": 1,
 }
 
 
@@ -65,7 +66,10 @@ class LightningModel(pl.LightningModule):
     """
 
     def __init__(
-        self, model_params: dict, train_params: dict = {}, data_params: dict = {}
+        self,
+        model_params: dict,
+        train_params: dict = {},
+        data_params: dict = {},
     ) -> None:
         super().__init__()
 
@@ -546,6 +550,7 @@ class LightningModel(pl.LightningModule):
             callbacks=checkpoint_callbacks,
             default_root_dir=self.train_params["save_dir"],
             gradient_clip_val=self.train_params["clip"],
+            accumulate_grad_batches=self.train_params["accumulate_grad_batches"],
         )
 
         # Make dataloaders
@@ -567,6 +572,11 @@ class LightningModel(pl.LightningModule):
 
         for attr, value in self._get_dataset_attrs(val_dataset):
             self.data_params["val_" + attr] = value
+
+        # Add software params
+        import grelu
+
+        self.train_params["grelu_version"] = grelu.__version__
 
         # Training
         trainer.fit(
