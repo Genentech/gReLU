@@ -34,22 +34,14 @@ def filter_intervals(
     Returns:
         Filtered intervals in the same format (if inplace = False)
     """
-
+    print("Keeping {} intervals".format(sum(keep)))
     if isinstance(data, pd.DataFrame):
-        if sum(keep) < data.shape[0]:
-            print("Keeping {} of {} intervals".format(sum(keep), data.shape[0]))
-            return data.drop(index=data.index[~keep], inplace=inplace)
-        else:
-            return data
+        return data.drop(index=data.index[~keep], inplace=inplace)
     elif isinstance(data, AnnData):
-        if sum(keep) < data.shape[1]:
-            print("Keeping {} of {} intervals".format(sum(keep), data.shape[1]))
-            if inplace:
-                data._inplace_subset_var(index=data.var_names[keep])
-            else:
-                return data[:, keep]
+        if inplace:
+            data._inplace_subset_var(index=data.var_names[keep])
         else:
-            return data
+            return data[:, keep]
 
 
 def filter_obs(
