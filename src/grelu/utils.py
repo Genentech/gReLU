@@ -126,7 +126,7 @@ def get_transform_func(
 
 
 def make_list(
-    x: Optional[Union[pd.Series, np.ndarray, Tensor, Sequence, int, float, str]]
+    x: Optional[Union[pd.Series, np.ndarray, Tensor, Sequence, int, float, str]],
 ) -> list:
     """
     Convert various kinds of inputs into a list
