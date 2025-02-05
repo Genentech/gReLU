@@ -198,10 +198,10 @@ def scan_sequences(
         sites = sites.reset_index(drop=True)
         sites = sites.rename(columns={"motif_name": "motif"})
 
-    # Add attribution scores
-    if attrs is not None:
-        sites = score_sites(sites, attrs, seqs)
-        sites = score_motifs(sites, attrs, motifs)
+        # Add attribution scores
+        if attrs is not None:
+            sites = score_sites(sites, attrs, seqs)
+            sites = score_motifs(sites, attrs, motifs)
 
     return sites
 
