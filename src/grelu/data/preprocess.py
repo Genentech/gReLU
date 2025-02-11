@@ -726,7 +726,7 @@ def make_insertion_bigwig(
     return bw_file
 
 
-def write_tiledb(
+def bigwigs_to_tiledb(
     output_path: str,
     bw_files: Union[str, List[str]],
     chroms: Optional[Union[str, List[str]]],

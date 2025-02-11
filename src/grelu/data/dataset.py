@@ -467,7 +467,7 @@ class BigWigSeqDataset(LabeledSeqDataset):
 class TileDBSeqDataset(LabeledSeqDataset):
     """
     LabeledSeqDataset derived class for genomic intervals and TileDB files.
-    TileDB files are created by grelu.data.preprocess.write_tiledb.
+    TileDB files are created by grelu.data.preprocess.bigwigs_to_tiledb.
 
     Args:
         intervals: A Pandas dataframe containing genomic intervals
@@ -517,7 +517,8 @@ class TileDBSeqDataset(LabeledSeqDataset):
 
         # Open tileDB database
         with tiledb.open(self._task_uri, "r") as fp:
-            self.tasks = pd.DataFrame(fp[:])
+            task_df = pd.DataFrame(fp[:])
+        task_df.index = task_df["__tiledb_rows"].astype(str).tolist()
 
         with tiledb.open(self._chrom_uri, "r") as fp:
             self.chroms = pd.DataFrame(fp[:])
@@ -528,7 +529,7 @@ class TileDBSeqDataset(LabeledSeqDataset):
         super().__init__(
             seqs=intervals,
             labels=None,
-            tasks=self.tasks,
+            tasks=task_df,
             seq_len=seq_len,
             genome=None,
             end=end,
@@ -546,8 +547,13 @@ class TileDBSeqDataset(LabeledSeqDataset):
         )
 
     def _load_seqs(self, seqs: pd.DataFrame) -> None:
-        seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
-        self.seqs = seqs
+        self.seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
+        self.labels = resize(
+            self.seqs, seq_len=self.padded_label_len, input_type="intervals"
+        )
+
+    def _load_labels(self, labels) -> None:
+        pass
 
     def open(self) -> None:
         self.dataset = {
@@ -559,16 +565,19 @@ class TileDBSeqDataset(LabeledSeqDataset):
             v.close()
 
     def _idx_to_raw_pair(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
-        interval = self.seqs.iloc[idx]
-        data = self.dataset[interval.chrom][:, interval.start : interval.end]["data"]
-        return data[0], data[1:]
+        seq_interval = self.seqs.iloc[idx]
+        label_interval = self.labels.iloc[idx]
+        seq = self.dataset[seq_interval.chrom][
+            :, seq_interval.start : seq_interval.end
+        ]["data"][0]
+        label = self.dataset[label_interval.chrom][
+            :, label_interval.start : label_interval.end
+        ]["data"][1:]
+        return seq, label
 
     def _idx_to_raw_seq(self, idx: int) -> np.ndarray:
         interval = self.seqs.iloc[idx]
         return self.dataset[interval.chrom][0, interval.start : interval.end]["data"]
-
-    def _load_labels(self, labels: np.ndarray) -> None:
-        pass
 
     def get_labels(self, intervals) -> np.ndarray:
         """

@@ -13,6 +13,7 @@ from grelu.data.dataset import (
     MotifScanDataset,
     PatternMarginalizeDataset,
     SeqDataset,
+    TileDBSeqDataset,
     VariantDataset,
     VariantMarginalizeDataset,
 )
@@ -584,6 +585,102 @@ def test_bigwig_dataset_no_aug():
     assert ys.shape == (2, 1, 2)
     assert np.allclose(ys.squeeze().numpy(), [[6, 9], [7, 10]])
 
+
+tdb_path = os.path.join(cwd, "files", "tiledb")
+def test_tiledb_dataset_no_aug():
+    # Simple
+    ds = TileDBSeqDataset(
+        intervals=bw_intervals, tdb_path=tdb_path, label_aggfunc=None
+    )
+    assert (
+        (not ds.rc)
+        and (ds.max_seq_shift == 0)
+        and (ds.max_pair_shift == 0)
+        and (ds.n_tasks == 2)
+        and (ds.seq_len == 6)
+        and (ds.label_len == 6)
+        and (ds.n_seqs == 2)
+        and (ds.n_augmented == 1)
+        and (np.all(ds.tasks.index == ['track_1', 'track_2']))
+        and (len(ds) == 2)
+    )
+    
+    xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
+    xs = torch.stack(xs)
+    ys = torch.stack(ys)
+    assert convert_input_type(xs, "strings") == ['AAGAAT', 'AGAATC']
+    assert ys.shape == (2, 2, 6)
+    assert np.allclose(ys.numpy(), [
+        [[ 1.,  2.,  3.,  4.,  5.,  6.],
+         [-4., -3., -2., -1.,  0.,  1.]],
+        [[ 2.,  3.,  4.,  5.,  6.,  7.],
+         [-3., -2., -1.,  0.,  1.,  2.]]
+    ])
+    
+    # mean label, label_len different from seq_len
+    ds = TileDBSeqDataset(
+        intervals=bw_intervals,
+        tdb_path=tdb_path,
+        label_aggfunc="mean",
+        seq_len=6,
+        label_len=2,
+    )
+    assert (
+        (not ds.rc)
+        and (ds.max_seq_shift == 0)
+        and (ds.max_pair_shift == 0)
+        and (ds.n_tasks == 2)
+        and (ds.seq_len == 6)
+        and (ds.label_len == 2)
+        and (ds.n_seqs == 2)
+        and (ds.n_augmented == 1)
+        and (np.all(ds.tasks.index == ["track_1", "track_2"]))
+        and (len(ds) == 2)
+        and (ds.bin_size == 2)
+    )
+    xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
+    xs = torch.stack(xs)
+    ys = torch.stack(ys)
+    assert convert_input_type(xs, "strings") == ['AAGAAT', 'AGAATC']
+    assert ys.shape == (2, 2, 1)
+    assert np.allclose(ys.squeeze().numpy(), [[ 3.5000, -1.5000],
+            [ 4.5000, -0.5000]])
+
+    # sum with bin size = 2, transform
+    ds = TileDBSeqDataset(
+        intervals=bw_intervals,
+        tdb_path=tdb_path,
+        label_aggfunc="sum",
+        seq_len=6,
+        label_len=4,
+        min_label_clip=0,
+        max_label_clip=10,
+        bin_size=2,
+    )
+    assert (
+        (not ds.rc)
+        and (ds.max_seq_shift == 0)
+        and (ds.max_pair_shift == 0)
+        and (ds.n_tasks == 2)
+        and (ds.seq_len == 6)
+        and (ds.label_len == 4)
+        and (ds.n_seqs == 2)
+        and (ds.n_augmented == 1)
+        and (np.all(ds.tasks.index == ["track_1", "track_2"]))
+        and (len(ds) == 2)
+        and (ds.bin_size == 2)
+    )
+    xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
+    xs = torch.stack(xs)
+    ys = torch.stack(ys)
+    assert convert_input_type(xs, "strings") == ['AAGAAT', 'AGAATC']
+    assert ys.shape == (2, 2, 2)
+    assert np.allclose(ys.numpy(), [
+        [[ 5.,  9.],
+         [ 0.,  0.]],
+        [[ 7., 10.],
+         [ 0.,  1.]]
+    ])
 
 # Test unlabeled sequence dataset
 
