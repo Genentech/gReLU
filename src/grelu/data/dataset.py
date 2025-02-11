@@ -11,6 +11,7 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 import numpy as np
 import pandas as pd
 import scipy
+import tiledb
 from einops import rearrange
 from torch import Tensor
 from torch.utils.data import Dataset
@@ -192,26 +193,38 @@ class LabeledSeqDataset(Dataset):
 
         return labels
 
+    def _idx_to_raw_pair(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
+        return self.seqs[idx], self.labels[idx]
+
+    def _idx_to_raw_seq(self, idx: int) -> np.ndarray:
+        return self.seqs[idx]
+
     def __getitem__(self, idx: int) -> Union[Tensor, Tuple[Tensor, Tensor]]:
         # Get sequence and augmentation indices
         seq_idx, augment_idx = _split_overall_idx(idx, (self.n_seqs, self.n_augmented))
 
-        # Get current sequence and label
-        seq = self.seqs[seq_idx]
-        label = self.labels[seq_idx]
-
-        # Augment
-        seq, label = self.augmenter(seq=seq, label=label, idx=augment_idx)
-
-        # One-hot encode
-        seq = indices_to_one_hot(seq)
-
-        # If using in prediction, return only the sequence
         if self.predict:
+            # Get raw sequence
+            seq = self._idx_to_raw_seq(seq_idx)
+
+            # Augment
+            seq = self.augmenter(seq=seq, idx=augment_idx)
+
+            # One-hot encode
+            seq = indices_to_one_hot(seq)
+
             return seq
 
-        # Otherwise, return the sequence/label pair
         else:
+            # Get raw sequence-label pair
+            seq, label = self._idx_to_raw_pair(seq_idx)
+
+            # Augment
+            seq, label = self.augmenter(seq=seq, label=label, idx=augment_idx)
+
+            # One-hot encode
+            seq = indices_to_one_hot(seq)
+
             # Aggregate label
             if self.label_aggfunc is not None:
                 label = rearrange(label, "t (l b) -> t l b", b=self.bin_size)
@@ -243,6 +256,8 @@ class DFSeqDataset(LabeledSeqDataset):
             they will not be reverse complemented.
         max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
             This is normally a small value (< 10). If 0, sequences will not be augmented by shifting.
+        seed: Random seed for reproducibility
+        augment_mode: "random" or "serial"
     """
 
     def __init__(
@@ -312,6 +327,8 @@ class AnnDataSeqDataset(LabeledSeqDataset):
             False, they will not be reverse complemented.
         max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
             This is normally a small value (< 10). If 0, sequences will not be augmented by shifting.
+        seed: Random seed for reproducibility
+        augment_mode: "random" or "serial"
     """
 
     def __init__(
@@ -388,6 +405,8 @@ class BigWigSeqDataset(LabeledSeqDataset):
         min_label_clip: Minimum value for label
         max_label_clip: Maximum value for label
         label_transform_func: Function to transform label values.
+        seed: Random seed for reproducibility
+        augment_mode: "random" or "serial"
     """
 
     def __init__(
@@ -445,6 +464,137 @@ class BigWigSeqDataset(LabeledSeqDataset):
         self.labels = read_bigwig(intervals, bw_files, aggfunc=None)
 
 
+class TileDBSeqDataset(LabeledSeqDataset):
+    """
+    LabeledSeqDataset derived class for genomic intervals and TileDB files.
+    TileDB files are created by grelu.data.preprocess.write_tiledb.
+
+    Args:
+        intervals: A Pandas dataframe containing genomic intervals
+        tdb_path: Path to tileDB.
+        samples: A subset of samples to read
+        seq_len: Uniform expected length (in base pairs) for output sequences
+        end: Which end of the sequence to resize. Supported values are "left", "right"
+            and "both".
+        rc: If True, sequences will be augmented by reverse complementation. If False,
+            they will not be reverse complemented.
+        max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
+            This is normally a small value (< 10). If 0, sequences will not be augmented by shifting.
+        max_pair_shift: Maximum number of bases to shift both the sequence and label for
+            augmentation. If 0, sequence and label pairs will not be augmented by shifting.
+        label_aggfunc: Function to aggregate the labels over bin_size.
+        bin_size: Number of bases to aggregate in the label.
+        min_label_clip: Minimum value for label
+        max_label_clip: Maximum value for label
+        label_transform_func: Function to transform label values.
+        seed: Random seed for reproducibility
+        augment_mode: "random" or "serial"
+    """
+
+    def __init__(
+        self,
+        intervals: pd.DataFrame,
+        tdb_path: str,
+        seq_len: Optional[int] = None,
+        end: str = "both",
+        rc: bool = False,
+        max_seq_shift: int = 0,
+        label_len: Optional[int] = None,
+        max_pair_shift: int = 0,
+        label_aggfunc: Optional[Union[str, Callable]] = np.sum,
+        bin_size: Optional[int] = None,
+        min_label_clip: Optional[int] = None,
+        max_label_clip: Optional[int] = None,
+        label_transform_func: Optional[Union[str, Callable]] = None,
+        seed: Optional[int] = None,
+        augment_mode: str = "serial",
+    ) -> None:
+
+        # Paths to tileDB
+        self.tdb_path = tdb_path
+        self._task_uri = f"{tdb_path}/tasks"
+        self._chrom_uri = f"{tdb_path}/chroms"
+
+        # Open tileDB database
+        with tiledb.open(self._task_uri, "r") as fp:
+            self.tasks = pd.DataFrame(fp[:])
+
+        with tiledb.open(self._chrom_uri, "r") as fp:
+            self.chroms = pd.DataFrame(fp[:])
+
+        self._data_uris = {row.chrom: row.uri for row in self.chroms.itertuples()}
+        self.open()
+
+        super().__init__(
+            seqs=intervals,
+            labels=None,
+            tasks=self.tasks,
+            seq_len=seq_len,
+            genome=None,
+            end=end,
+            rc=rc,
+            max_seq_shift=max_seq_shift,
+            label_len=label_len,
+            max_pair_shift=max_pair_shift,
+            label_aggfunc=label_aggfunc,
+            bin_size=bin_size,
+            min_label_clip=min_label_clip,
+            max_label_clip=max_label_clip,
+            label_transform_func=label_transform_func,
+            seed=seed,
+            augment_mode=augment_mode,
+        )
+
+    def _load_seqs(self, seqs: pd.DataFrame) -> None:
+        seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
+        self.seqs = seqs
+
+    def open(self) -> None:
+        self.dataset = {
+            chrom: tiledb.open(uri, "r") for chrom, uri in self._data_uris.items()
+        }
+
+    def close(self) -> None:
+        for _, v in self.data.items():
+            v.close()
+
+    def _idx_to_raw_pair(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
+        interval = self.seqs.iloc[idx]
+        data = self.dataset[interval.chrom][:, interval.start : interval.end]["data"]
+        return data[0], data[1:]
+
+    def _idx_to_raw_seq(self, idx: int) -> np.ndarray:
+        interval = self.seqs.iloc[idx]
+        return self.dataset[interval.chrom][0, interval.start : interval.end]["data"]
+
+    def _load_labels(self, labels: np.ndarray) -> None:
+        pass
+
+    def get_labels(self, intervals) -> np.ndarray:
+        """
+        Return the labels as a numpy array of shape (B, T, L). This does not
+        account for data augmentation.
+        """
+        labels = []
+        for interval in intervals.iterrows():
+            labels.append(self.data[interval.chrom][interval.start : interval.end, :])
+        labels = np.vstack(labels)
+
+        # Aggregate label
+        if self.label_aggfunc is not None:
+            labels = rearrange(
+                labels,
+                "batch task (length bin_size) -> batch task length bin_size",
+                bin_size=self.bin_size,
+            )
+            labels = self.label_aggfunc(labels, axis=-1)
+
+        # Transform label
+        labels = self.label_transform(labels)
+
+        return labels
+
+
 class SeqDataset(Dataset):
     """
     Dataset to cycle through unlabeled sequences for inference. All sequences
@@ -462,6 +612,8 @@ class SeqDataset(Dataset):
         max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
             This is normally a small value (< 10). If 0, sequences will not be
             augmented by shifting.
+        seed: Random seed for reproducibility
+        augment_mode: "random" or "serial"
     """
 
     def __init__(
@@ -542,6 +694,8 @@ class VariantDataset(Dataset):
         protect: A list of positions to protect from mutation.
         n_mutated_seqs: Number of mutated sequences to generate from each input
             sequence for data augmentation.
+        seed: Random seed for reproducibility
+        augment_mode: "random" or "serial"
     """
 
     def __init__(
