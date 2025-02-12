@@ -98,6 +98,7 @@ class Augmenter:
             if n_mutated_seqs is greater than 0.
         seq_len: Length of the augmented sequences
         label_len: Length of the augmented labels
+        label_res: Resolution of the label
         seed: Random seed for reproducibility.
         mode: "random" or "serial"
     """
@@ -112,6 +113,7 @@ class Augmenter:
         protect: List[int] = [],
         seq_len: Optional[int] = None,
         label_len: Optional[int] = None,
+        label_res: int = 1,
         seed: Optional[int] = None,
         mode: str = "serial",
     ):
@@ -120,6 +122,7 @@ class Augmenter:
         self.seq_len = seq_len
         self.label_len = label_len
         self.n_mutated_bases = n_mutated_bases
+        self.label_res = label_res
 
         # Save augmentation params
         self.rc = rc
@@ -219,7 +222,11 @@ class Augmenter:
             # Augment the label too
             if self.shift_label:
                 # Shift label
-                label = shift(label, seq_len=self.label_len, idx=pair_shift_idx)
+                label = shift(
+                    label,
+                    seq_len=self.label_len // self.label_res,
+                    idx=pair_shift_idx // self.label_res,
+                )
             if self.rc:
                 # Reverse label
                 label = rc_label(label, idx=rc_idx)

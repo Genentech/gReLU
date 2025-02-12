@@ -28,6 +28,7 @@ from grelu.sequence.format import (
 )
 from grelu.sequence.mutate import mutate
 from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
+from grelu.transforms.label_transforms import LabelTransform
 from grelu.utils import get_aggfunc, get_transform_func
 
 
@@ -85,8 +86,6 @@ class LabeledSeqDataset(Dataset):
     ):
         super().__init__()
 
-        from grelu.transforms.label_transforms import LabelTransform
-
         # Save params
         self.end = end
         self.genome = genome
@@ -117,11 +116,9 @@ class LabeledSeqDataset(Dataset):
 
         # Ingest sequences
         self._load_seqs(seqs)
-        self.n_seqs = len(self.seqs)
 
         # Ingest tasks
         self._load_tasks(tasks)
-        self.n_tasks = len(self.tasks)
 
         # Ingest labels
         self._load_labels(labels)
@@ -160,11 +157,13 @@ class LabeledSeqDataset(Dataset):
             self.chroms = None
 
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
+        self.n_seqs = len(self.seqs)
 
     def _load_tasks(self, tasks: Union[pd.DataFrame, List]) -> None:
         if isinstance(tasks, List):
             tasks = _create_task_data(tasks)
         self.tasks = tasks
+        self.n_tasks = len(tasks)
 
     def _load_labels(self, labels: np.ndarray) -> None:
         self.labels = labels
@@ -464,45 +463,11 @@ class BigWigSeqDataset(LabeledSeqDataset):
         self.labels = read_bigwig(intervals, bw_files, aggfunc=None)
 
 
-class TileDBSeqDataset(LabeledSeqDataset):
-    """
-    LabeledSeqDataset derived class for genomic intervals and TileDB files.
-    TileDB files are created by grelu.data.preprocess.bigwigs_to_tiledb.
-
-    Args:
-        intervals: A Pandas dataframe containing genomic intervals
-        tdb_path: Path to tileDB.
-        samples: A subset of samples to read
-        seq_len: Uniform expected length (in base pairs) for output sequences
-        end: Which end of the sequence to resize. Supported values are "left", "right"
-            and "both".
-        rc: If True, sequences will be augmented by reverse complementation. If False,
-            they will not be reverse complemented.
-        max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
-            This is normally a small value (< 10). If 0, sequences will not be augmented by shifting.
-        max_pair_shift: Maximum number of bases to shift both the sequence and label for
-            augmentation. If 0, sequence and label pairs will not be augmented by shifting.
-        label_aggfunc: Function to aggregate the labels over bin_size.
-        bin_size: Number of bases to aggregate in the label.
-        min_label_clip: Minimum value for label
-        max_label_clip: Maximum value for label
-        label_transform_func: Function to transform label values.
-        seed: Random seed for reproducibility
-        augment_mode: "random" or "serial"
-    """
-
+class TileDBSeqDataset(Dataset):
     def __init__(
         self,
-        intervals: pd.DataFrame,
         tdb_path: str,
-        seq_len: Optional[int] = None,
-        end: str = "both",
         rc: bool = False,
-        max_seq_shift: int = 0,
-        label_len: Optional[int] = None,
-        max_pair_shift: int = 0,
-        label_aggfunc: Optional[Union[str, Callable]] = np.sum,
-        bin_size: Optional[int] = None,
         min_label_clip: Optional[int] = None,
         max_label_clip: Optional[int] = None,
         label_transform_func: Optional[Union[str, Callable]] = None,
@@ -510,98 +475,135 @@ class TileDBSeqDataset(LabeledSeqDataset):
         augment_mode: str = "serial",
     ) -> None:
 
-        # Paths to tileDB
         self.tdb_path = tdb_path
-        self._task_uri = f"{tdb_path}/tasks"
-        self._chrom_uri = f"{tdb_path}/chroms"
+        assert os.path.exists(self.tdb_path)
 
-        # Open tileDB database
-        with tiledb.open(self._task_uri, "r") as fp:
-            task_df = pd.DataFrame(fp[:])
-        task_df.index = task_df["__tiledb_rows"].astype(str).tolist()
+        self._task_uri = f"{self.tdb_path}/tasks"
+        self._intervals_uri = f"{self.tdb_path}/intervals"
+        self._seq_uri = f"{self.tdb_path}/sequences"
+        self._label_uri = f"{self.tdb_path}/labels"
+        self._params_uri = f"{self.tdb_path}/params"
+        self.seqs = None
+        self.labels = None
 
-        with tiledb.open(self._chrom_uri, "r") as fp:
-            self.chroms = pd.DataFrame(fp[:])
+        # Load information from tileDB
+        self._load_tiledb()
 
-        self._data_uris = {row.chrom: row.uri for row in self.chroms.itertuples()}
-        self.open()
+        # Label transformation params
+        self.min_label_clip = min_label_clip
+        self.max_label_clip = max_label_clip
+        self.label_transform_func = get_transform_func(label_transform_func)
 
-        super().__init__(
-            seqs=intervals,
-            labels=None,
-            tasks=task_df,
-            seq_len=seq_len,
-            genome=None,
-            end=end,
-            rc=rc,
-            max_seq_shift=max_seq_shift,
-            label_len=label_len,
-            max_pair_shift=max_pair_shift,
-            label_aggfunc=label_aggfunc,
-            bin_size=bin_size,
-            min_label_clip=min_label_clip,
-            max_label_clip=max_label_clip,
-            label_transform_func=label_transform_func,
+        # Save augmentation params
+        self.rc = rc
+        self.padded_seq_start = 0
+        self.padded_seq_end = self.padded_seq_start + self.seq_len
+        self.padded_label_start = 0
+        self.padded_label_end = self.padded_label_start + self.label_len
+
+        # Create label transformer
+        self.label_transform = LabelTransform(
+            min_clip=self.min_label_clip,
+            max_clip=self.max_label_clip,
+            transform_func=self.label_transform_func,
+        )
+
+        # Create augmenter
+        self.augmenter = Augmenter(
+            rc=self.rc,
+            max_seq_shift=self.max_seq_shift,
+            max_pair_shift=self.max_pair_shift,
+            seq_len=self.seq_len,
+            label_len=self.label_len,
+            label_res=self.bin_size,
             seed=seed,
-            augment_mode=augment_mode,
+            mode=augment_mode,
         )
+        self.n_augmented = len(self.augmenter)
+        self.n_alleles = 1
 
-    def _load_seqs(self, seqs: pd.DataFrame) -> None:
-        self.seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
-        self.labels = resize(
-            self.seqs, seq_len=self.padded_label_len, input_type="intervals"
-        )
+        # Set mode
+        self.predict = False
 
-    def _load_labels(self, labels) -> None:
-        pass
+    def _load_tiledb(self):
+        self._load_params()
+        self._load_intervals()
+        self._load_tasks()
 
-    def open(self) -> None:
-        self.dataset = {
-            chrom: tiledb.open(uri, "r") for chrom, uri in self._data_uris.items()
-        }
+    def _load_params(self) -> None:
+        with tiledb.open(self._params_uri, "r") as fp:
+            params = {k: v[0] for k, v in fp[:].items()}
+        print("The following parameters will be loaded from the TileDB")
+        print(params)
+        for k, v in params.items():
+            setattr(self, k, v)
 
-    def close(self) -> None:
-        for _, v in self.data.items():
-            v.close()
+    def _load_intervals(self) -> None:
+        with tiledb.open(self._intervals_uri, "r") as fp:
+            self.intervals = pd.DataFrame(fp[:])
+
+    def _load_tasks(self) -> None:
+        with tiledb.open(self._task_uri, "r") as fp:
+            self.tasks = pd.DataFrame(fp[:])
+        self.tasks.index = self.tasks["__tiledb_rows"].astype(str).tolist()
+        self.n_tasks = len(self.tasks)
+
+    def open_tiledb(self) -> None:
+        self.seqs = tiledb.open(self._seq_uri, "r")
+        self.labels = tiledb.open(self._label_uri, "r")
+
+    def __del__(self) -> None:
+        self.seqs.close()
+        self.labels.close()
 
     def _idx_to_raw_pair(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
-        seq_interval = self.seqs.iloc[idx]
-        label_interval = self.labels.iloc[idx]
-        seq = self.dataset[seq_interval.chrom][
-            :, seq_interval.start : seq_interval.end
-        ]["data"][0]
-        label = self.dataset[label_interval.chrom][
-            :, label_interval.start : label_interval.end
-        ]["data"][1:]
+        seq = self.seqs[idx, self.padded_seq_start : self.padded_seq_end]["data"]
+        label = self.labels[idx, :, self.padded_label_start : self.padded_label_end][
+            "data"
+        ]
         return seq, label
 
     def _idx_to_raw_seq(self, idx: int) -> np.ndarray:
-        interval = self.seqs.iloc[idx]
-        return self.dataset[interval.chrom][0, interval.start : interval.end]["data"]
+        return self.seqs[idx, self.padded_seq_start : self.padded_seq_end]["data"]
 
-    def get_labels(self, intervals) -> np.ndarray:
-        """
-        Return the labels as a numpy array of shape (B, T, L). This does not
-        account for data augmentation.
-        """
-        labels = []
-        for interval in intervals.iterrows():
-            labels.append(self.data[interval.chrom][interval.start : interval.end, :])
-        labels = np.vstack(labels)
+    def __len__(self) -> int:
+        return self.n_seqs * self.n_augmented
 
-        # Aggregate label
-        if self.label_aggfunc is not None:
-            labels = rearrange(
-                labels,
-                "batch task (length bin_size) -> batch task length bin_size",
-                bin_size=self.bin_size,
-            )
-            labels = self.label_aggfunc(labels, axis=-1)
+    def __getitem__(self, idx: int) -> Union[Tensor, Tuple[Tensor, Tensor]]:
 
-        # Transform label
-        labels = self.label_transform(labels)
+        if self.seqs is None:
+            self.open_tiledb()
 
-        return labels
+        # Get sequence and augmentation indices
+        seq_idx, augment_idx = _split_overall_idx(idx, (self.n_seqs, self.n_augmented))
+
+        if self.predict:
+            # Get raw sequence
+            seq = self._idx_to_raw_seq(seq_idx)
+
+            # Augment
+            seq = self.augmenter(seq=seq, idx=augment_idx)
+
+            # One-hot encode
+            seq = indices_to_one_hot(seq)
+
+            return seq
+
+        else:
+            # Get raw sequence-label pair
+            seq, label = self._idx_to_raw_pair(seq_idx)
+
+            # Augment
+            seq, label = self.augmenter(seq=seq, label=label, idx=augment_idx)
+
+            # One-hot encode
+            seq = indices_to_one_hot(seq)
+
+            # Transform label
+            if self.label_transform is not None:
+                label = self.label_transform(label)
+
+            return seq, Tensor(label)
 
 
 class SeqDataset(Dataset):

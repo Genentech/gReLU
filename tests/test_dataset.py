@@ -587,11 +587,11 @@ def test_bigwig_dataset_no_aug():
 
 
 tdb_path = os.path.join(cwd, "files", "tiledb")
+
+
 def test_tiledb_dataset_no_aug():
     # Simple
-    ds = TileDBSeqDataset(
-        intervals=bw_intervals, tdb_path=tdb_path, label_aggfunc=None
-    )
+    ds = TileDBSeqDataset(intervals=bw_intervals, tdb_path=tdb_path, label_aggfunc=None)
     assert (
         (not ds.rc)
         and (ds.max_seq_shift == 0)
@@ -601,22 +601,23 @@ def test_tiledb_dataset_no_aug():
         and (ds.label_len == 6)
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
-        and (np.all(ds.tasks.index == ['track_1', 'track_2']))
+        and (np.all(ds.tasks.index == ["track_1", "track_2"]))
         and (len(ds) == 2)
     )
-    
+
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = torch.stack(xs)
     ys = torch.stack(ys)
-    assert convert_input_type(xs, "strings") == ['AAGAAT', 'AGAATC']
+    assert convert_input_type(xs, "strings") == ["AAGAAT", "AGAATC"]
     assert ys.shape == (2, 2, 6)
-    assert np.allclose(ys.numpy(), [
-        [[ 1.,  2.,  3.,  4.,  5.,  6.],
-         [-4., -3., -2., -1.,  0.,  1.]],
-        [[ 2.,  3.,  4.,  5.,  6.,  7.],
-         [-3., -2., -1.,  0.,  1.,  2.]]
-    ])
-    
+    assert np.allclose(
+        ys.numpy(),
+        [
+            [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0], [-4.0, -3.0, -2.0, -1.0, 0.0, 1.0]],
+            [[2.0, 3.0, 4.0, 5.0, 6.0, 7.0], [-3.0, -2.0, -1.0, 0.0, 1.0, 2.0]],
+        ],
+    )
+
     # mean label, label_len different from seq_len
     ds = TileDBSeqDataset(
         intervals=bw_intervals,
@@ -641,10 +642,9 @@ def test_tiledb_dataset_no_aug():
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = torch.stack(xs)
     ys = torch.stack(ys)
-    assert convert_input_type(xs, "strings") == ['AAGAAT', 'AGAATC']
+    assert convert_input_type(xs, "strings") == ["AAGAAT", "AGAATC"]
     assert ys.shape == (2, 2, 1)
-    assert np.allclose(ys.squeeze().numpy(), [[ 3.5000, -1.5000],
-            [ 4.5000, -0.5000]])
+    assert np.allclose(ys.squeeze().numpy(), [[3.5000, -1.5000], [4.5000, -0.5000]])
 
     # sum with bin size = 2, transform
     ds = TileDBSeqDataset(
@@ -673,14 +673,12 @@ def test_tiledb_dataset_no_aug():
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = torch.stack(xs)
     ys = torch.stack(ys)
-    assert convert_input_type(xs, "strings") == ['AAGAAT', 'AGAATC']
+    assert convert_input_type(xs, "strings") == ["AAGAAT", "AGAATC"]
     assert ys.shape == (2, 2, 2)
-    assert np.allclose(ys.numpy(), [
-        [[ 5.,  9.],
-         [ 0.,  0.]],
-        [[ 7., 10.],
-         [ 0.,  1.]]
-    ])
+    assert np.allclose(
+        ys.numpy(), [[[5.0, 9.0], [0.0, 0.0]], [[7.0, 10.0], [0.0, 1.0]]]
+    )
+
 
 # Test unlabeled sequence dataset
 
