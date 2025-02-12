@@ -755,7 +755,7 @@ def bigwigs_to_tiledb(
     from genomicarrays import buildutils_tiledb_array as uta
     from natsort import natsorted
 
-    from grelu.data.tdb_utils import _extract_chrom_cov, _extract_chrom_sequence
+    from grelu.data.tdb_utils import _write_chrom_cov, _write_chrom_sequence, create_tiledb_array
     from grelu.data.utils import _create_task_data, get_chromosomes
     from grelu.utils import make_list
 
@@ -809,14 +809,8 @@ def bigwigs_to_tiledb(
 
     # Create empty array for each chromosome
     for row in chroms.itertuples():
-        uta.create_tiledb_array(
-            row.uri,
-            matrix_attr_name="data",
-            matrix_dim_dtype=np.int8,
-            x_dim_length=1 + len(tasks),
-            y_dim_length=row.end,
-            is_sparse=False,
-        )
+        create_tiledb_array(row.uri, x_dim_length=1 + len(tasks), y_dim_length=row.end, 
+                    x_dim_tile=1 + len(tasks), y_dim_tile=64000, matrix_dim_dtype = np.float32)
 
     # Write sequences
     print("Writing genome sequence")
@@ -828,10 +822,10 @@ def bigwigs_to_tiledb(
             pass
 
         with Pool(num_threads) as p:
-            p.map(_extract_chrom_sequence, chrom_options)
+            p.map(_write_chrom_sequence, chrom_options)
     else:
         for opt in tqdm(chrom_options):
-            _extract_chrom_sequence(opt)
+            _write_chrom_sequence(opt)
 
     # Writing the coverage
     print("Writing coverage from BigWig files")
@@ -843,7 +837,7 @@ def bigwigs_to_tiledb(
         ]
         if num_threads > 1:
             with Pool(num_threads) as p:
-                p.map(_extract_chrom_cov, bw_options)
+                p.map(_write_chrom_cov, bw_options)
         else:
             for opt in tqdm(bw_options):
-                _extract_chrom_cov(opt)
+                _write_chrom_cov(opt)
