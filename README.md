@@ -74,6 +74,8 @@ bioconda::ucsc-gtftogenepred    \
 bioconda::ucsc-gff3togenepred
 ```
 
+If you want to create ATAC-seq coverage bigWig files using `grelu.data.preprocess.make_insertion_bigwig`, you will need to install bedtools. See https://bedtools.readthedocs.io/en/latest/content/installation.html for instructions.
+
 ## Citation
 
 Please cite our preprint: https://www.biorxiv.org/content/10.1101/2024.09.18.613778v1
