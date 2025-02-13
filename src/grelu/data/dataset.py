@@ -117,11 +117,9 @@ class LabeledSeqDataset(Dataset):
 
         # Ingest sequences
         self._load_seqs(seqs)
-        self.n_seqs = len(self.seqs)
-
+        
         # Ingest tasks
         self._load_tasks(tasks)
-        self.n_tasks = len(self.tasks)
 
         # Ingest labels
         self._load_labels(labels)
@@ -160,11 +158,13 @@ class LabeledSeqDataset(Dataset):
             self.chroms = None
 
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
+        self.n_seqs = len(self.seqs)
 
     def _load_tasks(self, tasks: Union[pd.DataFrame, List]) -> None:
         if isinstance(tasks, List):
             tasks = _create_task_data(tasks)
         self.tasks = tasks
+        self.n_tasks = len(self.tasks)
 
     def _load_labels(self, labels: np.ndarray) -> None:
         self.labels = labels
@@ -514,6 +514,10 @@ class TileDBSeqDataset(LabeledSeqDataset):
         self.tdb_path = tdb_path
         self._task_uri = f"{tdb_path}/tasks"
         self._chrom_uri = f"{tdb_path}/chroms"
+        self._seq_uri = f"{tdb_path}/sequences"
+        self._label_uri = f"{tdb_path}/labels"
+        self.seqs = None
+        self.labels = None
 
         # Open tileDB database
         with tiledb.open(self._task_uri, "r") as fp:
@@ -522,9 +526,6 @@ class TileDBSeqDataset(LabeledSeqDataset):
 
         with tiledb.open(self._chrom_uri, "r") as fp:
             self.chroms = pd.DataFrame(fp[:])
-
-        self._data_uris = {row.chrom: row.uri for row in self.chroms.itertuples()}
-        self.open()
 
         super().__init__(
             seqs=intervals,
@@ -547,61 +548,52 @@ class TileDBSeqDataset(LabeledSeqDataset):
         )
 
     def _load_seqs(self, seqs: pd.DataFrame) -> None:
-        self.seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
-        self.labels = resize(
-            self.seqs, seq_len=self.padded_label_len, input_type="intervals"
+        seq_intervals = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
+        seq_intervals = seq_intervals.merge(
+            self.chroms[["chrom", "start_idx"]], on="chrom"
         )
+        seq_intervals.rename(columns={"start_idx": "chrom_start_idx"}, inplace=True)
+        seq_intervals['start_idx'] = seq_intervals.chrom_start_idx + seq_intervals.start
+        seq_intervals['end_idx'] = seq_intervals.chrom_start_idx + seq_intervals.end
+        self.intervals = seq_intervals
+        self.n_seqs = len(self.intervals)
 
     def _load_labels(self, labels) -> None:
-        pass
+        label_intervals = resize(
+            self.intervals[["chrom", "start", "end", "chrom_start_idx"]],
+            seq_len=self.padded_label_len,
+            input_type="intervals",
+        )
+        label_intervals['start_idx'] = label_intervals.chrom_start_idx + label_intervals.start
+        label_intervals['end_idx'] = label_intervals.chrom_start_idx + label_intervals.end
+        self.label_intervals = label_intervals
 
     def open(self) -> None:
-        self.dataset = {
-            chrom: tiledb.open(uri, "r") for chrom, uri in self._data_uris.items()
-        }
+        self.seqs = tiledb.open(self._seq_uri, "r")
+        self.labels = tiledb.open(self._label_uri, "r")
 
     def close(self) -> None:
-        for _, v in self.data.items():
-            v.close()
+        self.seqs.close()
+        self.labels.close()
 
     def _idx_to_raw_pair(self, idx: int) -> Tuple[np.ndarray, np.ndarray]:
-        seq_interval = self.seqs.iloc[idx]
-        label_interval = self.labels.iloc[idx]
-        seq = self.dataset[seq_interval.chrom][
-            :, seq_interval.start : seq_interval.end
-        ]["data"][0]
-        label = self.dataset[label_interval.chrom][
-            :, label_interval.start : label_interval.end
-        ]["data"][1:]
+        if self.seqs is None:
+            self.open()
+        seq_interval = self.intervals.iloc[idx]
+        label_interval = self.label_intervals.iloc[idx]
+        seq = self.seqs[seq_interval.start_idx : seq_interval.end_idx][
+            "data"
+        ]
+        label = self.labels[:, label_interval.start_idx : label_interval.end_idx][
+            "data"
+        ]
         return seq, label
 
     def _idx_to_raw_seq(self, idx: int) -> np.ndarray:
-        interval = self.seqs.iloc[idx]
-        return self.dataset[interval.chrom][0, interval.start : interval.end]["data"]
-
-    def get_labels(self, intervals) -> np.ndarray:
-        """
-        Return the labels as a numpy array of shape (B, T, L). This does not
-        account for data augmentation.
-        """
-        labels = []
-        for interval in intervals.iterrows():
-            labels.append(self.data[interval.chrom][interval.start : interval.end, :])
-        labels = np.vstack(labels)
-
-        # Aggregate label
-        if self.label_aggfunc is not None:
-            labels = rearrange(
-                labels,
-                "batch task (length bin_size) -> batch task length bin_size",
-                bin_size=self.bin_size,
-            )
-            labels = self.label_aggfunc(labels, axis=-1)
-
-        # Transform label
-        labels = self.label_transform(labels)
-
-        return labels
+        if self.seqs is None:
+            self.open()
+        interval = self.intervals.iloc[idx]
+        return self.seqs[interval.start_idx : interval.end_idx]["data"]
 
 
 class SeqDataset(Dataset):

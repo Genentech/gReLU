@@ -752,10 +752,12 @@ def bigwigs_to_tiledb(
 
     import pyBigWig
     import tiledb
-    from genomicarrays import buildutils_tiledb_array as uta
     from natsort import natsorted
 
-    from grelu.data.tdb_utils import _write_chrom_cov, _write_chrom_sequence, create_tiledb_array
+    from grelu.data.tdb_utils import (
+        _write_chrom_cov,
+        _write_chrom_sequence,
+    )
     from grelu.data.utils import _create_task_data, get_chromosomes
     from grelu.utils import make_list
 
@@ -789,7 +791,10 @@ def bigwigs_to_tiledb(
 
     # Create chromosome dataframe
     chroms = pd.DataFrame({"chrom": chroms, "start": 0, "end": lengths})
-    chroms["uri"] = [f"{output_path}/{x}" for x in chroms.chrom]
+    cumsum = chroms.end.cumsum()
+    chroms["start_idx"] = [0] + cumsum[:-1].tolist()
+    chroms["end_idx"] = cumsum
+    total_length = chroms.end.sum()
 
     # Write chromosome dataframe
     _chroms_uri = f"{output_path}/chroms"
@@ -800,21 +805,27 @@ def bigwigs_to_tiledb(
     if isinstance(tasks, List):
         tasks = _create_task_data(tasks)
 
-    tasks["task_idx"] = range(1, len(tasks) + 1)
+    tasks["task_idx"] = range(len(tasks))
     tasks["bigwig_path"] = bw_files
 
     # Write task dataframe
     _task_uri = f"{output_path}/tasks"
     tiledb.from_pandas(_task_uri, tasks)
 
-    # Create empty array for each chromosome
-    for row in chroms.itertuples():
-        create_tiledb_array(row.uri, x_dim_length=1 + len(tasks), y_dim_length=row.end, 
-                    x_dim_tile=1 + len(tasks), y_dim_tile=64000, matrix_dim_dtype = np.float32)
+    # Create empty array for sequence
+    domain = tiledb.Domain(
+        tiledb.Dim(
+            name="length_axis", domain=(0, total_length - 1), tile=16384, dtype=np.int64
+        )
+    )
+    attrs = [tiledb.Attr(name="data", dtype=np.int8)]
+    schema = tiledb.ArraySchema(domain=domain, attrs=attrs, sparse=False)
+    _seq_uri = f"{output_path}/sequences"
+    tiledb.Array.create(_seq_uri, schema)
 
     # Write sequences
     print("Writing genome sequence")
-    chrom_options = [(genome, chroms.iloc[i]) for i in range(len(chroms))]
+    chrom_options = [(genome, chroms.iloc[i], _seq_uri) for i in range(len(chroms))]
     if num_threads > 1:
         try:
             multiprocessing.set_start_method("spawn", force=True)
@@ -827,12 +838,30 @@ def bigwigs_to_tiledb(
         for opt in tqdm(chrom_options):
             _write_chrom_sequence(opt)
 
+    # Create empty array for coverage
+    attrs = [tiledb.Attr(name='data', dtype=np.float32)]
+    print(attrs)
+    domain = tiledb.Domain(
+        tiledb.Dim(
+            name="task_axis",
+            domain=(0, len(tasks) - 1),
+            tile=len(tasks),
+            dtype=np.int64,
+        ),
+        tiledb.Dim(
+            name="length_axis", domain=(0, total_length - 1), tile=16384, dtype=np.int64
+        ),
+    )
+    schema = tiledb.ArraySchema(domain=domain, attrs=attrs, sparse=False)
+    _label_uri = f"{output_path}/labels"
+    tiledb.Array.create(_label_uri, schema)
+
     # Writing the coverage
     print("Writing coverage from BigWig files")
     for i in range(len(chroms)):
         print(chroms.chrom.iloc[i])
         bw_options = [
-            (chroms.iloc[i], row.bigwig_path, row.task_idx)
+            (chroms.iloc[i], row.bigwig_path, row.task_idx, _label_uri)
             for row in tasks.itertuples()
         ]
         if num_threads > 1:
