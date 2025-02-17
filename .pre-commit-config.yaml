@@ -55,7 +55,7 @@ repos:
 #     additional_dependencies: [black]
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 7.1.1
+  rev: 7.1.2
   hooks:
   - id: flake8
   ## You can add flake8 plugins via `additional_dependencies`:
