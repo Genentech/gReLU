@@ -5,7 +5,7 @@ The LightningModel class.
 import warnings
 from collections import defaultdict
 from datetime import datetime
-from typing import Callable, Dict, List, Optional, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -30,9 +30,26 @@ from grelu.data.dataset import (
 from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
 from grelu.model.heads import ConvHead
-from grelu.model.layers import Activation
 from grelu.sequence.format import strings_to_one_hot
 from grelu.utils import get_aggfunc, get_compare_func, make_list
+
+default_train_params = {
+    "task": "binary",  # binary, multiclass, or regression
+    "lr": 1e-4,
+    "optimizer": "adam",
+    "batch_size": 512,
+    "num_workers": 1,
+    "devices": "cpu",
+    "logger": None,
+    "save_dir": ".",
+    "max_epochs": 1,
+    "checkpoint": True,
+    "loss": "bce",
+    "clip": 0,
+    "pos_weight": None,
+    "class_weights": None,
+    "total_weight": None,
+}
 
 
 class LightningModel(pl.LightningModule):
@@ -41,25 +58,25 @@ class LightningModel(pl.LightningModule):
 
     Args:
         model_params: Dictionary of parameters specifying model architecture
-        task: Purpose of the model. "regression", "binary" and "multiclass" are
-            allowed. If not provided, this will be inferred from the model architecture.
-        train_params: Dictionary specifying training parameters. This is empty
-            by default and will be filled at the time of training.
+        train_params: Dictionary specifying training parameters
         data_params: Dictionary specifying parameters of the training data.
             This is empty by default and will be filled at the time of
             training.
     """
 
     def __init__(
-        self,
-        model_params: dict,
-        task: Optional[str] = None,
-        train_params: dict = {},
-        data_params: dict = {},
+        self, model_params: dict, train_params: dict = {}, data_params: dict = {}
     ) -> None:
         super().__init__()
 
         self.save_hyperparameters(ignore=["model"])
+
+        # Add default training parameters
+        for key in default_train_params.keys():
+            if key not in train_params:
+                train_params[key] = default_train_params[key]
+            if key in ["loss", "task", "optimizer"]:
+                train_params[key] = train_params[key].lower()
 
         # Save params
         self.model_params = model_params
@@ -69,8 +86,14 @@ class LightningModel(pl.LightningModule):
         # Build model
         self.build_model()
 
-        # Set task and metrics
-        self.set_task(task)
+        # Set up loss function
+        self.initialize_loss()
+
+        # Set up activation function
+        self.initialize_activation()
+
+        # Inititalize metrics
+        self.initialize_metrics()
 
         # Initialize prediction transform
         self.reset_transform()
@@ -89,49 +112,72 @@ class LightningModel(pl.LightningModule):
             **{k: v for k, v in self.model_params.items() if k not in ["model_type"]}
         )
 
-    def set_task(self, task) -> None:
-        if task is None:
-            if isinstance(self.model.activation, nn.Sigmoid):
-                self.task = "binary"
-            elif isinstance(self.model.activation, nn.Softmax):
-                self.task = "multiclass"
-            else:
-                self.task = "regression"
-            print(f"Task not provided: automatically inferred to be {self.task}")
-        else:
-            if task in ["binary", "multiclass", "regression"]:
-                self.task = task
-            else:
-                raise ValueError(
-                    "Task must be one of binary, multiclass, or regression."
+    def initialize_loss(self) -> None:
+        """
+        Create the specified loss function.
+        """
+        # Losses always accept logits i.e. pre-activation values
+        # Regression loss: Poisson or MSE
+        if self.train_params["task"] == "regression":
+            if self.train_params["loss"] == "poisson":
+                self.loss = nn.PoissonNLLLoss(log_input=True, full=True)
+            elif self.train_params["loss"] == "poisson_multinomial":
+                self.loss = PoissonMultinomialLoss(
+                    total_weight=self.train_params["total_weight"], log_input=True
                 )
+            elif self.train_params["loss"] == "mse":
+                self.loss = nn.MSELoss()
+            else:
+                raise Exception("Regression losses: poisson, poisson_multinomial, MSE")
 
-        self.check_activation()
-        self.initialize_metrics()
+        # Binary: Binary cross-entropy loss
+        elif self.train_params["task"] == "binary":
+            if self.train_params["loss"] == "bce":
+                pos_weight = self.train_params["pos_weight"]
+                if pos_weight is not None:
+                    pos_weight = Tensor(pos_weight).unsqueeze(1)
+                self.loss = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+            else:
+                raise Exception("Binary losses: bce")
 
-    def check_activation(self) -> None:
+        # Multiclass: Cross-entropy loss
+        elif self.train_params["task"] == "multiclass":
+            weight = self.train_params["class_weights"]
+            if weight is not None:
+                weight = Tensor(weight)
+            self.loss = nn.CrossEntropyLoss(weight=weight)
+        else:
+            raise Exception("Task is not allowed")
+
+    def initialize_activation(self) -> None:
         """
         Add a task-specific activation function to the model.
         """
-        if self.task == "binary":
-            assert isinstance(
-                self.model.activation, nn.Sigmoid
-            ), "Sigmoid activation is expected for binary classification."
-        elif self.task == "multiclass":
-            assert isinstance(
-                self.model.activation, nn.Softmax
-            ), "Softmax activation is expected for multiclass classification."
-        elif self.task == "regression":
-            assert not (isinstance(self.model.activation, nn.Sigmoid)) and (
-                not (isinstance(self.model.activation, nn.Softmax))
-            ), "The model activation is not compatible with the regression task."
+        # Regression
+        if self.train_params["task"] == "regression":
+            if self.train_params["loss"] == "poisson":
+                self.activation = torch.exp
+            elif self.train_params["loss"] == "mse":
+                self.activation = nn.Identity()
+            else:
+                raise Exception("Regression losses: poisson, MSE")
+
+        # Binary
+        elif self.train_params["task"] == "binary":
+            self.activation = torch.sigmoid
+
+        # Multiclass
+        elif self.train_params["task"] == "multiclass":
+            self.activation = nn.Softmax(dim=1)
+        else:
+            raise Exception("Defined tasks: regression, binary and multiclass")
 
     def initialize_metrics(self):
         """
         Initialize the appropriate metrics for the given task.
         """
         # Regression:
-        if self.task == "regression":
+        if self.train_params["task"] == "regression":
             metrics = MetricCollection(
                 {
                     "mse": MSE(num_outputs=self.model.head.n_tasks, average=False),
@@ -142,7 +188,7 @@ class LightningModel(pl.LightningModule):
             )
 
         # Binary classification
-        elif self.task == "binary":
+        elif self.train_params["task"] == "binary":
             if self.model.head.n_tasks == 1:
                 metrics = MetricCollection(
                     {
@@ -179,7 +225,7 @@ class LightningModel(pl.LightningModule):
                 )
 
         # Multiclass
-        elif self.task == "multiclass":
+        elif self.train_params["task"] == "multiclass":
             metrics = MetricCollection(
                 {
                     "accuracy": Accuracy(
@@ -200,14 +246,16 @@ class LightningModel(pl.LightningModule):
 
         self.val_metrics = metrics.clone(prefix="val_")
         self.test_metrics = metrics.clone(prefix="test_")
+        self.val_losses = []
+        self.test_losses = []
 
     def update_metrics(self, metrics: dict, y_hat: Tensor, y: Tensor) -> None:
         """
         Update metrics after each pass
         """
-        if self.task == "binary":
+        if self.train_params["task"] == "binary":
             metrics.update(y_hat, y.type(torch.long))
-        elif self.task == "multiclass":
+        elif self.train_params["task"] == "multiclass":
             metrics.update(y_hat, y.type(torch.long).argmax(axis=1))
         else:
             metrics.update(y_hat, y)
@@ -239,63 +287,16 @@ class LightningModel(pl.LightningModule):
         x = self.format_input(x)
 
         # Run the model
-        x = self.model.get_logits(x)
+        x = self.model(x)
 
         # forward() produces prediction (e.g. post-activation)
         # unless logits=True, which is used in loss functions
         if not logits:
-            x = self.model.activation(x)
+            x = self.activation(x)
 
         # Apply transform
         x = self.transform(x)
         return x
-
-    def initialize_loss(self) -> None:
-        """
-        Create the specified loss function. Losses always accept logits i.e. pre-activation values
-        """
-        if self.train_params["loss"] is None:
-            if self.task == "binary":
-                self.train_params["loss"] = "bce"
-            elif self.task == "multiclass":
-                self.train_params["loss"] = "ce"
-            print(
-                f"Loss function is not provided: automatically set to {self.train_params['loss']}"
-            )
-
-        elif self.train_params["loss"] in ["poisson", "poisson_multinomial"]:
-            assert self.task == "regression"
-            assert isinstance(self.activation, torch.exp)
-            if self.train_params["loss"] == "poisson":
-                self.loss = nn.PoissonNLLLoss(log_input=True, full=True)
-            else:
-                self.loss = PoissonMultinomialLoss(
-                    total_weight=self.train_params["total_weight"], log_input=True
-                )
-
-        elif self.train_params["loss"] == "mse":
-            assert self.task == "regression"
-            self.loss = nn.MSELoss()
-
-        # Binary: Binary cross-entropy loss
-        elif self.train_params["loss"] == "bce":
-            pos_weight = self.train_params["pos_weight"]
-            if pos_weight is not None:
-                pos_weight = Tensor(pos_weight).unsqueeze(1)
-            self.loss = nn.BCEWithLogitsLoss(pos_weight=pos_weight)
-
-        # Multiclass: Cross-entropy loss
-        elif self.train_params["loss"] == "ce":
-            weight = self.train_params["class_weights"]
-            if weight is not None:
-                weight = Tensor(weight)
-            self.loss = nn.CrossEntropyLoss(weight=weight)
-
-        else:
-            raise Exception("This is not an allowed loss function")
-
-        self.val_losses = []
-        self.test_losses = []
 
     def training_step(self, batch: Tensor, batch_idx: int) -> Tensor:
         x, y = batch
@@ -315,7 +316,7 @@ class LightningModel(pl.LightningModule):
         x, y = batch
         logits = self.forward(x, logits=True)
         loss = self.loss(logits, y)
-        y_hat = self.model.activation(logits)
+        y_hat = self.activation(logits)
         self.log(
             "val_loss",
             loss,
@@ -355,7 +356,7 @@ class LightningModel(pl.LightningModule):
         x, y = batch
         logits = self.forward(x, logits=True)
         loss = self.loss(logits, y)
-        y_hat = self.model.activation(logits)
+        y_hat = self.activation(logits)
         self.log("test_loss", loss, logger=True, on_step=False, on_epoch=True)
         self.update_metrics(self.test_metrics, y_hat, y)
         self.test_losses.append(loss)
@@ -458,12 +459,11 @@ class LightningModel(pl.LightningModule):
         Make dataloader for training
         """
         assert isinstance(dataset, LabeledSeqDataset)
-        if batch_size is None:
-            batch_size = self.train_params["batch_size"]
-        if num_workers is None:
-            num_workers = self.train_params["num_workers"]
         return DataLoader(
-            dataset, batch_size=batch_size, shuffle=True, num_workers=num_workers
+            dataset,
+            batch_size=batch_size or self.train_params["batch_size"],
+            shuffle=True,
+            num_workers=num_workers or self.train_params["num_workers"],
         )
 
     def make_test_loader(
@@ -476,12 +476,11 @@ class LightningModel(pl.LightningModule):
         Make dataloader for validation and testing
         """
         assert isinstance(dataset, LabeledSeqDataset)
-        if batch_size is None:
-            batch_size = self.train_params["batch_size"]
-        if num_workers is None:
-            num_workers = self.train_params["num_workers"]
         return DataLoader(
-            dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
+            dataset,
+            batch_size=batch_size or self.train_params["batch_size"],
+            shuffle=False,
+            num_workers=num_workers or self.train_params["num_workers"],
         )
 
     def make_predict_loader(
@@ -495,93 +494,42 @@ class LightningModel(pl.LightningModule):
         """
         if isinstance(dataset, LabeledSeqDataset):
             dataset.predict = True
-        if batch_size is None:
-            batch_size = self.train_params["batch_size"]
-        if num_workers is None:
-            num_workers = self.train_params["num_workers"]
         return DataLoader(
-            dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers
+            dataset,
+            batch_size=batch_size or self.train_params["batch_size"],
+            shuffle=False,
+            num_workers=num_workers or self.train_params["num_workers"],
         )
 
     def train_on_dataset(
         self,
         train_dataset: Callable,
         val_dataset: Callable,
-        loss: Optional[str] = None,
         checkpoint_path: Optional[str] = None,
-        lr: float = 1e-4,
-        optimizer: str = "adam",
-        batch_size: int = 512,
-        num_workers: int = 0,
-        devices: Optional[Union[str, int, List[int]]] = "cpu",
-        logger: Optional[str] = None,
-        save_dir: str = ".",
-        max_epochs: int = 1,
-        callbacks: Optional[Dict] = None,
-        pos_weight: Optional[float] = None,
-        class_weights: Optional[List[float]] = None,
-        total_weight: Optional[float] = None,
-        multinomial_axis: str = "length",
-        **trainer_kwargs,
     ):
         """
         Train model and optionally log metrics to wandb.
 
         Args:
-            train_dataset: Dataset object that yields training examples
-            val_dataset: Dataset object that yields training examples
-            checkpoint_path: Path to model checkpoint from which to resume training.
+            train_dataset (Dataset): Dataset object that yields training examples
+            val_dataset (Dataset) : Dataset object that yields training examples
+            checkpoint_path (str): Path to model checkpoint from which to resume training.
                 The optimizer will be set to its checkpointed state.
-            loss: A loss function appropriate to the task. Options are "bce", "ce",
-                "mse", "poisson", "poisson_multinomial"
-            lr: Learning rate
-            optimizer: "adam" or "sgd"
-            batch_size: Batch size
-            num_workers: Number of workers
-            devices: Device IDs for training
-            logger: "wandb", "csv" or None
-            save_dir: Directory to save logs and checkpoints
-            max_epochs: Number of epochs
-            callbacks: A dictionary containing optional callbacks
-            pos_weight: Weight for positive examples
-            class_weights: A list of weights for different classes
-            total_weight: Weight for the Poisson component of the `poisson_multinomial` loss.
-            multinomial_axis: "length" or "task"; axis along which to apply the multinomial
-                component of the `poisson_multinomial` loss.
-            **trainer_kwargs: Additional arguments to pass. to `pl.Trainer`.
 
         Returns:
             PyTorch Lightning Trainer
         """
-        self.train_params["checkpoint_path"] = checkpoint_path
-        self.train_params["lr"] = lr
-        self.train_params["optimizer"] = optimizer
-        self.train_params["batch_size"] = batch_size
-        self.train_params["num_workers"] = num_workers
-        self.train_params["devices"] = devices
-        self.train_params["logger"] = logger
-        self.train_params["save_dir"] = save_dir
-        self.train_params["max_epochs"] = max_epochs
-        self.train_params["callbacks"] = callbacks
-        self.train_params["loss"] = loss
-        self.train_params["pos_weight"] = pos_weight
-        self.train_params["class_weights"] = class_weights
-        self.train_params["total_weight"] = total_weight
-        for k, v in trainer_kwargs.items():
-            self.train_params[k] = v
-
-        # Set up loss function
-        self.initialize_loss()
-
         torch.set_float32_matmul_precision("medium")
 
         # Checkpointing
-        if callbacks is None:
+        if self.train_params["checkpoint"] is True:
             checkpoint_callbacks = [
                 ModelCheckpoint(monitor="val_loss", mode="min", save_last=True)
             ]
-        else:
+        elif isinstance(self.train_params["checkpoint"], dict):
             checkpoint_callbacks = [ModelCheckpoint(**self.train_params["checkpoint"])]
+        else:
+            raise Exception("Checkpoint type must be a bool or dict")
 
         # Get device
         accelerator, devices = self.parse_devices(self.train_params["devices"])
@@ -597,7 +545,7 @@ class LightningModel(pl.LightningModule):
             logger=logger,
             callbacks=checkpoint_callbacks,
             default_root_dir=self.train_params["save_dir"],
-            **trainer_kwargs,
+            gradient_clip_val=self.train_params["clip"],
         )
 
         # Make dataloaders
@@ -649,10 +597,9 @@ class LightningModel(pl.LightningModule):
         self,
         n_tasks: int,
         final_pool_func: str,
-        final_act_func: str,
     ) -> None:
         """
-        Build a new head with the desired number of tasks and activation
+        Build a new head with the desired number of tasks
         """
         in_channels = self.model.head.in_channels
         self.model.head = ConvHead(
@@ -662,35 +609,18 @@ class LightningModel(pl.LightningModule):
             pool_func=final_pool_func,
             norm=False,
         )
-        self.model.activation = Activation(final_act_func)
         self.model_params["n_tasks"] = n_tasks
         self.model_params["final_pool_func"] = final_pool_func
-        self.model_params["final_act_func"] = final_act_func
+
+        self.initialize_metrics()
 
     def tune_on_dataset(
         self,
         train_dataset: Callable,
         val_dataset: Callable,
-        task: str,
-        loss: Optional[str] = None,
-        final_pool_func: Optional[str] = None,
         final_act_func: Optional[str] = None,
+        final_pool_func: Optional[str] = None,
         freeze_embedding: bool = False,
-        lr: float = 1e-4,
-        optimizer: str = "adam",
-        batch_size: int = 512,
-        num_workers: int = 0,
-        devices: Optional[Union[str, int, List[int]]] = "cpu",
-        logger: Optional[str] = None,
-        save_dir: str = ".",
-        max_epochs: int = 1,
-        callbacks: Optional[Dict] = None,
-        clip: float = 0,
-        pos_weight: Optional[float] = None,
-        class_weights: Optional[List[float]] = None,
-        total_weight: Optional[float] = None,
-        multinomial_axis: str = "length",
-        **trainer_kwargs,
     ):
         """
         Fine-tune a pretrained model on a new dataset.
@@ -698,44 +628,23 @@ class LightningModel(pl.LightningModule):
         Args:
             train_dataset: Dataset object that yields training examples
             val_dataset: Dataset object that yields training examples
+            final_act_func: Name of the final activation layer
             final_pool_func: Name of the final pooling layer
             freeze_embedding: If True, all the embedding layers of the pretrained
                 model will be frozen and only the head will be trained.
-                        task: binary, multiclass, or regression
-            loss: A loss function appropriate to the task. Options are "bce", "ce",
-                "mse", "poisson", "poisson_multinomial"
-            lr: Learning rate
-            optimizer: "adam" or "sgd"
-            batch_size: Batch size
-            num_workers: Number of workers
-            devices: Device IDs for training
-            logger: "wandb", "csv" or None
-            save_dir: Directory to save logs and checkpoints
-            max_epochs: Number of epochs
-            callbacks: A dictionary containing optional callbacks
-            pos_weight: Weight for positive examples
-            class_weights: A list of weights for different classes
-            total_weight: Weight for the Poisson component of the `poisson_multinomial` loss.
-            multinomial_axis: "length" or "task"; axis along which to apply the multinomial
-                component of the `poisson_multinomial` loss.
-            **trainer_kwargs: Additional arguments to pass. to `pl.Trainer`.
 
         Returns:
             PyTorch Lightning Trainer
         """
         # Move train data parameters
+        self.base_data_params = self.data_params.copy()
         self.data_params = {}
-        self.train_params = {}
 
         # Make new model head
         self.change_head(
             n_tasks=train_dataset.n_tasks,
             final_pool_func=final_pool_func,
-            final_act_func=final_act_func,
         )
-
-        # Change task
-        self.set_task(task)
 
         # Freeze the model embedding layers if needed
         if freeze_embedding:
@@ -743,35 +652,10 @@ class LightningModel(pl.LightningModule):
                 param.requires_grad = False
 
         # Train new model
-        return self.train_on_dataset(
-            train_dataset,
-            val_dataset,
-            task=task,
-            lr=lr,
-            optimizer=optimizer,
-            batch_size=batch_size,
-            num_workers=num_workers,
-            devices=devices,
-            logger=logger,
-            save_dir=save_dir,
-            max_epochs=max_epochs,
-            callbacks=callbacks,
-            loss=loss,
-            pos_weight=pos_weight,
-            class_weights=class_weights,
-            total_weight=total_weight,
-            multinomial_axis=multinomial_axis,
-            **trainer_kwargs,
-        )
+        return self.train_on_dataset(train_dataset, val_dataset)
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
-        checkpoint["hyper_parameters"]["train_params"] = self.train_params
         checkpoint["hyper_parameters"]["data_params"] = self.data_params
-
-    def on_load_checkpoint(self, checkpoint: dict) -> None:
-        self.initialize_activation()
-        self.initialize_loss()
-        self.initialize_metrics()
 
     def predict_on_seqs(
         self,
@@ -926,7 +810,6 @@ class LightningModel(pl.LightningModule):
             Dataframe containing all calculated metrics on the test set.
         """
         torch.set_float32_matmul_precision("medium")
-        assert hasattr(self.train_params, "loss")
         dataloader = self.make_test_loader(
             dataset,
             num_workers=num_workers,
