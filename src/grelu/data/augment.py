@@ -4,6 +4,7 @@ encoded DNA sequence of shape (L,) or a numpy array containing a label of shape 
 The augmented output will be in the same format.
 """
 
+import warnings
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
@@ -129,6 +130,13 @@ class Augmenter:
         self.shift_label = self.max_pair_shift > 0
         self.shift_seq = (self.max_seq_shift > 0) or (self.shift_label)
         self.mutate = (self.n_mutated_seqs > 0) and (self.n_mutated_bases > 0)
+        if self.mutate:
+            warnings.warn(
+                "Augmentation by introducing random mutations should be used with caution, "
+                + "as it may result in models being insensitive to functional variation. This is an experimental "
+                + "feature and the recommended usage is to perform a subsequent round of fine-tuning without "
+                + "this augmentation (https://genomebiology.biomedcentral.com/articles/10.1186/s13059-023-02941-w)."
+            )
 
         # Create settings
         self.max_values = _get_multipliers(
@@ -152,7 +160,7 @@ class Augmenter:
         The total number of augmented sequences that can be produced from a single
         DNA sequence
         """
-        return 1 if self.mode == "random" else np.product(self.max_values)
+        return 1 if self.mode == "random" else np.prod(self.max_values)
 
     def _split(self, idx: int) -> List[tuple]:
         """
