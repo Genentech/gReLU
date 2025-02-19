@@ -1,5 +1,9 @@
 """
-Commonly used layers to build deep learning models.
+This submodule contains common types of layers to build deep learning models, implemented as torch.nn.Module classes.
+These layers are used by classes in `grelu.model.blocks` and `grelu.model.heads`.
+
+New layers may be added by modifying an existing class or by creating a new class that inherits from nn.Module. If
+necessary, also modify the classes in `grelu.model.blocks` and `grelu.model.heads` to be able to use new layers.
 """
 
 from typing import Optional

@@ -1,8 +1,69 @@
+"""
+This submodule contains functions that enable the user to run TF-MoDISco (Shrikumar et al. 2018)
+on trained models. Many of the functions here are based on https://github.com/jmschrei/tfmodisco-lite.
+"""
+
 import os
 from typing import Callable, List, Optional, Union
 
 import numpy as np
 import pandas as pd
+
+
+def _get_ism_attrs(
+    seqs,
+    genome,
+    model,
+    one_hot_arr,
+    start,
+    end,
+    compare_func,
+    prediction_transform,
+    devices,
+    num_workers,
+    batch_size,
+):
+
+    from grelu.data.dataset import ISMDataset, SeqDataset
+    from grelu.utils import get_compare_func
+
+    print("Performing ISM")
+    ref_ds = SeqDataset(seqs, genome=genome)
+    ism_ds = ISMDataset(seqs, drop_ref=True, positions=range(start, end), genome=genome)
+
+    # Add transform to model
+    model.add_transform(prediction_transform)
+
+    # Get predictions for reference sequences
+    ref_preds = model.predict_on_dataset(
+        ref_ds, devices=devices, num_workers=num_workers, batch_size=batch_size
+    )  # B, 1, 1
+    assert (ref_preds.shape[-1] == 1) and (ref_preds.shape[-2] == 1)
+
+    # Get predictions for all mutated sequences
+    ism_preds = model.predict_on_dataset(
+        ism_ds,
+        devices=devices,
+        num_workers=num_workers,
+        batch_size=batch_size,
+    )  # B, l, 3, 1, 1
+    assert (ism_preds.shape[-1] == 1) and (ism_preds.shape[-2] == 1)
+    ism_preds = ism_preds.squeeze((-1, -2))  # B, l, 3
+
+    # Remove transform
+    model.reset_transform()
+
+    # Get the negative log ratio for (mutated sequences / reference sequences)
+    assert compare_func in ["subtract", "log2FC"]
+    attrs = get_compare_func(compare_func)(ref_preds, ism_preds)  # B, l, 3
+
+    # Mean over all possible mutations - importance of each position
+    attrs = np.expand_dims(attrs.mean(-1), 1)  # B, 1, l
+
+    # Multiply by original sequence
+    attrs = np.multiply(attrs, one_hot_arr)  # B, 4, l
+
+    return attrs
 
 
 def _add_tomtom_to_modisco_report(
@@ -113,6 +174,7 @@ def run_modisco(
     n_shuffles: int = 10,
     seed=None,
     method: str = "deepshap",
+    ism_compare_func="log2FC",
     **kwargs,
 ) -> None:
     """
@@ -133,6 +195,8 @@ def run_modisco(
         n_shuffles: Number of times to shuffle the background sequences for deepshap.
         seed: Random seed
         method: Either "deepshap", "saliency" or "ism".
+        ism_compare_func: Function to compare mutated sequence predictions to reference
+            predictions. Only used if method == "ism". Either "subtract" or "log2FC".
         **kwargs: Additional arguments to pass to TF-Modisco.
 
     Raises:
@@ -142,7 +206,6 @@ def run_modisco(
     from modiscolite.report import create_modisco_logos, report_motifs
     from modiscolite.tfmodisco import TFMoDISco
 
-    from grelu.data.dataset import ISMDataset, SeqDataset
     from grelu.interpret.motifs import run_tomtom
     from grelu.interpret.score import get_attributions
     from grelu.io.motifs import read_modisco_report
@@ -178,43 +241,17 @@ def run_modisco(
         attrs = attrs[:, :, start:end]
 
     elif method == "ism":
-        print("Performing ISM")
-        ref_ds = SeqDataset(seqs, genome=genome)
-        ism_ds = ISMDataset(
-            seqs, drop_ref=True, positions=range(start, end), genome=genome
-        )
-
-        # Add transform to model
-        model.add_transform(prediction_transform)
-
-        # Get predictions for reference sequences
-        ref_preds = model.predict_on_dataset(
-            ref_ds, devices=devices, num_workers=num_workers, batch_size=batch_size
-        )  # B, 1, T, L
-        assert (ref_preds.shape[-1] == 1) and (ref_preds.shape[-2] == 1)
-
-        # Get predictions for all mutated sequences
-        ism_preds = model.predict_on_dataset(
-            ism_ds,
+        attrs = _get_ism_attrs(
+            seqs,
+            genome,
+            model,
+            one_hot_arr,
+            compare_func=ism_compare_func,
+            prediction_transform=prediction_transform,
             devices=devices,
             num_workers=num_workers,
             batch_size=batch_size,
-        )  # B, l, 3, 1, 1
-        assert (ism_preds.shape[-1] == 1) and (ism_preds.shape[-2] == 1)
-        ism_preds = ism_preds.squeeze((-1, -2))  # B, l, 3
-
-        # Remove transform
-        model.reset_transform()
-
-        # Get the negative log ratio
-        attrs = -np.log2(np.divide(ism_preds, ref_preds))  # B, l, 3
-
-        # Mean over all possible mutations
-        attrs = np.expand_dims(attrs.mean(-1), 1)  # B, 1, l
-
-        # Multiply by original sequence
-        attrs = np.multiply(attrs, one_hot_arr)  # B, 4, l
-
+        )
     else:
         raise NotImplementedError
 

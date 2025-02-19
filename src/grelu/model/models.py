@@ -481,7 +481,7 @@ class BorzoiModel(BaseModel):
         pos_dropout: Dropout probability in the positional embeddings
         attn_dropout: Dropout probability in the attention layer
         crop_len: Number of positions to crop at either end of the output
-        head_act_func: Name of the activation function to use in the final layer
+        final_act_func: Name of the activation function to use in the final layer
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
         flash_attn: If True, uses Flash Attention with Rotational Position Embeddings. key_len, value_len,

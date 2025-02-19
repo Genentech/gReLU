@@ -1,7 +1,21 @@
 """
-Functions to augment data. All functions assume that the input is a numpy array containing an integer
-encoded DNA sequence of shape (L,) or a numpy array containing a label of shape (T, L).
-The augmented output will be in the same format.
+This submodule contains functions to augment genomic sequences or functional genomic data.
+All functions assume that the input is either:
+
+(1) a 1-D numpy array containing an integer encoded DNA sequence of shape (length,) or;
+(2) a 2-D numpy array containing a label of shape (tasks, length).
+
+The augmented output must be returned in the same format. All augmentation functions also
+require an index (idx) which is an integer or boolean value.
+
+This module also contains the `Augmenter` class that is responsible for applying multiple
+augmentations to a given (sequence, label) pair.
+
+To add new augmentation functions, add a function following the rules above. Modify
+`AUGMENTATION_MULTIPLIER_FUNCS` to take as input the index (idx) and produce the num,ber of
+augmented sequences produced by the function. Finally, modify the `Augmenter` class to
+apply the new function. You may also need to modify the dataset classes in `grelu.data.dataset`
+to accept new arguments.
 """
 
 from typing import List, Optional, Tuple, Union
@@ -136,9 +150,9 @@ class Augmenter:
         # Create settings
         self.max_values = _get_multipliers(
             rc=rc,
-            max_seq_shift=max_seq_shift,
-            max_pair_shift=max_pair_shift,
-            n_mutated_seqs=n_mutated_seqs,
+            max_seq_shift=self.max_seq_shift,
+            max_pair_shift=(self.max_pair_shift // self.label_res),
+            n_mutated_seqs=self.n_mutated_seqs,
         )
         self.products = np.concatenate(
             [np.flip(np.cumprod(np.flip(self.max_values[1:]))), [1]]
@@ -192,7 +206,7 @@ class Augmenter:
         else:
             raise NotImplementedError
 
-        # Augment the sequence
+        # Apply all sequence augmentation functions here
 
         # Shift sequence
         if self.shift_seq:
@@ -219,13 +233,13 @@ class Augmenter:
             return seq
 
         else:
-            # Augment the label too
+            # Apply all label augmentation functions here
             if self.shift_label:
                 # Shift label
                 label = shift(
                     label,
                     seq_len=self.label_len // self.label_res,
-                    idx=pair_shift_idx // self.label_res,
+                    idx=pair_shift_idx,
                 )
             if self.rc:
                 # Reverse label

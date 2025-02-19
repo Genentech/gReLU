@@ -1,3 +1,7 @@
+"""
+`grelu.resources` contains additional data files that can be used by gReLU functions. It also contains functions to load these files as well
+as files stored externally, such as model checkpoints and other objects in the model zoo.
+"""
 import os
 import importlib_resources
 from tempfile import TemporaryDirectory

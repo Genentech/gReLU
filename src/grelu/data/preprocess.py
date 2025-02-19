@@ -1,5 +1,6 @@
 """
-Functions to preprocess genomic datasets.
+This submodule contains functions to preprocess genomic datasets in standard formats.
+This includes BED files, fragment files, and AnnData objects.
 """
 
 import os
@@ -10,7 +11,6 @@ import bioframe as bf
 import numpy as np
 import pandas as pd
 from anndata import AnnData
-from tqdm import tqdm
 
 from grelu.data.utils import get_chromosomes
 from grelu.utils import get_aggfunc

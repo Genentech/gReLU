@@ -1,5 +1,8 @@
 """
-Functions related to manipulating sequence motifs and scanning DNA sequences with motifs.
+This submodule contains functions related to manipulating sequence motifs and scanning DNA sequences
+with motifs. Note that the aim here is not to provide a comprehensive suite of functionality related
+to motif analysis, but rather to provide the functionality necessary for interpreting
+sequence-to-function deep learning models using these motifs.
 """
 
 from typing import Callable, Dict, Generator, List, Optional, Tuple, Union

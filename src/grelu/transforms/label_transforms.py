@@ -1,7 +1,10 @@
 """
-Classes that perform transformations on labels
+This submodule contains classes that perform transformations on labels - for example, sequencing
+coverage values or other values used to train sequence-to-function deep learning models. This allows
+users to transform the labels at training time in ways that make training easier.
 
-The input to the forward method is assumed to be a numpy array of shape (N, T, L)
+The input to the forward method is assumed to be a numpy array of shape (N, T, L) and the output is
+returned in the same shape and format.
 """
 
 from typing import Callable, Optional, Union

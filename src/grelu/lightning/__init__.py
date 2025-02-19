@@ -5,7 +5,7 @@ The LightningModel class.
 import warnings
 from collections import defaultdict
 from datetime import datetime
-from typing import Callable, List, Optional, Tuple, Union
+from typing import Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -24,32 +24,16 @@ from grelu.data.dataset import (
     LabeledSeqDataset,
     MotifScanDataset,
     PatternMarginalizeDataset,
+    TileDBSeqDataset,
     VariantDataset,
     VariantMarginalizeDataset,
 )
 from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
+from grelu.lightning.utils import Exp
 from grelu.model.heads import ConvHead
 from grelu.sequence.format import strings_to_one_hot
 from grelu.utils import get_aggfunc, get_compare_func, make_list
-
-default_train_params = {
-    "task": "binary",  # binary, multiclass, or regression
-    "lr": 1e-4,
-    "optimizer": "adam",
-    "batch_size": 512,
-    "num_workers": 1,
-    "devices": "cpu",
-    "logger": None,
-    "save_dir": ".",
-    "max_epochs": 1,
-    "checkpoint": True,
-    "loss": "bce",
-    "clip": 0,
-    "pos_weight": None,
-    "class_weights": None,
-    "total_weight": None,
-}
 
 
 class LightningModel(pl.LightningModule):
@@ -65,18 +49,15 @@ class LightningModel(pl.LightningModule):
     """
 
     def __init__(
-        self, model_params: dict, train_params: dict = {}, data_params: dict = {}
+        self,
+        model: Optional[nn.Module],
+        model_params: dict = {},
+        train_params: dict = {},
+        data_params: dict = {},
     ) -> None:
         super().__init__()
 
         self.save_hyperparameters(ignore=["model"])
-
-        # Add default training parameters
-        for key in default_train_params.keys():
-            if key not in train_params:
-                train_params[key] = default_train_params[key]
-            if key in ["loss", "task", "optimizer"]:
-                train_params[key] = train_params[key].lower()
 
         # Save params
         self.model_params = model_params
@@ -84,18 +65,10 @@ class LightningModel(pl.LightningModule):
         self.data_params = data_params
 
         # Build model
-        self.build_model()
-
-        # Set up loss function
-        self.initialize_loss()
-
-        # Set up activation function
-        self.initialize_activation()
-
-        # Inititalize metrics
-        self.initialize_metrics()
-
-        # Initialize prediction transform
+        if model is None:
+            self.build_model()
+        else:
+            self.model = model
         self.reset_transform()
 
     def build_model(self) -> None:
@@ -155,16 +128,16 @@ class LightningModel(pl.LightningModule):
         """
         # Regression
         if self.train_params["task"] == "regression":
-            if self.train_params["loss"] == "poisson":
-                self.activation = torch.exp
+            if self.train_params["loss"] in ["poisson", "poisson_multinomial"]:
+                self.activation = Exp()
             elif self.train_params["loss"] == "mse":
                 self.activation = nn.Identity()
             else:
-                raise Exception("Regression losses: poisson, MSE")
+                raise Exception("Regression losses: poisson, poisson_multinomial, MSE")
 
         # Binary
         elif self.train_params["task"] == "binary":
-            self.activation = torch.sigmoid
+            self.activation = nn.Sigmoid()
 
         # Multiclass
         elif self.train_params["task"] == "multiclass":
@@ -458,7 +431,9 @@ class LightningModel(pl.LightningModule):
         """
         Make dataloader for training
         """
-        assert isinstance(dataset, LabeledSeqDataset)
+        assert isinstance(dataset, LabeledSeqDataset) or isinstance(
+            dataset, TileDBSeqDataset
+        )
         return DataLoader(
             dataset,
             batch_size=batch_size or self.train_params["batch_size"],
@@ -475,7 +450,9 @@ class LightningModel(pl.LightningModule):
         """
         Make dataloader for validation and testing
         """
-        assert isinstance(dataset, LabeledSeqDataset)
+        assert isinstance(dataset, LabeledSeqDataset) or isinstance(
+            dataset, TileDBSeqDataset
+        )
         return DataLoader(
             dataset,
             batch_size=batch_size or self.train_params["batch_size"],
@@ -492,7 +469,9 @@ class LightningModel(pl.LightningModule):
         """
         Make dataloader for prediction
         """
-        if isinstance(dataset, LabeledSeqDataset):
+        if isinstance(dataset, LabeledSeqDataset) or isinstance(
+            dataset, TileDBSeqDataset
+        ):
             dataset.predict = True
         return DataLoader(
             dataset,
@@ -506,30 +485,89 @@ class LightningModel(pl.LightningModule):
         train_dataset: Callable,
         val_dataset: Callable,
         checkpoint_path: Optional[str] = None,
+        task: str = "binary",  # binary, multiclass, or regression
+        lr: float = 1e-4,
+        optimizer: str = "adam",
+        batch_size: int = 512,
+        num_workers: int = 0,
+        devices: Optional[Union[str, int, List[int]]] = "cpu",
+        logger: Optional[str] = None,
+        save_dir: str = ".",
+        max_epochs: int = 1,
+        callbacks: Optional[Dict] = None,
+        loss: str = "bce",
+        pos_weight: Optional[float] = None,
+        class_weights: Optional[List[float]] = None,
+        total_weight: Optional[float] = None,
+        multinomial_axis: str = "length",
+        **trainer_kwargs,
     ):
         """
         Train model and optionally log metrics to wandb.
 
         Args:
-            train_dataset (Dataset): Dataset object that yields training examples
-            val_dataset (Dataset) : Dataset object that yields training examples
-            checkpoint_path (str): Path to model checkpoint from which to resume training.
+            train_dataset: Dataset object that yields training examples
+            val_dataset : Dataset object that yields training examples
+            checkpoint_path: Path to model checkpoint from which to resume training.
                 The optimizer will be set to its checkpointed state.
+            task: binary, multiclass, or regression
+            lr: Learning rate
+            optimizer: "adam" or "sgd"
+            batch_size: Batch size
+            num_workers: Number of workers
+            devices: Device IDs for training
+            logger: "wandb", "csv" or None
+            save_dir: Directory to save logs and checkpoints
+            max_epochs: Number of epochs
+            callbacks: A dictionary containing optional callbacks
+            loss: A loss function appropriate to the task. Options are "bce", "ce",
+                "mse", "poisson", "poisson_multinomial"
+            pos_weight: Weight for positive examples
+            class_weights: A list of weights for different classes
+            total_weight: Weight for the Poisson component of the `poisson_multinomial` loss.
+            multinomial_axis: "length" or "task"; axis along which to apply the multinomial
+                component of the `poisson_multinomial` loss.
+            **trainer_kwargs: Additional arguments to pass. to `pl.Trainer`.
 
         Returns:
             PyTorch Lightning Trainer
         """
+        self.train_params["checkpoint_path"] = checkpoint_path
+        self.train_params["task"] = task
+        self.train_params["lr"] = lr
+        self.train_params["optimizer"] = optimizer
+        self.train_params["batch_size"] = batch_size
+        self.train_params["num_workers"] = num_workers
+        self.train_params["devices"] = devices
+        self.train_params["logger"] = logger
+        self.train_params["save_dir"] = save_dir
+        self.train_params["max_epochs"] = max_epochs
+        self.train_params["callbacks"] = callbacks
+        self.train_params["loss"] = loss
+        self.train_params["pos_weight"] = pos_weight
+        self.train_params["class_weights"] = class_weights
+        self.train_params["total_weight"] = total_weight
+        for k, v in trainer_kwargs.items():
+            self.train_params[k] = v
+
+        # Set up loss function
+        self.initialize_loss()
+
+        # Set up activation function
+        self.initialize_activation()
+
+        # Inititalize metrics
+        self.initialize_metrics()
+
         torch.set_float32_matmul_precision("medium")
 
         # Checkpointing
-        if self.train_params["checkpoint"] is True:
+        if self.train_params["callbacks"] is None:
             checkpoint_callbacks = [
                 ModelCheckpoint(monitor="val_loss", mode="min", save_last=True)
             ]
-        elif isinstance(self.train_params["checkpoint"], dict):
-            checkpoint_callbacks = [ModelCheckpoint(**self.train_params["checkpoint"])]
         else:
-            raise Exception("Checkpoint type must be a bool or dict")
+            checkpoint_callbacks = [ModelCheckpoint(**self.train_params["checkpoint"])]
 
         # Get device
         accelerator, devices = self.parse_devices(self.train_params["devices"])
@@ -545,7 +583,7 @@ class LightningModel(pl.LightningModule):
             logger=logger,
             callbacks=checkpoint_callbacks,
             default_root_dir=self.train_params["save_dir"],
-            gradient_clip_val=self.train_params["clip"],
+            **trainer_kwargs,
         )
 
         # Make dataloaders
@@ -585,7 +623,7 @@ class LightningModel(pl.LightningModule):
             if not attr.startswith("_") and not attr.isupper():
                 value = getattr(dataset, attr)
                 if (
-                    (attr == "chroms")
+                    (attr == "intervals")
                     or (isinstance(value, str))
                     or (isinstance(value, int))
                     or (isinstance(value, float))
@@ -612,15 +650,29 @@ class LightningModel(pl.LightningModule):
         self.model_params["n_tasks"] = n_tasks
         self.model_params["final_pool_func"] = final_pool_func
 
-        self.initialize_metrics()
-
     def tune_on_dataset(
         self,
         train_dataset: Callable,
         val_dataset: Callable,
-        final_act_func: Optional[str] = None,
         final_pool_func: Optional[str] = None,
         freeze_embedding: bool = False,
+        task: str = "binary",  # binary, multiclass, or regression
+        lr: float = 1e-4,
+        optimizer: str = "adam",
+        batch_size: int = 512,
+        num_workers: int = 0,
+        devices: Optional[Union[str, int, List[int]]] = "cpu",
+        logger: Optional[str] = None,
+        save_dir: str = ".",
+        max_epochs: int = 1,
+        callbacks: Optional[Dict] = None,
+        loss: str = "bce",
+        clip: float = 0,
+        pos_weight: Optional[float] = None,
+        class_weights: Optional[List[float]] = None,
+        total_weight: Optional[float] = None,
+        multinomial_axis: str = "length",
+        **trainer_kwargs,
     ):
         """
         Fine-tune a pretrained model on a new dataset.
@@ -628,17 +680,36 @@ class LightningModel(pl.LightningModule):
         Args:
             train_dataset: Dataset object that yields training examples
             val_dataset: Dataset object that yields training examples
-            final_act_func: Name of the final activation layer
             final_pool_func: Name of the final pooling layer
             freeze_embedding: If True, all the embedding layers of the pretrained
                 model will be frozen and only the head will be trained.
+            task: binary, multiclass, or regression
+            lr: Learning rate
+            optimizer: "adam" or "sgd"
+            batch_size: Batch size
+            num_workers: Number of workers
+            devices: Device IDs for training
+            logger: "wandb", "csv" or None
+            save_dir: Directory to save logs and checkpoints
+            max_epochs: Number of epochs
+            callbacks: A dictionary containing optional callbacks
+            loss: A loss function appropriate to the task. Options are
+                "bce", "ce", "mse", "poisson", "poisson_multinomial"
+            clip: Gradient clipping
+            pos_weight: Weight for positive examples
+            class_weights: A list of weights for different classes
+            total_weight: Weight for the Poisson component of the `poisson_multinomial` loss.
+            multinomial_axis: "length" or "task"; axis along which to apply the multinomial
+                component of the `poisson_multinomial` loss.
+            **trainer_kwargs: Additional arguments to pass. to `pl.Trainer`.
+
 
         Returns:
             PyTorch Lightning Trainer
         """
-        # Move train data parameters
-        self.base_data_params = self.data_params.copy()
+        # Empty train data parameters
         self.data_params = {}
+        self.train_params = {}
 
         # Make new model head
         self.change_head(
@@ -652,10 +723,35 @@ class LightningModel(pl.LightningModule):
                 param.requires_grad = False
 
         # Train new model
-        return self.train_on_dataset(train_dataset, val_dataset)
+        return self.train_on_dataset(
+            train_dataset,
+            val_dataset,
+            task=task,
+            lr=lr,
+            optimizer=optimizer,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            devices=devices,
+            logger=logger,
+            save_dir=save_dir,
+            max_epochs=max_epochs,
+            callbacks=callbacks,
+            loss=loss,
+            pos_weight=pos_weight,
+            class_weights=class_weights,
+            total_weight=total_weight,
+            multinomial_axis=multinomial_axis,
+            **trainer_kwargs,
+        )
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
+        checkpoint["hyper_parameters"]["train_params"] = self.train_params
         checkpoint["hyper_parameters"]["data_params"] = self.data_params
+
+    def on_load_checkpoint(self, checkpoint: dict) -> None:
+        self.initialize_activation()
+        self.initialize_loss()
+        self.initialize_metrics()
 
     def predict_on_seqs(
         self,
@@ -1123,3 +1219,32 @@ class LightningModelEnsemble(pl.LightningModule):
             return [self.get_task_idxs(task) for task in tasks]
         else:
             raise TypeError("Input must be a list, string or integer")
+
+
+
+def _sweep_func(model_params, train_params, dataset_type, train_ds_params, val_ds_params, experiment):
+    
+    run = wandb.init(dir=experiment) # Saves logs to the 'experiment' folder
+    
+    # Insert sweep parameters
+    for k, v in wandb.config.items():
+        if k in model_params:
+            model_params[k] = v
+        elif k in train_params:
+            train_params[k] = v
+
+    if hasattr(grelu.data.dataset, dataset_type):
+        ds = getattr(grelu.data.dataset, dataset_type)
+    else:
+        raise Exception("Unknown model type")
+
+    # Make labeled datasets
+    train_dataset = ds(train_ds_params)
+    val_dataset = ds(val_ds_params)
+
+    # Build model
+    model = LightningModel(model_params=model_params)
+
+    # Train model
+    model.train_on_dataset(train_dataset, val_dataset, **train_params)
+

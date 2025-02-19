@@ -1,8 +1,17 @@
 """
-Pytorch dataset classes to load sequence data
+This submodule contains specialized PyTorch Dataset classes to load genomic data.
+All dataset classes must inherit from `torch.utils.Data.Dataset`.
 
-All dataset classes produce either one-hot encoded sequences of shape (4, L)
-or sequence-label pairs of shape (4, L) and (T, L).
+Dataset classes intended for inference must produce 2-D tensors of shape (4, length),
+containing one-hot encoded sequences.
+
+Dataset classes intended for training and validation must produce (sequence, label)
+pairs, wherein the sequence is a 2-D tensor of shape (4, length) containing a one-hot
+encoded sequence, and the label is a 2-D tensor of shape (tasks, length).
+
+If adding new dataset classes, it may be useful to have them inherit from an existing
+base class, such as `LabeledSeqDataset` or `SeqDataset`. Otherwise, you may also need
+to modify `grelu.lightning` to ensure that gReLU models accept the new dataset class as input.
 """
 
 import os
@@ -29,7 +38,7 @@ from grelu.sequence.format import (
 from grelu.sequence.mutate import mutate
 from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
 from grelu.transforms.label_transforms import LabelTransform
-from grelu.utils import get_aggfunc, get_transform_func
+from grelu.utils import get_aggfunc, get_transform_func, make_list
 
 
 class LabeledSeqDataset(Dataset):
@@ -148,14 +157,12 @@ class LabeledSeqDataset(Dataset):
 
     def _load_seqs(self, seqs: Union[str, Sequence, pd.DataFrame, np.ndarray]) -> None:
         seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
-
+        
         if get_input_type(seqs) == "intervals":
             self.intervals = seqs
-            self.chroms = list(set(self.intervals.chrom))
         else:
             self.intervals = None
-            self.chroms = None
-
+        
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
         self.n_seqs = len(self.seqs)
 
@@ -467,17 +474,33 @@ class TileDBSeqDataset(Dataset):
     def __init__(
         self,
         tdb_path: str,
+        # Parameters that should not be provided if reading a file
+        intervals: Optional[pd.DataFrame] = None,
+        genome: Optional[str] = None,
+        tasks: Optional[Union[List[str], pd.DataFrame]] = None,
+        bw_files: Optional[List[str]] = None,
+        aggfunc: Optional[str] = None,
+        bin_size: Optional[int] = None,
+        # parameters that will be checked against file
+        seq_len: Optional[int] = None,
+        label_len: Optional[int] = None,
+        max_seq_shift: int = 0,
+        max_pair_shift: int = 0,
+        # Parameters independent of a pre-existing file
         rc: bool = False,
         min_label_clip: Optional[int] = None,
         max_label_clip: Optional[int] = None,
         label_transform_func: Optional[Union[str, Callable]] = None,
         seed: Optional[int] = None,
         augment_mode: str = "serial",
+        # I/O params
+        num_threads: int = 0,
+        chunk_size: int = 512,
+        # overwrite: bool = False,
     ) -> None:
+        super().__init__()
 
         self.tdb_path = tdb_path
-        assert os.path.exists(self.tdb_path)
-
         self._task_uri = f"{self.tdb_path}/tasks"
         self._intervals_uri = f"{self.tdb_path}/intervals"
         self._seq_uri = f"{self.tdb_path}/sequences"
@@ -486,27 +509,33 @@ class TileDBSeqDataset(Dataset):
         self.seqs = None
         self.labels = None
 
-        # Load information from tileDB
-        self._load_tiledb()
+        # Save augmentation params
+        self.seq_len = seq_len
+        self.label_len = label_len
+        self.rc = rc
+        self.max_seq_shift = max_seq_shift
+        self.max_pair_shift = max_pair_shift
+        self.padded_seq_len = (
+            self.seq_len + (2 * self.max_seq_shift) + (2 * self.max_pair_shift)
+        )
+        self.padded_label_len = self.label_len + (2 * self.max_pair_shift)
 
         # Label transformation params
         self.min_label_clip = min_label_clip
         self.max_label_clip = max_label_clip
         self.label_transform_func = get_transform_func(label_transform_func)
 
-        # Save augmentation params
-        self.rc = rc
-        self.padded_seq_start = 0
-        self.padded_seq_end = self.padded_seq_start + self.seq_len
-        self.padded_label_start = 0
-        self.padded_label_end = self.padded_label_start + self.label_len
+        # Save I/O params
+        self.num_threads = num_threads
+        self.chunk_size = chunk_size
 
-        # Create label transformer
-        self.label_transform = LabelTransform(
-            min_clip=self.min_label_clip,
-            max_clip=self.max_label_clip,
-            transform_func=self.label_transform_func,
-        )
+        # Check whether the TileDB file already exists
+        if os.path.exists(tdb_path):
+            print("Reading existing TileDB file")
+            self.read_tiledb(intervals, genome, tasks, bw_files, aggfunc, bin_size)
+        else:
+            print("TileDB file does not exist and will be written.")
+            self.write_tiledb(intervals, genome, tasks, bw_files, aggfunc, bin_size)
 
         # Create augmenter
         self.augmenter = Augmenter(
@@ -522,37 +551,112 @@ class TileDBSeqDataset(Dataset):
         self.n_augmented = len(self.augmenter)
         self.n_alleles = 1
 
+        # Create label transformer
+        self.label_transform = LabelTransform(
+            min_clip=self.min_label_clip,
+            max_clip=self.max_label_clip,
+            transform_func=self.label_transform_func,
+        )
+
         # Set mode
         self.predict = False
 
-    def _load_tiledb(self):
-        self._load_params()
-        self._load_intervals()
-        self._load_tasks()
+    def read_tiledb(self, intervals, genome, tasks, bw_files, aggfunc, bin_size):
 
-    def _load_params(self) -> None:
+        # Check params
+        for p in [intervals, genome, tasks, bw_files, aggfunc, bin_size]:
+            assert p is None, (
+                "The following parameters should not be provided if loading a pre-existing file:"
+                + "intervals, genome, tasks, bw_file, aggfunc, bin_size"
+            )
+
+        # Load params
         with tiledb.open(self._params_uri, "r") as fp:
-            params = {k: v[0] for k, v in fp[:].items()}
-        print("The following parameters will be loaded from the TileDB")
-        print(params)
-        for k, v in params.items():
-            setattr(self, k, v)
+            tdb_params = {k: v[0] for k, v in fp[:].items()}
 
-    def _load_intervals(self) -> None:
+        print("The following parameters will be loaded from TileDB:")
+        for k in ["n_seqs", "n_tasks", "aggfunc", "bin_size"]:
+            print(f"{k}: {tdb_params[k]}")
+            setattr(self, k, tdb_params[k])
+
+        assert self.padded_seq_len <= tdb_params["padded_seq_len"]
+        assert self.padded_label_len <= tdb_params["padded_label_len"]
+        self.padded_seq_start = (
+            tdb_params["padded_seq_len"] - self.padded_seq_len
+        ) // 2
+        self.padded_label_start = (
+            tdb_params["padded_label_len"] - self.padded_label_len
+        ) // (2 * self.bin_size)
+        self.padded_seq_end = self.padded_seq_start + self.padded_seq_len
+        self.padded_label_end = (
+            self.padded_label_start + self.padded_label_len
+        ) // self.bin_size
+
+        # Load intervals
         with tiledb.open(self._intervals_uri, "r") as fp:
             self.intervals = pd.DataFrame(fp[:])
+        print(f"Loaded {len(self.intervals)} intervals from tileDB")
 
-    def _load_tasks(self) -> None:
+        # Load tasks
         with tiledb.open(self._task_uri, "r") as fp:
             self.tasks = pd.DataFrame(fp[:])
-        self.tasks.index = self.tasks["__tiledb_rows"].astype(str).tolist()
+        print(f"Loaded the following tasks from TileDB: {self.tasks.index.tolist()}")
+
+    def write_tiledb(self, intervals, genome, tasks, bw_files, aggfunc, bin_size):
+        from grelu.io.tiledb import bigwigs_to_tiledb
+
+        # Check params
+        for p in [intervals, genome, tasks, bw_files, aggfunc, bin_size]:
+            assert p is not None, (
+                "The following parameters must be provided in the absence of a TileDB file:"
+                + "intervals, genome, tasks, bw_file"
+            )
+
+        self.genome = genome
+        self.bin_size = bin_size
+        self.aggfunc = aggfunc
+        self.padded_seq_start = 0
+        self.padded_label_start = 0
+        self.intervals = resize(intervals, self.padded_seq_len)
+        self.n_seqs = len(self.intervals)
+
+        assert self.max_pair_shift % self.bin_size == 0
+        assert self.padded_label_len % self.bin_size == 0
+        self.padded_seq_end = self.padded_seq_start + self.padded_seq_len
+        self.padded_label_end = (
+            self.padded_label_start + self.padded_label_len
+        ) // bin_size
+
+        bw_files = make_list(bw_files)
+        if tasks is None:
+            tasks = [os.path.splitext(os.path.basename(f))[0] for f in bw_files]
+        if isinstance(tasks, List):
+            tasks = _create_task_data(tasks)
+        tasks["bigwig_path"] = [os.path.abspath(f) for f in bw_files]
+        tasks["task_idx"] = range(len(tasks))
+        self.tasks = tasks
         self.n_tasks = len(self.tasks)
+
+        bigwigs_to_tiledb(
+            tdb_path=self.tdb_path,
+            intervals=self.intervals,
+            seq_len=self.seq_len,
+            label_len=self.label_len,
+            max_seq_shift=self.max_seq_shift,
+            max_pair_shift=self.max_pair_shift,
+            bin_size=self.bin_size,
+            aggfunc=self.aggfunc,
+            genome=self.genome,
+            tasks=self.tasks,
+            num_threads=self.num_threads,
+            chunk_size=self.chunk_size,
+        )
 
     def open_tiledb(self) -> None:
         self.seqs = tiledb.open(self._seq_uri, "r")
         self.labels = tiledb.open(self._label_uri, "r")
 
-    def __del__(self) -> None:
+    def close(self) -> None:
         self.seqs.close()
         self.labels.close()
 
@@ -671,7 +775,6 @@ class SeqDataset(Dataset):
         seqs = resize(seqs, seq_len=padded_seq_len, end=self.end)
         if get_input_type(seqs) == "intervals":
             self.intervals = seqs
-            self.chroms = np.unique(seqs.chrom)
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
 
     def __len__(self) -> int:

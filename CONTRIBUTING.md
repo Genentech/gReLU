@@ -17,75 +17,41 @@ guidelines.
 
 ## Issue Reports
 
+### Check the issue tracker
+
 If you experience bugs or general issues with ``grelu``, please have a look
-on the [issue tracker](https://github.com/Genentech/gReLU/issues). If you don't see anything useful there, please feel
-free to fire an issue report.
+on the [issue tracker](https://github.com/Genentech/gReLU/issues). Don't forget to include the closed issues in your search. Sometimes a solution was already reported, and the problem is considered **solved**.
 
-**Tip:** Please don't forget to include the closed issues in your search.
-Sometimes a solution was already reported, and the problem is considered
-**solved**.
-
+### File an issue report
+If you don't see anything useful in the previous issues, please feel free to fire an issue report.
 New issue reports should include information about your programming environment
 (e.g., operating system, Python version) and steps to reproduce the problem.
 Please try also to simplify the reproduction steps to a very minimal example
 that still illustrates the problem you are facing. By removing other factors,
 you help us to identify the root cause of the issue.
 
-## Documentation Improvements
-
-You can help improve ``grelu`` docs by making them more readable and coherent, or
-by adding missing information and correcting mistakes.
-
-``grelu`` documentation uses [Sphinx](https://www.sphinx-doc.org/en/master/) as its main documentation compiler.
-This means that the docs are kept in the same repository as the project code, and
-that any documentation update is done in the same way was a code contribution.
-
-**TODO:** Don't forget to mention which markup language you are using.
-
-e.g.,  reStructuredText_ or CommonMark_ with MyST_ extensions.
-
-**TODO:** If your project is hosted on GitHub, you can also mention the following tip:
-
-**Tip:** Please notice that the [GitHub web interface](https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files) provides a quick way of
-propose changes in ``grelu``'s files. While this mechanism can
-be tricky for normal code contributions, it works perfectly fine for
-contributing to the docs, and can be quite handy.
-
-If you are interested in trying this method out, please navigate to
-the ``docs`` folder in the source repository_, find which file you
-would like to propose changes and click in the little pencil icon at the
-top, to open [GitHub's code editor](https://docs.github.com/en/repositories/working-with-files/managing-files/editing-files). Once you finish editing the file,
-please write a message in the form at the bottom of the page describing
-which changes have you made and what are the motivations behind them and
-submit your proposal.
-
-When working on documentation changes in your local machine, you can
-compile them using `tox`::
-
-    tox -e docs
-
-and use Python's built-in web server for a preview in your web browser
-(``http://localhost:8000``)::
-
-    python3 -m http.server --directory 'docs/_build/html'
-
 ## Code Contributions
 
-**TODO:** Please include a reference or explanation about the internals of the project.
+### Package structure
 
-An architecture description, design principles or at least a summary of the
-main concepts will make it easy for potential contributors to get started
-quickly.
+The gReLU repository is organized as follows:
 
-Submit an issue
----------------
+- src/: Contains the main source code for gReLU.
+- tests/: Includes unit tests and integration tests.
+- docs/: Houses the documentation files.
+- CONTRIBUTING.md: The file you're reading now.
+- README.md: Provides an overview of the project.
+- LICENSE: Contains the terms under which the code can be used and distributed.
+
+Check the module index at https://genentech.github.io/gReLU/py-modindex.html for further details of the API.
+
+### Submit an issue
 
 Before you work on any non-trivial code contribution it's best to first create
 a report in the [issue tracker](https://github.com/Genentech/gReLU/issues) to start a discussion on the subject.
 This often provides additional considerations and avoids unnecessary work.
 
-Create an environment
----------------------
+### Create an environment
 
 Before you start coding, we recommend creating an isolated [virtual
 environment](https://realpython.com/python-virtual-environments-a-primer/) to avoid any problems with your installed Python packages.
@@ -99,11 +65,10 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)::
     conda create -n grelu python=3 six virtualenv pytest pytest-cov
     conda activate grelu
 
-Clone the repository
---------------------
+### Clone the repository
 
 1. Create an user account on [the repository service](https://github.com). if you do not already have one.
-2. Fork the project repository_: click on the *Clone* button near the top of the
+2. Fork the project repository_: click on the *Fork* button near the top of the
    page. This creates a copy of the code under your account on [the repository service](https://github.com/).
 3. Clone this copy to your local disk::
 
@@ -116,8 +81,6 @@ Clone the repository
 
    to be able to import the package under development in the Python REPL.
 
-**TODO:** if you are not using pre-commit, please remove the following item:
-
 5. Install [pre-commit](https://pre-commit.com/)::
 
     pip install pre-commit
@@ -126,8 +89,7 @@ Clone the repository
    ``grelu`` comes with a lot of hooks configured to automatically help the
    developer to check the code being written.
 
-Implement your changes
-----------------------
+### Implement your changes
 
 1. Create a branch to hold your changes::
 
@@ -135,36 +97,28 @@ Implement your changes
 
    and start making changes. Never work on the main branch!
 
-2. Start your work on this branch. Don't forget to add docstrings_ to new
-   functions, modules and classes, especially if they are part of public APIs.
+2. Implement your changes on this branch.
 
-3. Add yourself to the list of contributors in ``AUTHORS.rst``.
+3. If you make significant changes (not just a bugfix), don't forget to update any docstrings and unit tests that are affected. If you add new functions, modules, or classes, don't forget to write docstrings and unit tests for them.
 
-4. When you’re done editing, do::
+5. Add yourself to the list of contributors in ``AUTHORS.rst``.
+
+6. When you’re done editing, do::
 
     git add <MODIFIED FILES>
     git commit
 
    to record your changes in git_.
 
-   **TODO:** if you are not using pre-commit, please remove the following item:
-
    Please make sure to see the validation messages from [pre-commit](https://pre-commit.com/) and fix
    any eventual issues.
    This should automatically use [flake8](https://flake8.pycqa.org/en/stable/)/[black](https://pypi.org/project/black/) to check/fix the code style
    in a way that is compatible with the project.
 
-   **Important:** Don't forget to add unit tests and documentation in case your
-      contribution adds an additional feature and is not just a bugfix.
-
       Moreover, writing a [descriptive commit message](https://chris.beams.io/posts/git-commit) is highly recommended.
-      In case of doubt, you can check the commit history with::
 
-         git log --graph --decorate --pretty=oneline --abbrev-commit --all
 
-      to look for recurring communication patterns.
-
-5. Please check that your changes don't break any unit tests with::
+7. Please check that your changes don't break any unit tests with::
 
     tox
 
@@ -173,8 +127,7 @@ Implement your changes
    You can also use [tox](https://tox.wiki/en/stable/) to run several other pre-configured tasks in the
    repository. Try ``tox -av`` to see a list of the available checks.
 
-Submit your contribution
-------------------------
+### Submit your contribution
 
 1. If everything works fine, push your local branch to [the repository service](https://github.com/) with::
 
@@ -183,11 +136,29 @@ Submit your contribution
 2. Go to the web page of your fork and click "Create pull request"
    to send your changes for review.
 
-   **TODO:** if you are using GitHub, you can uncomment the following paragraph
-
       Find more detailed information in [creating a PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). You might also want to open
       the PR as a draft first and mark it as ready for review after the feedbacks
       from the continuous integration (CI) system or any required fixes.
+
+
+## Where to contribute new functionality
+
+Look at the API reference (https://genentech.github.io/gReLU/autoapi/index.html) to see the modules and submodules available in gReLU. Clicking on individual modules revels a description of what kinds of functions the module should contain. This will help you find the appropriate location for new functions that you want to contribute. The descriptions also contain more detailed explanations of the expected structure of each module and how to contribute to it.
+
+For example:
+
+- Functions to read / write genomic data should be added to `grelu.io`. If there is an existing submodule for the relevant genomic data format, you should add your new function to the submodule, otherwise add it to `__init__.py` or create a new submodule.
+- Functions to preprocess genomic data after it is loaded should be added to `grelu.data.preprocess`.
+- New augmentation functions for training models should be added to `grelu.data.augment`.
+- Functions to manipulate DNA sequences should be added to `grelu.sequence.utils`.
+- Functions to score DNA sequences based on their content should be added to `grelu.transforms.seq_transforms`
+- Functions to transform label values, e.g. scale or normalize sequencing coverage, should be added to `grelu.transforms.label_transforms`
+- Functions to transform model predictions, e.g. compute the total predicted coverage over some sequence region, should be added to `grelu.transforms.prediction_transforms`.
+- New loss functions should be added to `grelu.lightning.losses`.
+- New types of positional encoding should be added to `grelu.model.position`.
+- New types of model layers should be added to `grelu.model.layers`.
+
+For more complex changes that may not fit clearly within the established package structure, we suggest raising an issue (see instructions above).
 
 ## Troubleshooting
 
@@ -236,14 +207,10 @@ package:
    running ``tox -- -k <NAME OF THE FALLING TEST> --pdb``).
    You can also setup breakpoints manually instead of using the ``--pdb`` option.
 
+
 ## Maintainer tasks
 
 ### Releases
-
-**TODO:** This section assumes you are using PyPI to publicly release your package.
-
-   If instead you are using a different/private package index, please update
-   the instructions accordingly.
 
 If you are part of the group of maintainers and have correct user permissions
 on [PyPI](https://pypi.org/), the following steps can be used to release a new version for
@@ -262,17 +229,13 @@ on [PyPI](https://pypi.org/), the following steps can be used to release a new v
 6. Run ``tox -e publish -- --repository pypi`` and check that everything was
    uploaded to PyPI_ correctly.
 
-.. [#contrib1] Even though, these resources focus on open source projects and
-   communities, the general ideas behind collaborating with other developers
-   to collectively create software are general and can be applied to all sorts
-   of environments, including private companies and proprietary code bases.
 
 .. <-- start -->
-**TODO:** Please review and change the following definitions:
 
-.. |the repository service| replace:: GitLab
+.. |the repository service| replace:: GitHub
 .. |contribute button| replace:: "Create pull request"
 
 .. _repository: https://github.com/Genentech/gReLU/
 .. _issue tracker: https://github.com/Genentech/gReLU/issues
+
 .. <-- end -->

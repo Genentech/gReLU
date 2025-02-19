@@ -1,5 +1,6 @@
 """
-Functions related to scoring the importance of individual DNA bases.
+This submodule contains functions related to scoring the importance of individual DNA bases or
+regions using a trained model.
 """
 
 import warnings

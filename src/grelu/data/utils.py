@@ -1,5 +1,5 @@
 """
-Dataset-related utility functions.
+This submodule contains Dataset-related utility functions.
 """
 
 from typing import List, Union

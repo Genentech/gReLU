@@ -1,5 +1,6 @@
 """
-Functions related to reading and writing bigWig files
+This submodule contains functions related to reading and writing bigWig files. A description
+of the BigWig format is here: https://genome.ucsc.edu/goldenPath/help/bigWig.html
 """
 
 import os

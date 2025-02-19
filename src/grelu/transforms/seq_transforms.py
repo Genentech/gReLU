@@ -1,5 +1,7 @@
 """
-Classes to assign each sequence a score based on its content.
+This submodule contains classes to assign each sequence a score based on its content. All classes
+must define the `forward` function, which should take as input DNA sequences as a list of strings, and
+return a numpy array containing a scalar value for each sequence.
 """
 
 from typing import Dict, List, Optional, Union

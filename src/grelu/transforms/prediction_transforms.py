@@ -1,8 +1,9 @@
 """
-Classes to perform transformations on the output of a predictive model.
+This submodule contains classes to perform transformations on the output of a predictive model.
 
+All classes must inherit from `torch.nn.Module` and the `forward` method must be defined.
 The input to the `forward` method of these classes will be a tensor of shape (B, T, L).
-The output should also be a 3-D tensor.
+The output should also be a 3-D tensor, with the first dimension unchanged.
 """
 
 from typing import Callable, List, Optional, Union

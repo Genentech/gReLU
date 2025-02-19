@@ -1,5 +1,6 @@
 """
-Functions for loading genomes and related annotation files
+This submodule contains functions for loading genomes and related annotation files. gReLU depends upon
+genomepy for many of these utilities. See https://vanheeringen-lab.github.io/genomepy/ for more.
 """
 
 import os
