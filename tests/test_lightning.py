@@ -9,10 +9,9 @@ from grelu.sequence.format import strings_to_one_hot
 from grelu.transforms.prediction_transforms import Aggregate, Specificity
 
 
-def generate_model(
-    task, loss, n_tasks, class_weights=None, pos_weight=None, final_pool_func="avg"
-):
+def generate_model(task, n_tasks, final_act_func, final_pool_func="avg"):
     model = LightningModel(
+        task=task,
         model_params={
             "model_type": "ConvModel",
             "n_tasks": n_tasks,
@@ -22,19 +21,9 @@ def generate_model(
             "act_func": None,
             "norm": False,
             "final_pool_func": final_pool_func,
+            "final_act_func": final_act_func,
         },
-        train_params={
-            "task": task,
-            "loss": loss,
-            "print_val": False,
-            "logger": None,
-            "max_epochs": 1,
-            "batch_size": 2,
-            "num_workers": 1,
-            "devices": "cpu",
-            "class_weights": class_weights,
-            "pos_weight": pos_weight,
-        },
+        train_params={},
         data_params={},
     )
 
@@ -52,22 +41,33 @@ def generate_model(
 
     model.model.embedding.conv_tower.blocks[0].conv.bias = nn.Parameter(bias)
     model.model.embedding.conv_tower.blocks[0].conv.weight = nn.Parameter(weight)
-
     return model
 
 
 # Build models
-multitask_reg_model = generate_model(task="regression", loss="poisson", n_tasks=2)
-single_task_reg_model = generate_model(task="regression", loss="MSE", n_tasks=1)
-multitask_bin_model = generate_model(
-    task="binary", loss="bce", n_tasks=2, pos_weight=[10.0, 1.0]
+single_task_reg_model = generate_model(
+    task="regression", final_act_func=None, n_tasks=1
 )
-single_task_bin_model = generate_model(task="binary", loss="bce", n_tasks=1)
+multitask_reg_model = generate_model(task="regression", final_act_func="exp", n_tasks=2)
+multitask_bin_model = generate_model(
+    task="binary",
+    n_tasks=2,
+    pos_weight=[10.0, 1.0],
+    final_act_func="sigmoid",
+)
+single_task_bin_model = generate_model(
+    task="binary",
+    n_tasks=1,
+    final_act_func="sigmoid",
+)
 multicla_model = generate_model(
-    task="multiclass", loss="ce", n_tasks=3, class_weights=[1.0, 2.0, 3.0]
+    task="multiclass",
+    n_tasks=3,
+    class_weights=[1.0, 2.0, 3.0],
+    final_act_func="softmax",
 )
 multitask_profile_model = generate_model(
-    task="regression", loss="poisson", n_tasks=2, final_pool_func=None
+    task="regression", final_act_func="exp", n_tasks=2, final_pool_func=None
 )
 
 # Create inputs
@@ -260,6 +260,12 @@ def test_lightning_model_train_on_dataset():
     _ = single_task_reg_model.train_on_dataset(
         train_dataset=ldataset,
         val_dataset=ldataset,
+        loss="mse",
+        logger=None,
+        max_epochs=1,
+        batch_size=2,
+        num_workers=0,
+        devices="cpu",
     )
     assert single_task_reg_model.data_params["tasks"] == {"name": ["label"]}
     assert single_task_reg_model.data_params["train_max_pair_shift"] == 0
@@ -289,7 +295,17 @@ def test_lightning_model_finetune():
     multitask_reg_model = generate_model(task="regression", loss="poisson", n_tasks=2)
     assert multitask_reg_model.model_params["n_tasks"] == 2
     multitask_reg_model.tune_on_dataset(
-        ldataset, ldataset, final_pool_func="avg", freeze_embedding=True
+        ldataset,
+        ldataset,
+        final_pool_func="avg",
+        freeze_embedding=True,
+        task="regression",
+        loss="poisson",
+        logger=None,
+        max_epochs=1,
+        batch_size=2,
+        num_workers=0,
+        devices="cpu",
     )
     assert torch.allclose(
         multitask_reg_model.model.embedding.conv_tower.blocks[0].conv.bias,
@@ -300,7 +316,17 @@ def test_lightning_model_finetune():
     multitask_reg_model = generate_model(task="regression", loss="poisson", n_tasks=2)
     # Fine tune whole model
     multitask_reg_model.tune_on_dataset(
-        ldataset, ldataset, final_pool_func="avg", freeze_embedding=False
+        ldataset,
+        ldataset,
+        final_pool_func="avg",
+        freeze_embedding=False,
+        task="regression",
+        loss="poisson",
+        logger=None,
+        max_epochs=1,
+        batch_size=2,
+        num_workers=0,
+        devices="cpu",
     )
     assert not torch.allclose(
         multitask_reg_model.model.embedding.conv_tower.blocks[0].conv.bias,

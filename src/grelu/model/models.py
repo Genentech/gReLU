@@ -10,6 +10,7 @@ import torch
 from torch import Tensor, nn
 
 from grelu.model.heads import ConvHead, MLPHead
+from grelu.model.layers import Activation
 from grelu.model.trunks import (
     ConvGRUTrunk,
     ConvTransformerTrunk,
@@ -26,10 +27,27 @@ class BaseModel(nn.Module):
     Base model class
     """
 
-    def __init__(self, embedding: nn.Module, head: nn.Module) -> None:
+    def __init__(
+        self, embedding: nn.Module, head: nn.Module, activation: nn.Module
+    ) -> None:
         super().__init__()
         self.embedding = embedding
         self.head = head
+
+    def get_logits(self, x: Tensor) -> Tensor:
+        """
+        Forward pass that produces logits (pre-activation values) for
+        loss computation
+
+        Args:
+            x : Input tensor of shape (N, C, L)
+
+        Returns:
+            Output tensor
+        """
+        x = self.embedding(x)
+        x = self.head(x)
+        return x
 
     def forward(self, x: Tensor) -> Tensor:
         """
@@ -43,6 +61,7 @@ class BaseModel(nn.Module):
         """
         x = self.embedding(x)
         x = self.head(x)
+        x = self.activation(x)
         return x
 
 
@@ -70,6 +89,7 @@ class ConvModel(BaseModel):
         crop_len: Number of positions to crop at either end of the output
         final_pool_func: Name of the pooling function to apply to the final output.
             If None, no pooling will be applied at the end.
+        final_act_func
         dtype: Data type for the layers.
         device: Device for the layers.
     """
@@ -97,6 +117,7 @@ class ConvModel(BaseModel):
         crop_len: int = 0,
         # Final pool
         final_pool_func: str = "avg",
+        final_act_func: Optional[str] = None,
         dtype=None,
         device=None,
     ) -> None:
@@ -130,6 +151,7 @@ class ConvModel(BaseModel):
                 dtype=dtype,
                 device=device,
             ),
+            activation=Activation(final_act_func),
         )
 
 
@@ -164,6 +186,7 @@ class DilatedConvModel(BaseModel):
         n_conv: int = 8,
         crop_len: Union[str, int] = "auto",
         final_pool_func: str = "avg",
+        final_act_func: Optional[str] = None,
         dtype=None,
         device=None,
     ) -> None:
@@ -188,6 +211,7 @@ class DilatedConvModel(BaseModel):
                 dtype=dtype,
                 device=device,
             ),
+            activation=Activation(final_act_func),
         )
 
 
@@ -242,6 +266,7 @@ class ConvGRUModel(BaseModel):
         gru_norm: bool = False,
         # Final pool
         final_pool_func: str = "avg",
+        final_act_func: Optional[str] = None,
         dtype=None,
         device=None,
     ):
@@ -275,6 +300,7 @@ class ConvGRUModel(BaseModel):
                 dtype=dtype,
                 device=device,
             ),
+            activation=Activation(final_act_func),
         )
 
 
@@ -339,6 +365,7 @@ class ConvTransformerModel(BaseModel):
         ff_dropout: float = 0.0,
         # Final pool
         final_pool_func: str = "avg",
+        final_act_func: Optional[str] = None,
         dtype=None,
         device=None,
     ):
@@ -377,6 +404,7 @@ class ConvTransformerModel(BaseModel):
                 dtype=dtype,
                 device=device,
             ),
+            activation=Activation(final_act_func),
         )
 
 
@@ -429,6 +457,8 @@ class ConvMLPModel(BaseModel):
         dropout: float = 0.0,
         dtype=None,
         device=None,
+        # Activation
+        final_act_func: Optional[str] = None,
     ) -> None:
         embedding = ConvTrunk(
             stem_channels=stem_channels,
@@ -459,6 +489,7 @@ class ConvMLPModel(BaseModel):
                 dtype=dtype,
                 device=device,
             ),
+            activation=Activation(final_act_func),
         )
 
 
@@ -511,8 +542,8 @@ class BorzoiModel(BaseModel):
         n_pos_features: int = 32,
         # Head
         crop_len: int = 16,
-        final_act_func: Optional[str] = None,
         final_pool_func: Optional[str] = "avg",
+        final_act_func: Optional[str] = None,
         flash_attn=False,
         dtype=None,
         device=None,
@@ -541,11 +572,11 @@ class BorzoiModel(BaseModel):
                 n_tasks,
                 in_channels=round(channels * 1.25),
                 norm=False,
-                act_func=final_act_func,
                 pool_func=final_pool_func,
                 dtype=dtype,
                 device=device,
             ),
+            activation=Activation(final_act_func),
         )
 
 
@@ -563,6 +594,7 @@ class BorzoiPretrainedModel(BaseModel):
         # head
         crop_len=0,
         final_pool_func="avg",
+        final_act_func: Optional[str] = None,
         dtype=None,
         device=None,
     ):
@@ -613,7 +645,9 @@ class BorzoiPretrainedModel(BaseModel):
             device=device,
         )
 
-        super().__init__(embedding=model.embedding, head=head)
+        super().__init__(
+            embedding=model.embedding, head=head, activation=Activation(final_act_func)
+        )
 
 
 class ExplaiNNModel(nn.Module):
@@ -637,6 +671,7 @@ class ExplaiNNModel(nn.Module):
         kernel_size=19,
         dtype=None,
         device=None,
+        final_act_func: Optional[str] = None,
     ):
         super().__init__(
             embedding=ExplaiNNTrunk(
@@ -649,6 +684,7 @@ class ExplaiNNModel(nn.Module):
             head=ConvHead(
                 n_tasks=n_tasks, in_channels=channels, dtype=dtype, device=device
             ),
+            activation=Activation(final_act_func),
         )
 
 
@@ -719,6 +755,7 @@ class EnformerModel(BaseModel):
                 dtype=dtype,
                 device=device,
             ),
+            activation=Activation(final_act_func),
         )
 
 
@@ -733,6 +770,7 @@ class EnformerPretrainedModel(BaseModel):
         n_transformers: int = 11,
         # head
         crop_len=0,
+        final_act_func: Optional[str] = None,
         final_pool_func="avg",
         dtype=None,
         device=None,
@@ -777,4 +815,6 @@ class EnformerPretrainedModel(BaseModel):
             device=device,
         )
 
-        super().__init__(embedding=model.embedding, head=head)
+        super().__init__(
+            embedding=model.embedding, head=head, activation=Activation(final_act_func)
+        )
