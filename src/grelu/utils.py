@@ -121,6 +121,8 @@ def get_transform_func(
         return torch.log if tensor else np.log
     elif func == "log1p":
         return torch.log1p if tensor else np.log1p
+    elif func == 'sqrt':
+        return torch.sqrt if tensor else np.sqrt
     else:
         raise NotImplementedError
 

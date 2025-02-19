@@ -238,6 +238,7 @@ def predict_variant_effects(
     )
 
     # Model forward pass
+    print("Making predictions")
     odds = model.predict_on_dataset(
         dataset,
         devices=devices,
@@ -248,6 +249,7 @@ def predict_variant_effects(
     )
 
     if return_ad:
+        print("Making anndata object")
         assert odds.shape[-1] == 1
         odds = odds.squeeze(-1)
         if compare_func is None:

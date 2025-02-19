@@ -30,6 +30,7 @@ class BaseModel(nn.Module):
         super().__init__()
         self.embedding = embedding
         self.head = head
+        assert hasattr(self.head, 'n_tasks')
 
     def forward(self, x: Tensor) -> Tensor:
         """

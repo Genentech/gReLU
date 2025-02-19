@@ -32,7 +32,7 @@ from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
 from grelu.lightning.utils import Exp
 from grelu.model.heads import ConvHead
-from grelu.sequence.format import strings_to_one_hot
+from grelu.sequence.format import convert_input_type
 from grelu.utils import get_aggfunc, get_compare_func, make_list
 
 
@@ -50,7 +50,6 @@ class LightningModel(pl.LightningModule):
 
     def __init__(
         self,
-        model: Optional[nn.Module],
         model_params: dict = {},
         train_params: dict = {},
         data_params: dict = {},
@@ -65,10 +64,7 @@ class LightningModel(pl.LightningModule):
         self.data_params = data_params
 
         # Build model
-        if model is None:
-            self.build_model()
-        else:
-            self.model = model
+        self.build_model()
         self.reset_transform()
 
     def build_model(self) -> None:
@@ -453,11 +449,15 @@ class LightningModel(pl.LightningModule):
         assert isinstance(dataset, LabeledSeqDataset) or isinstance(
             dataset, TileDBSeqDataset
         )
+        if batch_size is None:
+            batch_size = self.train_params["batch_size"]
+        if num_workers is None:
+            num_workers = self.train_params["num_workers"]
         return DataLoader(
             dataset,
-            batch_size=batch_size or self.train_params["batch_size"],
+            batch_size=batch_size,
             shuffle=False,
-            num_workers=num_workers or self.train_params["num_workers"],
+            num_workers=num_workers,
         )
 
     def make_predict_loader(
@@ -473,11 +473,15 @@ class LightningModel(pl.LightningModule):
             dataset, TileDBSeqDataset
         ):
             dataset.predict = True
+        if batch_size is None:
+            batch_size = self.train_params["batch_size"]
+        if num_workers is None:
+            num_workers = self.train_params["num_workers"]
         return DataLoader(
             dataset,
-            batch_size=batch_size or self.train_params["batch_size"],
+            batch_size=batch_size,
             shuffle=False,
-            num_workers=num_workers or self.train_params["num_workers"],
+            num_workers=num_workers,
         )
 
     def train_on_dataset(
@@ -745,6 +749,7 @@ class LightningModel(pl.LightningModule):
         )
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
+        assert len(self.train_params) > 0
         checkpoint["hyper_parameters"]["train_params"] = self.train_params
         checkpoint["hyper_parameters"]["data_params"] = self.data_params
 
@@ -755,7 +760,7 @@ class LightningModel(pl.LightningModule):
 
     def predict_on_seqs(
         self,
-        x: Union[str, List[str]],
+        x: Union[str, List[str], np.ndarray, Tensor],
         device: Union[str, int] = "cpu",
     ) -> np.ndarray:
         """
@@ -770,7 +775,7 @@ class LightningModel(pl.LightningModule):
         Returns:
             A numpy array of predictions.
         """
-        x = strings_to_one_hot(x, add_batch_axis=True)
+        x = convert_input_type(x, "one_hot", add_batch_axis=True)
         x = x.to(device)
         self.model = self.model.eval().to(device)
         preds = self.forward(x).detach().cpu().numpy()

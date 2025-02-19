@@ -44,10 +44,10 @@ class LabelTransform:
         Returns:
             Transformed label
         """
-        if (self.min_clip is not None) or (self.max_clip is not None):
-            label = np.clip(label, a_min=self.min_clip, a_max=self.max_clip)
         if self.transform_func is not None:
             label = self.transform_func(label)
+        if (self.min_clip is not None) or (self.max_clip is not None):
+            label = np.clip(label, a_min=self.min_clip, a_max=self.max_clip)
         return label
 
     def __call__(self, label: np.ndarray) -> np.ndarray:
