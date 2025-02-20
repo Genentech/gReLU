@@ -1,3 +1,9 @@
+"""
+`grelu.interpret.modisco` contains functions that enable the user to run TF-MoDISco
+(Shrikumar et al. 2018) on trained models. Many of the functions here are based on
+https://github.com/jmschrei/tfmodisco-lite.
+"""
+
 import os
 from typing import Callable, List, Optional, Union
 

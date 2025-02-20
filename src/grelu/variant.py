@@ -1,5 +1,5 @@
 """
-This module provides functions to filter and process genetic variants.
+`grelu.variant` provides functions to filter and process genetic variants.
 """
 
 import warnings

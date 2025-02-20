@@ -1,5 +1,9 @@
 """
-Functions related to manipulating sequence motifs and scanning DNA sequences with motifs.
+`grelu.interpret.motifs contains functions related to manipulating sequence motifs
+and scanning DNA sequences with motifs. Note that the aim here is not to provide
+a comprehensive suite of functions related to motif analysis, but only the
+functionality necessary for interpreting sequence-to-function deep learning models
+using these motifs.
 """
 
 from typing import Callable, Dict, Generator, List, Optional, Tuple, Union

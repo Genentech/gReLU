@@ -1,5 +1,5 @@
 """
-Functions to generate positional encodings.
+`grelu.model.position` contains functions to generate custom positional encodings.
 """
 
 import math

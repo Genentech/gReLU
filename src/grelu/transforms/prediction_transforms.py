@@ -1,8 +1,10 @@
 """
-Classes to perform transformations on the output of a predictive model.
+`grelu.transforms.prediction_transforms` contains classes to perform transformations
+on the output of a predictive model.
 
-The input to the `forward` method of these classes will be a tensor of shape (B, T, L).
-The output should also be a 3-D tensor.
+All classes must inherit from `torch.nn.Module` and the `forward` method must be defined.
+The input to the `forward` method of these classes will be a tensor of shape (N, T, L).
+The output should also be a 3-D tensor, with the first dimension unchanged.
 """
 
 from typing import Callable, List, Optional, Union

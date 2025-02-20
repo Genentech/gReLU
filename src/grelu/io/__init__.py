@@ -1,5 +1,7 @@
 """
-General functions for reading and writing data
+`grelu.io` contains methods for reading and writing data into different file formats.
+It includes individual submodules for standard genomic formats such as FASTA, BED,
+and others, as well as miscellaneous functions for other formats.
 """
 
 import os

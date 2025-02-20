@@ -1,5 +1,8 @@
 """
-Commonly used layers to build deep learning models.
+`grelu.model.layers` contains common types of layers to build deep learning models,
+implemented as torch.nn.Module classes.
+
+These layers are used by classes in `grelu.model.blocks` and `grelu.model.heads`.
 """
 
 from typing import Optional

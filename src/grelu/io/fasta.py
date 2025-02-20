@@ -1,5 +1,6 @@
 """
-Functions related to reading and writing FASTA files
+`grelu.io.fasta` contains functions related to reading and writing FASTA files.
+A description of the FASTA format is here: https://arep.med.harvard.edu/seqanal/fasta.html
 """
 
 import gzip
