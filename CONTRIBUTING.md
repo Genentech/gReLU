@@ -23,7 +23,7 @@ file a new issue report.
 the problem is considered solved.)
 
 You can file a new issue by clicking the "New issue" button at the top right of the issue tracker.
-![New Issue](media/new_issue.jpg =100x80)
+![New Issue](media/new_issue.jpg)
 
 Your new issue report should include the following information:
 
