@@ -16,52 +16,59 @@ guidelines.
 
 ## Issue Reports
 
-If you experience bugs or general issues with ``grelu``, please have a look
+If you experience bugs or general issues with ``gReLU``, please have a look
 at the [issue tracker](https://github.com/Genentech/gReLU/issues). If you don't see anything useful there, please feel
 free to file a new issue report. Please don't forget to include the closed issues in your search.
 Sometimes a solution was already reported, and the problem is considered
 solved.
 
-New issue reports should include the following information:
+You can file a new issue by clicking the "New issue" button at the top right of the issue tracker. Your new issue report 
+should include the following information:
+
 1. Information about your programming environment (e.g., operating system, Python version)
 2. Steps to reproduce the problem. Please try to simplify the reproduction steps to a very minimal example
 that still illustrates the problem you are facing. By removing other factors,
 you help us to identify the root cause of the issue.
 3. The full error message that you encountered, if any.
-4. Any steps that you took to diagnose or fix the issue.
-5. Any potential solutions.
+4. Any steps that you took to diagnose or fix the issue, and their outcomes.
+5. Any suggestions for resolving the issue.
 
 
 ## Making code contributions
 
 ### Coding resources
 
+``gReLU`` uses pytorch and pytorch-lightning. The below tutorials are good starting points to become familiar with these frameworks:
+
 [PyTorch tutorials](https://pytorch.org/tutorials/beginner/basics/intro.html)
 [Lightning tutorials](https://lightning.ai/docs/pytorch/stable/levels/core_skills.html)
 
 ### Understanding project structure
 
-We welcome external contributions to the project. Before planning changes to the code, we suggest looking at the [API reference](https://genentech.github.io/gReLU/autoapi/index.html) to see the modules and submodules available in gReLU. Clicking on individual modules revels a description of the module and what kinds of functions it should contain. The descriptions also contain more detailed explanations of the expected structure of each module and how to contribute to it. This will help you find the appropriate location for new changes.
+We welcome external contributions to ``gReLU``. Before planning changes to the code, we suggest carefully examining the current structure and organization of the package. The figure below gives an overview of the main modules of the package and how they fit together.
 
-gives an overview of the main modules of the package and how they fit together.
+![Flowchart](media/flowchart.jpg)
 
-### Where to add/change functionality
+We recommend looking at the [API reference](https://genentech.github.io/gReLU/autoapi/index.html) to see the modules and submodules available in gReLU. Clicking on individual modules on this page reveals a description of the module and what kinds of functions it is meant to contain. The descriptions also contain more detailed explanations of the expected structure of each module and how to contribute to it. This will help you find the appropriate location to make changes.
 
-| Functionality    | Module / submodule |
-| -------- | ------- |
-| Functions to read / write genomic data  | `grelu.io`  | 
-| Functions to preprocess genomic data after it is loaded | `grelu.data.preprocess` |
-| New augmentation functions for training models    | `grelu.data.augment`   |
-| Functions to read / write genomic data  | `grelu.io`  | 
-| Functions to preprocess genomic data after it is loaded | `grelu.data.preprocess` |
-| Functions to manipulate DNA sequences | `grelu.sequence.utils`  |
-| Functions to score DNA sequences based on their content | `grelu.transforms.seq_transforms` |
-| Functions to transform model predictions | `grelu.transforms.prediction_transforms` |
-| New loss functions | `grelu.model.position`|
-| New types of model layers | `grelu.model.layers` |
-| New model architectures | `grelu.model.trunks` |
+For instance, the table below lists some different types of functionality that contributors may want to add or change, and the corresponding module / submodule of ``gReLU``. Click on the name of a module for more details on its structure.
 
-For more complex changes that may not fit clearly within the established package structure, we suggest raising an issue (see instructions below).
+| Functionality    | Module |
+| ---------------- | ------- |
+| Functions to read / write genomic data  | [`grelu.io`](https://genentech.github.io/gReLU/autoapi/grelu/io/index.html) | 
+| Functions to preprocess genomic data after it is loaded | [`grelu.data.preprocess`](https://genentech.github.io/gReLU/autoapi/grelu/data/preprocess/index.html) |
+| New augmentation functions for training models    | [`grelu.data.augment`](https://genentech.github.io/gReLU/autoapi/grelu/data/augment/index.html) |
+| Functions to introduce various types of in silico mutations into DNA sequences | [`grelu.sequence.mutate`](https://genentech.github.io/gReLU/autoapi/grelu/sequence/mutate/index.html) |
+| Other functions to manipulate DNA sequences | [`grelu.sequence.utils`](https://genentech.github.io/gReLU/autoapi/grelu/sequence/utils/index.html) |
+| Functions to score DNA sequences based on their content | [`grelu.transforms.seq_transforms`](https://genentech.github.io/gReLU/autoapi/grelu/transforms/seq_transforms/index.html) |
+| Functions to transform model predictions | [`grelu.transforms.prediction_transforms`](https://genentech.github.io/gReLU/autoapi/grelu/transforms/prediction_transforms/index.html) |
+| New types of model layers | [`grelu.model.layers`](https://genentech.github.io/gReLU/autoapi/grelu/model/layers/index.html) |
+| New model architectures | [`grelu.model.models`](https://genentech.github.io/gReLU/autoapi/grelu/model/models/index.html) |
+| New loss functions | [`grelu.lightning.losses`](https://genentech.github.io/gReLU/autoapi/grelu/lightning/losses/index.html)|
+| New metrics to calculate model performance | [`grelu.lightning.metrics`](https://genentech.github.io/gReLU/autoapi/grelu/lightning/metrics/index.html) |
+| New plots and visualizations | [`grelu.visualize`](https://genentech.github.io/gReLU/autoapi/grelu/visualize/index.html) |
+
+For complex changes that may not fit clearly within the established package structure, it is important to first raise an issue (see instructions below).
 
 
 ## Step-by-step instructions to contribute new code
@@ -118,7 +125,7 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)::
 ```
    and start making changes. Never work on the main branch!
 
-2. Implement your changes on this branch.
+2. Implement your code changes on this branch.
 
 3. If you change or add any functions, modules and classes, don't forget to update or add docstrings to describe these changes.
 
@@ -127,7 +134,7 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)::
 5. Add yourself to the list of contributors in ``AUTHORS.rst``.
 
 6. When you’re done editing, do::
-```
+```p
     git add <MODIFIED FILES>
     git commit
 ```
@@ -158,7 +165,7 @@ Please check that your changes don't break any unit tests with::
    to send your changes for review.
 
    Find more detailed information in [creating a PR](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request). You might also want to open
-   the PR as a draft first and mark it as ready for review after the feedbacks
+   the PR as a draft first and mark it as ready for review after the feedback
    from the continuous integration (CI) system or any required fixes.
 
 ## Troubleshooting
@@ -178,21 +185,21 @@ package:
    ``setup.cfg`` and ``docs/requirements.txt``. If you find any problems with
    missing dependencies when running a command with [tox](https://tox.wiki/en/stable/), try to recreate the
    ``tox`` environment using the ``-r`` flag. For example, instead of::
-
+```shell
     tox -e docs
-
+```
    Try running::
-
+```shell
     tox -r -e docs
-
+```
 3. Make sure to have a reliable [tox](https://tox.wiki/en/stable/) installation that uses the correct
    Python version (e.g., 3.7+). When in doubt you can run::
 
 ```shell
     tox --version
     # OR
-```
     which tox
+```
 
    If you have trouble and are seeing weird errors upon running [tox](https://tox.wiki/en/stable/), you can
    also try to create a dedicated [virtual environment](https://realpython.com/python-virtual-environments-a-primer/) with a [tox](https://tox.wiki/en/stable/) binary
@@ -223,22 +230,9 @@ on [PyPI](https://pypi.org/), the following steps can be used to release a new v
    (or ``rm -rf dist build``)
    to avoid confusion with old builds and Sphinx docs.
 5. Run ``tox -e build`` and check that the files in ``dist`` have
-   the correct version (no ``.dirty`` or git_ hash) according to the git_ tag.
+   the correct version (no ``.dirty`` or git hash) according to the git tag.
    Also check the sizes of the distributions, if they are too big (e.g., >
    500KB), unwanted clutter may have been accidentally included.
 6. Run ``tox -e publish -- --repository pypi`` and check that everything was
    uploaded to PyPI_ correctly.
 
-.. [#contrib1] Even though, these resources focus on open source projects and
-   communities, the general ideas behind collaborating with other developers
-   to collectively create software are general and can be applied to all sorts
-   of environments, including private companies and proprietary code bases.
-
-.. <-- start -->
-
-.. |the repository service| replace:: GitLab
-.. |contribute button| replace:: "Create pull request"
-
-.. _repository: https://github.com/Genentech/gReLU/
-.. _issue tracker: https://github.com/Genentech/gReLU/issues
-.. <-- end -->
