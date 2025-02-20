@@ -1,7 +1,16 @@
 """
-Functions to augment data. All functions assume that the input is a numpy array containing an integer
-encoded DNA sequence of shape (L,) or a numpy array containing a label of shape (T, L).
-The augmented output will be in the same format.
+`grelu.data.augment` contains functions to augment genomic sequences or functional genomic data.
+
+All functions assume that the input is either:
+
+(1) a 1-D numpy array containing an integer encoded DNA sequence of shape (length,) or;
+(2) a 2-D numpy array containing a label of shape (tasks, length).
+
+The augmented output must be returned in the same format. All augmentation functions also
+require an index (idx) which is an integer or boolean value.
+
+This module also contains the `Augmenter` class which is responsible for applying multiple
+augmentations to a given DNA sequence or (sequence, label) pair.
 """
 
 import warnings
@@ -12,7 +21,7 @@ import numpy as np
 from grelu.sequence.mutate import random_mutate
 from grelu.sequence.utils import reverse_complement
 
-# This is the number of output sequences expected from each type of augmentation
+# This is the number of output sequences expected from a single input sequence using each type of augmentation
 AUGMENTATION_MULTIPLIER_FUNCS = {
     "rc": lambda x: 2**x,
     "max_seq_shift": lambda x: (2 * x) + 1,
@@ -197,7 +206,7 @@ class Augmenter:
         else:
             raise NotImplementedError
 
-        # Augment the sequence
+        # Apply all sequence augmentation functions here
 
         # Shift sequence
         if self.shift_seq:
@@ -224,7 +233,7 @@ class Augmenter:
             return seq
 
         else:
-            # Augment the label too
+            # Apply all label augmentation functions here
             if self.shift_label:
                 # Shift label
                 label = shift(label, seq_len=self.label_len, idx=pair_shift_idx)

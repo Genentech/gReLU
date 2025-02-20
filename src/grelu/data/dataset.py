@@ -1,8 +1,13 @@
 """
-Pytorch dataset classes to load sequence data
+`grelu.data.dataset` contains specialized PyTorch Dataset classes to load genomic data.
+All dataset classes must inherit from `torch.utils.Data.Dataset`.
 
-All dataset classes produce either one-hot encoded sequences of shape (4, L)
-or sequence-label pairs of shape (4, L) and (T, L).
+Dataset classes intended for inference produce 2-D tensors of shape (4, length),
+containing one-hot encoded sequences.
+
+Dataset classes intended for training and validation produce (sequence, label)
+pairs, wherein the sequence is a 2-D tensor of shape (4, length) containing a one-hot
+encoded sequence, and the label is a 2-D tensor of shape (tasks, length).
 """
 
 import os

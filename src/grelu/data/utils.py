@@ -1,5 +1,5 @@
 """
-Dataset-related utility functions.
+`grelu.data.utils` contains Dataset-related utility functions.
 """
 
 from typing import List, Union

@@ -1,5 +1,5 @@
 """
-General utilities for analysis of DNA sequences
+`grelu.sequence.utils` contains general utilities for analysis of DNA sequences
 """
 
 from typing import Dict, List, Optional, Union

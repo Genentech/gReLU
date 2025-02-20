@@ -1,5 +1,5 @@
 """
-Functions to calculate metrics based on the content of a sequence
+`grelu.sequence.metrics` contains functions to calculate metrics based on the content of a sequence.
 """
 
 from typing import List, Optional, Union

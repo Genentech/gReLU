@@ -1,7 +1,8 @@
 """
-Classes that perform transformations on labels
-
-The input to the forward method is assumed to be a numpy array of shape (N, T, L)
+`grelu.transforms.label_transform` contains classes that perform transformations on
+labels - for example, sequencing coverage values or other values used to train
+sequence-to-function deep learning models. This allows users to transform the labels
+at training time in ways that make training easier.
 """
 
 from typing import Callable, Optional, Union

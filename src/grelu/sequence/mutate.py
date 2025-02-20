@@ -1,5 +1,5 @@
 """
-Functions to mutate or alter DNA sequences in various ways.
+`grelu.sequence.mutate` contains functions to mutate or alter DNA sequences in various ways.
 """
 
 from typing import List, Optional, Union

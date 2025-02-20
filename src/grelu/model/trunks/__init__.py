@@ -1,5 +1,9 @@
 """
-Some general purpose model architectures.
+`grelu.model.trunks` contains classes that are used for the `embedding` section
+of gReLU models. All classes inherit from `torch.nn.Module`, and define a
+`forward` function that takes as input a one-hot encoded sequence tensor of
+shape (N, 4, length) and returns a sequence embedding of shape
+(N, embedding_dim, embedding_length).
 """
 
 from typing import Optional, Union

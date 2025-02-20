@@ -1,5 +1,11 @@
 """
-Custom loss functions
+`grelu.lightning.losses` contains custom loss functions to train
+sequence-to-function models. These metrics are used in grelu.lightning.
+
+All loss functions inherit from `torch.nn.Module` and define a `forward`
+function that takes `input` and `target` tensors. All loss functions
+produce a single value per task, which can be averaged across tasks by
+setting `reduction="mean"`.
 """
 
 import torch

@@ -1,3 +1,8 @@
+"""
+`grelu.design` contains methods to design novel DNA sequences
+using trained sequence-to-function deep learning models.
+"""
+
 from typing import Callable, List, Optional, Union
 
 import numpy as np

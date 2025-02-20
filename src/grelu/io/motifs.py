@@ -1,5 +1,7 @@
 """
-Functions related to reading and writing MEME files
+This submodule contains functions related to reading and writing motifs in the
+MEME file format. A description of the MEME format is here:
+https://meme-suite.org/meme/doc/meme-format.html
 """
 
 from typing import Dict, List, Optional

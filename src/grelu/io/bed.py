@@ -1,5 +1,6 @@
 """
-Functions related to reading and writing BED and BED-like files
+`grelu.io.bed` contains functions related to reading and writing BED and BED-like files.
+A description of the BED format is here: hhttps://genome.ucsc.edu/FAQ/FAQformat.html#format1
 """
 
 import pandas as pd

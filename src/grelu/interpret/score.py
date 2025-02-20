@@ -1,5 +1,9 @@
 """
-Functions related to scoring the importance of individual DNA bases.
+`grelu.interpret.score` contains functions related to scoring the importance of
+individual DNA bases or regions using a trained model.
+
+gReLU uses Captum for several attribution methods, including InputXGradient,
+IntegratedGradients, and Saliency.
 """
 
 import warnings

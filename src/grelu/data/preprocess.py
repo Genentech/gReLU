@@ -1,5 +1,8 @@
 """
-Functions to preprocess genomic datasets.
+`grelu.data.preprocess` contains functions to preprocess genomic datasets in standard
+formats, in order to produce data suitable for deep learning. This includes filtering
+and checking data, splitting data into sets for training and validation, and converting
+between data formats.
 """
 
 import os
