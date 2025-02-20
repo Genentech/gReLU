@@ -2,22 +2,22 @@
 
 Welcome to the ``gReLU`` contributor's guide.
 
-This document focuses on getting any potential contributor familiarized with the development processes, 
+This document focuses on getting any potential contributor familiarized with the development processes,
 but [other kinds of contributions](https://opensource.guide/how-to-contribute) are also appreciated.
 
 If you are new to using git or have never collaborated in a project previously, please have a look at
 [contribution-guide.org](https://www.contribution-guide.org/). Other resources are also listed in the
 excellent [guide created by FreeCodeCamp](https://github.com/FreeCodeCamp/how-to-contribute).
 
-Please notice, all users and contributors are expected to be **open, considerate, reasonable, and 
+Please notice, all users and contributors are expected to be **open, considerate, reasonable, and
 respectful**. When in doubt, [Python Software Foundation's Code of Conduct](https://www.python.org/psf/conduct/)
 is a good reference in terms of behavior guidelines.
 
 ## Issue Reports
 
-If you experience bugs or general issues with ``gReLU``, please have a look at the 
-[issue tracker](https://github.com/Genentech/gReLU/issues). If you don't see anything useful there, please 
-file a new issue report. 
+If you experience bugs or general issues with ``gReLU``, please have a look at the
+[issue tracker](https://github.com/Genentech/gReLU/issues). If you don't see anything useful there, please
+file a new issue report.
 
 (Don't forget to include the closed issues in your search. Sometimes a solution was already reported, and
 the problem is considered solved.)
@@ -49,17 +49,17 @@ with these frameworks:
 
 ### Understanding project structure
 
-We welcome external contributions to ``gReLU``. Before planning changes to the code, we suggest carefully 
-examining the current structure and organization of the package. 
+We welcome external contributions to ``gReLU``. Before planning changes to the code, we suggest carefully
+examining the current structure and organization of the package.
 
-The [API reference](https://genentech.github.io/gReLU/autoapi/index.html) lists all the modules and submodules 
-available in gReLU. Clicking on individual modules on this list will reveal a description of the module and 
-what kinds of functions it is meant to contain. The descriptions also contain more detailed explanations of the 
-expected structure of each module and how to contribute to it. This will help you find the appropriate location 
+The [API reference](https://genentech.github.io/gReLU/autoapi/index.html) lists all the modules and submodules
+available in gReLU. Clicking on individual modules on this list will reveal a description of the module and
+what kinds of functions it is meant to contain. The descriptions also contain more detailed explanations of the
+expected structure of each module and how to contribute to it. This will help you find the appropriate location
 to make changes.
 
-For instance, the table below lists some different types of functionality that contributors may want to add 
-or change, and the corresponding module / submodule of ``gReLU``. Click on the name of a module for more details 
+For instance, the table below lists some different types of functionality that contributors may want to add
+or change, and the corresponding module / submodule of ``gReLU``. Click on the name of a module for more details
 on its structure.
 
 | Functionality    | Module |
@@ -77,7 +77,7 @@ on its structure.
 | New metrics to calculate model performance | [`grelu.lightning.metrics`](https://genentech.github.io/gReLU/autoapi/grelu/lightning/metrics/index.html) |
 | New plots and visualizations | [`grelu.visualize`](https://genentech.github.io/gReLU/autoapi/grelu/visualize/index.html) |
 
-For complex changes that may not fit clearly within the established package structure, it is important to first 
+For complex changes that may not fit clearly within the established package structure, it is important to first
 raise an issue (see instructions below).
 
 
@@ -85,14 +85,14 @@ raise an issue (see instructions below).
 
 ### Submit an issue
 
-Before you work on any non-trivial code contribution it's best to first create an issue in the 
+Before you work on any non-trivial code contribution it's best to first create an issue in the
 [issue tracker](https://github.com/Genentech/gReLU/issues) to start a discussion on the subject.
 This often provides additional considerations and avoids unnecessary work.
 
 ### Create an environment
 
-Before you start coding, we recommend creating an isolated [virtual 
-environment](https://realpython.com/python-virtual-environments-a-primer/) to avoid any problems with your 
+Before you start coding, we recommend creating an isolated [virtual
+environment](https://realpython.com/python-virtual-environments-a-primer/) to avoid any problems with your
 installed Python packages. This can easily be done via either [virtualenv](https://virtualenv.pypa.io/en/stable/):
 ```
     virtualenv <PATH TO VENV>
@@ -108,9 +108,9 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
 1. Create an user account on [GitHub](https://github.com), if you do not already have one.
 2. Fork the [project repository](https://github.com/Genentech/gReLU/): click on the *Fork* button near the top of
    the page. This creates a copy of the code under your account on [GitHub](https://github.com/).
-   
+
    ![Fork](media/fork.jpg)
-   
+
 4. Clone this copy to your local disk::
 ```
     git clone git@github.com:YourLogin/grelu.git
@@ -151,11 +151,11 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
     git add <MODIFIED FILES>
     git commit
 ```
-   to record your changes in git. Moreover, writing a [descriptive commit message](https://chris.beams.io/posts/git-commit) 
+   to record your changes in git. Moreover, writing a [descriptive commit message](https://chris.beams.io/posts/git-commit)
    is highly recommended.
 
    Please make sure to see the validation messages from [pre-commit](https://pre-commit.com/) and fix any issues.
-   This should automatically use [flake8](https://flake8.pycqa.org/en/stable/)/[black](https://pypi.org/project/black/) 
+   This should automatically use [flake8](https://flake8.pycqa.org/en/stable/)/[black](https://pypi.org/project/black/)
    to check/fix the code style in a way that is compatible with the project.
 
 ### Test your changes
@@ -214,7 +214,7 @@ package:
 ```
 
    If you have trouble and are seeing weird errors upon running [tox](https://tox.wiki/en/stable/), you can
-   also try to create a dedicated [virtual environment](https://realpython.com/python-virtual-environments-a-primer/) 
+   also try to create a dedicated [virtual environment](https://realpython.com/python-virtual-environments-a-primer/)
    with a [tox](https://tox.wiki/en/stable/) binary freshly installed. For example::
 
     virtualenv .venv
@@ -231,7 +231,7 @@ package:
 
 ### Releases
 
-If you are part of the group of maintainers and have correct user permissions on [PyPI](https://pypi.org/), 
+If you are part of the group of maintainers and have correct user permissions on [PyPI](https://pypi.org/),
 the following steps can be used to release a new version for ``grelu``:
 
 1. Make sure all unit tests are successful.
