@@ -49,16 +49,13 @@ with these frameworks:
 ### Understanding project structure
 
 We welcome external contributions to ``gReLU``. Before planning changes to the code, we suggest carefully 
-examining the current structure and organization of the package. The figure below gives an overview of the main 
-modules of the package and how they fit together.
+examining the current structure and organization of the package. 
 
-![Flowchart](media/flowchart.jpg)
-
-We recommend looking at the [API reference](https://genentech.github.io/gReLU/autoapi/index.html) to see the 
-modules and submodules available in gReLU. Clicking on individual modules on this list will reveal a 
-description of the module and what kinds of functions it is meant to contain. The descriptions also contain 
-more detailed explanations of the expected structure of each module and how to contribute to it. This will 
-help you find the appropriate location to make changes.
+The [API reference](https://genentech.github.io/gReLU/autoapi/index.html) lists all the modules and submodules 
+available in gReLU. Clicking on individual modules on this list will reveal a description of the module and 
+what kinds of functions it is meant to contain. The descriptions also contain more detailed explanations of the 
+expected structure of each module and how to contribute to it. This will help you find the appropriate location 
+to make changes.
 
 For instance, the table below lists some different types of functionality that contributors may want to add 
 or change, and the corresponding module / submodule of ``gReLU``. Click on the name of a module for more details 
