@@ -22,7 +22,7 @@ free to file a new issue report. Please don't forget to include the closed issue
 Sometimes a solution was already reported, and the problem is considered
 solved.
 
-You can file a new issue by clicking the "New issue" button at the top right of the issue tracker. 
+You can file a new issue by clicking the "New issue" button at the top right of the issue tracker.
 ![New Issue](media/new_issue.jpg)
 
 Your new issue report should include the following information:
@@ -57,7 +57,7 @@ For instance, the table below lists some different types of functionality that c
 
 | Functionality    | Module |
 | ---------------- | ------- |
-| Functions to read / write genomic data  | [`grelu.io`](https://genentech.github.io/gReLU/autoapi/grelu/io/index.html) | 
+| Functions to read / write genomic data  | [`grelu.io`](https://genentech.github.io/gReLU/autoapi/grelu/io/index.html) |
 | Functions to preprocess genomic data after it is loaded | [`grelu.data.preprocess`](https://genentech.github.io/gReLU/autoapi/grelu/data/preprocess/index.html) |
 | New augmentation functions for training models    | [`grelu.data.augment`](https://genentech.github.io/gReLU/autoapi/grelu/data/augment/index.html) |
 | Functions to introduce various types of in silico mutations into DNA sequences | [`grelu.sequence.mutate`](https://genentech.github.io/gReLU/autoapi/grelu/sequence/mutate/index.html) |
@@ -238,4 +238,3 @@ on [PyPI](https://pypi.org/), the following steps can be used to release a new v
    500KB), unwanted clutter may have been accidentally included.
 6. Run ``tox -e publish -- --repository pypi`` and check that everything was
    uploaded to PyPI_ correctly.
-
