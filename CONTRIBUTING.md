@@ -22,8 +22,10 @@ free to file a new issue report. Please don't forget to include the closed issue
 Sometimes a solution was already reported, and the problem is considered
 solved.
 
-You can file a new issue by clicking the "New issue" button at the top right of the issue tracker. Your new issue report 
-should include the following information:
+You can file a new issue by clicking the "New issue" button at the top right of the issue tracker. 
+![New Issue](media/new_issue.jpg)
+
+Your new issue report should include the following information:
 
 1. Information about your programming environment (e.g., operating system, Python version)
 2. Steps to reproduce the problem. Please try to simplify the reproduction steps to a very minimal example
@@ -96,9 +98,10 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)::
 ### Clone the repository
 
 1. Create an user account on [GitHub](https://github.com). if you do not already have one.
-2. Fork the [project repository](https://github.com/Genentech/gReLU/): click on the *Fork* button near the top of the
+3. Fork the [project repository](https://github.com/Genentech/gReLU/): click on the *Fork* button near the top of the
    page. This creates a copy of the code under your account on [GitHub](https://github.com/).
-3. Clone this copy to your local disk::
+   ![Fork](media/fork.jpg)
+5. Clone this copy to your local disk::
 ```
     git clone git@github.com:YourLogin/grelu.git
     cd grelu
