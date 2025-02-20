@@ -107,8 +107,10 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
 1. Create an user account on [GitHub](https://github.com), if you do not already have one.
 2. Fork the [project repository](https://github.com/Genentech/gReLU/): click on the *Fork* button near the top of
    the page. This creates a copy of the code under your account on [GitHub](https://github.com/).
+   
    ![Fork](media/fork.jpg)
-3. Clone this copy to your local disk::
+   
+4. Clone this copy to your local disk::
 ```
     git clone git@github.com:YourLogin/grelu.git
     cd grelu
