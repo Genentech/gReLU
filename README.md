@@ -31,19 +31,7 @@ pip install gReLU
 
 ## Contributing
 
-This project uses [pre-commit](https://pre-commit.com/). Please make sure to install it before making any changes:
-
-```shell
-pip install pre-commit
-cd gReLU
-pre-commit install
-```
-
-It is a good idea to update the hooks to the latest version:
-
-```shell
-pre-commit autoupdate
-```
+See our [contribution guide](https://genentech.github.io/gReLU/contributing.html).
 
 ## Additional requirements
 
