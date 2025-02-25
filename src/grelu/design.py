@@ -158,7 +158,9 @@ def evolve(
                 ds = ISMDataset(make_list(best.seq), positions=positions, drop_ref=True)
             elif method == "pattern":
                 ds = MotifScanDataset(
-                    make_list(best.seq), motifs=patterns, positions=positions
+                    make_list(best.seq),
+                    motifs=patterns,
+                    positions=positions,
                 )
             else:
                 raise NotImplementedError

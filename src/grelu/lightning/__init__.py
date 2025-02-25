@@ -19,14 +19,7 @@ from torch.utils.data import DataLoader
 from torchmetrics import AUROC, Accuracy, AveragePrecision, MetricCollection
 
 import grelu.model.models
-from grelu.data.dataset import (
-    ISMDataset,
-    LabeledSeqDataset,
-    MotifScanDataset,
-    PatternMarginalizeDataset,
-    VariantDataset,
-    VariantMarginalizeDataset,
-)
+from grelu.data.dataset import LabeledSeqDataset
 from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
 from grelu.model.heads import ConvHead
@@ -701,6 +694,7 @@ class LightningModel(pl.LightningModule):
         compare_func: Optional[Union[str, Callable]] = None,
         return_df: bool = False,
         precision: Optional[str] = None,
+        squeeze: bool = True,
     ):
         """
         Predict for a dataset of sequences or variants
@@ -745,58 +739,47 @@ class LightningModel(pl.LightningModule):
         )
 
         # Convert predictions to numpy array
-        preds = preds.detach().cpu().numpy()
+        preds = preds.detach().cpu().numpy()  # B, N, A, T, L
 
-        # ISM or Motif Scanning
-        if (isinstance(dataset, ISMDataset)) or (isinstance(dataset, MotifScanDataset)):
-            return preds
-
-        else:
-            # Flip predictions for reverse complemented sequences
-            if (dataset.rc) and (preds.shape[-1] > 1):
+        # Flip predictions for reverse complemented sequences
+        # if reverse complementation was performed
+        if hasattr(dataset, "rc"):
+            if dataset.rc:
                 preds[:, dataset.n_augmented // 2 :, :, :, :] = np.flip(
                     preds[:, dataset.n_augmented // 2 :, :, :, :], axis=-1
                 )
 
-            # Compare the predictions for two alleles
-            if (
-                (isinstance(dataset, VariantDataset))
-                or (isinstance(dataset, VariantMarginalizeDataset))
-                or (isinstance(dataset, PatternMarginalizeDataset))
-            ):
-                if compare_func is not None:
-                    assert preds.shape[2] == 2
-                    preds = get_compare_func(compare_func)(
-                        preds[:, :, 1, :, :], preds[:, :, 0, :, :]
-                    )  # BNTL
+        # Handle alleles (BNATL -> BNTL)
+        if (dataset.n_alleles == 2) and (compare_func is not None):
+            preds = get_compare_func(compare_func)(
+                    preds[:, :, 1, :, :], preds[:, :, 0, :, :]
+                )  # BNTL
+        elif (dataset.n_alleles == 1) and (squeeze):
+            preds = preds.squeeze(axis=2) # BNTL        
+    
 
-                # Combine predictions for augmented sequences
-                if augment_aggfunc is not None:
-                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
+        # Handle augmentation axis: BNTL / BNATL -> BTL / BATL
+        if (dataset.n_augmented == 1) and (squeeze):
+            preds = preds.squeeze(axis=)
+        elif augment_aggfunc is not None:
+            preds = get_aggfunc(augment_aggfunc)(preds, axis=1)
+    
+        if return_df:
+            preds = self.preds_to_df(preds)
 
-                return preds
+        return preds
 
-            else:
-                # Regular sequences
-                preds = preds.squeeze(2)  # B N T L
-                if augment_aggfunc is not None:
-                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
-                elif preds.shape[1] == 1:
-                    preds = preds.squeeze(1)
-
-                # Make dataframe
-                if return_df:
-                    if (preds.ndim == 3) and (preds.shape[-1] == 1):
-                        preds = pd.DataFrame(
-                            preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
-                        )
-                    else:
-                        warnings.warn(
-                            "Cannot produce dataframe output."
-                            + "Either output length > 1 or augmented sequences are not aggregated."
-                        )
-
-            return preds
+    def preds_to_df(self, preds: np.ndarray) -> pd.DataFrame:
+        if (preds.ndim == 3) and (preds.shape[-1] == 1):
+            return pd.DataFrame(
+                preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
+            )
+        else:
+            warnings.warn(
+                "Cannot produce dataframe output."
+                + " Either output length > 1 or augmented sequences are not aggregated."
+                + " Predictions will be returned as a numpy array."
+            )
 
     def test_on_dataset(
         self,
