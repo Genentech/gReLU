@@ -1,5 +1,9 @@
 """
-Model head layers to return the final prediction outputs.
+`grelu.model.heads` contains 'head' layers for sequence-to-function deep
+learning models. All heads inherit from the `torch.nn.Module` class, and
+define a `forward` function that takes sequence embeddings produced
+by earlier layers of the model (tensors of shape (N, embedding_dim, embedding_length))
+and returns tensors of shape (N, tasks, output_length).
 """
 
 from typing import List, Optional

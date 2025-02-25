@@ -1,5 +1,9 @@
 """
-The LightningModel class.
+`grelu.lightning` contains LightningModel class, which inherits from
+`pytorch_lightning.LightningModule`. This class wraps sequence-to-function
+models and allows them to be used with downstream functions provided by
+pytorch lightning, including training, inference, validation, testing and
+fine-tuning.
 """
 
 import warnings

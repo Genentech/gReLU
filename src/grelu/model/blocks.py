@@ -1,5 +1,7 @@
 """
-Blocks composed of multiple layers.
+`grelu.model.blocks` defines larger blocks that form part of the architecture
+of sequence-to-function deep learning models. Each such block is composed of
+multiple layers.
 """
 
 import warnings

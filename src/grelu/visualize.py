@@ -1,3 +1,7 @@
+"""
+`gReLU.visualize` contains functions to generate plots and visualizations.
+"""
+
 import warnings
 from typing import Dict, List, Optional, Tuple, Union
 

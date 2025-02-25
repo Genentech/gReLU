@@ -1,5 +1,14 @@
 """
-Some general purpose model architectures.
+`grelu.model.models` defines complete architectures for sequence-to-function
+deep learning models.
+
+All models inherit from the `BaseModel` class and are composed of `embedding`
+and `head` sections, which use classes defined in `grelu.model.trunks` and
+`grelu.model.heads` respectively.
+
+All models have a `forward` function (inherited from `BaseModel`) which takes
+as input a one-hot encoded sequence tensor of shape (N, 4, length) and return a
+tensor of shape (N, tasks, output_length).
 """
 
 from pathlib import Path

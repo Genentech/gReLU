@@ -1,11 +1,12 @@
-"""Functions related to checking the format of input DNA sequences and converting
-    them between accepted sequence formats.
+"""
+`grelu.sequence.format` contains functions related to checking the format of
+input DNA sequences and converting them between accepted sequence formats.
 
-The following are accepted sequence formats:
+The following are accepted sequence formats in gReLU:
 1. intervals: a pd.DataFrame object containing valid genomic intervals
 2. strings: A string or list of strings
-3. indices: A numpy array of shape (L,) or (B, L) and dtype np.int8
-4. one_hot: A torch tensor of shape (4, L) or (B, 4, L) and dtype torch.float32
+3. indices: A numpy array of shape (length,) or (N, length) and dtype np.int8
+4. one_hot: A torch tensor of shape (4, length) or (N, 4, length) and dtype torch.float32
 
 """
 

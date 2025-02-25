@@ -1,6 +1,10 @@
 """
-Metrics to measure performance of a predictive sequence model
-These metrics should produce an output value per task or averaged across tasks
+`grelu.lightning.metrics` contains custom metrics to measure the performance of
+sequence-to-function models. These metrics are used in grelu.lightning.
+
+All metrics inherit from the `torchmetrics.Metric` class and have __init__,
+update and compute functions defined. All metrics produce an output value
+per task, which can optionally be averaged across tasks by setting average=True.
 """
 
 import numpy as np
