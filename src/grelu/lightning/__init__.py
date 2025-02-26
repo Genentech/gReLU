@@ -718,7 +718,6 @@ class LightningModel(pl.LightningModule):
         devices: Union[int, str, List[int]] = "cpu",
         num_workers: int = 1,
         batch_size: int = 256,
-        prediction_transform: Optional[Callable] = None,
         augment_aggfunc: Union[str, Callable] = "mean",
         compare_func: Optional[Union[str, Callable]] = None,
         return_df: bool = False,
@@ -732,8 +731,6 @@ class LightningModel(pl.LightningModule):
             devices: Device IDs to use
             num_workers: Number of workers for data loader
             batch_size: Batch size for data loader
-            prediction_transform: A prediction transform module, as defined in
-                `grelu.transforms.prediction_transforms`.
             augment_aggfunc: Return the average prediction across all augmented
                 versions of a sequence
             compare_func: Return the alt/ref difference for variants
@@ -758,9 +755,7 @@ class LightningModel(pl.LightningModule):
         )
 
         # Predict
-        self.add_transform(prediction_transform)
         preds = torch.concat(trainer.predict(self, dataloader))
-        self.reset_transform()
 
         # Reshape predictions
         preds = rearrange(
