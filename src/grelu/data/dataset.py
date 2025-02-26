@@ -34,6 +34,7 @@ from grelu.sequence.format import (
 from grelu.sequence.mutate import mutate
 from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
 from grelu.utils import get_aggfunc, get_transform_func
+from tangermeme.ersatz import _dinucleotide_shuffle
 
 
 class LabeledSeqDataset(Dataset):
@@ -1021,3 +1022,230 @@ class MotifScanDataset(Dataset):
 
             # One-hot encode
             return indices_to_one_hot(seq)
+
+
+class PatternSpacingDataset(Dataset):
+    """
+    Dataset class to perform pairwise motif distance analysis. One motif
+    is inserted at a fixed position in shuffled sequences and the second motif is
+    inserted at variable distances from the first.
+
+    Args:
+        seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
+        fixed_pattern: A subsequence to insert in the center of each background sequence.
+        variable_pattern: A subsequence to insert into the background sequences at
+            different distances from `fixed_motif`.
+        genome: The name of the genome from which to read sequences. This
+            is only needed if genomic intervals are supplied in `seqs`.
+        stride: Number of bases by which to shift the variable motif.
+        n_shuffles: Number of times to shuffle each sequence in `seqs`, to
+            generate a background distribution.
+        seed: Seed for random number generator
+    """
+
+    def __init__(
+        self,
+        seqs: Union[str, Sequence, pd.DataFrame, np.ndarray],
+        fixed_pattern: str,
+        variable_pattern: str,
+        genome: Optional[str] = None,
+        stride: int = 1,
+        n_shuffles: int = 1,
+        seed: int = 0,
+    ) -> None:
+        super().__init__()
+
+        # Save params
+        self.stride = stride
+        self.genome = genome
+        self.n_augmented = n_shuffles
+        self.seed = seed
+
+        # Ingest sequences
+        self._load_seqs(seqs)
+
+        # Ingest patterns
+        self._load_patterns(fixed_pattern, variable_pattern)
+
+        # Initial state
+        self.bg = None
+        self.curr_seq_idx = None
+
+    def _load_seqs(self, seqs: Union[pd.DataFrame, List[str], np.ndarray]) -> None:
+        """
+        Make the background sequences
+        """
+        self.seqs = convert_input_type(
+            seqs, "indices", genome=self.genome, add_batch_axis=True
+        )
+        self.n_seqs = self.seqs.shape[0]
+        self.seq_len = self.seqs.shape[1]
+
+    def _load_patterns(self, fixed_pattern: str, variable_pattern: str) -> None:
+        self.fixed_pattern = strings_to_indices(fixed_pattern)
+        self.variable_pattern = strings_to_indices(variable_pattern)
+
+        self.fixed_pattern_len = len(self.fixed_pattern)
+        self.variable_pattern_len = len(self.variable_pattern)
+
+        self.fixed_pattern_start = int(
+            np.floor(self.seq_len / 2 - self.fixed_pattern_len / 2)
+        )
+        self.fixed_pattern_end = self.fixed_pattern_start + self.fixed_pattern_len
+        max_pos = self.seq_len - self.variable_pattern_len + 1
+        excl_start = self.fixed_pattern_start - self.variable_pattern_len + 1
+        excl = range(excl_start, self.fixed_pattern_end)
+
+        positions = [x for x in range(0, max_pos, self.stride) if x not in excl]
+        self.n_alleles = len(positions) + 1
+        self.positions = positions
+
+        self.distances = [self._pos_to_dist(x) for x in self.positions]
+
+    def _pos_to_dist(self, position: int) -> int:
+        if position < self.fixed_pattern_start:
+            return position + self.variable_pattern_len - self.fixed_pattern_start
+        else:
+            return position - self.fixed_pattern_end
+
+    def __len__(self) -> int:
+        return self.n_seqs * self.n_augmented * self.n_alleles
+
+    def __update__(self, idx: int) -> None:
+        """
+        Update the current background
+        """
+        if self.curr_seq_idx != idx:
+            self.curr_seq_idx = idx
+            self.bg = dinuc_shuffle(
+                seqs=self.seqs[idx],
+                n_shuffles=self.n_augmented,
+                input_type="indices",
+                seed=self.seed,
+            )
+            self.bg = np.vstack([mutate(seq, self.fixed_pattern) for seq in self.bg])
+
+    def __getitem__(self, idx: int) -> Tensor:
+        # Get indices
+        seq_idx, shuf_idx, pos_idx = _split_overall_idx(
+            idx, (self.n_seqs, self.n_augmented, self.n_alleles)
+        )
+
+        # Update the current background
+        self.__update__(seq_idx)
+
+        # Choose the current background sequence
+        seq = self.bg[shuf_idx]
+
+        # Insert variable motif
+        if pos_idx > 0:
+            seq = mutate(
+                seq,
+                allele=self.variable_pattern,
+                pos=self.positions[pos_idx - 1],
+                input_type="indices",
+            )
+
+        # One-hot encode
+        return indices_to_one_hot(seq)
+
+
+class TilingShuffleDataset(Dataset):
+    """
+    Dataset class to perform regulatory element discovery by shuffling tiles along
+    the input sequences.
+
+    Args:
+        seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
+        tile_len: Length of tile to shuffle.
+        protect_center: Length of central region to protect
+        genome: The name of the genome from which to read sequences. This
+            is only needed if genomic intervals are supplied in `seqs`.
+        n_shuffles: Number of times to shuffle each tile.
+        seed: Seed for random number generator
+    """
+
+    def __init__(
+        self,
+        seqs: Union[str, Sequence, pd.DataFrame, np.ndarray],
+        tile_len: int,
+        stride: int = 1,
+        protect_center: Optional[int] = None,
+        n_shuffles: int = 1,
+        seed: int = 0,
+        genome: Optional[str] = None,
+    ) -> None:
+        super().__init__()
+
+        # Save params
+        self.genome = genome
+        self.tile_len = tile_len
+        self.protect_center = protect_center
+        self.n_augmented = n_shuffles
+        self.seed = seed
+
+        # Set stride
+        if stride is None:
+            self.stride = self.tile_len
+        else:
+            self.stride = stride
+
+        # Ingest sequences
+        self._load_seqs(seqs)
+
+        # Calculate positions
+        self._set_tiles()
+
+        # Initial state
+        self.bg = None
+        self.curr_seq_idx = None
+
+    def _load_seqs(self, seqs: Union[pd.DataFrame, List[str], np.ndarray]) -> None:
+        """
+        Make the background sequences
+        """
+        self.seqs = convert_input_type(
+            seqs, "indices", genome=self.genome, add_batch_axis=True
+        )
+        self.n_seqs = self.seqs.shape[0]
+        self.seq_len = self.seqs.shape[1]
+
+    def _set_tiles(self):
+        """
+        Get all possible positions of tiles that can be shuffled.
+        """
+        self.center = self.seq_len // 2
+        max_pos = self.seq_len - self.tile_len + 1
+        self.protect_start = self.center - self.protect_center // 2
+        self.protect_end = self.protect_start + self.protect_center
+        excl_start = self.protect_start - self.tile_len + 1
+        excl = range(excl_start, self.protect_end)
+
+        starts = [x for x in range(0, max_pos, self.stride) if x not in excl]
+        ends = [x + self.tile_len for x in starts]
+        self.tiles = pd.DataFrame({"start": starts, "end": ends})
+        self.n_alleles = len(self.tiles)
+
+    def __len__(self) -> int:
+        return self.n_seqs * self.n_augmented * self.n_alleles
+
+    def __getitem__(self, idx: int) -> Tensor:
+        # Get indices
+        seq_idx, shuf_idx, tile_idx = _split_overall_idx(
+            idx, (self.n_seqs, self.n_augmented, self.n_alleles)
+        )
+
+        # Extract the current sequence
+        seq = self.seqs[seq_idx]
+
+        # Get position of tile to shuffle
+        coords = self.tiles.iloc[tile_idx]
+
+        # One-hot encode
+        seq = indices_to_one_hot(seq)
+        
+        # Shuffle tile
+		seq = _dinucleotide_shuffle(seq, start=coords.start, end=coords.end],
+            n_shuffles=1, random_state=self.seed+shuf_idx).squeeze(0)
+
+        return seq
