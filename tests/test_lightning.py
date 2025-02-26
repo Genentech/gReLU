@@ -262,20 +262,20 @@ def test_lightning_model_train_on_dataset():
         val_dataset=ldataset,
     )
     assert single_task_reg_model.data_params["tasks"] == {"name": ["label"]}
-    assert single_task_reg_model.data_params["train_max_pair_shift"] == 0
-    assert single_task_reg_model.data_params["train_max_seq_shift"] == 0
-    assert single_task_reg_model.data_params["train_n_augmented"] == 2
-    assert single_task_reg_model.data_params["train_n_seqs"] == 3
-    assert single_task_reg_model.data_params["train_n_tasks"] == 1
-    assert single_task_reg_model.data_params["train_rc"]
-    assert single_task_reg_model.data_params["train_seq_len"] == 3
-    assert single_task_reg_model.data_params["val_max_pair_shift"] == 0
-    assert single_task_reg_model.data_params["val_max_seq_shift"] == 0
-    assert single_task_reg_model.data_params["val_n_augmented"] == 2
-    assert single_task_reg_model.data_params["val_n_seqs"] == 3
-    assert single_task_reg_model.data_params["val_n_tasks"] == 1
-    assert single_task_reg_model.data_params["val_rc"]
-    assert single_task_reg_model.data_params["val_seq_len"] == 3
+    assert single_task_reg_model.data_params["train"]["max_pair_shift"] == 0
+    assert single_task_reg_model.data_params["train"]["max_seq_shift"] == 0
+    assert single_task_reg_model.data_params["train"]["n_augmented"] == 2
+    assert single_task_reg_model.data_params["train"]["n_seqs"] == 3
+    assert single_task_reg_model.data_params["train"]["n_tasks"] == 1
+    assert single_task_reg_model.data_params["train"]["rc"]
+    assert single_task_reg_model.data_params["train"]["seq_len"] == 3
+    assert single_task_reg_model.data_params["val"]["max_pair_shift"] == 0
+    assert single_task_reg_model.data_params["val"]["max_seq_shift"] == 0
+    assert single_task_reg_model.data_params["val"]["n_augmented"] == 2
+    assert single_task_reg_model.data_params["val"]["n_seqs"] == 3
+    assert single_task_reg_model.data_params["val"]["n_tasks"] == 1
+    assert single_task_reg_model.data_params["val"]["rc"]
+    assert single_task_reg_model.data_params["val"]["seq_len"] == 3
 
 
 def test_lightning_model_test_on_dataset():
@@ -339,15 +339,15 @@ def test_lightning_model_ensemble():
 
 bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
 bin_model.model_params["crop_len"] = 0
-bin_model.data_params["train_bin_size"] = 2
+bin_model.data_params["train"] = {"bin_size": 2}
 
 crop_model = generate_model(task="binary", loss="bce", n_tasks=2)
 crop_model.model_params["crop_len"] = 3
-crop_model.data_params["train_bin_size"] = 1
+crop_model.data_params["train"] = {"bin_size": 1}
 
 crop_bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
 crop_bin_model.model_params["crop_len"] = 3
-crop_bin_model.data_params["train_bin_size"] = 2
+crop_bin_model.data_params["train"] = {"bin_size": 2}
 
 
 def test_input_coord_to_output_bin():
