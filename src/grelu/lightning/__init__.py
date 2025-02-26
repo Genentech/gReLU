@@ -24,12 +24,11 @@ from torchmetrics import AUROC, Accuracy, AveragePrecision, MetricCollection
 
 import grelu.model.models
 from grelu.data.dataset import (
-    ISMDataset,
     LabeledSeqDataset,
-    MotifScanDataset,
     PatternMarginalizeDataset,
     VariantDataset,
     VariantMarginalizeDataset,
+    ISMDataset, MotifScanDataset, TilingShuffleDataset, PatternSpacingDataset
 )
 from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
@@ -751,56 +750,56 @@ class LightningModel(pl.LightningModule):
         # Convert predictions to numpy array
         preds = preds.detach().cpu().numpy()
 
-        # ISM or Motif Scanning
-        if (isinstance(dataset, ISMDataset)) or (isinstance(dataset, MotifScanDataset)):
+        if isinstance(dataset, (ISMDataset, MotifScanDataset, TilingShuffleDataset, PatternSpacingDataset)):
             return preds
 
-        else:
-            # Flip predictions for reverse complemented sequences
+        # Flip predictions for reverse complemented sequences
+        if hasattr(dataset, 'rc'):
             if (dataset.rc) and (preds.shape[-1] > 1):
                 preds[:, dataset.n_augmented // 2 :, :, :, :] = np.flip(
                     preds[:, dataset.n_augmented // 2 :, :, :, :], axis=-1
                 )
 
-            # Compare the predictions for two alleles
-            if (
-                (isinstance(dataset, VariantDataset))
-                or (isinstance(dataset, VariantMarginalizeDataset))
-                or (isinstance(dataset, PatternMarginalizeDataset))
-            ):
-                if compare_func is not None:
-                    assert preds.shape[2] == 2
-                    preds = get_compare_func(compare_func)(
-                        preds[:, :, 1, :, :], preds[:, :, 0, :, :]
-                    )  # BNTL
+        # Compare the predictions for two alleles
+        if (
+            (isinstance(dataset, VariantDataset))
+            or (isinstance(dataset, VariantMarginalizeDataset))
+            or (isinstance(dataset, PatternMarginalizeDataset))
+        ):
+            if compare_func is not None:
+                assert preds.shape[2] == 2
+                preds = get_compare_func(compare_func)(
+                    preds[:, :, 1, :, :], preds[:, :, 0, :, :]
+                )  # BNTL
 
-                # Combine predictions for augmented sequences
-                if augment_aggfunc is not None:
-                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
-
-                return preds
-
-            else:
-                # Regular sequences
-                preds = preds.squeeze(2)  # B N T L
-                if augment_aggfunc is not None:
-                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
-                elif preds.shape[1] == 1:
-                    preds = preds.squeeze(1)
-
-                # Make dataframe
-                if return_df:
-                    if (preds.ndim == 3) and (preds.shape[-1] == 1):
-                        preds = pd.DataFrame(
-                            preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
-                        )
-                    else:
-                        warnings.warn(
-                            "Cannot produce dataframe output."
-                            + "Either output length > 1 or augmented sequences are not aggregated."
-                        )
+            # Combine predictions for augmented sequences
+            if augment_aggfunc is not None:
+                preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
 
             return preds
+
+        else:
+            # Regular sequences
+            preds = preds.squeeze(2)  # B N T L
+
+            if augment_aggfunc is not None:
+                preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
+            elif preds.shape[1] == 1:
+                preds = preds.squeeze(1)
+
+            # Make dataframe
+            if return_df:
+                if (preds.ndim == 3) and (preds.shape[-1] == 1):
+                    preds = pd.DataFrame(
+                        preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
+                    )
+                else:
+                    warnings.warn(
+                        "Cannot produce dataframe output."
+                        + "Either output length > 1 or augmented sequences are not aggregated."
+                    )
+
+        return preds
 
     def test_on_dataset(
         self,

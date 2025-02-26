@@ -34,7 +34,7 @@ from grelu.sequence.format import (
 )
 from grelu.sequence.mutate import mutate
 from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
-from grelu.utils import get_aggfunc, get_transform_func
+from grelu.utils import get_aggfunc, get_transform_func, make_list
 
 
 class LabeledSeqDataset(Dataset):
@@ -827,7 +827,7 @@ class PatternMarginalizeDataset(Dataset):
         self.curr_seq_idx = None
 
     def _load_alleles(self, patterns: List[str]) -> None:
-        self.alleles = strings_to_indices(patterns, add_batch_axis=True)
+        self.alleles = [strings_to_indices(pattern) for pattern in make_list(patterns)]
         self.n_alleles = len(self.alleles) + 1
 
     def _load_seqs(self, seqs: Union[pd.DataFrame, List[str], np.ndarray]) -> None:
@@ -1213,9 +1213,7 @@ class TilingShuffleDataset(Dataset):
         Get all possible positions of tiles that can be shuffled.
         """
         # Coordinates to protect
-        self.protect_start = int(
-            np.floor(self.seq_len / 2 - self.protect_center / 2)
-        )
+        self.protect_start = int(np.floor(self.seq_len / 2 - self.protect_center / 2))
         self.protect_end = self.protect_start + self.protect_center
 
         # Positions of tiles to shuffle
@@ -1225,7 +1223,9 @@ class TilingShuffleDataset(Dataset):
 
         # Final tiles
         starts = [x for x in range(0, max_pos, self.stride) if x not in excl]
-        self.tiles = pd.DataFrame({"start": starts, "end": [x + self.tile_len for x in starts]})
+        self.tiles = pd.DataFrame(
+            {"start": starts, "end": [x + self.tile_len for x in starts]}
+        )
         self.n_alleles = len(self.tiles)
 
     def __len__(self) -> int:
@@ -1247,7 +1247,10 @@ class TilingShuffleDataset(Dataset):
         seq = indices_to_one_hot(seq)
 
         # Shuffle tile
-		seq = _dinucleotide_shuffle(seq, start=coords.start, end=coords.end,
-            n_shuffles=1, random_state=self.seed+shuf_idx).squeeze(0)
+        seq[:, coords.start: coords.end] = _dinucleotide_shuffle(
+            seq[:, coords.start: coords.end],
+            n_shuffles=1,
+            random_state=self.seed + shuf_idx,
+        ).squeeze(0)
 
         return seq

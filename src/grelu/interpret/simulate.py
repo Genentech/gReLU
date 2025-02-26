@@ -1,7 +1,9 @@
-from grelu.utils import get_compare_func
-from typing import Union, Optional, Callable, Tuple, List, Sequence
+from typing import Callable, List, Optional, Sequence, Tuple, Union
+
 import numpy as np
 import pandas as pd
+
+from grelu.utils import get_compare_func
 
 
 def marginalize_patterns(
@@ -57,7 +59,7 @@ def marginalize_patterns(
         seed=seed,
     )
 
-     # Set transform
+    # Set transform
     model.add_transform(prediction_transform)
     preds = model.predict_on_dataset(
         ds,
@@ -78,14 +80,13 @@ def marginalize_patterns(
         return get_compare_func(compare_func)(after_preds, before_preds)
 
 
-
 def space_patterns(
     model: Callable,
     seqs: Union[str, Sequence, pd.DataFrame, np.ndarray],
     fixed_pattern: str,
     variable_pattern: str,
     genome: Optional[str] = None,
-    stride: int=1,
+    stride: int = 1,
     n_shuffles: int = 1,
     seed: int = 0,
     devices: Union[str, int, List[int]] = "cpu",
@@ -96,11 +97,11 @@ def space_patterns(
     compare_func: Optional[Union[str, Callable]] = None,
 ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """
-    Runs a marginalization experiment to predict the impact of the spacing between 
+    Runs a marginalization experiment to predict the impact of the spacing between
     two patterns (sub-sequences).
 
     Given a model and a set of background sequences, dinucleotide-shuffles the sequences,
-    inserts the fixed pattern into the center of each shuffled sequence, then gets the 
+    inserts the fixed pattern into the center of each shuffled sequence, then gets the
     predictions from the model on inserting the variable pattern at different distances from
     the fixed pattern.
 
@@ -122,7 +123,7 @@ def space_patterns(
         seed: Random seed
         prediction_transform: A module to transform the model output
         augment_aggfunc: Function to aggregate the predictions across shuffles.
-        compare_func: Function to compare the predictions with and without the variable 
+        compare_func: Function to compare the predictions with and without the variable
             pattern. Options are "divide" or "subtract". If not provided, the predictions
             without the variable motif will be returned separately.
 
@@ -160,7 +161,7 @@ def space_patterns(
         batch_size=batch_size,
         augment_aggfunc=augment_aggfunc,
     )  # Output shape: B, shuf, positions+1, T, 1
-    
+
     preds = preds.squeeze(axis=-1)  # B, shuf, positions+1, T
 
     # Drop transform
@@ -215,21 +216,31 @@ def shuffle_tiles(
         seed: Random seed
         prediction_transform: A module to transform the model output
         augment_aggfunc: Function to aggregate the predictions across shuffles.
-        compare_func: Function to compare the predictions with and without the variable 
-            pattern. Options are "divide" or "subtract". If not provided, the predictions
-            without shuffling will be returned separately.
+        compare_func: Function to compare the predictions after shuffling tiles
+            to those before shuffling.
+
+    Returns:
+        before_preds: Model predictions on the original sequences. 
+        after_preds: Model predictions on the sequences with shuffled tiles.
+        tiles: Dataframe containing the coordinates of the tiles that were shuffled.
     """
     from grelu.data.dataset import SeqDataset, TilingShuffleDataset
     model.add_transform(prediction_transform)
-    ds = SeqDataset(seqs, genome=genome)
+
+    # Baseline predictions
+    ds = SeqDataset(
+        seqs = seqs,
+        genome=genome
+    )
     before_preds = model.predict_on_dataset(
         ds,
         devices=devices,
         num_workers=num_workers,
         batch_size=batch_size,
-        squeeze=False
+        squeeze=False,
     )
 
+    # Shuffled predictions
     ds = TilingShuffleDataset(
         seqs=seqs,
         tile_len=tile_len,
@@ -239,26 +250,19 @@ def shuffle_tiles(
         seed=seed,
         genome=genome,
     )
+
     after_preds = model.predict_on_dataset(
         ds,
         devices=devices,
         num_workers=num_workers,
         batch_size=batch_size,
         augment_aggfunc=augment_aggfunc,
-        compare_func=None,
-        squeeze=False
     )
 
     model.reset_transform()
-    if compare_func is None:
+
+    # Compare predictions before and after shuffling
+    if compare_func is not None:
+        return get_compare_func(compare_func)(after_preds, before_preds), ds.tiles
+    else:   
         return before_preds, after_preds, ds.tiles
-    else:
-        preds = get_compare_func(compare_func)(after_preds, before_preds)
-        preds = preds.squeeze()
-        if preds.ndim==1:
-            tiles = ds.tiles
-            tiles['effect'] = preds
-            return tiles
-        else:
-            return preds, ds.tiles
-    
