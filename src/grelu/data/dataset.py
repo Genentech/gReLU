@@ -160,10 +160,8 @@ class LabeledSeqDataset(Dataset):
         if get_input_type(seqs) == "intervals":
             check_chrom_ends(seqs, genome=self.genome)
             self.intervals = seqs
-            self.chroms = list(set(self.intervals.chrom))
         else:
             self.intervals = None
-            self.chroms = None
 
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
 
@@ -515,7 +513,6 @@ class SeqDataset(Dataset):
         seqs = resize(seqs, seq_len=padded_seq_len, end=self.end)
         if get_input_type(seqs) == "intervals":
             self.intervals = seqs
-            self.chroms = np.unique(seqs.chrom)
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
 
     def __len__(self) -> int:
