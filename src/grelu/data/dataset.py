@@ -512,7 +512,8 @@ class SeqDataset(Dataset):
         seqs = resize(seqs, seq_len=self.seq_len, end=self.end)
         self.intervals = seqs if get_input_type(seqs) == "intervals" else None
         seqs = resize(seqs, seq_len=self.padded_seq_len)
-        check_chrom_ends(seqs, genome=self.genome)
+        if get_input_type(seqs) == "intervals":
+            check_chrom_ends(seqs, genome=self.genome)
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
 
     def __len__(self) -> int:
