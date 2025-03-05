@@ -374,15 +374,15 @@ def test_lightning_model_ensemble():
 
 bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
 bin_model.model_params["crop_len"] = 0
-bin_model.data_params["train"]["bin_size"] = 2
+bin_model.data_params["train"] = {"bin_size": 2}
 
 crop_model = generate_model(task="binary", loss="bce", n_tasks=2)
 crop_model.model_params["crop_len"] = 3
-crop_model.data_params["train"]["bin_size"] = 1
+crop_model.data_params["train"] = {"bin_size": 1}
 
 crop_bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
 crop_bin_model.model_params["crop_len"] = 3
-crop_bin_model.data_params["train"]["bin_size"] = 2
+crop_bin_model.data_params["train"] = {"bin_size": 2}
 
 
 def test_input_coord_to_output_bin():
