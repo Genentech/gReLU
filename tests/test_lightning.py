@@ -336,6 +336,16 @@ def test_lightning_model_ensemble():
     preds = model.predict_on_dataset(dataset=udataset, devices="cpu")
     assert preds.shape == (2, 4, 1)
 
+    # Test transform
+    t = Aggregate(task_aggfunc="mean")
+    model.add_transform(t)
+    preds = model.predict_on_dataset(dataset=udataset, devices="cpu")
+    assert preds.shape == (2, 2, 1)
+
+    model.reset_transform()
+    preds = model.predict_on_dataset(dataset=udataset, devices="cpu")
+    assert preds.shape == (2, 4, 1)
+
 
 bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
 bin_model.model_params["crop_len"] = 0
