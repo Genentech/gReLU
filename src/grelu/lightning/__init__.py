@@ -755,6 +755,7 @@ class LightningModel(pl.LightningModule):
         )
 
         # Predict
+        self._log_hyperparams = False
         preds = torch.concat(trainer.predict(self, dataloader))
 
         # Reshape predictions
@@ -856,6 +857,7 @@ class LightningModel(pl.LightningModule):
             logger=None,
             precision=precision,
         )
+        self._log_hyperparams = False
         self.test_metrics.reset()
         trainer.test(model=self, dataloaders=dataloader, verbose=True)
         self.test_metrics.reset()
