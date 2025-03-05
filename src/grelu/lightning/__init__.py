@@ -1112,7 +1112,7 @@ class LightningModelEnsemble(pl.LightningModule):
             for model in self.models:
                 model.transform = prediction_transform
 
-    def def reset_transform(self) -> None:
+    def reset_transform(self) -> None:
         """
         Remove the prediction transform from ALL the models.
         """
