@@ -1105,21 +1105,6 @@ class LightningModelEnsemble(pl.LightningModule):
             axis=-2,
         )
 
-    def add_transform(self, prediction_transform: Callable) -> None:
-        """
-        Add a prediction transform to ALL the models.
-        """
-        if prediction_transform is not None:
-            for model in self.models:
-                model.transform = prediction_transform
-
-    def reset_transform(self) -> None:
-        """
-        Remove the prediction transform from ALL the models.
-        """
-        for model in self.models:
-            model.transform = nn.Identity()
-
     def get_task_idxs(
         self, tasks: Union[str, int, List[str], List[int]], key: str = "name"
     ) -> Union[int, List[int]]:
