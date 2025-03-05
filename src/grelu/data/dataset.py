@@ -155,15 +155,11 @@ class LabeledSeqDataset(Dataset):
         self.predict = False
 
     def _load_seqs(self, seqs: Union[str, Sequence, pd.DataFrame, np.ndarray]) -> None:
-        seqs = resize(seqs, seq_len=self.padded_seq_len, end=self.end)
-
+        seqs = resize(seqs, seq_len=self.seq_len, end=self.end)
+        self.intervals = seqs if get_input_type(seqs) == "intervals" else None
+        seqs = resize(seqs, seq_len=self.padded_seq_len)
         if get_input_type(seqs) == "intervals":
             check_chrom_ends(seqs, genome=self.genome)
-            self.intervals = seqs
-            self.chroms = list(set(self.intervals.chrom))
-        else:
-            self.intervals = None
-            self.chroms = None
 
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
 
@@ -488,12 +484,13 @@ class SeqDataset(Dataset):
         self.end = end
         self.genome = genome
 
-        # Calculate sequence length and augmentation
-        self.seq_len = seq_len or max(get_lengths(seqs))
-
         # Save augmentation params
         self.rc = rc
         self.max_seq_shift = max_seq_shift
+
+        # Calculate sequence length and augmentation
+        self.seq_len = seq_len or max(get_lengths(seqs))
+        self.padded_seq_len = self.seq_len + (2 * self.max_seq_shift)
 
         # Ingest sequences
         self._load_seqs(seqs)
@@ -511,11 +508,11 @@ class SeqDataset(Dataset):
         self.n_alleles = 1
 
     def _load_seqs(self, seqs: Union[str, Sequence, pd.DataFrame, np.ndarray]) -> None:
-        padded_seq_len = self.seq_len + (2 * self.max_seq_shift)
-        seqs = resize(seqs, seq_len=padded_seq_len, end=self.end)
+        seqs = resize(seqs, seq_len=self.seq_len, end=self.end)
+        self.intervals = seqs if get_input_type(seqs) == "intervals" else None
+        seqs = resize(seqs, seq_len=self.padded_seq_len)
         if get_input_type(seqs) == "intervals":
-            self.intervals = seqs
-            self.chroms = np.unique(seqs.chrom)
+            check_chrom_ends(seqs, genome=self.genome)
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
 
     def __len__(self) -> int:
@@ -609,10 +606,12 @@ class VariantDataset(Dataset):
     def _load_seqs(self, variants: pd.DataFrame) -> None:
         from grelu.variant import variants_to_intervals
 
+        self.intervals = variants_to_intervals(variants, seq_len=self.seq_len)
+
         self.padded_seq_len = self.seq_len + (2 * self.max_seq_shift)
-        self.intervals = variants_to_intervals(variants, seq_len=self.padded_seq_len)
-        check_chrom_ends(self.intervals, genome=self.genome)
-        self.seqs = convert_input_type(self.intervals, "indices", genome=self.genome)
+        seqs = resize(self.intervals, seq_len=self.padded_seq_len)
+        check_chrom_ends(seqs, genome=self.genome)
+        self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
 
     def __len__(self) -> int:
         return self.n_seqs * self.n_augmented * 2
@@ -717,10 +716,12 @@ class VariantMarginalizeDataset(Dataset):
         """
         from grelu.variant import variants_to_intervals
 
+        self.intervals = variants_to_intervals(variants, seq_len=self.seq_len)
+
         self.padded_seq_len = self.seq_len + (2 * self.max_seq_shift)
-        self.intervals = variants_to_intervals(variants, seq_len=self.padded_seq_len)
-        check_chrom_ends(self.intervals, genome=self.genome)
-        self.seqs = convert_input_type(self.intervals, "indices", genome=self.genome)
+        seqs = resize(self.intervals, self.padded_seq_len)
+        check_chrom_ends(seqs, genome=self.genome)
+        self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
         self.n_seqs = self.seqs.shape[0]
 
     def __update__(self, idx: int) -> None:
