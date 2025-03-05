@@ -82,9 +82,21 @@ multitask_bin_labels = (
     .unsqueeze(2)
     .type(torch.float)
 )
+interval_df = pd.DataFrame(
+    {
+        "chrom": ["chr1"] * 2,
+        "start": [1e6, 2e6],
+        "end": [1e6 + 2, 2e6 + 2],
+        "label": [0, 1],
+    }
+)
+interval_df.start = interval_df.start.astype(int)
+interval_df.end = interval_df.end.astype(int)
+
 udataset = SeqDataset(strings[:2])
 udataset_aug = SeqDataset(strings[:2], rc=True, max_seq_shift=1)
 ldataset = DFSeqDataset(pd.DataFrame({"seq": strings, "label": 1.0}), rc=True)
+interval_dataset = DFSeqDataset(interval_df, genome="hg38")
 
 
 def test_lightning_model_input():
@@ -259,29 +271,53 @@ def test_lightning_model_embed_on_dataset():
 def test_lightning_model_train_on_dataset():
     _ = single_task_reg_model.train_on_dataset(
         train_dataset=ldataset,
-        val_dataset=ldataset,
+        val_dataset=interval_dataset,
     )
     assert single_task_reg_model.data_params["tasks"] == {"name": ["label"]}
-    assert single_task_reg_model.data_params["train_max_pair_shift"] == 0
-    assert single_task_reg_model.data_params["train_max_seq_shift"] == 0
-    assert single_task_reg_model.data_params["train_n_augmented"] == 2
-    assert single_task_reg_model.data_params["train_n_seqs"] == 3
-    assert single_task_reg_model.data_params["train_n_tasks"] == 1
-    assert single_task_reg_model.data_params["train_rc"]
-    assert single_task_reg_model.data_params["train_seq_len"] == 3
-    assert single_task_reg_model.data_params["val_max_pair_shift"] == 0
-    assert single_task_reg_model.data_params["val_max_seq_shift"] == 0
-    assert single_task_reg_model.data_params["val_n_augmented"] == 2
-    assert single_task_reg_model.data_params["val_n_seqs"] == 3
-    assert single_task_reg_model.data_params["val_n_tasks"] == 1
-    assert single_task_reg_model.data_params["val_rc"]
-    assert single_task_reg_model.data_params["val_seq_len"] == 3
+    assert single_task_reg_model.data_params["train"]["max_pair_shift"] == 0
+    assert single_task_reg_model.data_params["train"]["max_seq_shift"] == 0
+    assert single_task_reg_model.data_params["train"]["n_augmented"] == 2
+    assert single_task_reg_model.data_params["train"]["n_seqs"] == 3
+    assert single_task_reg_model.data_params["train"]["n_tasks"] == 1
+    assert single_task_reg_model.data_params["train"]["rc"]
+    assert single_task_reg_model.data_params["train"]["seq_len"] == 3
+    assert single_task_reg_model.data_params["train"]["intervals"] is None
+    assert single_task_reg_model.data_params["val"]["max_pair_shift"] == 0
+    assert single_task_reg_model.data_params["val"]["max_seq_shift"] == 0
+    assert single_task_reg_model.data_params["val"]["n_augmented"] == 1
+    assert single_task_reg_model.data_params["val"]["n_seqs"] == 2
+    assert single_task_reg_model.data_params["val"]["n_tasks"] == 1
+    assert not single_task_reg_model.data_params["val"]["rc"]
+    assert single_task_reg_model.data_params["val"]["seq_len"] == 2
+    assert pd.DataFrame(single_task_reg_model.data_params["val"]["intervals"]).equals(
+        interval_df.iloc[:, :3]
+    )
+    assert list(single_task_reg_model.performance["val"].keys()) == [
+        "val_mse",
+        "val_pearson",
+    ]
 
 
 def test_lightning_model_test_on_dataset():
-    metrics = single_task_reg_model.test_on_dataset(dataset=ldataset, devices="cpu")
+    metrics = single_task_reg_model.test_on_dataset(
+        dataset=interval_dataset, devices="cpu"
+    )
     assert metrics.index == ["label"]
     assert np.all(metrics.columns == ["test_mse", "test_pearson"])
+    assert single_task_reg_model.data_params["test"]["max_pair_shift"] == 0
+    assert single_task_reg_model.data_params["test"]["max_seq_shift"] == 0
+    assert single_task_reg_model.data_params["test"]["n_augmented"] == 1
+    assert single_task_reg_model.data_params["test"]["n_seqs"] == 2
+    assert single_task_reg_model.data_params["test"]["n_tasks"] == 1
+    assert not single_task_reg_model.data_params["test"]["rc"]
+    assert single_task_reg_model.data_params["test"]["seq_len"] == 2
+    assert pd.DataFrame(single_task_reg_model.data_params["test"]["intervals"]).equals(
+        interval_df.iloc[:, :3]
+    )
+    assert list(single_task_reg_model.performance["test"].keys()) == [
+        "test_mse",
+        "test_pearson",
+    ]
 
 
 def test_lightning_model_finetune():
@@ -339,15 +375,15 @@ def test_lightning_model_ensemble():
 
 bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
 bin_model.model_params["crop_len"] = 0
-bin_model.data_params["train_bin_size"] = 2
+bin_model.data_params["train"]["bin_size"] = 2
 
 crop_model = generate_model(task="binary", loss="bce", n_tasks=2)
 crop_model.model_params["crop_len"] = 3
-crop_model.data_params["train_bin_size"] = 1
+crop_model.data_params["train"]["bin_size"] = 1
 
 crop_bin_model = generate_model(task="binary", loss="bce", n_tasks=2)
 crop_bin_model.model_params["crop_len"] = 3
-crop_bin_model.data_params["train_bin_size"] = 2
+crop_bin_model.data_params["train"]["bin_size"] = 2
 
 
 def test_input_coord_to_output_bin():
