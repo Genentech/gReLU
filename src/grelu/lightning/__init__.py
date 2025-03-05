@@ -665,11 +665,12 @@ class LightningModel(pl.LightningModule):
         return self.train_on_dataset(train_dataset, val_dataset)
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
-        checkpoint["hyper_parameters"]["data_params"] = self.data_params
+        checkpoint["data_params"] = self.data_params
+        checkpoint["performance"] = self.performance
 
     def on_load_checkpoint(self, checkpoint: dict) -> None:
-        self.data_params = checkpoint["hyper_parameters"]["data_params"]
-        self.performance = checkpoint["hyper_parameters"]["performance"]
+        self.data_params = checkpoint["data_params"]
+        self.performance = checkpoint["performance"]
 
     def predict_on_seqs(
         self,
