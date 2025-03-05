@@ -1117,7 +1117,7 @@ class LightningModelEnsemble(pl.LightningModule):
         Remove the prediction transform from ALL the models.
         """
         for model in self.models:
-            self.transform = nn.Identity()
+            model.transform = nn.Identity()
 
     def get_task_idxs(
         self, tasks: Union[str, int, List[str], List[int]], key: str = "name"
