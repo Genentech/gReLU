@@ -67,8 +67,6 @@ class LightningModel(pl.LightningModule):
         data_params: Dictionary specifying parameters of the training data.
             This is empty by default and will be filled at the time of
             training.
-        performance: Dictionary containing performance metrics. This is empty
-            by default and will be filled at the time of training.
     """
 
     def __init__(
@@ -76,7 +74,6 @@ class LightningModel(pl.LightningModule):
         model_params: dict,
         train_params: dict = {},
         data_params: dict = {},
-        performance: dict = {},
     ) -> None:
         super().__init__()
 
@@ -93,7 +90,6 @@ class LightningModel(pl.LightningModule):
         self.model_params = model_params
         self.train_params = train_params
         self.data_params = data_params
-        self.performance = performance
 
         # Build model
         self.build_model()
@@ -347,11 +343,9 @@ class LightningModel(pl.LightningModule):
         # Compute metrics
         val_metrics = self.val_metrics.compute()
         mean_val_metrics = {k: v.mean() for k, v in val_metrics.items()}
-
         # Compute loss
         losses = torch.stack(self.val_losses)
         mean_losses = torch.mean(losses)
-
         # Log or print
         if self.train_params["logger"] is None:
             print(mean_val_metrics)
@@ -362,9 +356,6 @@ class LightningModel(pl.LightningModule):
 
         self.val_metrics.reset()
         self.val_losses = []
-        self.performance["val"] = {
-            k: v.detach().cpu().numpy() for k, v in val_metrics.items()
-        }
 
     def test_step(self, batch: Tensor, batch_idx: int) -> Tensor:
         """
@@ -383,16 +374,13 @@ class LightningModel(pl.LightningModule):
         """
         Calculate metrics for entire test set
         """
-        test_metrics = self.test_metrics.compute()
-        self.log_dict({k: v.mean() for k, v in test_metrics.items()})
+        self.computed_test_metrics = self.test_metrics.compute()
+        self.log_dict({k: v.mean() for k, v in self.computed_test_metrics.items()})
         losses = torch.stack(self.test_losses)
         self.log("test_loss", torch.mean(losses))
 
         self.test_metrics.reset()
         self.test_losses = []
-        self.performance["test"] = {
-            k: v.detach().cpu().numpy() for k, v in test_metrics.items()
-        }
 
     def configure_optimizers(self) -> None:
         """
@@ -583,14 +571,11 @@ class LightningModel(pl.LightningModule):
             names="name"
         ).to_dict(orient="list")
 
-        self.data_params["train"] = {}
-        self.data_params["val"] = {}
-
         for attr, value in self._get_dataset_attrs(train_dataset):
-            self.data_params["train"][attr] = value
+            self.data_params["train_" + attr] = value
 
         for attr, value in self._get_dataset_attrs(val_dataset):
-            self.data_params["val"][attr] = value
+            self.data_params["val_" + attr] = value
 
         # Add software params
         import grelu
@@ -614,14 +599,13 @@ class LightningModel(pl.LightningModule):
             if not attr.startswith("_") and not attr.isupper():
                 value = getattr(dataset, attr)
                 if (
-                    (isinstance(value, str))
+                    (attr == "chroms")
+                    or (isinstance(value, str))
                     or (isinstance(value, int))
                     or (isinstance(value, float))
                     or (value is None)
                 ):
                     yield attr, value
-                elif attr == "intervals":
-                    yield attr, value.to_dict(orient="list")
 
     def change_head(
         self,
@@ -686,7 +670,6 @@ class LightningModel(pl.LightningModule):
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
         checkpoint["hyper_parameters"]["data_params"] = self.data_params
-        checkpoint["hyper_parameters"]["performance"] = self.performance
 
     def predict_on_seqs(
         self,
@@ -826,7 +809,6 @@ class LightningModel(pl.LightningModule):
         num_workers: int = 1,
         batch_size: int = 256,
         precision: Optional[str] = None,
-        write_path: Optional[str] = None,
     ):
         """
         Run test loop for a dataset
@@ -837,8 +819,6 @@ class LightningModel(pl.LightningModule):
             num_workers: Number of workers for data loader
             batch_size: Batch size for data loader
             precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
-            write_path: Path to write a new model checkpoint containing
-                test data parameters and performance.
 
         Returns:
             Dataframe containing all calculated metrics on the test set.
@@ -858,17 +838,12 @@ class LightningModel(pl.LightningModule):
         )
         self.test_metrics.reset()
         trainer.test(model=self, dataloaders=dataloader, verbose=True)
+
+        metric_dict = {
+            k: v.detach().cpu().numpy() for k, v in self.computed_test_metrics.items()
+        }
         self.test_metrics.reset()
-
-        self.data_params["test"] = {}
-        for attr, value in self._get_dataset_attrs(dataset):
-            self.data_params["test"][attr] = value
-
-        if write_path is not None:
-            trainer.save_checkpoint(write_path)
-        return pd.DataFrame(
-            self.performance["test"], index=self.data_params["tasks"]["name"]
-        )
+        return pd.DataFrame(metric_dict, index=self.data_params["tasks"]["name"])
 
     def embed_on_dataset(
         self,
@@ -980,8 +955,8 @@ class LightningModel(pl.LightningModule):
             Index of the output bin containing the given position.
 
         """
-        output_bin = (input_coord - start_pos) / self.data_params["train"][
-            "bin_size"
+        output_bin = (input_coord - start_pos) / self.data_params[
+            "train_bin_size"
         ] - self.model_params["crop_len"]
         return int(np.floor(output_bin))
 
@@ -1006,12 +981,12 @@ class LightningModel(pl.LightningModule):
 
         """
         start = (output_bin + self.model_params["crop_len"]) * self.data_params[
-            "train"
-        ]["bin_size"]
+            "train_bin_size"
+        ]
         if return_pos == "start":
             return start + start_pos
         elif return_pos == "end":
-            return start + self.data_params["train"]["bin_size"] + start_pos
+            return start + self.data_params["train_bin_size"] + start_pos
         else:
             raise NotImplementedError
 
@@ -1032,9 +1007,7 @@ class LightningModel(pl.LightningModule):
             to the model output from each input interval.
         """
         output_intervals = intervals.copy()
-        crop_coords = (
-            self.model_params["crop_len"] * self.data_params["train"]["bin_size"]
-        )
+        crop_coords = self.model_params["crop_len"] * self.data_params["train_bin_size"]
         output_intervals["start"] = intervals.start + crop_coords
         output_intervals["end"] = intervals.end - crop_coords
         return output_intervals
