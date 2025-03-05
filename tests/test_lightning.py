@@ -35,7 +35,6 @@ def generate_model(
             "class_weights": class_weights,
             "pos_weight": pos_weight,
         },
-        data_params={},
     )
 
     if n_tasks == 1:

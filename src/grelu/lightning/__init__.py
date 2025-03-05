@@ -64,19 +64,12 @@ class LightningModel(pl.LightningModule):
     Args:
         model_params: Dictionary of parameters specifying model architecture
         train_params: Dictionary specifying training parameters
-        data_params: Dictionary specifying parameters of the training data.
-            This is empty by default and will be filled at the time of
-            training.
-        performance: Dictionary containing performance metrics. This is empty
-            by default and will be filled at the time of training.
     """
 
     def __init__(
         self,
         model_params: dict,
         train_params: dict = {},
-        data_params: dict = {},
-        performance: dict = {},
     ) -> None:
         super().__init__()
 
@@ -92,8 +85,8 @@ class LightningModel(pl.LightningModule):
         # Save params
         self.model_params = model_params
         self.train_params = train_params
-        self.data_params = data_params
-        self.performance = performance
+        self.data_params = dict()
+        self.performance = dict()
 
         # Build model
         self.build_model()
@@ -667,7 +660,6 @@ class LightningModel(pl.LightningModule):
             PyTorch Lightning Trainer
         """
         # Move train data parameters
-        self.base_data_params = self.data_params.copy()
         self.data_params = {}
 
         # Make new model head
@@ -687,6 +679,10 @@ class LightningModel(pl.LightningModule):
     def on_save_checkpoint(self, checkpoint: dict) -> None:
         checkpoint["hyper_parameters"]["data_params"] = self.data_params
         checkpoint["hyper_parameters"]["performance"] = self.performance
+
+    def on_load_checkpoint(self, checkpoint: dict) -> None:
+        self.data_params = checkpoint["hyper_parameters"]["data_params"]
+        self.performance = checkpoint["hyper_parameters"]["performance"]
 
     def predict_on_seqs(
         self,
@@ -755,7 +751,6 @@ class LightningModel(pl.LightningModule):
         )
 
         # Predict
-        self._log_hyperparams = False
         preds = torch.concat(trainer.predict(self, dataloader))
 
         # Reshape predictions
@@ -857,7 +852,6 @@ class LightningModel(pl.LightningModule):
             logger=None,
             precision=precision,
         )
-        self._log_hyperparams = False
         self.test_metrics.reset()
         trainer.test(model=self, dataloaders=dataloader, verbose=True)
         self.test_metrics.reset()
