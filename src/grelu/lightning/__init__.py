@@ -975,9 +975,9 @@ class LightningModel(pl.LightningModule):
             Index of the output bin containing the given position.
 
         """
-        output_bin = (input_coord - start_pos) / self.data_params[
-            "train"["bin_size"
-        ] - self.model_params["crop_len"]
+        output_bin = (
+            (input_coord - start_pos) / self.data_params["train"]["bin_size"]
+        ) - self.model_params["crop_len"]
         return int(np.floor(output_bin))
 
     def output_bin_to_input_coord(
@@ -1001,8 +1001,8 @@ class LightningModel(pl.LightningModule):
 
         """
         start = (output_bin + self.model_params["crop_len"]) * self.data_params[
-            "train"]["bin_size"
-        ]
+            "train"
+        ]["bin_size"]
         if return_pos == "start":
             return start + start_pos
         elif return_pos == "end":
@@ -1027,7 +1027,9 @@ class LightningModel(pl.LightningModule):
             to the model output from each input interval.
         """
         output_intervals = intervals.copy()
-        crop_coords = self.model_params["crop_len"] * self.data_params["train"["bin_size"]
+        crop_coords = (
+            self.model_params["crop_len"] * self.data_params["train"]["bin_size"]
+        )
         output_intervals["start"] = intervals.start + crop_coords
         output_intervals["end"] = intervals.end - crop_coords
         return output_intervals
