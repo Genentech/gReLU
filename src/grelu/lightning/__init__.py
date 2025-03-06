@@ -1099,32 +1099,6 @@ class LightningModelEnsemble(pl.LightningModule):
         x = self.transform(x)
         return x
 
-    # def predict_on_dataset(self, dataset: Callable, **kwargs) -> np.ndarray:
-    #     """
-    #     This will return the concatenated predictions from all the
-    #     constituent models, in the order in which they were supplied.
-    #     Predictions will be concatenated along the task axis.
-    #     """
-    #     return np.concatenate(
-    #         [model.predict_on_dataset(dataset, **kwargs) for model in self.models],
-    #         axis=-2,
-    #     )
-
-    # def add_transform(self, prediction_transform: Callable) -> None:
-    #     """
-    #     Add a prediction transform to ALL the models.
-    #     """
-    #     if prediction_transform is not None:
-    #         for model in self.models:
-    #             model.transform = prediction_transform
-
-    # def reset_transform(self) -> None:
-    #     """
-    #     Remove the prediction transform from ALL the models.
-    #     """
-    #     for model in self.models:
-    #         model.transform = nn.Identity()
-
     def add_transform(self, prediction_transform: Callable) -> None:
         """
         Add a prediction transform
@@ -1183,14 +1157,6 @@ class LightningModelEnsemble(pl.LightningModule):
             logger=None,
             precision=precision,
         )
-
-        # preds = []
-        # self.model = self.model.eval().to(accelerator)
-        # for batch in dataloader:
-        #     batch = batch.to(accelerator)
-        #     with torch.no_grad():
-        #     preds.append(self.forward(batch))
-        # preds = torch.cat(preds)
 
         # Predict
         preds = torch.concat(trainer.predict(self, dataloader))
