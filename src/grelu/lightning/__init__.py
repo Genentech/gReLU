@@ -1067,6 +1067,10 @@ class LightningModelEnsemble(pl.LightningModule):
         }
         self.data_params = {"tasks": defaultdict(list)}
 
+        # Set models to eval mode (since this class is used for prediction and design)
+        for model in self.models:
+            model.eval()
+
         self.reset_transform()
         self._combine_tasks()
 
