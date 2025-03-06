@@ -1066,6 +1066,8 @@ class LightningModelEnsemble(pl.LightningModule):
             "n_tasks": sum([model.model_params["n_tasks"] for model in self.models])
         }
         self.data_params = {"tasks": defaultdict(list)}
+
+        self.reset_transform()
         self._combine_tasks()
 
     def _combine_tasks(self) -> None:
@@ -1091,33 +1093,208 @@ class LightningModelEnsemble(pl.LightningModule):
         """
         Forward Pass.
         """
-        return torch.cat([model(x) for model in self.models], axis=1)  # B, T, L
+        x = torch.cat([model(x) for model in self.models], axis=1)  # B, T, L
 
-    def predict_on_dataset(self, dataset: Callable, **kwargs) -> np.ndarray:
-        """
-        This will return the concatenated predictions from all the
-        constituent models, in the order in which they were supplied.
-        Predictions will be concatenated along the task axis.
-        """
-        return np.concatenate(
-            [model.predict_on_dataset(dataset, **kwargs) for model in self.models],
-            axis=-2,
-        )
+        # apply transform to ensemble output
+        x = self.transform(x)
+        return x
+
+    # def predict_on_dataset(self, dataset: Callable, **kwargs) -> np.ndarray:
+    #     """
+    #     This will return the concatenated predictions from all the
+    #     constituent models, in the order in which they were supplied.
+    #     Predictions will be concatenated along the task axis.
+    #     """
+    #     return np.concatenate(
+    #         [model.predict_on_dataset(dataset, **kwargs) for model in self.models],
+    #         axis=-2,
+    #     )
+
+    # def add_transform(self, prediction_transform: Callable) -> None:
+    #     """
+    #     Add a prediction transform to ALL the models.
+    #     """
+    #     if prediction_transform is not None:
+    #         for model in self.models:
+    #             model.transform = prediction_transform
+
+    # def reset_transform(self) -> None:
+    #     """
+    #     Remove the prediction transform from ALL the models.
+    #     """
+    #     for model in self.models:
+    #         model.transform = nn.Identity()
 
     def add_transform(self, prediction_transform: Callable) -> None:
         """
-        Add a prediction transform to ALL the models.
+        Add a prediction transform
         """
         if prediction_transform is not None:
-            for model in self.models:
-                model.transform = prediction_transform
+            self.transform = prediction_transform
 
     def reset_transform(self) -> None:
         """
-        Remove the prediction transform from ALL the models.
+        Remove a prediction transform
         """
+        self.transform = nn.Identity()
+
+    def predict_on_dataset(
+        self,
+        dataset: Callable,
+        devices: Union[int, str, List[int]] = "cpu",
+        num_workers: int = 1,
+        batch_size: int = 256,
+        augment_aggfunc: Union[str, Callable] = "mean",
+        compare_func: Optional[Union[str, Callable]] = None,
+        return_df: bool = False,
+        precision: Optional[str] = None,
+    ):
+        """
+        Predict for a dataset of sequences or variants
+
+        Args:
+            dataset: Dataset object that yields one-hot encoded sequences
+            devices: Device IDs to use
+            num_workers: Number of workers for data loader
+            batch_size: Batch size for data loader
+            augment_aggfunc: Return the average prediction across all augmented
+                versions of a sequence
+            compare_func: Return the alt/ref difference for variants
+            return_df: Return the predictions as a Pandas dataframe
+            precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
+
+        Returns:
+            Model predictions as a numpy array or dataframe
+        """
+        torch.set_float32_matmul_precision("medium")
+        dataloader = self.make_predict_loader(
+            dataset,
+            num_workers=num_workers,
+            batch_size=batch_size,
+        )
+        accelerator, devices = self.parse_devices(devices)
+
         for model in self.models:
-            model.transform = nn.Identity()
+            model.to("cuda" if accelerator == "gpu" else "cpu")
+
+        trainer = pl.Trainer(
+            accelerator=accelerator,
+            devices=devices,
+            logger=None,
+            precision=precision,
+        )
+
+        # preds = []
+        # self.model = self.model.eval().to(accelerator)
+        # for batch in dataloader:
+        #     batch = batch.to(accelerator)
+        #     with torch.no_grad():
+        #     preds.append(self.forward(batch))
+        # preds = torch.cat(preds)
+
+        # Predict
+        preds = torch.concat(trainer.predict(self, dataloader))
+
+        # Reshape predictions
+        preds = rearrange(
+            preds,
+            "(b n a) t l -> b n a t l",
+            n=dataset.n_augmented,
+            a=dataset.n_alleles,
+        )
+
+        # Convert predictions to numpy array
+        preds = preds.detach().cpu().numpy()
+
+        # ISM or Motif Scanning
+        if (isinstance(dataset, ISMDataset)) or (isinstance(dataset, MotifScanDataset)):
+            return preds
+
+        else:
+            # Flip predictions for reverse complemented sequences
+            if (dataset.rc) and (preds.shape[-1] > 1):
+                preds[:, dataset.n_augmented // 2 :, :, :, :] = np.flip(
+                    preds[:, dataset.n_augmented // 2 :, :, :, :], axis=-1
+                )
+
+            # Compare the predictions for two alleles
+            if (
+                (isinstance(dataset, VariantDataset))
+                or (isinstance(dataset, VariantMarginalizeDataset))
+                or (isinstance(dataset, PatternMarginalizeDataset))
+            ):
+                if compare_func is not None:
+                    assert preds.shape[2] == 2
+                    preds = get_compare_func(compare_func)(
+                        preds[:, :, 1, :, :], preds[:, :, 0, :, :]
+                    )  # BNTL
+
+                # Combine predictions for augmented sequences
+                if augment_aggfunc is not None:
+                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
+
+                return preds
+
+            else:
+                # Regular sequences
+                preds = preds.squeeze(2)  # B N T L
+                if augment_aggfunc is not None:
+                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
+                elif preds.shape[1] == 1:
+                    preds = preds.squeeze(1)
+
+                # Make dataframe
+                if return_df:
+                    if (preds.ndim == 3) and (preds.shape[-1] == 1):
+                        preds = pd.DataFrame(
+                            preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
+                        )
+                    else:
+                        warnings.warn(
+                            "Cannot produce dataframe output."
+                            + "Either output length > 1 or augmented sequences are not aggregated."
+                        )
+
+            return preds
+
+    def parse_devices(
+        self, devices: Union[str, int, List[int]]
+    ) -> Tuple[str, Union[str, List[int]]]:
+        """
+        Parses the devices argument and returns a tuple of accelerator and devices.
+
+        Args:
+            devices: Either "cpu" or an integer or list of integers representing the indices
+                of the GPUs for training.
+
+        Returns:
+            A tuple of accelerator and devices.
+        """
+        if devices == "cpu":
+            accelerator = "cpu"
+            devices = "auto"
+        else:
+            accelerator = "gpu"
+            devices = make_list(devices)
+        return accelerator, devices
+
+    def make_predict_loader(
+        self,
+        dataset: Callable,
+        batch_size: Optional[int] = None,
+        num_workers: Optional[int] = None,
+    ) -> Callable:
+        """
+        Make dataloader for prediction
+        """
+        if isinstance(dataset, LabeledSeqDataset):
+            dataset.predict = True
+        return DataLoader(
+            dataset,
+            batch_size=batch_size or self.train_params["batch_size"],
+            shuffle=False,
+            num_workers=num_workers or self.train_params["num_workers"],
+        )
 
     def get_task_idxs(
         self, tasks: Union[str, int, List[str], List[int]], key: str = "name"
