@@ -216,15 +216,17 @@ def shuffle_tiles(
         seed: Random seed
         prediction_transform: A module to transform the model output
         augment_aggfunc: Function to aggregate the predictions across shuffles.
-        compare_func: Function to compare the predictions after shuffling tiles
-            to those before shuffling.
+        compare_func: Function to compare the predictions with and without the variable
+            pattern. Options are "divide" or "subtract". If not provided, the predictions
+            without shuffling will be returned separately.
 
     Returns:
         before_preds: Model predictions on the original sequences. 
         after_preds: Model predictions on the sequences with shuffled tiles.
-        tiles: Dataframe containing the coordinates of the tiles that were shuffled.
+        tiles: Dataframe containing the coordinates of the tiles that were shuffled.        
     """
     from grelu.data.dataset import SeqDataset, TilingShuffleDataset
+
     model.add_transform(prediction_transform)
 
     # Baseline predictions
@@ -257,7 +259,7 @@ def shuffle_tiles(
         num_workers=num_workers,
         batch_size=batch_size,
         augment_aggfunc=augment_aggfunc,
-    )
+        )
 
     model.reset_transform()
 
