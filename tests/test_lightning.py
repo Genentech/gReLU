@@ -340,7 +340,7 @@ def test_lightning_model_ensemble():
     t = Aggregate(task_aggfunc="mean")
     model.add_transform(t)
     preds = model.predict_on_dataset(dataset=udataset, devices="cpu")
-    assert preds.shape == (2, 2, 1)
+    assert preds.shape == (2, 1, 1)
 
     model.reset_transform()
     preds = model.predict_on_dataset(dataset=udataset, devices="cpu")
