@@ -44,7 +44,6 @@ def get_genome(genome: str, **kwargs) -> genomepy.Genome:
     Returns:
         Genome object
     """
-    # Todo: add option to download genome from different sources.
     if genome not in genomepy.list_installed_genomes():
         return genomepy.install_genome(genome, annotation=False, **kwargs)
     else:
