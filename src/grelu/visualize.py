@@ -756,7 +756,12 @@ def plot_attention_matrix(
     return fig
 
 
-def plot_pattern_spacing(preds: np.ndarray, distances: List[int], title: Optional[str], figsize: Tuple[int, int] = (6, 3)):
+def plot_pattern_spacing(
+    preds: np.ndarray,
+    distances: List[int],
+    title: Optional[str],
+    figsize: Tuple[int, int] = (6, 3),
+):
     """
     Visualize the output of `grelu.interpret.simulate.space_patterns`.
 
@@ -771,19 +776,29 @@ def plot_pattern_spacing(preds: np.ndarray, distances: List[int], title: Optiona
         on the y axis. The distribution shows the mean and 95% confidence intervals.
     """
     import scipy.stats
-    
-    to_plot = pd.DataFrame({'mean':preds.mean(0), 'sem': preds.std(0)/np.sqrt(preds.shape[0]), 'distance': distances})
-    ci = scipy.stats.t.interval(0.95, preds.shape[0], loc=to_plot['mean'], scale=to_plot['sem'])
-    to_plot[['lower_ci', 'upper_ci']] = np.stack(ci).T
-    
+
+    to_plot = pd.DataFrame(
+        {
+            "mean": preds.mean(0),
+            "sem": preds.std(0) / np.sqrt(preds.shape[0]),
+            "distance": distances,
+        }
+    )
+    ci = scipy.stats.t.interval(
+        0.95, preds.shape[0], loc=to_plot["mean"], scale=to_plot["sem"]
+    )
+    to_plot[["lower_ci", "upper_ci"]] = np.stack(ci).T
+
     g = (
-        p9.ggplot(to_plot, p9.aes(x='distance', y='mean')) 
-        + p9.geom_point(size=.1)
+        p9.ggplot(to_plot, p9.aes(x="distance", y="mean"))
+        + p9.geom_point(size=0.1)
         + p9.geom_line()
-        + p9.geom_ribbon(p9.aes(ymin = 'lower_ci', ymax = 'upper_ci'), fill = "grey", alpha=.3)
-        + p9.theme_classic() 
+        + p9.geom_ribbon(
+            p9.aes(ymin="lower_ci", ymax="upper_ci"), fill="grey", alpha=0.3
+        )
+        + p9.theme_classic()
         + p9.theme(figure_size=figsize)
-        + p9.geom_vline(linetype='--', xintercept=0)
+        + p9.geom_vline(linetype="--", xintercept=0)
         + p9.xlab("Spacing")
         + p9.ylab("Mean effect")
     )

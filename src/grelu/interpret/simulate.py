@@ -221,19 +221,16 @@ def shuffle_tiles(
             without shuffling will be returned separately.
 
     Returns:
-        before_preds: Model predictions on the original sequences. 
+        before_preds: Model predictions on the original sequences.
         after_preds: Model predictions on the sequences with shuffled tiles.
-        tiles: Dataframe containing the coordinates of the tiles that were shuffled.        
+        tiles: Dataframe containing the coordinates of the tiles that were shuffled.
     """
     from grelu.data.dataset import SeqDataset, TilingShuffleDataset
 
     model.add_transform(prediction_transform)
 
     # Baseline predictions
-    ds = SeqDataset(
-        seqs = seqs,
-        genome=genome
-    )
+    ds = SeqDataset(seqs=seqs, genome=genome)
     before_preds = model.predict_on_dataset(
         ds,
         devices=devices,
@@ -259,12 +256,12 @@ def shuffle_tiles(
         num_workers=num_workers,
         batch_size=batch_size,
         augment_aggfunc=augment_aggfunc,
-        )
+    )
 
     model.reset_transform()
 
     # Compare predictions before and after shuffling
     if compare_func is not None:
         return get_compare_func(compare_func)(after_preds, before_preds), ds.tiles
-    else:   
+    else:
         return before_preds, after_preds, ds.tiles

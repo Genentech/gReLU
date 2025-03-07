@@ -24,11 +24,14 @@ from torchmetrics import AUROC, Accuracy, AveragePrecision, MetricCollection
 
 import grelu.model.models
 from grelu.data.dataset import (
+    ISMDataset,
     LabeledSeqDataset,
+    MotifScanDataset,
     PatternMarginalizeDataset,
+    PatternSpacingDataset,
+    TilingShuffleDataset,
     VariantDataset,
     VariantMarginalizeDataset,
-    ISMDataset, MotifScanDataset, TilingShuffleDataset, PatternSpacingDataset
 )
 from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
@@ -762,11 +765,14 @@ class LightningModel(pl.LightningModule):
         # Convert predictions to numpy array
         preds = preds.detach().cpu().numpy()
 
-        if isinstance(dataset, (ISMDataset, MotifScanDataset, TilingShuffleDataset, PatternSpacingDataset)):
+        if isinstance(
+            dataset,
+            (ISMDataset, MotifScanDataset, TilingShuffleDataset, PatternSpacingDataset),
+        ):
             return preds
 
         # Flip predictions for reverse complemented sequences
-        if hasattr(dataset, 'rc'):
+        if hasattr(dataset, "rc"):
             if (dataset.rc) and (preds.shape[-1] > 1):
                 preds[:, dataset.n_augmented // 2 :, :, :, :] = np.flip(
                     preds[:, dataset.n_augmented // 2 :, :, :, :], axis=-1

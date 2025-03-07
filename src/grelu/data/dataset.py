@@ -1248,8 +1248,8 @@ class TilingShuffleDataset(Dataset):
         seq = indices_to_one_hot(seq)
 
         # Shuffle tile
-        seq[:, coords.start: coords.end] = _dinucleotide_shuffle(
-            seq[:, coords.start: coords.end],
+        seq[:, coords.start : coords.end] = _dinucleotide_shuffle(
+            seq[:, coords.start : coords.end],
             n_shuffles=1,
             random_state=self.seed + shuf_idx,
         ).squeeze(0)
