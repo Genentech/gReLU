@@ -820,14 +820,14 @@ class PatternMarginalizeDataset(Dataset):
             seed=self.seed,
             mode="serial",
         )
-        self.n_augmented = self.n_shuffles * len(self.augmenter)
+        self.n_augmented = len(self.augmenter) * self.n_shuffles
 
         # Initial state
         self.bg = None
         self.curr_seq_idx = None
 
     def _load_alleles(self, patterns: List[str]) -> None:
-        self.alleles = strings_to_indices(patterns, add_batch_axis=True)
+        self.alleles = [strings_to_indices(pattern) for pattern in patterns]
         self.n_alleles = len(self.alleles) + 1
 
     def _load_seqs(self, seqs: Union[pd.DataFrame, List[str], np.ndarray]) -> None:

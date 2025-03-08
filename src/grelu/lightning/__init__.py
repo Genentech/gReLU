@@ -774,11 +774,12 @@ class LightningModel(pl.LightningModule):
                     preds[:, dataset.n_augmented // 2 :, :, :, :], axis=-1
                 )
 
+            if isinstance(dataset, PatternMarginalizeDataset):
+                return preds
+
             # Compare the predictions for two alleles
-            if (
-                (isinstance(dataset, VariantDataset))
-                or (isinstance(dataset, VariantMarginalizeDataset))
-                or (isinstance(dataset, PatternMarginalizeDataset))
+            elif (isinstance(dataset, VariantDataset)) or (
+                isinstance(dataset, VariantMarginalizeDataset)
             ):
                 if compare_func is not None:
                     assert preds.shape[2] == 2
