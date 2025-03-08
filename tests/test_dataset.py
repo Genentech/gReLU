@@ -849,7 +849,7 @@ def test_marginalize_dataset_motifs():
         and (ds.n_seqs == 1)
         and (ds.alleles.shape == (1, 3))
         and (len(ds) == 4)
-        and (ds.n_augmented == 1)
+        and (ds.n_augmented == 2)
         and (ds.n_alleles == 2)
     )
 
