@@ -820,7 +820,7 @@ class PatternMarginalizeDataset(Dataset):
             seed=self.seed,
             mode="serial",
         )
-        self.n_augmented = len(self.augmenter) * self.n_shuffles
+        self.n_augmented = self.n_shuffles * len(self.augmenter)
 
         # Initial state
         self.bg = None
