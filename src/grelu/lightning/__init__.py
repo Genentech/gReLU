@@ -774,12 +774,10 @@ class LightningModel(pl.LightningModule):
                     preds[:, dataset.n_augmented // 2 :, :, :, :], axis=-1
                 )
 
-            if isinstance(dataset, PatternMarginalizeDataset):
-                return preds
-
             # Compare the predictions for two alleles
             elif (isinstance(dataset, VariantDataset)) or (
                 isinstance(dataset, VariantMarginalizeDataset)
+                or (isinstance(dataset, PatternMarginalizeDataset))
             ):
                 if compare_func is not None:
                     assert preds.shape[2] == 2
@@ -790,7 +788,8 @@ class LightningModel(pl.LightningModule):
                 # Combine predictions for augmented sequences
                 if augment_aggfunc is not None:
                     preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
-
+                if preds.shape[1] == 1:
+                    preds = preds.squeeze(1)
                 return preds
 
             else:
