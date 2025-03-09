@@ -3,7 +3,7 @@ from typing import Callable, List, Optional, Sequence, Tuple, Union
 import numpy as np
 import pandas as pd
 
-from grelu.utils import get_compare_func, get_aggfunc
+from grelu.utils import get_aggfunc, get_compare_func
 
 
 def marginalize_patterns(
@@ -41,8 +41,8 @@ def marginalize_patterns(
         rc: If True, augment by reverse complementation
         augment_aggfunc: Function to aggregate the predictions over augmented
             versions of the same sequence.
-        compare_func: Function to compare the predictions with and without the 
-            pattern. Options are "divide" or "subtract". If not provided, the 
+        compare_func: Function to compare the predictions with and without the
+            pattern. Options are "divide" or "subtract". If not provided, the
             predictions before and after pattern insertion will be returned.
 
     Returns:
