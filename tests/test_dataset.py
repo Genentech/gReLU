@@ -847,7 +847,7 @@ def test_marginalize_dataset_motifs():
     assert (
         (ds.n_shuffles == 2)
         and (ds.n_seqs == 1)
-        and (np.allclose(ds.alleles, [[0., 0., 0.]]))
+        and (np.allclose(ds.alleles, [[0.0, 0.0, 0.0]]))
         and (len(ds) == 4)
         and (ds.n_augmented == 2)
         and (ds.n_alleles == 2)
