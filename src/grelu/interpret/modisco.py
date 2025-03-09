@@ -119,6 +119,7 @@ def run_modisco(
     n_shuffles: int = 10,
     seed=None,
     method: str = "deepshap",
+    correct_grad: bool = False,
     **kwargs,
 ) -> None:
     """
@@ -139,6 +140,8 @@ def run_modisco(
         n_shuffles: Number of times to shuffle the background sequences for deepshap.
         seed: Random seed
         method: Either "deepshap", "saliency" or "ism".
+        correct_grad: If True, gradients will be corrected using the method of Majdandzic et al.
+            (PMID: 37161475). Only used with method='saliency'.
         **kwargs: Additional arguments to pass to TF-Modisco.
 
     Raises:
@@ -180,6 +183,7 @@ def run_modisco(
             hypothetical=True,
             genome=genome,
             seed=seed,
+            correct_grad=correct_grad,
         )
         attrs = attrs[:, :, start:end]
 

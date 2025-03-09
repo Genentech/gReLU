@@ -129,6 +129,7 @@ def get_attributions(
     prediction_transform: Optional[Callable] = None,
     device: Union[str, int] = "cpu",
     method: str = "deepshap",
+    correct_grad: bool = False,
     hypothetical: bool = False,
     n_shuffles: int = 20,
     seed=None,
@@ -144,8 +145,10 @@ def get_attributions(
         prediction_transform: A module to transform the model output
         devices: Indices of the devices to use for inference
         method: One of "deepshap", "saliency", "inputxgradient" or "integratedgradients"
-        hypothetical: whether to calculate hypothetical importance scores.
-            Set this to True to obtain input for tf-modisco, False otherwise
+        correct_grad: If True, gradients will be corrected using the method of Majdandzic et al.
+            (PMID: 37161475). Only used with method='saliency'.
+        hypothetical: Only used with method = "deepshap". If true, the function will return
+            hypothetical importance scores which can be used as input for tf-modisco.
         n_shuffles: Number of times to dinucleotide shuffle sequence
         seed: Random seed
         **kwargs: Additional arguments to pass to tangermeme.deep_lift_shap.deep_lift_shap
@@ -210,6 +213,16 @@ def get_attributions(
 
     # Remove transform
     model.reset_transform()
+
+    # Correct gradients
+    if correct_grad:
+        if method != "saliency":
+            warnings.warn(
+                "correct_grad = True will be ignored as method is not saliency."
+            )
+        else:
+            attributions - attributions.mean(1, keepdims=True)
+
     return attributions  # N, 4, L
 
 
