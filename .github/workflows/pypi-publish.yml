@@ -31,6 +31,10 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: _build/
           force_orphan: true
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox
       - name: Build Project
         run: |
           python -m tox -e clean,build
