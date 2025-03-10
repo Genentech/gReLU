@@ -231,7 +231,7 @@ def predict_variant_effects(
     print("making dataset")
     dataset = VariantDataset(
         variants,
-        seq_len=seq_len or model.data_params["train_seq_len"],
+        seq_len=seq_len or model.data_params["train"]["seq_len"],
         genome=genome,
         rc=rc,
         max_seq_shift=max_seq_shift,
@@ -323,7 +323,7 @@ def marginalize_variants(
     # Create variant dataset
     ds = VariantDataset(
         variants,
-        seq_len=seq_len or model.data_params["train_seq_len"],
+        seq_len=seq_len or model.data_params["train"]["seq_len"],
         rc=rc,
         max_seq_shift=max_seq_shift,
         genome=genome,
@@ -345,7 +345,7 @@ def marginalize_variants(
     # Create marginalization dataset
     ds = VariantMarginalizeDataset(
         variants=variants,
-        seq_len=seq_len or model.data_params["train_seq_len"],
+        seq_len=seq_len or model.data_params["train"]["seq_len"],
         genome=genome,
         n_shuffles=n_shuffles,
         seed=seed,
