@@ -764,7 +764,7 @@ class LightningModel(pl.LightningModule):
         preds = preds.detach().cpu().numpy()
 
         # ISM or Motif Scanning
-        if (isinstance(dataset, ISMDataset)) or (isinstance(dataset, MotifScanDataset)):
+        if isinstance(dataset, (ISMDataset, MotifScanDataset, TilingShuffleDataset, PatternSpacingDataset)):
             return preds
 
         else:
@@ -775,11 +775,7 @@ class LightningModel(pl.LightningModule):
                 )
 
             # Compare the predictions for two alleles
-            if (
-                (isinstance(dataset, VariantDataset))
-                or (isinstance(dataset, VariantMarginalizeDataset))
-                or (isinstance(dataset, PatternMarginalizeDataset))
-            ):
+            if isinstance(dataset, (VariantDataset, VariantMarginalizeDataset, PatternMarginalizeDataset)):
                 if compare_func is not None:
                     assert preds.shape[2] == 2
                     preds = get_compare_func(compare_func)(
