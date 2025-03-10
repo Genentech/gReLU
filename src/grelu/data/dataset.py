@@ -17,9 +17,10 @@ import numpy as np
 import pandas as pd
 import scipy
 from einops import rearrange
+from tangermeme.ersatz import _dinucleotide_shuffle
 from torch import Tensor
 from torch.utils.data import Dataset
-from tangermeme.ersatz import _dinucleotide_shuffle
+
 from grelu.data.augment import Augmenter, _split_overall_idx
 from grelu.data.preprocess import check_chrom_ends
 from grelu.data.utils import _check_multiclass, _create_task_data
@@ -33,7 +34,7 @@ from grelu.sequence.format import (
 )
 from grelu.sequence.mutate import mutate
 from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
-from grelu.utils import get_aggfunc, get_transform_func, make_list
+from grelu.utils import get_aggfunc, get_transform_func
 
 
 class LabeledSeqDataset(Dataset):
@@ -1029,7 +1030,7 @@ class PatternSpacingDataset(Dataset):
     Dataset class to perform pairwise motif distance analysis. One motif
     is inserted at a fixed position in shuffled sequences and the second motif is
     inserted at variable distances from the first.
-    
+
     Args:
         seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
         fixed_pattern: A subsequence to insert in the center of each background sequence.
@@ -1158,7 +1159,7 @@ class TilingShuffleDataset(Dataset):
     """
     Dataset class to perform regulatory element discovery by shuffling tiles along
     the input sequences.
-    
+
     Args:
         seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
         tile_len: Length of tile to shuffle.

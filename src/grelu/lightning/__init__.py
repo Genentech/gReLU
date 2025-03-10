@@ -28,6 +28,8 @@ from grelu.data.dataset import (
     LabeledSeqDataset,
     MotifScanDataset,
     PatternMarginalizeDataset,
+    PatternSpacingDataset,
+    TilingShuffleDataset,
     VariantDataset,
     VariantMarginalizeDataset,
 )
@@ -764,7 +766,10 @@ class LightningModel(pl.LightningModule):
         preds = preds.detach().cpu().numpy()
 
         # ISM or Motif Scanning
-        if isinstance(dataset, (ISMDataset, MotifScanDataset, TilingShuffleDataset, PatternSpacingDataset)):
+        if isinstance(
+            dataset,
+            (ISMDataset, MotifScanDataset, TilingShuffleDataset, PatternSpacingDataset),
+        ):
             return preds
 
         else:
@@ -775,7 +780,10 @@ class LightningModel(pl.LightningModule):
                 )
 
             # Compare the predictions for two alleles
-            if isinstance(dataset, (VariantDataset, VariantMarginalizeDataset, PatternMarginalizeDataset)):
+            if isinstance(
+                dataset,
+                (VariantDataset, VariantMarginalizeDataset, PatternMarginalizeDataset),
+            ):
                 if compare_func is not None:
                     assert preds.shape[2] == 2
                     preds = get_compare_func(compare_func)(
