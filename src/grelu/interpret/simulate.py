@@ -1,9 +1,9 @@
-from typing import Callable, List, Optional, Sequence, Tuple, Union
+from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
 
-from grelu.utils import get_aggfunc, get_compare_func
+from grelu.utils import get_compare_func
 
 
 def marginalize_patterns(

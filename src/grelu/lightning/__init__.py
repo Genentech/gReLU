@@ -775,8 +775,9 @@ class LightningModel(pl.LightningModule):
                 )
 
             # Compare the predictions for two alleles
-            elif (isinstance(dataset, VariantDataset)) or (
-                isinstance(dataset, VariantMarginalizeDataset)
+            if (
+                (isinstance(dataset, VariantDataset))
+                or (isinstance(dataset, VariantMarginalizeDataset))
                 or (isinstance(dataset, PatternMarginalizeDataset))
             ):
                 if compare_func is not None:
