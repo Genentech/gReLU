@@ -10,6 +10,7 @@ import pandas as pd
 from anndata import AnnData
 
 from grelu.data.dataset import VariantDataset
+from grelu.utils import get_compare_func
 
 
 def filter_variants(
@@ -194,6 +195,7 @@ def predict_variant_effects(
     compare_func: Optional[Union[str, Callable]] = "divide",
     return_ad: bool = True,
     check_reference: bool = False,
+    prediction_transform: Optional[Callable] = None,
 ) -> Union[np.ndarray, AnnData]:
     """
     Predict the effects of variants based on a trained model.
@@ -215,6 +217,7 @@ def predict_variant_effects(
             model output is 1.
         check_reference: If True, check each variant for whether the reference allele
             matches the sequence in the reference genome.
+        prediction_transform: A module to transform the model output
 
     Returns:
         Predicted variant impact. If return_ad is True and effect_func is None, the output will be
@@ -238,14 +241,19 @@ def predict_variant_effects(
     )
 
     # Model forward pass
+    model.add_transform(prediction_transform)
     odds = model.predict_on_dataset(
         dataset,
         devices=devices,
         num_workers=num_workers,
         batch_size=batch_size,
         augment_aggfunc="mean",
-        compare_func=compare_func,
-    )
+    )  # B 2 T L
+    model.reset_transform()
+
+    # Compare alternate to reverse allele
+    if compare_func is not None:
+        odds = get_compare_func(compare_func)(odds[:, 1, :, :], odds[:, 0, :, :])  # BTL
 
     if return_ad:
         assert odds.shape[-1] == 1
@@ -315,29 +323,23 @@ def marginalize_variants(
 
     from grelu.data.dataset import VariantMarginalizeDataset
 
-    # Set transform
-    model.add_transform(prediction_transform)
-
     print("Predicting variant effects")
-
-    # Create variant dataset
-    ds = VariantDataset(
-        variants,
-        seq_len=seq_len or model.data_params["train"]["seq_len"],
+    variant_effects = predict_variant_effects(
+        variants=variants,
+        model=model,
+        devices=devices,
+        seq_len=seq_len,
+        batch_size=batch_size,
+        num_workers=num_workers,
+        genome=genome,
         rc=rc,
         max_seq_shift=max_seq_shift,
-        genome=genome,
-    )
-
-    # Predict variant effect sizes
-    variant_effects = model.predict_on_dataset(
-        ds,
-        devices=devices,
-        num_workers=num_workers,
-        batch_size=batch_size,
-        augment_aggfunc="mean",
         compare_func=compare_func,
-    ).squeeze(axis=(-1, -2))
+        return_ad=False,
+        prediction_transform=prediction_transform,
+    ).squeeze(
+        axis=(-1, -2)
+    )  # B
     assert variant_effects.ndim == 1, variant_effects.shape
 
     print("Predicting variant effects in background sequences")
@@ -354,18 +356,23 @@ def marginalize_variants(
     )
 
     # Predict variant effect sizes in the background
+    model.add_transform(prediction_transform)
     bg_effects = model.predict_on_dataset(
         ds,
         devices=devices,
         num_workers=num_workers,
         batch_size=batch_size,
-        compare_func=compare_func,
-        augment_aggfunc=None,
-    ).squeeze(axis=(2, 3))
-    assert bg_effects.ndim == 2, bg_effects.shape
-
-    # Drop transform
+        augment_aggfunc="mean",
+    ).squeeze(
+        axis=(-1, -2)
+    )  # B S 2
     model.reset_transform()
+
+    # Compare alternate to reverse allele
+    if compare_func is not None:
+        bg_effects = get_compare_func(compare_func)(
+            bg_effects[:, :, 1], bg_effects[:, :, 0]
+        )  # BS
 
     print("Calculating background distributions")
 

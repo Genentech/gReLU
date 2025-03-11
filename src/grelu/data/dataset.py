@@ -542,10 +542,6 @@ class VariantDataset(Dataset):
         max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
             This is normally a small value (< 10). If 0, sequences will not
             be augmented by shifting.
-        frac_mutation: Fraction of bases to randomly mutate for data augmentation.
-        protect: A list of positions to protect from mutation.
-        n_mutated_seqs: Number of mutated sequences to generate from each input
-            sequence for data augmentation.
     """
 
     def __init__(
@@ -555,9 +551,6 @@ class VariantDataset(Dataset):
         genome: Optional[str] = None,
         rc: bool = False,
         max_seq_shift: int = 0,
-        frac_mutation: float = 0.0,
-        n_mutated_seqs: int = 1,
-        protect: Optional[List[int]] = None,
         seed: Optional[int] = None,
         augment_mode: str = "serial",
     ) -> None:
@@ -568,9 +561,6 @@ class VariantDataset(Dataset):
         # Save augmentation params
         self.rc = rc
         self.max_seq_shift = max_seq_shift
-        self.frac_mutated_bases = frac_mutation
-        self.n_mutated_bases = int(self.frac_mutated_bases * self.seq_len)
-        self.n_mutated_seqs = n_mutated_seqs
 
         # Ingest alleles
         self._load_alleles(variants)
@@ -580,19 +570,10 @@ class VariantDataset(Dataset):
         self._load_seqs(variants)
         self.n_seqs = self.seqs.shape[0]
 
-        # Protect central positions for mutation
-        if protect is None:
-            self.protect = [seq_len // 2]
-        else:
-            self.protect = protect
-
         # Create augmenter
         self.augmenter = Augmenter(
             rc=self.rc,
             max_seq_shift=self.max_seq_shift,
-            n_mutated_seqs=self.n_mutated_seqs,
-            n_mutated_bases=self.n_mutated_bases,
-            protect=self.protect,
             seq_len=self.seq_len,
             seed=seed,
             mode=augment_mode,
@@ -695,7 +676,7 @@ class VariantMarginalizeDataset(Dataset):
             seed=self.seed,
             mode="serial",
         )
-        self.n_augmented = self.n_shuffles * len(self.augmenter)
+        self.n_augmented = len(self.augmenter)
 
         # Ingest background sequences
         self._load_seqs(variants)
@@ -738,7 +719,7 @@ class VariantMarginalizeDataset(Dataset):
             )
 
     def __len__(self) -> int:
-        return self.n_seqs * self.n_augmented * self.n_alleles
+        return self.n_seqs * self.n_shuffles * self.n_augmented * self.n_alleles
 
     def __getitem__(self, idx: int) -> Tensor:
         # Get indices
@@ -782,17 +763,20 @@ class PatternMarginalizeDataset(Dataset):
         seed: Seed for random number generator
         rc: If True, sequences will be augmented by reverse complementation. If
             False, they will not be reverse complemented.
+        max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
+            This is normally a small value. If 0, sequences will not be augmented by shifting.
     """
 
     def __init__(
         self,
         seqs: Union[List[str], pd.DataFrame, np.ndarray],
         patterns: List[str],
+        n_shuffles: int = 1,
         genome: Optional[str] = None,
         seq_len: Optional[int] = None,
         seed: Optional[int] = None,
         rc: bool = False,
-        n_shuffles: int = 1,
+        max_seq_shift: int = 0,
     ) -> None:
         super().__init__()
 
@@ -803,6 +787,7 @@ class PatternMarginalizeDataset(Dataset):
 
         # Save augmentation params
         self.rc = rc
+        self.max_seq_shift = max_seq_shift
 
         # Save shuffling params
         self.n_shuffles = n_shuffles
@@ -816,11 +801,12 @@ class PatternMarginalizeDataset(Dataset):
         # Create augmenter
         self.augmenter = Augmenter(
             rc=self.rc,
+            max_seq_shift=self.max_seq_shift,
             seq_len=self.seq_len,
             seed=self.seed,
             mode="serial",
         )
-        self.n_augmented = self.n_shuffles * len(self.augmenter)
+        self.n_augmented = len(self.augmenter)
 
         # Initial state
         self.bg = None
@@ -851,7 +837,7 @@ class PatternMarginalizeDataset(Dataset):
             )
 
     def __len__(self) -> int:
-        return self.n_seqs * self.n_augmented * self.n_alleles
+        return self.n_seqs * self.n_shuffles * self.n_augmented * self.n_alleles
 
     def __getitem__(self, idx: int) -> Tensor:
         # Get indices
@@ -909,7 +895,7 @@ class ISMDataset(Dataset):
         self._load_seqs(seqs)
         self.n_seqs = self.seqs.shape[0]
         self.seq_len = self.seqs.shape[1]
-        self.n_augmented = (
+        self.n_positions = (
             self.seq_len if self.positions is None else len(self.positions)
         )
 
@@ -919,12 +905,12 @@ class ISMDataset(Dataset):
             self.seqs = np.expand_dims(self.seqs, 0)
 
     def __len__(self) -> int:
-        return self.n_seqs * self.n_augmented * self.n_alleles
+        return self.n_seqs * self.n_positions * self.n_alleles
 
     def __getitem__(self, idx: int, return_compressed=False) -> Tensor:
         # Get indices
         seq_idx, pos_idx, base_idx = _split_overall_idx(
-            idx, (self.n_seqs, self.n_augmented, self.n_alleles)
+            idx, (self.n_seqs, self.n_positions, self.n_alleles)
         )
 
         # Extract current sequence
@@ -986,7 +972,7 @@ class MotifScanDataset(Dataset):
         self.seq_len = self.seqs.shape[1]
 
         # Mutation
-        self.n_augmented = (
+        self.n_positions = (
             self.seq_len - self.max_motif_len + 1
             if self.positions is None
             else len(self.positions)
@@ -998,12 +984,12 @@ class MotifScanDataset(Dataset):
             self.seqs = np.expand_dims(self.seqs, 0)
 
     def __len__(self) -> int:
-        return self.n_seqs * self.n_augmented * self.n_alleles
+        return self.n_seqs * self.n_positions * self.n_alleles
 
     def __getitem__(self, idx: int, return_compressed=False) -> Tensor:
         # Get indices
         seq_idx, pos_idx, motif_idx = _split_overall_idx(
-            idx, (self.n_seqs, self.n_augmented, self.n_alleles)
+            idx, (self.n_seqs, self.n_positions, self.n_alleles)
         )
 
         # Extract current sequence and motif
