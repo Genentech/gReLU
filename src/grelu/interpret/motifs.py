@@ -309,6 +309,7 @@ def marginalize_patterns(
     seed: Optional[int] = None,
     prediction_transform: Optional[Callable] = None,
     rc: bool = False,
+    max_seq_shift: int = 0,
     compare_func: Optional[Union[str, Callable]] = None,
 ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """
@@ -329,6 +330,8 @@ def marginalize_patterns(
         seed: Random seed
         prediction_transform: A module to transform the model output
         rc: If True, augment by reverse complementation
+        max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
+            This is normally a small value. If 0, sequences will not be augmented by shifting.
         compare_func: Function to compare the predictions with and without the pattern. Options
             are "divide" or "subtract". If not provided, the predictions for
             the shuffled sequences and each pattern will be returned.
@@ -351,6 +354,7 @@ def marginalize_patterns(
         patterns=patterns,
         genome=genome,
         rc=rc,
+        max_seq_shift=max_seq_shift,
         n_shuffles=n_shuffles,
         seed=seed,
     )
@@ -361,9 +365,9 @@ def marginalize_patterns(
         devices=devices,
         num_workers=num_workers,
         batch_size=batch_size,
-        augment_aggfunc=None,
-    )  # Output shape: B, shuf x augment, motifs+1, 1, 1
-    preds = preds.squeeze(axis=(-1, -2))  # B, shufxaugment, motifs+1
+        augment_aggfunc="mean",
+    )
+    preds = preds.squeeze(axis=(-1, -2))  # B, S, motifs+1
 
     # Drop transform
     model.reset_transform()
@@ -374,7 +378,7 @@ def marginalize_patterns(
     if compare_func is None:
         return before_preds, after_preds
     else:
-        return get_compare_func(compare_func)(after_preds, before_preds)
+        return get_compare_func(compare_func)(after_preds, before_preds)  # B, S, motifs
 
 
 def compare_motifs(
