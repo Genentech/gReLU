@@ -206,7 +206,10 @@ def get_attributions(
         with torch.no_grad():
             for i in range(len(seqs)):
                 X_ = seqs[i : i + 1].to(device)  # 1, 4, L
-                attr = attributer.attribute(X_)
+                if method == "saliency":
+                    attr = attributer.attribute(X_, abs=False)
+                else:
+                    attr = attributer.attribute(X_)
                 attributions.append(attr.cpu().numpy())
 
         attributions = np.vstack(attributions)
