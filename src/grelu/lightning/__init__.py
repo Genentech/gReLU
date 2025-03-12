@@ -1135,7 +1135,7 @@ class LightningModelEnsemble(pl.LightningModule):
             [model.predict_on_dataset(dataset, **kwargs) for model in self.models],
             axis=-2,
         )
-        if self.transform != nn.Identity():
+        if not isinstance(self.transform, nn.Identity):
             preds = self.transform(torch.tensor(preds)).numpy()
         return preds
 
