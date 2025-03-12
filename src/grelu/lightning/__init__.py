@@ -28,6 +28,7 @@ from grelu.data.dataset import (
     LabeledSeqDataset,
     MotifScanDataset,
     PatternMarginalizeDataset,
+    SeqDataset,
     VariantDataset,
     VariantMarginalizeDataset,
 )
@@ -35,7 +36,7 @@ from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
 from grelu.model.heads import ConvHead
 from grelu.sequence.format import strings_to_one_hot
-from grelu.utils import get_aggfunc, get_compare_func, make_list
+from grelu.utils import get_aggfunc, make_list
 
 default_train_params = {
     "task": "binary",  # binary, multiclass, or regression
@@ -714,7 +715,6 @@ class LightningModel(pl.LightningModule):
         num_workers: int = 1,
         batch_size: int = 256,
         augment_aggfunc: Union[str, Callable] = "mean",
-        compare_func: Optional[Union[str, Callable]] = None,
         return_df: bool = False,
         precision: Optional[str] = None,
     ):
@@ -728,7 +728,6 @@ class LightningModel(pl.LightningModule):
             batch_size: Batch size for data loader
             augment_aggfunc: Return the average prediction across all augmented
                 versions of a sequence
-            compare_func: Return the alt/ref difference for variants
             return_df: Return the predictions as a Pandas dataframe
             precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
 
@@ -752,68 +751,95 @@ class LightningModel(pl.LightningModule):
         # Predict
         preds = torch.concat(trainer.predict(self, dataloader))
 
-        # Reshape predictions
-        preds = rearrange(
-            preds,
-            "(b n a) t l -> b n a t l",
-            n=dataset.n_augmented,
-            a=dataset.n_alleles,
-        )
+        if isinstance(dataset, (SeqDataset, LabeledSeqDataset)):
 
-        # Convert predictions to numpy array
-        preds = preds.detach().cpu().numpy()
+            # Reshape predictions
+            preds = (
+                rearrange(
+                    preds,
+                    "(b n) t l -> b n t l",
+                    n=dataset.n_augmented,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )  # B N T L
 
-        # ISM or Motif Scanning
-        if (isinstance(dataset, ISMDataset)) or (isinstance(dataset, MotifScanDataset)):
-            return preds
-
-        else:
             # Flip predictions for reverse complemented sequences
             if (dataset.rc) and (preds.shape[-1] > 1):
-                preds[:, dataset.n_augmented // 2 :, :, :, :] = np.flip(
-                    preds[:, dataset.n_augmented // 2 :, :, :, :], axis=-1
+                preds[:, dataset.n_augmented // 2 :, ...] = np.flip(
+                    preds[:, dataset.n_augmented // 2 :, ...], axis=-1
                 )
 
-            # Compare the predictions for two alleles
-            if (
-                (isinstance(dataset, VariantDataset))
-                or (isinstance(dataset, VariantMarginalizeDataset))
-                or (isinstance(dataset, PatternMarginalizeDataset))
-            ):
-                if compare_func is not None:
-                    assert preds.shape[2] == 2
-                    preds = get_compare_func(compare_func)(
-                        preds[:, :, 1, :, :], preds[:, :, 0, :, :]
-                    )  # BNTL
+            # Combine predictions for augmented sequences
+            if augment_aggfunc is not None:
+                preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
 
-                # Combine predictions for augmented sequences
-                if augment_aggfunc is not None:
-                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
-                if preds.shape[1] == 1:
-                    preds = preds.squeeze(1)
-                return preds
+        elif isinstance(dataset, VariantDataset):
+            # Reshape predictions
+            preds = (
+                rearrange(
+                    preds,
+                    "(b n a) t l -> b n a t l",
+                    n=dataset.n_augmented,
+                    a=dataset.n_alleles,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )  # B N 2 T L
 
-            else:
-                # Regular sequences
-                preds = preds.squeeze(2)  # B N T L
-                if augment_aggfunc is not None:
-                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
-                elif preds.shape[1] == 1:
-                    preds = preds.squeeze(1)
+            # Flip predictions for reverse complemented sequences
+            if (dataset.rc) and (preds.shape[-1] > 1):
+                preds[:, dataset.n_augmented // 2 :, ...] = np.flip(
+                    preds[:, dataset.n_augmented // 2 :, ...], axis=-1
+                )
 
-                # Make dataframe
-                if return_df:
-                    if (preds.ndim == 3) and (preds.shape[-1] == 1):
-                        preds = pd.DataFrame(
-                            preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
-                        )
-                    else:
-                        warnings.warn(
-                            "Cannot produce dataframe output."
-                            + "Either output length > 1 or augmented sequences are not aggregated."
-                        )
+            # Combine predictions for augmented sequences
+            if augment_aggfunc is not None:
+                preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B 2 T L
 
-            return preds
+        elif isinstance(
+            dataset, (VariantMarginalizeDataset, PatternMarginalizeDataset)
+        ):
+            # Reshape predictions
+            preds = (
+                rearrange(
+                    preds,
+                    "(b s n a) t l -> b s n a t l",
+                    s=dataset.n_shuffles,
+                    n=dataset.n_augmented,
+                    a=dataset.n_alleles,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )  # B S N 2 T L
+
+            # Flip predictions for reverse complemented sequences
+            if (dataset.rc) and (preds.shape[-1] > 1):
+                preds[:, :, dataset.n_augmented // 2, ...] = np.flip(
+                    preds[:, :, dataset.n_augmented // 2, ...], axis=-1
+                )
+
+            # Combine predictions for augmented sequences
+            if augment_aggfunc is not None:
+                preds = get_aggfunc(augment_aggfunc)(preds, axis=2)  # B S 2 T L
+
+        elif isinstance(dataset, (ISMDataset, MotifScanDataset)):
+            preds = (
+                rearrange(
+                    preds,
+                    "(b p a) t l -> b p a t l",
+                    p=dataset.n_positions,
+                    a=dataset.n_alleles,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )  # B P A T L
+
+        return preds
 
     def test_on_dataset(
         self,

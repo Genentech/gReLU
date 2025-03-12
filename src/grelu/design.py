@@ -169,7 +169,7 @@ def evolve(
                 raise NotImplementedError
 
             start_seq_idxs = make_list(
-                best.start_seq.repeat(ds.n_augmented * ds.n_alleles)
+                best.start_seq.repeat(ds.n_positions * ds.n_alleles)
             )
 
     # Remove the transform
