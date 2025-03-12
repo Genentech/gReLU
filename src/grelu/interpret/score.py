@@ -224,7 +224,7 @@ def get_attributions(
                 "correct_grad = True will be ignored as method is not saliency."
             )
         else:
-            attributions - attributions.mean(1, keepdims=True)
+            attributions -= attributions.mean(1, keepdims=True)
 
     return attributions  # N, 4, L
 
