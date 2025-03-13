@@ -81,17 +81,15 @@ def test_marginalize_patterns():
         seqs=seqs,
         n_shuffles=1,
         seed=0,
-        augment_aggfunc=None,
         compare_func=None,
     )
-    assert preds_before.shape == (2, 1, 1, 1)
+    assert preds_before.shape == (2, 1, 1, 1, 1)
     assert np.allclose(preds_before.squeeze(), [0.5, 1.3333334])
-    assert preds_after.shape == (2, 1, 1, 1)
+    assert preds_after.shape == (2, 1, 1, 1, 1)
     assert np.allclose(
         preds_after.squeeze(),
         [0.8333333, 1.6666666],
     )
-
     # Multiple shuffles
     preds_before, preds_after = marginalize_patterns(
         model,
@@ -99,7 +97,6 @@ def test_marginalize_patterns():
         seqs=seqs,
         n_shuffles=3,
         seed=0,
-        augment_aggfunc=None,
         compare_func=None,
     )
     assert preds_before.shape == (2, 3, 1, 1, 1)
@@ -111,7 +108,6 @@ def test_marginalize_patterns():
         preds_after.squeeze(),
         [[0.8333333, 0.5, 0.8333333], [1.6666666, 1.3333334, 1.6666666]],
     )
-
     # Multiple shuffles + rc augmentation
     preds_before, preds_after = marginalize_patterns(
         model,
@@ -120,13 +116,12 @@ def test_marginalize_patterns():
         n_shuffles=3,
         rc=True,
         seed=0,
-        augment_aggfunc="mean",
         compare_func=None,
     )
-    assert preds_before.shape == (2, 1, 1, 1)
-    assert np.allclose(preds_before.squeeze(), [0.25, 0.25])
-    assert preds_after.shape == (2, 1, 1, 1)
-    assert np.allclose(preds_after.squeeze(), [0.25, 2.5 / 6])
+    assert preds_before.shape == (2, 3, 1, 1, 1)
+    assert np.allclose(preds_before.squeeze(), [[0.25, 0.25, 0.25], [0.25, 0.25, 0.25]])
+    assert preds_after.shape == (2, 3, 1, 1, 1)
+    assert np.allclose(preds_after.squeeze(), [[0.25, 0.25, 0.25], [0.5, 0.25, 0.5]])
 
     # Multiple shuffles + rc augmentation + compare_func
     preds = marginalize_patterns(
@@ -136,11 +131,10 @@ def test_marginalize_patterns():
         n_shuffles=3,
         seed=0,
         rc=True,
-        augment_aggfunc="mean",
         compare_func="subtract",
     )
-    assert preds.shape == (2, 1, 1, 1)
-    assert np.allclose(preds.squeeze(), [0.0, 0.166666], atol=1e-5)
+    assert preds.shape == (2, 3, 1, 1, 1)
+    assert np.allclose(preds.squeeze(), [[0.0, 0.0, 0.0], [0.25, 0.0, 0.25]], atol=1e-5)
 
 
 def test_ISM_predict():

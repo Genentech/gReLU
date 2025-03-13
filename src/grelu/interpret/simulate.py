@@ -18,7 +18,6 @@ def marginalize_patterns(
     seed: Optional[int] = None,
     prediction_transform: Optional[Callable] = None,
     rc: bool = False,
-    augment_aggfunc: Optional[Union[str, Callable]] = None,
     compare_func: Optional[Union[str, Callable]] = None,
 ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
     """
@@ -39,8 +38,6 @@ def marginalize_patterns(
         seed: Random seed
         prediction_transform: A module to transform the model output
         rc: If True, augment by reverse complementation
-        augment_aggfunc: Function to aggregate the predictions over augmented
-            versions of the same sequence.
         compare_func: Function to compare the predictions with and without the
             pattern. Options are "divide" or "subtract". If not provided, the
             predictions before and after pattern insertion will be returned.
@@ -72,8 +69,8 @@ def marginalize_patterns(
         devices=devices,
         num_workers=num_workers,
         batch_size=batch_size,
-        augment_aggfunc=augment_aggfunc,
-    )  # Output shape: B, shufxn_augmented, motifs+1, T, L
+        augment_aggfunc="mean",
+    )  # Output shape: B, shuf, motifs+1, T, L
 
     # Drop transform
     model.reset_transform()
@@ -85,4 +82,6 @@ def marginalize_patterns(
     if compare_func is None:
         return before_preds, after_preds
     else:
-        return get_compare_func(compare_func)(after_preds, before_preds)
+        return get_compare_func(compare_func)(
+            after_preds, before_preds
+        )  # B, shuf, motifs, T, L
