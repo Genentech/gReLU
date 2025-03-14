@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 import scipy
 from einops import rearrange
+from tangermeme.ersatz import _dinucleotide_shuffle
 from torch import Tensor
 from torch.utils.data import Dataset
 
@@ -1050,7 +1051,7 @@ class SpacingMarginalizeDataset(Dataset):
         self.genome = genome
         self.n_shuffles = n_shuffles
         self.seed = seed
-        self.rc=rc
+        self.rc = rc
 
         # Ingest sequences
         self._load_seqs(seqs)
@@ -1065,7 +1066,7 @@ class SpacingMarginalizeDataset(Dataset):
             mode="serial",
         )
         self.n_augmented = len(self.augmenter)
-        
+
         # Initial state
         self.bg = None
         self.curr_seq_idx = None
@@ -1141,7 +1142,8 @@ class SpacingMarginalizeDataset(Dataset):
         seq = self.bg[shuf_idx]
 
         # Insert variable motif
-        seq = mutate(
+        if pos_idx > 0:
+            seq = mutate(
                 seq,
                 allele=self.variable_pattern,
                 pos=self.positions[pos_idx - 1],
@@ -1153,3 +1155,106 @@ class SpacingMarginalizeDataset(Dataset):
 
         # One-hot encode
         return indices_to_one_hot(seq)
+
+
+class TilingShuffleDataset(Dataset):
+    """
+    Dataset class to perform regulatory element discovery by shuffling tiles along
+    the input sequences.
+
+    Args:
+        seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
+        tile_len: Length of tile to shuffle.
+        stride: Distance between the start positions of successive tiles. If None,
+            tiles will be non-overlapping
+        protect_center: Length of central region to protect
+        genome: The name of the genome from which to read sequences. This
+            is only needed if genomic intervals are supplied in `seqs`.
+        n_shuffles: Number of times to shuffle each tile.
+        seed: Seed for random number generator
+    """
+
+    def __init__(
+        self,
+        seqs: Union[str, Sequence, pd.DataFrame, np.ndarray],
+        tile_len: int,
+        stride: Optional[int] = None,
+        protect_center: Optional[int] = None,
+        genome: Optional[str] = None,
+        n_shuffles: int = 1,
+        seed: int = 0,
+    ) -> None:
+        super().__init__()
+
+        # Save params
+        self.genome = genome
+        self.tile_len = tile_len
+        self.protect_center = protect_center
+        self.n_shuffles = n_shuffles
+        self.seed = seed
+
+        # Set stride
+        self.stride = self.tile_len if stride is None else stride
+
+        # Ingest sequences
+        self._load_seqs(seqs)
+
+        # Calculate positions
+        self._set_positions()
+
+    def _load_seqs(self, seqs: Union[pd.DataFrame, List[str], np.ndarray]) -> None:
+        """
+        Make the background sequences
+        """
+        self.seqs = convert_input_type(
+            seqs, "indices", genome=self.genome, add_batch_axis=True
+        )
+        self.n_seqs = self.seqs.shape[0]
+        self.seq_len = self.seqs.shape[1]
+
+    def _set_positions(self):
+        """
+        Get all possible positions of tiles that can be shuffled.
+        """
+        # Coordinates to protect
+        self.protect_start = int(np.floor(self.seq_len / 2 - self.protect_center / 2))
+        self.protect_end = self.protect_start + self.protect_center
+
+        # Positions of tiles to shuffle
+        max_pos = self.seq_len - self.tile_len + 1
+        excl_start = self.protect_start - self.tile_len + 1
+        excl = range(excl_start, self.protect_end)
+
+        # Final tiles
+        starts = [x for x in range(0, max_pos, self.stride) if x not in excl]
+        self.positions = pd.DataFrame(
+            {"start": starts, "end": [x + self.tile_len for x in starts]}
+        )
+        self.n_positions = len(self.positions)
+
+    def __len__(self) -> int:
+        return self.n_seqs * self.n_positions * self.n_shuffles
+
+    def __getitem__(self, idx: int) -> Tensor:
+        # Get indices
+        seq_idx, pos_idx, shuf_idx = _split_overall_idx(
+            idx, (self.n_seqs, self.n_positions, self.n_shuffles)
+        )
+
+        # Extract the current sequence
+        seq = self.seqs[seq_idx]
+
+        # Get position of tile to shuffle
+        coords = self.positions.iloc[pos_idx]
+
+        # One-hot encode
+        seq = indices_to_one_hot(seq)
+
+        # Shuffle tile
+        seq[:, coords.start : coords.end] = _dinucleotide_shuffle(
+            seq[:, coords.start : coords.end],
+            n_shuffles=1,
+            random_state=self.seed + shuf_idx,
+        ).squeeze(0)
+
+        return seq

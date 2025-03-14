@@ -29,9 +29,10 @@ from grelu.data.dataset import (
     MotifScanDataset,
     PatternMarginalizeDataset,
     SeqDataset,
+    SpacingMarginalizeDataset,
+    TilingShuffleDataset,
     VariantDataset,
     VariantMarginalizeDataset,
-    SpacingMarginalizeDataset
 )
 from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
@@ -801,7 +802,12 @@ class LightningModel(pl.LightningModule):
                 preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B 2 T L
 
         elif isinstance(
-            dataset, (VariantMarginalizeDataset, PatternMarginalizeDataset, SpacingMarginalizeDataset)
+            dataset,
+            (
+                VariantMarginalizeDataset,
+                PatternMarginalizeDataset,
+                SpacingMarginalizeDataset,
+            ),
         ):
             # Reshape predictions
             preds = (
@@ -839,6 +845,19 @@ class LightningModel(pl.LightningModule):
                 .cpu()
                 .numpy()
             )  # B P A T L
+
+        elif isinstance(dataset, TilingShuffleDataset):
+            preds = (
+                rearrange(
+                    preds,
+                    "(b p s) t l -> b p s t l",
+                    p=dataset.n_positions,
+                    s=dataset.n_shuffles,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )
 
         return preds
 
