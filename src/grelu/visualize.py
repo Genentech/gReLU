@@ -760,3 +760,55 @@ def plot_motif(motif, name=None):
     from tangermeme.plot import plot_pwm
 
     return plot_pwm(motif.T, name=name)
+
+
+def plot_position_effect(
+    preds: np.ndarray,
+    positions: List[int],
+    title: Optional[str],
+    xlab: Optional[str],
+    figsize: Tuple[int, int] = (6, 3),
+):
+    """
+    Visualize the effect of position on a model's output, with confidence intervals.
+    Useful to plot the output of `marginalize_pattern_spacing` and `shuffle_tiles`.
+    Args:
+        preds: Model predictions as a numpy array of shape (number of sequences, number of positions)
+        positions: Positions or distances. This should be a list of length equal to axis 1 of preds.
+        title: Optional title for the plot.
+        xlab: X-axis label
+        figsize: A tuple containing (width, height)
+    Returns: A line plot with distance on the x axis and the distribution of predicted effect sizes
+        on the y axis. The distribution shows the mean and 95% confidence intervals.
+    """
+    import scipy.stats
+
+    to_plot = pd.DataFrame(
+        {
+            "mean": preds.mean(0),
+            "sem": preds.std(0) / np.sqrt(preds.shape[0]),
+            "pos": positions,
+        }
+    )
+    ci = scipy.stats.t.interval(
+        0.95, preds.shape[0], loc=to_plot["mean"], scale=to_plot["sem"]
+    )
+    to_plot[["lower_ci", "upper_ci"]] = np.stack(ci).T
+
+    g = (
+        p9.ggplot(to_plot, p9.aes(x="pos", y="mean"))
+        + p9.geom_point(size=0.1)
+        + p9.geom_line()
+        + p9.geom_ribbon(
+            p9.aes(ymin="lower_ci", ymax="upper_ci"), fill="grey", alpha=0.3
+        )
+        + p9.theme_classic()
+        + p9.theme(figure_size=figsize)
+        + p9.geom_vline(linetype="--", xintercept=0)
+        + p9.ylab("Mean effect")
+    )
+    if title is not None:
+        g = g + p9.ggtitle(title)
+    if xlab is not None:
+        g = g + p9.xlab(xlab)
+    return g
