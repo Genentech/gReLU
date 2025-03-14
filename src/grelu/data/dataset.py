@@ -1050,6 +1050,7 @@ class SpacingMarginalizeDataset(Dataset):
         self.genome = genome
         self.n_shuffles = n_shuffles
         self.seed = seed
+        self.rc=rc
 
         # Ingest sequences
         self._load_seqs(seqs)
@@ -1140,13 +1141,15 @@ class SpacingMarginalizeDataset(Dataset):
         seq = self.bg[shuf_idx]
 
         # Insert variable motif
-        if pos_idx > 0:
-            seq = mutate(
+        seq = mutate(
                 seq,
                 allele=self.variable_pattern,
                 pos=self.positions[pos_idx - 1],
                 input_type="indices",
             )
+
+        # Augment
+        seq = self.augmenter(seq=seq, idx=augment_idx)
 
         # One-hot encode
         return indices_to_one_hot(seq)

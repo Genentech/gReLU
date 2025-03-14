@@ -31,6 +31,7 @@ from grelu.data.dataset import (
     SeqDataset,
     VariantDataset,
     VariantMarginalizeDataset,
+    SpacingMarginalizeDataset
 )
 from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
@@ -767,7 +768,7 @@ class LightningModel(pl.LightningModule):
 
             # Flip predictions for reverse complemented sequences
             if (dataset.rc) and (preds.shape[-1] > 1):
-                preds[:, dataset.n_augmented // 2 :, ...] = np.flip(
+                preds[:, dataset.n_augmented // 2 :, :, :] = np.flip(
                     preds[:, dataset.n_augmented // 2 :, ...], axis=-1
                 )
 

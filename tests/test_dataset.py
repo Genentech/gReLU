@@ -15,6 +15,7 @@ from grelu.data.dataset import (
     SeqDataset,
     VariantDataset,
     VariantMarginalizeDataset,
+    SpacingMarginalizeDataset
 )
 from grelu.sequence.format import convert_input_type
 from grelu.variant import variants_to_intervals
@@ -897,3 +898,47 @@ def test_motifscan_dataset():
     assert (ds.seqs.shape == (1, 9)) and (len(ds) == 3)
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
     assert xs == ["ACAAACACT", "ACCAAAACT", "ACCTAAACT"]
+
+
+def test_marginalize_dataset_spacing():
+    ds = SpacingMarginalizeDataset(
+        seqs=["AAGACATACAACGCGCGCTAACATAGCAAC"], fixed_pattern="AAA", variable_pattern='CCC', n_shuffles=2, seed=0, stride=3,
+    )
+    assert (
+        (ds.n_shuffles == 2)
+        and (ds.n_seqs == 1)
+        and (ds.stride == 3)
+        and (np.allclose(ds.fixed_pattern, [[0.0, 0.0, 0.0]]))
+        and (np.allclose(ds.variable_pattern, [[1.0, 1.0, 1.0]]))
+        and (ds.n_augmented == 1)
+        and (ds.n_shuffles == 2)
+        and (ds.n_alleles == 9)
+        and (len(ds) == 18)
+        and (ds.fixed_pattern_start == 13)
+        and (ds.fixed_pattern_end == 16)
+        and (np.all(ds.positions == [0, 3, 6, 9, 18, 21, 24, 27]))
+    )
+    
+    xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
+    
+    assert xs == [
+        "ACAACGCTAGACAAAAGCAGCAATATAAAC",
+        "CCCACGCTAGACAAAAGCAGCAATATAAAC",
+        "ACACCCCTAGACAAAAGCAGCAATATAAAC",
+        "ACAACGCCCGACAAAAGCAGCAATATAAAC",
+        "ACAACGCTACCCAAAAGCAGCAATATAAAC",
+        "ACAACGCTAGACAAAAGCCCCAATATAAAC",
+        "ACAACGCTAGACAAAAGCAGCCCCATAAAC",
+        "ACAACGCTAGACAAAAGCAGCAATCCCAAC",
+        "ACAACGCTAGACAAAAGCAGCAATATACCC",
+    
+        "AAAACAGCGCTAAAAAGCACGCATATACAC",
+        "CCCACAGCGCTAAAAAGCACGCATATACAC",
+        "AAACCCGCGCTAAAAAGCACGCATATACAC",
+        "AAAACACCCCTAAAAAGCACGCATATACAC",
+        "AAAACAGCGCCCAAAAGCACGCATATACAC",
+        "AAAACAGCGCTAAAAAGCCCCCATATACAC",
+        "AAAACAGCGCTAAAAAGCACGCCCATACAC",
+        "AAAACAGCGCTAAAAAGCACGCATCCCCAC",
+        "AAAACAGCGCTAAAAAGCACGCATATACCC",
+    ]
