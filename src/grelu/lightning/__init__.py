@@ -800,7 +800,7 @@ class LightningModel(pl.LightningModule):
                 preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B 2 T L
 
         elif isinstance(
-            dataset, (VariantMarginalizeDataset, PatternMarginalizeDataset)
+            dataset, (VariantMarginalizeDataset, PatternMarginalizeDataset, SpacingMarginalizeDataset)
         ):
             # Reshape predictions
             preds = (

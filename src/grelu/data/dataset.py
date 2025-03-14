@@ -1011,3 +1011,142 @@ class MotifScanDataset(Dataset):
 
             # One-hot encode
             return indices_to_one_hot(seq)
+
+
+class SpacingMarginalizeDataset(Dataset):
+    """
+    Dataset class to perform pairwise motif distance analysis. One motif
+    is inserted at a fixed position in shuffled sequences and the second motif is
+    inserted at variable distances from the first.
+
+    Args:
+        seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
+        fixed_pattern: A subsequence to insert in the center of each background sequence.
+        variable_pattern: A subsequence to insert into the background sequences at
+            different distances from `fixed_motif`.
+        stride: Number of bases by which to shift the variable motif.
+        genome: The name of the genome from which to read sequences. This
+            is only needed if genomic intervals are supplied in `seqs`.
+        n_shuffles: Number of times to shuffle each sequence in `seqs`, to
+            generate a background distribution.
+        seed: Seed for random number generator
+    """
+
+    def __init__(
+        self,
+        seqs: Union[str, Sequence, pd.DataFrame, np.ndarray],
+        fixed_pattern: str,
+        variable_pattern: str,
+        stride: int = 1,
+        genome: Optional[str] = None,
+        n_shuffles: int = 1,
+        rc: bool = False,
+        seed: int = 0,
+    ) -> None:
+        super().__init__()
+
+        # Save params
+        self.stride = stride
+        self.genome = genome
+        self.n_shuffles = n_shuffles
+        self.seed = seed
+
+        # Ingest sequences
+        self._load_seqs(seqs)
+
+        # Ingest patterns
+        self._load_patterns(fixed_pattern, variable_pattern)
+
+        # Create augmenter
+        self.augmenter = Augmenter(
+            rc=self.rc,
+            seq_len=self.seq_len,
+            mode="serial",
+        )
+        self.n_augmented = len(self.augmenter)
+        
+        # Initial state
+        self.bg = None
+        self.curr_seq_idx = None
+
+    def _load_seqs(self, seqs: Union[pd.DataFrame, List[str], np.ndarray]) -> None:
+        """
+        Make the background sequences
+        """
+        self.seqs = convert_input_type(
+            seqs, "indices", genome=self.genome, add_batch_axis=True
+        )
+        self.n_seqs = self.seqs.shape[0]
+        self.seq_len = self.seqs.shape[1]
+
+    def _load_patterns(self, fixed_pattern: str, variable_pattern: str) -> None:
+        self.fixed_pattern = strings_to_indices(fixed_pattern)
+        self.variable_pattern = strings_to_indices(variable_pattern)
+
+        self.fixed_pattern_len = len(self.fixed_pattern)
+        self.variable_pattern_len = len(self.variable_pattern)
+
+        # Coordinates of the fixed pattern
+        self.fixed_pattern_start = int(
+            np.floor(self.seq_len / 2 - self.fixed_pattern_len / 2)
+        )
+        self.fixed_pattern_end = self.fixed_pattern_start + self.fixed_pattern_len
+
+        # Coordinates of the variable pattern
+        max_pos = self.seq_len - self.variable_pattern_len + 1
+        excl_start = self.fixed_pattern_start - self.variable_pattern_len + 1
+        excl = range(excl_start, self.fixed_pattern_end)
+
+        positions = [x for x in range(0, max_pos, self.stride) if x not in excl]
+        self.n_alleles = len(positions) + 1
+        self.positions = positions
+
+        # Spacing
+        self.distances = [self._pos_to_dist(x) for x in self.positions]
+
+    def _pos_to_dist(self, position: int) -> int:
+        if position < self.fixed_pattern_start:
+            return position + self.variable_pattern_len - self.fixed_pattern_start
+        else:
+            return position - self.fixed_pattern_end
+
+    def __len__(self) -> int:
+        return self.n_seqs * self.n_shuffles * self.n_augmented * self.n_alleles
+
+    def __update__(self, idx: int) -> None:
+        """
+        Update the current background
+        """
+        if self.curr_seq_idx != idx:
+            self.curr_seq_idx = idx
+            self.bg = dinuc_shuffle(
+                seqs=self.seqs[idx],
+                n_shuffles=self.n_shuffles,
+                input_type="indices",
+                seed=self.seed,
+            )
+            self.bg = np.vstack([mutate(seq, self.fixed_pattern) for seq in self.bg])
+
+    def __getitem__(self, idx: int) -> Tensor:
+        # Get indices
+        seq_idx, shuf_idx, augment_idx, pos_idx = _split_overall_idx(
+            idx, (self.n_seqs, self.n_shuffles, self.n_augmented, self.n_alleles)
+        )
+
+        # Update the current background
+        self.__update__(seq_idx)
+
+        # Choose the current background sequence
+        seq = self.bg[shuf_idx]
+
+        # Insert variable motif
+        if pos_idx > 0:
+            seq = mutate(
+                seq,
+                allele=self.variable_pattern,
+                pos=self.positions[pos_idx - 1],
+                input_type="indices",
+            )
+
+        # One-hot encode
+        return indices_to_one_hot(seq)
