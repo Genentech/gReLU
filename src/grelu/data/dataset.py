@@ -32,7 +32,7 @@ from grelu.sequence.format import (
     strings_to_indices,
 )
 from grelu.sequence.mutate import mutate
-from grelu.sequence.utils import dinuc_shuffle, get_lengths, resize
+from grelu.sequence.utils import dinuc_shuffle, get_lengths, get_unique_length, resize
 from grelu.utils import get_aggfunc, get_transform_func
 
 
@@ -659,8 +659,8 @@ class VariantMarginalizeDataset(Dataset):
         self.seq_len = seq_len
 
         # Save augmentation params
-        self.rc = False
-        self.max_seq_shift = 0
+        self.rc = rc
+        self.max_seq_shift = max_seq_shift
 
         # Save background params
         self.n_shuffles = n_shuffles
@@ -773,7 +773,6 @@ class PatternMarginalizeDataset(Dataset):
         patterns: List[str],
         n_shuffles: int = 1,
         genome: Optional[str] = None,
-        seq_len: Optional[int] = None,
         seed: Optional[int] = None,
         rc: bool = False,
         max_seq_shift: int = 0,
@@ -783,7 +782,6 @@ class PatternMarginalizeDataset(Dataset):
         # Save params
         self.genome = genome
         self.seed = seed
-        self.seq_len = seq_len
 
         # Save augmentation params
         self.rc = rc
@@ -801,7 +799,6 @@ class PatternMarginalizeDataset(Dataset):
         # Create augmenter
         self.augmenter = Augmenter(
             rc=self.rc,
-            max_seq_shift=self.max_seq_shift,
             seq_len=self.seq_len,
             seed=self.seed,
             mode="serial",
@@ -821,6 +818,12 @@ class PatternMarginalizeDataset(Dataset):
         Make the background sequences
         """
         self.n_seqs = len(seqs)
+        self.seq_len = get_unique_length(seqs)
+        self.padded_seq_len = self.seq_len + (2 * self.max_seq_shift)
+        seqs = resize(seqs, self.padded_seq_len)
+
+        if get_input_type(seqs) == "intervals":
+            check_chrom_ends(seqs, genome=self.genome)
         self.seqs = convert_input_type(seqs, "indices", genome=self.genome)
 
     def __update__(self, idx: int) -> None:
