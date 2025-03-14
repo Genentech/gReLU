@@ -13,9 +13,10 @@ from grelu.data.dataset import (
     MotifScanDataset,
     PatternMarginalizeDataset,
     SeqDataset,
+    SpacingMarginalizeDataset,
+    TilingShuffleDataset,
     VariantDataset,
     VariantMarginalizeDataset,
-    SpacingMarginalizeDataset
 )
 from grelu.sequence.format import convert_input_type
 from grelu.variant import variants_to_intervals
@@ -902,7 +903,12 @@ def test_motifscan_dataset():
 
 def test_marginalize_dataset_spacing():
     ds = SpacingMarginalizeDataset(
-        seqs=["AAGACATACAACGCGCGCTAACATAGCAAC"], fixed_pattern="AAA", variable_pattern='CCC', n_shuffles=2, seed=0, stride=3,
+        seqs=["AAGACATACAACGCGCGCTAACATAGCAAC"],
+        fixed_pattern="AAA",
+        variable_pattern="CCC",
+        n_shuffles=2,
+        seed=0,
+        stride=3,
     )
     assert (
         (ds.n_shuffles == 2)
@@ -918,9 +924,11 @@ def test_marginalize_dataset_spacing():
         and (ds.fixed_pattern_end == 16)
         and (np.all(ds.positions == [0, 3, 6, 9, 18, 21, 24, 27]))
     )
-    
+
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
-    
+    bg = convert_input_type(ds.bg, "strings")
+    assert bg == ["ACAACGCTAGACAAAAGCAGCAATATAAAC", "AAAACAGCGCTAAAAAGCACGCATATACAC"]
+
     assert xs == [
         "ACAACGCTAGACAAAAGCAGCAATATAAAC",
         "CCCACGCTAGACAAAAGCAGCAATATAAAC",
@@ -931,7 +939,6 @@ def test_marginalize_dataset_spacing():
         "ACAACGCTAGACAAAAGCAGCCCCATAAAC",
         "ACAACGCTAGACAAAAGCAGCAATCCCAAC",
         "ACAACGCTAGACAAAAGCAGCAATATACCC",
-    
         "AAAACAGCGCTAAAAAGCACGCATATACAC",
         "CCCACAGCGCTAAAAAGCACGCATATACAC",
         "AAACCCGCGCTAAAAAGCACGCATATACAC",
@@ -941,4 +948,30 @@ def test_marginalize_dataset_spacing():
         "AAAACAGCGCTAAAAAGCACGCCCATACAC",
         "AAAACAGCGCTAAAAAGCACGCATCCCCAC",
         "AAAACAGCGCTAAAAAGCACGCATATACCC",
+    ]
+
+
+def test_tiling_shuffle_dataset():
+    ds = TilingShuffleDataset(
+        seqs=["AAGACATACAACGCGCGCTAACATAGCAAC"],
+        tile_len=8,
+        protect_center=2,
+        stride=None,
+        n_shuffles=2,
+    )
+
+    assert np.all(ds.positions.start == [0, 16])
+    assert np.all(ds.positions.end == [8, 24])
+    assert len(ds) == 4
+    assert ds.n_shuffles == 2
+    assert ds.n_seqs == 1
+    assert ds.n_positions == 2
+    assert ds.stride == 8
+
+    xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
+    assert xs == [
+        "ACAGAATACAACGCGCGCTAACATAGCAAC",
+        "AACAGATACAACGCGCGCTAACATAGCAAC",
+        "AAGACATACAACGCGCGCTACAATAGCAAC",
+        "AAGACATACAACGCGCGCTAACATAGCAAC",
     ]

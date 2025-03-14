@@ -1059,6 +1059,9 @@ class SpacingMarginalizeDataset(Dataset):
         # Ingest patterns
         self._load_patterns(fixed_pattern, variable_pattern)
 
+        # Calculate positions
+        self._set_positions()
+
         # Create augmenter
         self.augmenter = Augmenter(
             rc=self.rc,
@@ -1084,9 +1087,10 @@ class SpacingMarginalizeDataset(Dataset):
     def _load_patterns(self, fixed_pattern: str, variable_pattern: str) -> None:
         self.fixed_pattern = strings_to_indices(fixed_pattern)
         self.variable_pattern = strings_to_indices(variable_pattern)
-
         self.fixed_pattern_len = len(self.fixed_pattern)
         self.variable_pattern_len = len(self.variable_pattern)
+
+    def _set_positions(self) -> None:
 
         # Coordinates of the fixed pattern
         self.fixed_pattern_start = int(
@@ -1102,15 +1106,6 @@ class SpacingMarginalizeDataset(Dataset):
         positions = [x for x in range(0, max_pos, self.stride) if x not in excl]
         self.n_alleles = len(positions) + 1
         self.positions = positions
-
-        # Spacing
-        self.distances = [self._pos_to_dist(x) for x in self.positions]
-
-    def _pos_to_dist(self, position: int) -> int:
-        if position < self.fixed_pattern_start:
-            return position + self.variable_pattern_len - self.fixed_pattern_start
-        else:
-            return position - self.fixed_pattern_end
 
     def __len__(self) -> int:
         return self.n_seqs * self.n_shuffles * self.n_augmented * self.n_alleles
@@ -1216,14 +1211,20 @@ class TilingShuffleDataset(Dataset):
         """
         Get all possible positions of tiles that can be shuffled.
         """
-        # Coordinates to protect
-        self.protect_start = int(np.floor(self.seq_len / 2 - self.protect_center / 2))
-        self.protect_end = self.protect_start + self.protect_center
-
-        # Positions of tiles to shuffle
         max_pos = self.seq_len - self.tile_len + 1
-        excl_start = self.protect_start - self.tile_len + 1
-        excl = range(excl_start, self.protect_end)
+
+        if self.protect_center is not None:
+            # Coordinates to protect
+            self.protect_start = int(
+                np.floor(self.seq_len / 2 - self.protect_center / 2)
+            )
+            self.protect_end = self.protect_start + self.protect_center
+
+            # Positions to exclude
+            excl_start = self.protect_start - self.tile_len + 1
+            excl = range(excl_start, self.protect_end)
+        else:
+            excl = []
 
         # Final tiles
         starts = [x for x in range(0, max_pos, self.stride) if x not in excl]

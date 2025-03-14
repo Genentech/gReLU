@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+import pandas as pd
 from torch import Tensor, nn
 
 from grelu.interpret.motifs import (
@@ -10,7 +11,11 @@ from grelu.interpret.motifs import (
     trim_pwm,
 )
 from grelu.interpret.score import ISM_predict, get_attention_scores, get_attributions
-from grelu.interpret.simulate import marginalize_patterns
+from grelu.interpret.simulate import (
+    marginalize_pattern_spacing,
+    marginalize_patterns,
+    shuffle_tiles,
+)
 from grelu.lightning import LightningModel
 from grelu.sequence.utils import generate_random_sequences
 
@@ -312,3 +317,52 @@ def test_run_tomtom():
     assert df.Query_consensus.tolist() == ["CACGTG", "CACGTG", "TGCGTG", "TGCGTG"]
     assert df.Target_consensus.tolist() == ["CACGTG", "TGCGTG", "CACGTG", "TGCGTG"]
     assert df.Orientation.tolist() == ["+", "+", "+", "+"]
+
+
+def test_marginalize_pattern_spacing():
+
+    seqs = ["CATACGTGAGGC", "AGGAGGCCAAAG"]
+
+    preds, distances = marginalize_pattern_spacing(
+        model,
+        fixed_pattern="A",
+        variable_pattern="CCC",
+        seqs=seqs,
+        n_shuffles=3,
+        seed=0,
+        stride=3,
+        compare_func="subtract",
+    )
+    assert preds.shape == (2, 3, 3, 1, 1)
+    expected_preds = np.array(
+        [
+            [[-0.5, -5 / 6, -2 / 3], [-0.5, -5 / 6, -1 / 3], [-0.5, -5 / 6, -1 / 3]],
+            [
+                [-3 / 2, -2 / 3, -2 / 3],
+                [-5 / 6, -1 / 6, -7 / 6],
+                [-7 / 6, -1 / 3, -2 / 3],
+            ],
+        ]
+    )
+    assert np.allclose(preds.squeeze(), expected_preds)
+    assert distances == [-5, 1, 4]
+
+
+def test_shuffle_tiles():
+    seqs = ["CATACGTGAGGC", "AGGAGGCCAAAG"]
+    before_preds, after_preds, positions = shuffle_tiles(
+        model=model,
+        seqs=seqs,
+        tile_len=8,
+        stride=4,
+        n_shuffles=3,
+        seed=0,
+        compare_func=None,
+    )
+    assert positions.equals(pd.DataFrame({"start": [0, 4], "end": [8, 12]}))
+    assert before_preds.shape == (2, 1, 1, 1, 1)
+    assert after_preds.shape == (2, 2, 3, 1, 1)
+    assert np.allclose(before_preds.squeeze(), np.array([0.5, 4 / 3]))
+    assert np.allclose(
+        after_preds.squeeze(), np.repeat([0.5, 4 / 3], 6).reshape(2, 2, 3)
+    )
