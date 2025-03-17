@@ -7,10 +7,11 @@ All functions assume that the input is either:
 (2) a 2-D numpy array containing a label of shape (tasks, length).
 
 The augmented output must be returned in the same format. All augmentation functions also
-require an index (idx) which is an integer or boolean value.
+require an index (idx) which is an integer or boolean value and determines the specific 
+augmentation to be applied (for example, the number of bases by which to shift the sequence). 
 
 This module also contains the `Augmenter` class which is responsible for applying multiple
-augmentations to a given DNA sequence or (sequence, label) pair.
+augmentations to a given DNA sequence or (sequence, label) pair. 
 """
 
 import warnings
@@ -70,8 +71,8 @@ def rc_seq(seq: np.ndarray, idx: bool) -> np.ndarray:
         idx: If True, the reverse complement sequence will be returned.
             If False, the sequence will be returned unchanged.
 
-    Returns:
         Same or reverse complemented sequence
+    Returns:
     """
     return reverse_complement(seq, input_type="indices") if idx else seq
 
@@ -212,10 +213,6 @@ class Augmenter:
         if self.shift_seq:
             seq = shift(seq, seq_len=self.seq_len, idx=seq_shift_idx + pair_shift_idx)
 
-        # Reverse complement sequence
-        if self.rc:
-            seq = rc_seq(seq, idx=rc_idx)
-
         # Introduce random mutations into the sequence
         if self.mutate:
             for _ in range(self.n_mutated_bases):
@@ -227,6 +224,10 @@ class Augmenter:
                     input_type="indices",
                     rng=self.rng,
                 )
+
+        # Reverse complement sequence
+        if self.rc:
+            seq = rc_seq(seq, idx=rc_idx)
 
         # If no label is provided, return only the sequence
         if label is None:

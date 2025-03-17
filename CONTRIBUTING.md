@@ -2,25 +2,21 @@
 
 Welcome to the ``gReLU`` contributor's guide.
 
-This document focuses on getting any potential contributor familiarized with the development processes,
-but [other kinds of contributions](https://opensource.guide/how-to-contribute) are also appreciated.
+This document focuses on getting any potential contributor familiarized with the development processes, but [other kinds of contributions](https://opensource.guide/how-to-contribute) are also appreciated.
 
 If you are new to using git or have never collaborated in a project previously, please have a look at
 [contribution-guide.org](https://www.contribution-guide.org/). Other resources are also listed in the
 excellent [guide created by FreeCodeCamp](https://github.com/FreeCodeCamp/how-to-contribute).
 
 Please notice, all users and contributors are expected to be **open, considerate, reasonable, and
-respectful**. When in doubt, [Python Software Foundation's Code of Conduct](https://www.python.org/psf/conduct/)
-is a good reference in terms of behavior guidelines.
+respectful**. When in doubt, [Python Software Foundation's Code of Conduct](https://www.python.org/psf/conduct/) is a good reference in terms of behavior guidelines.
 
 ## Issue Reports
 
 If you experience bugs or general issues with ``gReLU``, please have a look at the
-[issue tracker](https://github.com/Genentech/gReLU/issues). If you don't see anything useful there, please
-file a new issue report.
+[issue tracker](https://github.com/Genentech/gReLU/issues). If you don't see anything useful there, please file a new issue report.
 
-(Don't forget to include the closed issues in your search. Sometimes a solution was already reported, and
-the problem is considered solved.)
+(Don't forget to include the closed issues in your search. Sometimes a solution was already reported, and the problem is considered solved.)
 
 You can file a new issue by clicking the "New issue" button at the top right of the issue tracker.
 ![New Issue](media/new_issue.jpg)
@@ -28,9 +24,7 @@ You can file a new issue by clicking the "New issue" button at the top right of 
 Your new issue report should include the following information:
 
 1. Information about your programming environment (e.g., operating system, Python version)
-2. Steps to reproduce the problem. Please try to simplify the reproduction steps to a very minimal example
-that still illustrates the problem you are facing. By removing other factors, you help us to identify the
-root cause of the issue.
+2. Steps to reproduce the problem. Please try to simplify the reproduction steps to a very minimal example that still illustrates the problem you are facing. By removing other factors, you help us to identify the root cause of the issue.
 4. The full error message that you encountered, if any.
 5. Any steps that you took to diagnose or fix the issue, and their outcomes.
 6. Any suggestions for resolving the issue.
@@ -40,8 +34,7 @@ root cause of the issue.
 
 ### Coding resources
 
-``gReLU`` uses pytorch and pytorch-lightning. The below tutorials are good starting points to become familiar
-with these frameworks:
+``gReLU`` uses pytorch and pytorch-lightning. The below tutorials are good starting points to become familiar with these frameworks:
 
 [PyTorch tutorials](https://pytorch.org/tutorials/beginner/basics/intro.html)
 
@@ -49,24 +42,17 @@ with these frameworks:
 
 ### Understanding project structure
 
-We welcome external contributions to ``gReLU``. Before planning changes to the code, we suggest carefully
-examining the current structure and organization of the package.
+We welcome external contributions to ``gReLU``. Before planning changes to the code, we suggest carefully examining the current structure and organization of the package.
 
-The [API reference](https://genentech.github.io/gReLU/autoapi/index.html) lists all the modules and submodules
-available in gReLU. Clicking on individual modules on this list will reveal a description of the module and
-what kinds of functions it is meant to contain. The descriptions also contain more detailed explanations of the
-expected structure of each module and how to contribute to it. This will help you find the appropriate location
-to make changes.
+The [API reference](https://genentech.github.io/gReLU/autoapi/index.html) lists all the modules and submodules available in gReLU. Clicking on individual modules on this list will reveal a description of the module and what kinds of functions it is meant to contain. The descriptions also contain more detailed explanations of the expected structure of each module. This will help you find the appropriate location to make changes.
 
-For instance, the table below lists some different types of functionality that contributors may want to add
-or change, and the corresponding module / submodule of ``gReLU``. Click on the name of a module for more details
-on its structure.
+For instance, the table below lists some different types of functionality that contributors may want to add or change, and the corresponding module / submodule of ``gReLU``. Click on the name of a module for more details on its structure.
 
 | Functionality    | Module |
 | ---------------- | ------- |
 | Functions to read / write genomic data  | [`grelu.io`](https://genentech.github.io/gReLU/autoapi/grelu/io/index.html) |
 | Functions to preprocess genomic data after it is loaded | [`grelu.data.preprocess`](https://genentech.github.io/gReLU/autoapi/grelu/data/preprocess/index.html) |
-| New augmentation functions for training models    | [`grelu.data.augment`](https://genentech.github.io/gReLU/autoapi/grelu/data/augment/index.html) |
+| New data augmentation methods    | [`grelu.data.augment`](https://genentech.github.io/gReLU/autoapi/grelu/data/augment/index.html) |
 | Functions to introduce various types of in silico mutations into DNA sequences | [`grelu.sequence.mutate`](https://genentech.github.io/gReLU/autoapi/grelu/sequence/mutate/index.html) |
 | Other functions to manipulate DNA sequences | [`grelu.sequence.utils`](https://genentech.github.io/gReLU/autoapi/grelu/sequence/utils/index.html) |
 | Functions to score DNA sequences based on their content | [`grelu.transforms.seq_transforms`](https://genentech.github.io/gReLU/autoapi/grelu/transforms/seq_transforms/index.html) |
@@ -76,9 +62,12 @@ on its structure.
 | New loss functions | [`grelu.lightning.losses`](https://genentech.github.io/gReLU/autoapi/grelu/lightning/losses/index.html)|
 | New metrics to calculate model performance | [`grelu.lightning.metrics`](https://genentech.github.io/gReLU/autoapi/grelu/lightning/metrics/index.html) |
 | New plots and visualizations | [`grelu.visualize`](https://genentech.github.io/gReLU/autoapi/grelu/visualize/index.html) |
+| Unit tests for new functions | [`tests`](https://github.com/Genentech/gReLU/tree/main/tests) |
 
-For complex changes that may not fit clearly within the established package structure, it is important to first
-raise an issue (see instructions below).
+Two ex
+
+
+For complex changes that may not fit clearly within the established package structure, it is important to first raise an issue (see instructions below).
 
 
 ## Step-by-step instructions to contribute new code
@@ -92,8 +81,7 @@ This often provides additional considerations and avoids unnecessary work.
 ### Create an environment
 
 Before you start coding, we recommend creating an isolated [virtual
-environment](https://realpython.com/python-virtual-environments-a-primer/) to avoid any problems with your
-installed Python packages. This can easily be done via either [virtualenv](https://virtualenv.pypa.io/en/stable/):
+environment](https://realpython.com/python-virtual-environments-a-primer/) to avoid any problems with your installed Python packages. This can easily be done via either [virtualenv](https://virtualenv.pypa.io/en/stable/):
 ```
     virtualenv <PATH TO VENV>
     source <PATH TO VENV>/bin/activate
@@ -142,7 +130,7 @@ or [Miniconda](https://docs.conda.io/en/latest/miniconda.html):
 
 3. If you change or add any functions, modules and classes, don't forget to update or add docstrings to describe these changes.
 
-4. If your contribution adds an additional feature and is not just a bugfix, we suggest also adding unit tests.
+4. If your contribution adds an additional feature and is not just a bugfix, we suggest also adding unit tests in https://github.com/Genentech/gReLU/tree/main/tests.
 
 5. Add yourself to the list of contributors in ``AUTHORS.rst``.
 
@@ -246,3 +234,7 @@ the following steps can be used to release a new version for ``grelu``:
    500KB), unwanted clutter may have been accidentally included.
 6. Run ``tox -e publish -- --repository pypi`` and check that everything was
    uploaded to PyPI_ correctly.
+
+## Contributing to the model zoo
+
+gReLU's [model zoo](https://wandb.ai/grelu) is intended to host a curated set of models which are likely to be broadly useful to many users of the package. If you would like to contribute such a model, please let us know via a GitHub issue (see instructions above). Note that it is not necessary to contribute a model to the zoo in order to share it with the community, as gReLU saves checkpoint files that contain exhaustive metadata and can be easily shared and reused.
