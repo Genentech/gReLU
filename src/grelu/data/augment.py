@@ -7,11 +7,11 @@ All functions assume that the input is either:
 (2) a 2-D numpy array containing a label of shape (tasks, length).
 
 The augmented output must be returned in the same format. All augmentation functions also
-require an index (idx) which is an integer or boolean value and determines the specific 
-augmentation to be applied (for example, the number of bases by which to shift the sequence). 
+require an index (idx) which is an integer or boolean value and determines the specific
+augmentation to be applied (for example, the number of bases by which to shift the sequence).
 
 This module also contains the `Augmenter` class which is responsible for applying multiple
-augmentations to a given DNA sequence or (sequence, label) pair. 
+augmentations to a given DNA sequence or (sequence, label) pair.
 """
 
 import warnings
