@@ -28,7 +28,6 @@ model = LightningModel(
         "num_workers": 1,
         "devices": "cpu",
     },
-    data_params={},
 )
 
 weight = Tensor([[1, 2, 0, 0], [0, 0, -2, -1]]).unsqueeze(2)

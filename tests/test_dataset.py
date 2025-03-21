@@ -17,6 +17,7 @@ from grelu.data.dataset import (
     VariantMarginalizeDataset,
 )
 from grelu.sequence.format import convert_input_type
+from grelu.variant import variants_to_intervals
 
 cwd = os.path.realpath(os.path.dirname(__file__))
 
@@ -47,6 +48,7 @@ def test_dfseqdataset_seqs_no_aug():
         and (ds.labels.shape == (2, 2, 1))
         and (len(ds) == 2)
         and not (ds.predict)
+        and (ds.intervals is None)
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -94,6 +96,7 @@ def test_dfseqdataset_seqs_aug():
         and ds.labels.shape == (2, 1, 1)
         and (len(ds) == 4)
         and (not ds.predict)
+        and (ds.intervals is None)
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -136,6 +139,7 @@ def test_dfseqdataset_seqs_multiclass():
         and ds.labels.shape == (2, 2, 1)
         and (len(ds) == 4)
         and (not ds.predict)
+        and (ds.intervals is None)
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -179,9 +183,9 @@ def test_dfseqdataset_intervals_no_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
         and (np.all(ds.tasks.index == ["label1"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 2)
         and (not ds.predict)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -204,9 +208,9 @@ def test_dfseqdataset_intervals_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 2)
         and (np.all(ds.tasks.index == ["label1"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 4)
         and (not ds.predict)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -230,9 +234,9 @@ def test_dfseqdataset_intervals_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 3)
         and (np.all(ds.tasks.index == ["label1", "label2"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 6)
         and (not ds.predict)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -276,8 +280,8 @@ def test_dfseqdataset_intervals_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 6)
         and (np.all(ds.tasks.index == ["label1"]))
-        and (ds.chroms == ["chr1"])
         and (not ds.predict)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -335,9 +339,9 @@ def test_dfseqdataset_intervals_multiclass():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
         and (np.all(ds.tasks.index == ["T1", "T2"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 2)
         and (not ds.predict)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -370,8 +374,8 @@ def test_anndata_dataset_no_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
         and (np.all(ds.tasks.index == ["label1", "label2"]))
-        and (ds.chroms == ["chr1"])
         and (not ds.predict)
+        and (ds.intervals.equals(ad.var))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -392,8 +396,8 @@ def test_anndata_dataset_no_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
         and (np.all(ds.tasks.index == ["label1", "label2"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 2)
+        and (ds.intervals.equals(ad.var))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -412,8 +416,8 @@ def test_anndata_dataset_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 2)
         and (np.all(ds.tasks.index == ["label1", "label2"]))
-        and (ds.chroms == ["chr1"])
         and (not ds.predict)
+        and (ds.intervals.equals(ad.var))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -433,8 +437,8 @@ def test_anndata_dataset_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 3)
         and (np.all(ds.tasks.index == ["label1", "label2"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 6)
+        and (ds.intervals.equals(ad.var))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -456,7 +460,7 @@ def test_anndata_dataset_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 6)
         and (np.all(ds.tasks.index == ["label1", "label2"]))
-        and (ds.chroms == ["chr1"])
+        and (ds.intervals.equals(ad.var))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -517,8 +521,8 @@ def test_bigwig_dataset_no_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
         and (np.all(ds.tasks.index == ["test"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 2)
+        and (ds.intervals.equals(bw_intervals))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     ys = torch.stack(ys)
@@ -544,9 +548,9 @@ def test_bigwig_dataset_no_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
         and (np.all(ds.tasks.index == ["test"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 2)
         and (ds.bin_size == 2)
+        and (ds.intervals.equals(bw_intervals))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     ys = torch.stack(ys)
@@ -575,9 +579,9 @@ def test_bigwig_dataset_no_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
         and (np.all(ds.tasks.index == ["test"]))
-        and (ds.chroms == ["chr1"])
         and (len(ds) == 2)
         and (ds.bin_size == 2)
+        and (ds.intervals.equals(bw_intervals))
     )
     xs, ys = list(zip(*[ds[i] for i in range(len(ds))]))
     ys = torch.stack(ys)
@@ -597,6 +601,7 @@ def test_unlabeled_dataset_no_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 1)
         and (len(ds) == 2)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -613,6 +618,7 @@ def test_unlabeled_dataset_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 2)
         and (len(ds) == 4)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -627,6 +633,7 @@ def test_unlabeled_dataset_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 3)
         and (len(ds) == 6)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -641,6 +648,7 @@ def test_unlabeled_dataset_aug():
         and (ds.n_seqs == 2)
         and (ds.n_augmented == 6)
         and (len(ds) == 12)
+        and (ds.intervals.equals(interval_df.iloc[:, :3]))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -667,6 +675,7 @@ variants = pd.read_table(variant_file, usecols=(0, 1, 2)).iloc[:2, :]
 variants["ref"] = variants.variation.apply(lambda x: x.split(">")[0])
 variants["alt"] = variants.variation.apply(lambda x: x.split(">")[1].split(",")[0])
 variants = variants[["chrom", "pos", "ref", "alt"]]
+expected_intervals = variants_to_intervals(variants, seq_len=4)
 
 
 def test_variant_dataset_no_aug():
@@ -680,6 +689,7 @@ def test_variant_dataset_no_aug():
         and (ds.n_augmented == 1)
         and (ds.n_alleles == 2)
         and (len(ds) == 4)
+        and (ds.intervals.equals(expected_intervals))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -697,6 +707,7 @@ def test_variant_dataset_aug():
         and (ds.n_augmented == 2)
         and (ds.n_alleles == 2)
         and (len(ds) == 8)
+        and (ds.intervals.equals(expected_intervals))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -712,6 +723,7 @@ def test_variant_dataset_aug():
         and (ds.n_augmented == 3)
         and (ds.n_alleles == 2)
         and (len(ds) == 12)
+        and (ds.intervals.equals(expected_intervals))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -740,6 +752,7 @@ def test_variant_dataset_aug():
         and (ds.n_augmented == 6)
         and (ds.n_alleles == 2)
         and (len(ds) == 24)
+        and (ds.intervals.equals(expected_intervals))
     )
     xs = [ds[i] for i in range(len(ds))]
     xs = [convert_input_type(x, "strings") for x in xs]
@@ -799,6 +812,7 @@ def test_marginalize_dataset_variants():
     ds = VariantMarginalizeDataset(
         variants=variants, genome="hg38", seq_len=12, n_shuffles=2, seed=0
     )
+    expected_intervals = variants_to_intervals(variants, seq_len=12)
     assert (
         (ds.n_shuffles == 2)
         and (ds.seq_len == 12)
@@ -806,9 +820,11 @@ def test_marginalize_dataset_variants():
         and (ds.ref.shape == (2, 1))
         and (ds.alt.shape == (2, 1))
         and (len(ds) == 8)
-        and (ds.n_augmented == 2)
+        and (ds.n_augmented == 1)
+        and (ds.n_shuffles == 2)
         and (np.allclose(ds.ref, np.array([[2], [2]])))
         and (np.allclose(ds.alt, np.array([[0], [0]])))
+        and (ds.intervals.equals(expected_intervals))
     )
     assert convert_input_type(ds.seqs, "strings") == ["CATACGTGAGGC", "AGGAGGCCAAAG"]
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
@@ -834,7 +850,8 @@ def test_marginalize_dataset_motifs():
         and (ds.n_seqs == 1)
         and (ds.alleles.shape == (1, 3))
         and (len(ds) == 4)
-        and (ds.n_augmented == 2)
+        and (ds.n_augmented == 1)
+        and (ds.n_shuffles == 2)
         and (ds.n_alleles == 2)
     )
 

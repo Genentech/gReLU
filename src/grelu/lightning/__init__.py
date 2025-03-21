@@ -28,6 +28,7 @@ from grelu.data.dataset import (
     LabeledSeqDataset,
     MotifScanDataset,
     PatternMarginalizeDataset,
+    SeqDataset,
     VariantDataset,
     VariantMarginalizeDataset,
 )
@@ -35,7 +36,7 @@ from grelu.lightning.losses import PoissonMultinomialLoss
 from grelu.lightning.metrics import MSE, BestF1, PearsonCorrCoef
 from grelu.model.heads import ConvHead
 from grelu.sequence.format import strings_to_one_hot
-from grelu.utils import get_aggfunc, get_compare_func, make_list
+from grelu.utils import get_aggfunc, make_list
 
 default_train_params = {
     "task": "binary",  # binary, multiclass, or regression
@@ -64,16 +65,12 @@ class LightningModel(pl.LightningModule):
     Args:
         model_params: Dictionary of parameters specifying model architecture
         train_params: Dictionary specifying training parameters
-        data_params: Dictionary specifying parameters of the training data.
-            This is empty by default and will be filled at the time of
-            training.
     """
 
     def __init__(
         self,
         model_params: dict,
         train_params: dict = {},
-        data_params: dict = {},
     ) -> None:
         super().__init__()
 
@@ -89,7 +86,8 @@ class LightningModel(pl.LightningModule):
         # Save params
         self.model_params = model_params
         self.train_params = train_params
-        self.data_params = data_params
+        self.data_params = dict()
+        self.performance = dict()
 
         # Build model
         self.build_model()
@@ -356,6 +354,9 @@ class LightningModel(pl.LightningModule):
 
         self.val_metrics.reset()
         self.val_losses = []
+        self.performance["val"] = {
+            k: v.detach().cpu().numpy() for k, v in val_metrics.items()
+        }
 
     def test_step(self, batch: Tensor, batch_idx: int) -> Tensor:
         """
@@ -374,13 +375,16 @@ class LightningModel(pl.LightningModule):
         """
         Calculate metrics for entire test set
         """
-        self.computed_test_metrics = self.test_metrics.compute()
-        self.log_dict({k: v.mean() for k, v in self.computed_test_metrics.items()})
+        test_metrics = self.test_metrics.compute()
+        self.log_dict({k: v.mean() for k, v in test_metrics.items()})
         losses = torch.stack(self.test_losses)
         self.log("test_loss", torch.mean(losses))
 
         self.test_metrics.reset()
         self.test_losses = []
+        self.performance["test"] = {
+            k: v.detach().cpu().numpy() for k, v in test_metrics.items()
+        }
 
     def configure_optimizers(self) -> None:
         """
@@ -571,11 +575,14 @@ class LightningModel(pl.LightningModule):
             names="name"
         ).to_dict(orient="list")
 
+        self.data_params["train"] = {}
+        self.data_params["val"] = {}
+
         for attr, value in self._get_dataset_attrs(train_dataset):
-            self.data_params["train_" + attr] = value
+            self.data_params["train"][attr] = value
 
         for attr, value in self._get_dataset_attrs(val_dataset):
-            self.data_params["val_" + attr] = value
+            self.data_params["val"][attr] = value
 
         # Add software params
         import grelu
@@ -599,13 +606,14 @@ class LightningModel(pl.LightningModule):
             if not attr.startswith("_") and not attr.isupper():
                 value = getattr(dataset, attr)
                 if (
-                    (attr == "chroms")
-                    or (isinstance(value, str))
+                    (isinstance(value, str))
                     or (isinstance(value, int))
                     or (isinstance(value, float))
                     or (value is None)
                 ):
                     yield attr, value
+                elif attr == "intervals":
+                    yield attr, value.to_dict(orient="list")
 
     def change_head(
         self,
@@ -669,7 +677,12 @@ class LightningModel(pl.LightningModule):
         return self.train_on_dataset(train_dataset, val_dataset)
 
     def on_save_checkpoint(self, checkpoint: dict) -> None:
-        checkpoint["hyper_parameters"]["data_params"] = self.data_params
+        checkpoint["data_params"] = self.data_params
+        checkpoint["performance"] = self.performance
+
+    def on_load_checkpoint(self, checkpoint: dict) -> None:
+        self.data_params = checkpoint["data_params"]
+        self.performance = checkpoint["performance"]
 
     def predict_on_seqs(
         self,
@@ -702,7 +715,6 @@ class LightningModel(pl.LightningModule):
         num_workers: int = 1,
         batch_size: int = 256,
         augment_aggfunc: Union[str, Callable] = "mean",
-        compare_func: Optional[Union[str, Callable]] = None,
         return_df: bool = False,
         precision: Optional[str] = None,
     ):
@@ -716,7 +728,6 @@ class LightningModel(pl.LightningModule):
             batch_size: Batch size for data loader
             augment_aggfunc: Return the average prediction across all augmented
                 versions of a sequence
-            compare_func: Return the alt/ref difference for variants
             return_df: Return the predictions as a Pandas dataframe
             precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
 
@@ -740,67 +751,106 @@ class LightningModel(pl.LightningModule):
         # Predict
         preds = torch.concat(trainer.predict(self, dataloader))
 
-        # Reshape predictions
-        preds = rearrange(
-            preds,
-            "(b n a) t l -> b n a t l",
-            n=dataset.n_augmented,
-            a=dataset.n_alleles,
-        )
+        if isinstance(dataset, (SeqDataset, LabeledSeqDataset)):
 
-        # Convert predictions to numpy array
-        preds = preds.detach().cpu().numpy()
+            # Reshape predictions
+            preds = (
+                rearrange(
+                    preds,
+                    "(b n) t l -> b n t l",
+                    n=dataset.n_augmented,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )  # B N T L
 
-        # ISM or Motif Scanning
-        if (isinstance(dataset, ISMDataset)) or (isinstance(dataset, MotifScanDataset)):
-            return preds
-
-        else:
             # Flip predictions for reverse complemented sequences
             if (dataset.rc) and (preds.shape[-1] > 1):
-                preds[:, dataset.n_augmented // 2 :, :, :, :] = np.flip(
-                    preds[:, dataset.n_augmented // 2 :, :, :, :], axis=-1
+                preds[:, dataset.n_augmented // 2 :, ...] = np.flip(
+                    preds[:, dataset.n_augmented // 2 :, ...], axis=-1
                 )
 
-            # Compare the predictions for two alleles
-            if (
-                (isinstance(dataset, VariantDataset))
-                or (isinstance(dataset, VariantMarginalizeDataset))
-                or (isinstance(dataset, PatternMarginalizeDataset))
-            ):
-                if compare_func is not None:
-                    assert preds.shape[2] == 2
-                    preds = get_compare_func(compare_func)(
-                        preds[:, :, 1, :, :], preds[:, :, 0, :, :]
-                    )  # BNTL
+            # Combine predictions for augmented sequences
+            if augment_aggfunc is not None:
+                preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
 
-                # Combine predictions for augmented sequences
-                if augment_aggfunc is not None:
-                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
+            if return_df:
+                if (preds.ndim == 3) and (preds.shape[-1] == 1):
+                    preds = pd.DataFrame(
+                        preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
+                    )
+                else:
+                    warnings.warn(
+                        "Cannot produce dataframe output."
+                        + "Either output length > 1 or augmented sequences are not aggregated."
+                    )
 
-                return preds
+        elif isinstance(dataset, VariantDataset):
+            # Reshape predictions
+            preds = (
+                rearrange(
+                    preds,
+                    "(b n a) t l -> b n a t l",
+                    n=dataset.n_augmented,
+                    a=dataset.n_alleles,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )  # B N 2 T L
 
-            else:
-                # Regular sequences
-                preds = preds.squeeze(2)  # B N T L
-                if augment_aggfunc is not None:
-                    preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
-                elif preds.shape[1] == 1:
-                    preds = preds.squeeze(1)
+            # Flip predictions for reverse complemented sequences
+            if (dataset.rc) and (preds.shape[-1] > 1):
+                preds[:, dataset.n_augmented // 2 :, ...] = np.flip(
+                    preds[:, dataset.n_augmented // 2 :, ...], axis=-1
+                )
 
-                # Make dataframe
-                if return_df:
-                    if (preds.ndim == 3) and (preds.shape[-1] == 1):
-                        preds = pd.DataFrame(
-                            preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
-                        )
-                    else:
-                        warnings.warn(
-                            "Cannot produce dataframe output."
-                            + "Either output length > 1 or augmented sequences are not aggregated."
-                        )
+            # Combine predictions for augmented sequences
+            if augment_aggfunc is not None:
+                preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B 2 T L
 
-            return preds
+        elif isinstance(
+            dataset, (VariantMarginalizeDataset, PatternMarginalizeDataset)
+        ):
+            # Reshape predictions
+            preds = (
+                rearrange(
+                    preds,
+                    "(b s n a) t l -> b s n a t l",
+                    s=dataset.n_shuffles,
+                    n=dataset.n_augmented,
+                    a=dataset.n_alleles,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )  # B S N 2 T L
+
+            # Flip predictions for reverse complemented sequences
+            if (dataset.rc) and (preds.shape[-1] > 1):
+                preds[:, :, dataset.n_augmented // 2, ...] = np.flip(
+                    preds[:, :, dataset.n_augmented // 2, ...], axis=-1
+                )
+
+            # Combine predictions for augmented sequences
+            if augment_aggfunc is not None:
+                preds = get_aggfunc(augment_aggfunc)(preds, axis=2)  # B S 2 T L
+
+        elif isinstance(dataset, (ISMDataset, MotifScanDataset)):
+            preds = (
+                rearrange(
+                    preds,
+                    "(b p a) t l -> b p a t l",
+                    p=dataset.n_positions,
+                    a=dataset.n_alleles,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )  # B P A T L
+
+        return preds
 
     def test_on_dataset(
         self,
@@ -809,6 +859,7 @@ class LightningModel(pl.LightningModule):
         num_workers: int = 1,
         batch_size: int = 256,
         precision: Optional[str] = None,
+        write_path: Optional[str] = None,
     ):
         """
         Run test loop for a dataset
@@ -819,6 +870,8 @@ class LightningModel(pl.LightningModule):
             num_workers: Number of workers for data loader
             batch_size: Batch size for data loader
             precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
+            write_path: Path to write a new model checkpoint containing
+                test data parameters and performance.
 
         Returns:
             Dataframe containing all calculated metrics on the test set.
@@ -838,12 +891,17 @@ class LightningModel(pl.LightningModule):
         )
         self.test_metrics.reset()
         trainer.test(model=self, dataloaders=dataloader, verbose=True)
-
-        metric_dict = {
-            k: v.detach().cpu().numpy() for k, v in self.computed_test_metrics.items()
-        }
         self.test_metrics.reset()
-        return pd.DataFrame(metric_dict, index=self.data_params["tasks"]["name"])
+
+        self.data_params["test"] = {}
+        for attr, value in self._get_dataset_attrs(dataset):
+            self.data_params["test"][attr] = value
+
+        if write_path is not None:
+            trainer.save_checkpoint(write_path)
+        return pd.DataFrame(
+            self.performance["test"], index=self.data_params["tasks"]["name"]
+        )
 
     def embed_on_dataset(
         self,
@@ -955,9 +1013,9 @@ class LightningModel(pl.LightningModule):
             Index of the output bin containing the given position.
 
         """
-        output_bin = (input_coord - start_pos) / self.data_params[
-            "train_bin_size"
-        ] - self.model_params["crop_len"]
+        output_bin = (
+            (input_coord - start_pos) / self.data_params["train"]["bin_size"]
+        ) - self.model_params["crop_len"]
         return int(np.floor(output_bin))
 
     def output_bin_to_input_coord(
@@ -981,12 +1039,12 @@ class LightningModel(pl.LightningModule):
 
         """
         start = (output_bin + self.model_params["crop_len"]) * self.data_params[
-            "train_bin_size"
-        ]
+            "train"
+        ]["bin_size"]
         if return_pos == "start":
             return start + start_pos
         elif return_pos == "end":
-            return start + self.data_params["train_bin_size"] + start_pos
+            return start + self.data_params["train"]["bin_size"] + start_pos
         else:
             raise NotImplementedError
 
@@ -1007,7 +1065,9 @@ class LightningModel(pl.LightningModule):
             to the model output from each input interval.
         """
         output_intervals = intervals.copy()
-        crop_coords = self.model_params["crop_len"] * self.data_params["train_bin_size"]
+        crop_coords = (
+            self.model_params["crop_len"] * self.data_params["train"]["bin_size"]
+        )
         output_intervals["start"] = intervals.start + crop_coords
         output_intervals["end"] = intervals.end - crop_coords
         return output_intervals
