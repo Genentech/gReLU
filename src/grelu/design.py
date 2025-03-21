@@ -179,7 +179,7 @@ def evolve(
 
     # Get model predictions
     if return_preds:
-        ds = SeqDataset(outputs.seq.dropna().tolist())
+        ds = SeqDataset(outputs[outputs.seq!="nan"].seq.tolist())
         preds = model.predict_on_dataset(
             ds,
             devices=devices,
@@ -210,7 +210,7 @@ def evolve(
 
         # Add model predictions to output dataframe
         outputs[task_names] = np.nan
-        outputs.loc[~outputs.seq.isna(), task_names] = preds
+        outputs.loc[outputs.seq!="nan", task_names] = preds
 
     return outputs
 
