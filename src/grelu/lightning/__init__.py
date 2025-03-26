@@ -777,6 +777,17 @@ class LightningModel(pl.LightningModule):
             if augment_aggfunc is not None:
                 preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B T L
 
+            if return_df:
+                if (preds.ndim == 3) and (preds.shape[-1] == 1):
+                    preds = pd.DataFrame(
+                        preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
+                    )
+                else:
+                    warnings.warn(
+                        "Cannot produce dataframe output."
+                        + "Either output length > 1 or augmented sequences are not aggregated."
+                    )
+
         elif isinstance(dataset, VariantDataset):
             # Reshape predictions
             preds = (
