@@ -28,11 +28,11 @@ def marginalize_patterns(
         inserting the patterns into the dinucleotide-shuffled background sequences.
 
     Args:
-        model: trained model
+        model: trained model of class `grelu.lightning.LightningModel`
         patterns: a sequence or list of sequences to insert
         seqs: background sequences
         genome: Name of the genome to use if genomic intervals are supplied
-        device: Index of device on which to run inference
+        devices: Index of device on which to run inference
         num_workers: Number of workers for inference
         batch_size: Batch size for inference
         seed: Random seed
@@ -91,7 +91,7 @@ def marginalize_pattern_spacing(
     model: Callable,
     seqs: Union[str, Sequence, pd.DataFrame, np.ndarray],
     fixed_pattern: str,
-    variable_pattern: str,
+    moving_pattern: str,
     genome: Optional[str] = None,
     stride: int = 1,
     n_shuffles: int = 1,
@@ -108,35 +108,35 @@ def marginalize_pattern_spacing(
     two patterns (sub-sequences).
     Given a model and a set of background sequences, dinucleotide-shuffles the sequences,
     inserts the fixed pattern into the center of each shuffled sequence, then gets the
-    predictions from the model on inserting the variable pattern at different distances from
+    predictions from the model on inserting the moving pattern at different distances from
     the fixed pattern.
     Args:
-        model: trained model
+        model: trained model of class `grelu.lightning.LightningModel`
         seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
         fixed_pattern: A subsequence to insert in the center of each background sequence.
-        variable_pattern: A subsequence to insert into the background sequences at
+        moving_pattern: A subsequence to insert into the background sequences at
             different distances from `fixed_motif`.
-        stride: Number of bases by which to shift the variable motif.
+        stride: Number of bases by which to shift the moving pattern.
         genome: The name of the genome from which to read sequences. This
             is only needed if genomic intervals are supplied in `seqs`.
         n_shuffles: Number of times to shuffle each sequence in `seqs`, to
             generate a background distribution.
         rc: If True, augment by reverse complementation
         seed: Seed for random number generator
-        device: Index of device on which to run inference
+        devices: Index of device on which to run inference
         num_workers: Number of workers for inference
         batch_size: Batch size for inference
         prediction_transform: A module to transform the model output
-        compare_func: Function to compare the predictions with and without the variable
+        compare_func: Function to compare the predictions with and without the moving
             pattern. Options are "divide" or "subtract". If not provided, the predictions
-            without the variable motif will be returned separately.
+            without the moving pattern will be returned separately.
     Returns:
         preds_before: The predictions from the background sequences
         preds_after: The predictions after inserting the pattern into
             the background sequences.
-        distances: A list containing the distance of the variable pattern from the fixed
+        distances: A list containing the distance of the moving pattern from the fixed
             pattern. Distances are the number of bases between the end of one motif and the
-            start of the other. Negative values indicate that the variable pattern is to the
+            start of the other. Negative values indicate that the moving pattern is to the
             left of the fixed pattern.
     """
     # Create torch dataset
@@ -149,7 +149,7 @@ def marginalize_pattern_spacing(
     ds = SpacingMarginalizeDataset(
         seqs=seqs,
         fixed_pattern=fixed_pattern,
-        variable_pattern=variable_pattern,
+        moving_pattern=moving_pattern,
         genome=genome,
         stride=stride,
         n_shuffles=n_shuffles,
@@ -200,21 +200,22 @@ def shuffle_tiles(
     Dataset class to perform regulatory element discovery by shuffling tiles along
     the input sequences.
     Args:
+        model: trained model of class `grelu.lightning.LightningModel`
         seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
         tile_len: Length of tile to shuffle.
         stride: Distance between the start positions of successive tiles.
         protect_center: Length of central region to protect
-        genome: The name of the genome from which to read sequences. This
-            is only needed if genomic intervals are supplied in `seqs`.
         n_shuffles: Number of times to shuffle each tile.
         seed: Seed for random number generator
-        device: Index of device on which to run inference
+        genome: The name of the genome from which to read sequences. This
+            is only needed if genomic intervals are supplied in `seqs`.
+        deviced: Index of device on which to run inference
         num_workers: Number of workers for inference
         batch_size: Batch size for inference
         prediction_transform: A module to transform the model output
-        compare_func: Function to compare the predictions with and without the variable
-            pattern. Options are "divide" or "subtract". If not provided, the predictions
-            without shuffling will be returned separately.
+        compare_func: Function to compare the predictions after and before shuffling each
+            tile. Options are "divide" or "subtract". If not provided, the predictions
+            before and after shuffling will be returned separately.
     Returns:
         before_preds: Model predictions on the original sequences.
         after_preds: Model predictions on the sequences with shuffled tiles.

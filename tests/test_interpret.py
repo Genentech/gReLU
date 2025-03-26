@@ -326,7 +326,7 @@ def test_marginalize_pattern_spacing():
     preds, distances = marginalize_pattern_spacing(
         model,
         fixed_pattern="A",
-        variable_pattern="CCC",
+        moving_pattern="CCC",
         seqs=seqs,
         n_shuffles=3,
         seed=0,

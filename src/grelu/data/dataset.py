@@ -1023,9 +1023,9 @@ class SpacingMarginalizeDataset(Dataset):
     Args:
         seqs: DNA sequences as intervals, strings, integer encoded or one-hot encoded.
         fixed_pattern: A subsequence to insert in the center of each background sequence.
-        variable_pattern: A subsequence to insert into the background sequences at
+        moving_pattern: A subsequence to insert into the background sequences at
             different distances from `fixed_motif`.
-        stride: Number of bases by which to shift the variable motif.
+        stride: Number of bases by which to shift the moving pattern.
         genome: The name of the genome from which to read sequences. This
             is only needed if genomic intervals are supplied in `seqs`.
         n_shuffles: Number of times to shuffle each sequence in `seqs`, to
@@ -1037,7 +1037,7 @@ class SpacingMarginalizeDataset(Dataset):
         self,
         seqs: Union[str, Sequence, pd.DataFrame, np.ndarray],
         fixed_pattern: str,
-        variable_pattern: str,
+        moving_pattern: str,
         stride: int = 1,
         genome: Optional[str] = None,
         n_shuffles: int = 1,
@@ -1057,7 +1057,7 @@ class SpacingMarginalizeDataset(Dataset):
         self._load_seqs(seqs)
 
         # Ingest patterns
-        self._load_patterns(fixed_pattern, variable_pattern)
+        self._load_patterns(fixed_pattern, moving_pattern)
 
         # Calculate positions
         self._set_positions()
@@ -1084,11 +1084,11 @@ class SpacingMarginalizeDataset(Dataset):
         self.n_seqs = self.seqs.shape[0]
         self.seq_len = self.seqs.shape[1]
 
-    def _load_patterns(self, fixed_pattern: str, variable_pattern: str) -> None:
+    def _load_patterns(self, fixed_pattern: str, moving_pattern: str) -> None:
         self.fixed_pattern = strings_to_indices(fixed_pattern)
-        self.variable_pattern = strings_to_indices(variable_pattern)
+        self.moving_pattern = strings_to_indices(moving_pattern)
         self.fixed_pattern_len = len(self.fixed_pattern)
-        self.variable_pattern_len = len(self.variable_pattern)
+        self.moving_pattern_len = len(self.moving_pattern)
 
     def _set_positions(self) -> None:
 
@@ -1098,9 +1098,9 @@ class SpacingMarginalizeDataset(Dataset):
         )
         self.fixed_pattern_end = self.fixed_pattern_start + self.fixed_pattern_len
 
-        # Coordinates of the variable pattern
-        max_pos = self.seq_len - self.variable_pattern_len + 1
-        excl_start = self.fixed_pattern_start - self.variable_pattern_len + 1
+        # Coordinates of the moving pattern
+        max_pos = self.seq_len - self.moving_pattern_len + 1
+        excl_start = self.fixed_pattern_start - self.moving_pattern_len + 1
         excl = range(excl_start, self.fixed_pattern_end)
 
         positions = [x for x in range(0, max_pos, self.stride) if x not in excl]
@@ -1136,11 +1136,11 @@ class SpacingMarginalizeDataset(Dataset):
         # Choose the current background sequence
         seq = self.bg[shuf_idx]
 
-        # Insert variable motif
+        # Insert moving pattern
         if pos_idx > 0:
             seq = mutate(
                 seq,
-                allele=self.variable_pattern,
+                allele=self.moving_pattern,
                 pos=self.positions[pos_idx - 1],
                 input_type="indices",
             )
