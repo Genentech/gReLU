@@ -905,7 +905,7 @@ def test_marginalize_dataset_spacing():
     ds = SpacingMarginalizeDataset(
         seqs=["AAGACATACAACGCGCGCTAACATAGCAAC"],
         fixed_pattern="AAA",
-        variable_pattern="CCC",
+        moving_pattern="CCC",
         n_shuffles=2,
         seed=0,
         stride=3,
@@ -915,7 +915,7 @@ def test_marginalize_dataset_spacing():
         and (ds.n_seqs == 1)
         and (ds.stride == 3)
         and (np.allclose(ds.fixed_pattern, [[0.0, 0.0, 0.0]]))
-        and (np.allclose(ds.variable_pattern, [[1.0, 1.0, 1.0]]))
+        and (np.allclose(ds.moving_pattern, [[1.0, 1.0, 1.0]]))
         and (ds.n_augmented == 1)
         and (ds.n_shuffles == 2)
         and (ds.n_alleles == 9)
