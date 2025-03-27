@@ -29,6 +29,8 @@ from grelu.data.dataset import (
     MotifScanDataset,
     PatternMarginalizeDataset,
     SeqDataset,
+    SpacingMarginalizeDataset,
+    TilingShuffleDataset,
     VariantDataset,
     VariantMarginalizeDataset,
 )
@@ -767,7 +769,7 @@ class LightningModel(pl.LightningModule):
 
             # Flip predictions for reverse complemented sequences
             if (dataset.rc) and (preds.shape[-1] > 1):
-                preds[:, dataset.n_augmented // 2 :, ...] = np.flip(
+                preds[:, dataset.n_augmented // 2 :, :, :] = np.flip(
                     preds[:, dataset.n_augmented // 2 :, ...], axis=-1
                 )
 
@@ -811,7 +813,12 @@ class LightningModel(pl.LightningModule):
                 preds = get_aggfunc(augment_aggfunc)(preds, axis=1)  # B 2 T L
 
         elif isinstance(
-            dataset, (VariantMarginalizeDataset, PatternMarginalizeDataset)
+            dataset,
+            (
+                VariantMarginalizeDataset,
+                PatternMarginalizeDataset,
+                SpacingMarginalizeDataset,
+            ),
         ):
             # Reshape predictions
             preds = (
@@ -849,6 +856,19 @@ class LightningModel(pl.LightningModule):
                 .cpu()
                 .numpy()
             )  # B P A T L
+
+        elif isinstance(dataset, TilingShuffleDataset):
+            preds = (
+                rearrange(
+                    preds,
+                    "(b p s) t l -> b p s t l",
+                    p=dataset.n_positions,
+                    s=dataset.n_shuffles,
+                )
+                .detach()
+                .cpu()
+                .numpy()
+            )
 
         return preds
 
