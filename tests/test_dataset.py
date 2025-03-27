@@ -920,8 +920,8 @@ def test_marginalize_dataset_spacing():
         and (ds.n_shuffles == 2)
         and (ds.n_alleles == 9)
         and (len(ds) == 18)
-        and (ds.fixed_pattern_start == 13)
-        and (ds.fixed_pattern_end == 16)
+        and (ds.fixed_pattern_len == 3)
+        and (ds.moving_pattern_len == 3)
         and (np.all(ds.positions == [0, 3, 6, 9, 18, 21, 24, 27]))
     )
 

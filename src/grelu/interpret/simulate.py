@@ -172,13 +172,10 @@ def marginalize_pattern_spacing(
     # Extract the reference sequence predictions
     before_preds, after_preds = preds[..., [0], :, :], preds[..., 1:, :, :]
 
-    positions = ds.positions
-    distances = [x - ds.fixed_pattern_start for x in positions]
-
     if compare_func is None:
-        return before_preds, after_preds, distances
+        return before_preds, after_preds, ds.distances
     else:
-        return get_compare_func(compare_func)(after_preds, before_preds), distances
+        return get_compare_func(compare_func)(after_preds, before_preds), ds.distances
 
 
 def shuffle_tiles(

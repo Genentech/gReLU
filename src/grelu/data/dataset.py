@@ -23,7 +23,7 @@ from torch.utils.data import Dataset
 
 from grelu.data.augment import Augmenter, _split_overall_idx
 from grelu.data.preprocess import check_chrom_ends
-from grelu.data.utils import _check_multiclass, _create_task_data
+from grelu.data.utils import _check_multiclass, _create_task_data, _tile_positions
 from grelu.sequence.format import (
     INDEX_TO_BASE_HASH,
     check_intervals,
@@ -1060,7 +1060,14 @@ class SpacingMarginalizeDataset(Dataset):
         self._load_patterns(fixed_pattern, moving_pattern)
 
         # Calculate positions
-        self._set_positions()
+        self.positions, self.distances = _tile_positions(
+            seq_len=self.seq_len,
+            tile_len=self.moving_pattern_len,
+            stride=self.stride,
+            protect_center=self.fixed_pattern_len,
+            return_distances=True,
+        )
+        self.n_alleles = len(self.positions) + 1
 
         # Create augmenter
         self.augmenter = Augmenter(
@@ -1089,23 +1096,6 @@ class SpacingMarginalizeDataset(Dataset):
         self.moving_pattern = strings_to_indices(moving_pattern)
         self.fixed_pattern_len = len(self.fixed_pattern)
         self.moving_pattern_len = len(self.moving_pattern)
-
-    def _set_positions(self) -> None:
-
-        # Coordinates of the fixed pattern
-        self.fixed_pattern_start = int(
-            np.floor(self.seq_len / 2 - self.fixed_pattern_len / 2)
-        )
-        self.fixed_pattern_end = self.fixed_pattern_start + self.fixed_pattern_len
-
-        # Coordinates of the moving pattern
-        max_pos = self.seq_len - self.moving_pattern_len + 1
-        excl_start = self.fixed_pattern_start - self.moving_pattern_len + 1
-        excl = range(excl_start, self.fixed_pattern_end)
-
-        positions = [x for x in range(0, max_pos, self.stride) if x not in excl]
-        self.n_alleles = len(positions) + 1
-        self.positions = positions
 
     def __len__(self) -> int:
         return self.n_seqs * self.n_shuffles * self.n_augmented * self.n_alleles
@@ -1188,14 +1178,24 @@ class TilingShuffleDataset(Dataset):
         self.n_shuffles = n_shuffles
         self.seed = seed
 
-        # Set stride
-        self.stride = self.tile_len if stride is None else stride
-
         # Ingest sequences
         self._load_seqs(seqs)
 
+        # Set stride
+        self.stride = self.tile_len if stride is None else stride
+
         # Calculate positions
-        self._set_positions()
+        starts = _tile_positions(
+            seq_len=self.seq_len,
+            tile_len=self.tile_len,
+            stride=self.stride,
+            protect_center=self.protect_center,
+            return_distances=False,
+        )
+        self.positions = pd.DataFrame(
+            {"start": starts, "end": [x + self.tile_len for x in starts]}
+        )
+        self.n_positions = len(self.positions)
 
     def _load_seqs(self, seqs: Union[pd.DataFrame, List[str], np.ndarray]) -> None:
         """
@@ -1206,32 +1206,6 @@ class TilingShuffleDataset(Dataset):
         )
         self.n_seqs = self.seqs.shape[0]
         self.seq_len = self.seqs.shape[1]
-
-    def _set_positions(self):
-        """
-        Get all possible positions of tiles that can be shuffled.
-        """
-        max_pos = self.seq_len - self.tile_len + 1
-
-        if self.protect_center is not None:
-            # Coordinates to protect
-            self.protect_start = int(
-                np.floor(self.seq_len / 2 - self.protect_center / 2)
-            )
-            self.protect_end = self.protect_start + self.protect_center
-
-            # Positions to exclude
-            excl_start = self.protect_start - self.tile_len + 1
-            excl = range(excl_start, self.protect_end)
-        else:
-            excl = []
-
-        # Final tiles
-        starts = [x for x in range(0, max_pos, self.stride) if x not in excl]
-        self.positions = pd.DataFrame(
-            {"start": starts, "end": [x + self.tile_len for x in starts]}
-        )
-        self.n_positions = len(self.positions)
 
     def __len__(self) -> int:
         return self.n_seqs * self.n_positions * self.n_shuffles
