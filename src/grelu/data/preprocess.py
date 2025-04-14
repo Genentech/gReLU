@@ -532,7 +532,7 @@ def get_gc_matched_intervals(
     genome: str,
     binwidth: float = 0.1,
     chroms: str = "autosomes",
-    blacklist: Optional[str] = None, # "hg38"  # <---- Please review
+    blacklist: Optional[str] = None,  # "hg38"  # <---- Please review
     seed: Optional[int] = None,
 ) -> pd.DataFrame:
     """
