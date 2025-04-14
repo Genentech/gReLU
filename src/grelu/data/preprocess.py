@@ -573,7 +573,7 @@ def get_gc_matched_intervals(
 
     print("Filtering blacklist")
     if blacklist is not None:
-        matched_loci = filter_blacklist(data=matched_loci, gnome=gnome, blacklist=blacklist)
+        matched_loci = filter_blacklist(data=matched_loci, genome=genome, blacklist=blacklist)
     return matched_loci
 
 
