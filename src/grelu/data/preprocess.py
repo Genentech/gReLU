@@ -532,7 +532,7 @@ def get_gc_matched_intervals(
     genome: str,
     binwidth: float = 0.1,
     chroms: str = "autosomes",
-    blacklist: Optional[str] = None, # "hg38"  # <---- Please review
+    blacklist: Optional[str] = None,  # "hg38"  # <---- Please review
     seed: Optional[int] = None,
 ) -> pd.DataFrame:
     """
@@ -573,7 +573,9 @@ def get_gc_matched_intervals(
 
     print("Filtering blacklist")
     if blacklist is not None:
-        matched_loci = filter_blacklist(data=matched_loci, gnome=gnome, blacklist=blacklist)
+        matched_loci = filter_blacklist(
+            data=matched_loci, gnome=gnome, blacklist=blacklist
+        )
     return matched_loci
 
 
