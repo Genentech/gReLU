@@ -150,8 +150,6 @@ def scan_sequences(
     """
     from tangermeme.tools.fimo import fimo
 
-    from grelu.sequence.format import strings_to_one_hot
-
     # Format sequences
     seqs = make_list(seqs)
     seq_ids = seq_ids or [str(i) for i in range(len(seqs))]
@@ -162,13 +160,14 @@ def scan_sequences(
 
     import tempfile
 
-    # Scan each sequence in seqs
+    # write sequences to fasta file
     tmp_fp, tmp_seq_file_path = tempfile.mkstemp(text=True)
     tmpf_seq_fp = open(tmp_seq_file_path[1], "w")
     for i, (seq, seq_id) in enumerate(zip(seqs, seq_ids)):
         tmpf_seq_fp.write(">" + seq_id + "\n" + seq + "\n")
     tmpf_seq_fp.close()
 
+    # run fimo on all seqs
     all_sites = fimo(
         motifs={k: Tensor(v) for k, v in motifs.items()},
         sequences=tmp_seq_file_path,
