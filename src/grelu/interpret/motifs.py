@@ -161,10 +161,11 @@ def scan_sequences(
     import tempfile
 
     # write sequences to fasta file
-    tmp_fp, tmp_seq_file_path = tempfile.mkstemp(text=True)
-    tmpf_seq_fp = open(tmp_seq_file_path[1], "w")
+    tmp_seq_dir_path = tempfile.mkdtemp()
+    tmp_seq_file_path = f"{tmp_seq_dir_path}/my_seq.fasta"
+    tmpf_seq_fp = open(tmp_seq_file_path, "w")
     for i, (seq, seq_id) in enumerate(zip(seqs, seq_ids)):
-        tmpf_seq_fp.write(">" + seq_id + "\n" + seq + "\n")
+        tmpf_seq_fp.write(">" + seq_id + "\n" + seq + "\n\n")
     tmpf_seq_fp.close()
 
     # run fimo on all seqs
