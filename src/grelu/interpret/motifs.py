@@ -49,7 +49,6 @@ def motifs_to_strings(
 
     # Convert a single motif
     if isinstance(motifs, np.ndarray):
-
         # Extract sequence as indices
         if sample:
             indices = np.array(
@@ -151,8 +150,6 @@ def scan_sequences(
     """
     from tangermeme.tools.fimo import fimo
 
-    from grelu.sequence.format import strings_to_one_hot
-
     # Format sequences
     seqs = make_list(seqs)
     seq_ids = seq_ids or [str(i) for i in range(len(seqs))]
@@ -161,41 +158,49 @@ def scan_sequences(
     if isinstance(motifs, str):
         motifs = read_meme_file(motifs)
 
-    # Scan each sequence in seqs
-    sites = pd.DataFrame()
+    import tempfile
+
+    # write sequences to fasta file
+    tmp_seq_dir_path = tempfile.mkdtemp()
+    tmp_seq_file_path = f"{tmp_seq_dir_path}/my_seq.fasta"
+    tmpf_seq_fp = open(tmp_seq_file_path, "w")
     for i, (seq, seq_id) in enumerate(zip(seqs, seq_ids)):
-        one_hot = strings_to_one_hot(seq, add_batch_axis=True)
-        curr_sites = fimo(
-            motifs={k: Tensor(v) for k, v in motifs.items()},
-            sequences=one_hot,
-            alphabet=["A", "C", "G", "T"],
-            bin_size=bin_size,
-            eps=eps,
-            threshold=pthresh,
-            reverse_complement=rc,
-            dim=1,
+        tmpf_seq_fp.write(">" + seq_id + "\n" + seq + "\n\n")
+    tmpf_seq_fp.close()
+
+    # run fimo on all seqs
+    all_sites = fimo(
+        motifs={k: Tensor(v) for k, v in motifs.items()},
+        sequences=tmp_seq_file_path,
+        alphabet=["A", "C", "G", "T"],
+        bin_size=bin_size,
+        eps=eps,
+        threshold=pthresh,
+        reverse_complement=rc,
+        dim=1,
+    )
+
+    sites = pd.DataFrame()
+    for all_idx, curr_sites in enumerate(all_sites):
+        curr_sites["seq_idx"] = all_idx
+        curr_sites["sequence"] = seq_ids[all_idx]
+        curr_sites["matched_seq"] = curr_sites.apply(
+            lambda row: seqs[all_idx][row.start : row.end], axis=1
         )
-        if len(curr_sites) == 1:
-            curr_sites = curr_sites[0]
-            curr_sites["seq_idx"] = i
-            curr_sites["sequence"] = seq_id
-            curr_sites["matched_seq"] = curr_sites.apply(
-                lambda row: seq[row.start : row.end], axis=1
-            )
-            curr_sites = curr_sites[
-                [
-                    "motif_name",
-                    "sequence",
-                    "seq_idx",
-                    "start",
-                    "end",
-                    "strand",
-                    "score",
-                    "p-value",
-                    "matched_seq",
-                ]
+        curr_sites = curr_sites[
+            [
+                "motif_name",
+                "sequence",
+                "seq_idx",
+                "start",
+                "end",
+                "strand",
+                "score",
+                "p-value",
+                "matched_seq",
             ]
-            sites = pd.concat([sites, curr_sites])
+        ]
+        sites = pd.concat([sites, curr_sites])
 
     # Concatenate results from all sequences
     if len(sites) > 0:
