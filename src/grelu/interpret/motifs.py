@@ -183,9 +183,9 @@ def scan_sequences(
     sites = pd.DataFrame()
     for all_idx, curr_sites in enumerate(all_sites):
         curr_sites["seq_idx"] = all_idx
-        curr_sites["sequence"] = seq_ids[all_idx]
+        curr_sites["sequence"] = curr_sites.sequence_name
         curr_sites["matched_seq"] = curr_sites.apply(
-            lambda row: seqs[all_idx][row.start : row.end], axis=1
+            lambda row: seqs[seq_ids.index(row.sequence)][row.start : row.end], axis=1
         )
         curr_sites = curr_sites[
             [
