@@ -184,7 +184,7 @@ def scan_sequences(
     for all_idx, curr_sites in enumerate(all_sites):
         curr_sites["seq_idx"] = curr_sites.sequence_name.apply(seq_ids.index)
         curr_sites["matched_seq"] = curr_sites.apply(
-            lambda row: seqs[seq_ids.index(row.seq_idx)][row.start : row.end], axis=1
+            lambda row: seqs[row.seq_idx][row.start : row.end], axis=1
         )
         curr_sites = curr_sites[
             [
