@@ -182,15 +182,14 @@ def scan_sequences(
 
     sites = pd.DataFrame()
     for all_idx, curr_sites in enumerate(all_sites):
-        curr_sites["seq_idx"] = all_idx
-        curr_sites["sequence"] = seq_ids[all_idx]
+        curr_sites["seq_idx"] = curr_sites.sequence_name.apply(seq_ids.index)
         curr_sites["matched_seq"] = curr_sites.apply(
-            lambda row: seqs[all_idx][row.start : row.end], axis=1
+            lambda row: seqs[row.seq_idx][row.start : row.end], axis=1
         )
         curr_sites = curr_sites[
             [
                 "motif_name",
-                "sequence",
+                "sequence_name",
                 "seq_idx",
                 "start",
                 "end",
@@ -205,7 +204,7 @@ def scan_sequences(
     # Concatenate results from all sequences
     if len(sites) > 0:
         sites = sites.reset_index(drop=True)
-        sites = sites.rename(columns={"motif_name": "motif"})
+        sites = sites.rename(columns={"motif_name": "motif","sequence_name": "sequence"})
 
         # Add attribution scores
         if attrs is not None:
