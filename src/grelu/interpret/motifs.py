@@ -182,11 +182,9 @@ def scan_sequences(
 
     sites = pd.DataFrame()
     for all_idx, curr_sites in enumerate(all_sites):
-        curr_sites["seq_idx"] = curr_sites.apply(
-            lambda row: seq_ids.index(row.sequence_name), axis=1
-        )
+        curr_sites["seq_idx"] = curr_sites.sequence_name.apply(seq_ids.index)
         curr_sites["matched_seq"] = curr_sites.apply(
-            lambda row: seqs[row.seq_idx][row.start : row.end], axis=1
+            lambda row: seqs[seq_ids.index(row.seq_idx)][row.start : row.end], axis=1
         )
         curr_sites = curr_sites[
             [
@@ -247,7 +245,7 @@ def score_sites(
 
     # Score sites for each sequence
     df["site_attr_score"] = df.apply(
-        lambda row: attrs[row.seq_idx, :, row.start : row.end].sum(0).mean(), axis=1
+        lambda row: attrs[row.seq_idx, :, row.start : row.end].mean(), axis=1
     )
 
     return df
