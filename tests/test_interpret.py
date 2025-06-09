@@ -215,38 +215,57 @@ def test_get_attention_scores():
 
 
 def test_scan_sequences():
-    seqs = ["TCACGTGAA", "CCTGCGTGA", "CACGCAGGA"]
+    seqs = ["TCACGTGAA", "CACGCAGGA", "CCTGCGTGA"]
 
     # No reverse complement
     out = scan_sequences(seqs, motifs=meme_file, rc=False, pthresh=1e-3)
-    assert out.motif.tolist() == ["MA0004.1 Arnt", "MA0006.1 Ahr::Arnt"]
-    assert out.sequence.tolist() == ["0", "1"]
-    assert out.start.tolist() == [1, 2]
-    assert out.end.tolist() == [7, 8]
-    assert out.strand.tolist() == ["+", "+"]
-    assert out.matched_seq.tolist() == ["CACGTG", "TGCGTG"]
+    expected = pd.DataFrame({
+        'motif': ['MA0004.1 Arnt', 'MA0006.1 Ahr::Arnt'],
+     'sequence': ['0', '2'],
+     'seq_idx': [0, 2],
+     'start': [1, 2],
+     'end': [7, 8],
+     'strand': ['+', '+'],
+     'score': [11.60498046875, 10.691319823265076],
+     'p-value': [0.000244140625, 0.000244140625],
+     'matched_seq': ['CACGTG', 'TGCGTG']
+    })
+    assert out.equals(expected)
 
     # Allow reverse complement
     out = scan_sequences(seqs, motifs=meme_file, rc=True, pthresh=1e-3)
-    assert out.motif.tolist() == [
-        "MA0004.1 Arnt",
-        "MA0004.1 Arnt",
-        "MA0006.1 Ahr::Arnt",
-        "MA0006.1 Ahr::Arnt",
-    ]
-    assert out.sequence.tolist() == ["0", "0", "1", "2"]
-    assert out.start.tolist() == [1, 1, 2, 0]
-    assert out.end.tolist() == [7, 7, 8, 6]
-    assert out.strand.tolist() == ["+", "-", "+", "-"]
-    assert out.matched_seq.tolist() == ["CACGTG", "CACGTG", "TGCGTG", "CACGCA"]
+
+    expected = pd.DataFrame({
+        'motif': ['MA0004.1 Arnt', 'MA0004.1 Arnt','MA0006.1 Ahr::Arnt', 'MA0006.1 Ahr::Arnt'],
+     'sequence': ['0', '0', '1', '2'],
+     'seq_idx': [0, 0, 1, 2],
+     'start': [1, 1, 0, 2],
+     'end': [7, 7, 6, 8],
+     'strand': ['+', '-', '-', '+'],
+     'score': [11.60498046875, 11.60498046875, 10.691319823265076, 10.691319823265076],
+     'p-value': [0.000244140625, 0.000244140625, 0.000244140625, 0.000244140625],
+     'matched_seq': ['CACGTG', 'CACGTG', 'CACGCA', 'TGCGTG']
+    })
+
+    assert out.equals(expected)
 
     # Reverse complement with attributions
     attrs = get_attributions(model, seqs, method="inputxgradient")
     out = scan_sequences(seqs, motifs=meme_file, rc=True, pthresh=1e-3, attrs=attrs)
-    assert np.allclose(out.site_attr_score, [0.0, 0.0, -0.009259, 0.009259], rtol=0.001)
-    assert np.allclose(
-        out.motif_attr_score, [0.003704, 0.0, -0.035494, 0.0], rtol=0.001
-    )
+    expected = pd.DataFrame({
+    'motif': ['MA0004.1 Arnt', 'MA0004.1 Arnt', 'MA0006.1 Ahr::Arnt', 'MA0006.1 Ahr::Arnt'],
+     'sequence': ['0', '0', '1', '2'],
+     'seq_idx': [0, 0, 1, 2],
+     'start': [1, 1, 0, 2],
+     'end': [7, 7, 6, 8],
+     'strand': ['+', '-', '-', '+'],
+     'score': [11.60498046875, 11.60498046875, 10.691319823265076, 10.691319823265076],
+     'p-value': [0.000244140625, 0.000244140625, 0.000244140625, 0.000244140625],
+     'matched_seq': ['CACGTG', 'CACGTG', 'CACGCA', 'TGCGTG'],
+     'site_attr_score': np.float32([0.0, 0.0, 0.009259258396923542, -0.009259259328246117]),
+     'motif_attr_score': [0.003703703731298441, 0.0, 0.0, -0.03549381507926434]
+    })
+    assert out.equals(expected)
 
 
 def test_run_tomtom():
