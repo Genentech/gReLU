@@ -1,0 +1,2457 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Fine-tune Enformer to perform binary classification on human snATAC-seq data &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.2b8b0da6202b741f8bcba8c084c1670ccf309542bf660ceac1099fca6061a348.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=4e48d009"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://braid-relu.pages.roche.com/grelu/latest/index.html/tutorials/2_finetune.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Train a single-task regression model from scratch" href="3_train.html" />
+    <link rel="prev" title="Inference using Borzoi" href="1_inference.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="unknown" />
+    <meta name="docbuild:last-update" content="Jun 09, 2025"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Fine-tune Enformer to perform binary classification on human snATAC-seq data</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="fine-tune-enformer-to-perform-binary-classification-on-human-snatac-seq-data">
+<h1>Fine-tune Enformer to perform binary classification on human snATAC-seq data<a class="headerlink" href="#fine-tune-enformer-to-perform-binary-classification-on-human-snatac-seq-data" title="Link to this heading">#</a></h1>
+<p>In this tutorial, we learn how to fine-tune the Enformer model (<a class="reference external" href="https://www.nature.com/articles/s41592-021-01252-x">https://www.nature.com/articles/s41592-021-01252-x</a>) on the CATLAS single-nucleus ATAC-seq dataset from human tissues (<a class="reference external" href="http://catlas.org/humanenhancer/">http://catlas.org/humanenhancer/</a>).</p>
+<p>We will perform binary classification, in which the model learns to predict the probability that a given sequence is accessible in the different cell types of the dataset. For an example of regression modeling, see the next tutorial.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+</div>
+<section id="set-experiment-parameters">
+<h2>Set experiment parameters<a class="headerlink" href="#set-experiment-parameters" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">experiment</span><span class="o">=</span><span class="s1">&#39;tutorial_2&#39;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">experiment</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="load-data">
+<h2>Load data<a class="headerlink" href="#load-data" title="Link to this heading">#</a></h2>
+<p>We download the CATlas ATAC-seq binary cell type x peak matrix from <a class="reference external" href="http://catlas.org/catlas_downloads/humantissues/cCRE_by_cell_type/">http://catlas.org/catlas_downloads/humantissues/cCRE_by_cell_type/</a> and load it as an AnnData object.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>wget<span class="w"> </span>http://catlas.org/catlas_downloads/humantissues/cCRE_by_cell_type/matrix.tsv.gz
+<span class="n">ad</span> <span class="o">=</span> <span class="n">anndata</span><span class="o">.</span><span class="n">read_mtx</span><span class="p">(</span><span class="s1">&#39;matrix.tsv.gz&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+<span class="c1"># Prepare ad.obs</span>
+<span class="n">ad</span><span class="o">.</span><span class="n">obs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="s1">&#39;http://catlas.org/catlas_downloads/humantissues/cCRE_by_cell_type/celltypes.txt.gz&#39;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;cell type&#39;</span><span class="p">])</span>
+<span class="n">ad</span><span class="o">.</span><span class="n">obs_names</span> <span class="o">=</span> <span class="n">ad</span><span class="o">.</span><span class="n">obs</span><span class="p">[</span><span class="s1">&#39;cell type&#39;</span><span class="p">]</span>
+
+<span class="c1"># Prepare ad.var</span>
+<span class="n">var</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="s1">&#39;http://catlas.org/catlas_downloads/humantissues/cCRE_hg38.tsv.gz&#39;</span><span class="p">)</span>
+<span class="n">var</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;chrom&#39;</span><span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;cre_class&#39;</span><span class="p">,</span> <span class="s1">&#39;in_fetal&#39;</span><span class="p">,</span> <span class="s1">&#39;in_adult&#39;</span><span class="p">,</span> <span class="s1">&#39;cre_module&#39;</span><span class="p">]</span>
+<span class="n">var</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">ad</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="n">var</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>--2025-03-10 17:47:40--  http://catlas.org/catlas_downloads/humantissues/cCRE_by_cell_type/matrix.tsv.gz
+Resolving catlas.org (catlas.org)... 132.239.162.129
+Connecting to catlas.org (catlas.org)|132.239.162.129|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 38772708 (37M) [application/x-gzip]
+Saving to: ‘matrix.tsv.gz’
+
+matrix.tsv.gz       100%[===================&gt;]  36.98M  87.6MB/s    in 0.4s    
+
+2025-03-10 17:47:40 (87.6 MB/s) - ‘matrix.tsv.gz’ saved [38772708/38772708]
+
+(222, 1154611)
+</pre></div>
+</div>
+</div>
+</div>
+<p>This contains a binary matrix representing the accessibility of 1154611 CREs measured in 222 cell types. Let us look at the components of this object:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ad</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>cre_class</th>
+      <th>in_fetal</th>
+      <th>in_adult</th>
+      <th>cre_module</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>9955</td>
+      <td>10355</td>
+      <td>Promoter Proximal</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>146</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>29163</td>
+      <td>29563</td>
+      <td>Promoter</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>37</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>79215</td>
+      <td>79615</td>
+      <td>Distal</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>75</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>102755</td>
+      <td>103155</td>
+      <td>Distal</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>51</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>115530</td>
+      <td>115930</td>
+      <td>Distal</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>36</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ad</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cell type</th>
+    </tr>
+    <tr>
+      <th>cell type</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Follicular</th>
+      <td>Follicular</td>
+    </tr>
+    <tr>
+      <th>Fibro General</th>
+      <td>Fibro General</td>
+    </tr>
+    <tr>
+      <th>Acinar</th>
+      <td>Acinar</td>
+    </tr>
+    <tr>
+      <th>T Lymphocyte 1 (CD8+)</th>
+      <td>T Lymphocyte 1 (CD8+)</td>
+    </tr>
+    <tr>
+      <th>T lymphocyte 2 (CD4+)</th>
+      <td>T lymphocyte 2 (CD4+)</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The contents of this anndata object are binary values (0 or 1). 1 indicates accessibility of the peak in the cell type.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ad</span><span class="o">.</span><span class="n">X</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">todense</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>matrix([[1., 0., 0., 0., 0.],
+        [1., 0., 0., 0., 0.],
+        [1., 0., 0., 0., 0.],
+        [1., 0., 0., 0., 0.],
+        [1., 0., 0., 0., 0.]], dtype=float32)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="filter-peaks">
+<h2>Filter peaks<a class="headerlink" href="#filter-peaks" title="Link to this heading">#</a></h2>
+<p>We will perform filtering of this dataset using the <code class="docutils literal notranslate"><span class="pre">grelu.data.preprocess</span></code> module.</p>
+<p>First, we filter peaks within autosomes (chromosomes 1-22) or chromsomes X/Y. You can also supply <code class="docutils literal notranslate"><span class="pre">autosomes</span></code> or <code class="docutils literal notranslate"><span class="pre">autosomesX</span></code> to further restrict the chromosomes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.data.preprocess</span>
+
+<span class="n">ad</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">filter_chromosomes</span><span class="p">(</span><span class="n">ad</span><span class="p">,</span> <span class="s1">&#39;autosomesXY&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Keeping 1154464 intervals
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we drop peaks overlapping with the ENCODE blacklist regions for the hg38 genome.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ad</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">filter_blacklist</span><span class="p">(</span><span class="n">ad</span><span class="p">,</span> <span class="n">genome</span><span class="o">=</span><span class="s1">&#39;hg38&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Keeping 1154464 intervals
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="visualize-data">
+<h2>Visualize data<a class="headerlink" href="#visualize-data" title="Link to this heading">#</a></h2>
+<p>Next, we can plot the distribution of the data in various ways.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.visualize</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+</div>
+<p>In how many accessible cell types is each peak accessible?</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cell_types_per_peak</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_distribution</span><span class="p">(</span>
+    <span class="n">cell_types_per_peak</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;number of cell types per peak&#39;</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;density&#39;</span><span class="p">,</span> <span class="c1"># Alternative: histogram</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.6</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="c1"># width, height</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/243c0a551b4b0165d174b31fee579443be1be35240869a11e7865b49bba99ec3.png"><img alt="../_images/243c0a551b4b0165d174b31fee579443be1be35240869a11e7865b49bba99ec3.png" src="../_images/243c0a551b4b0165d174b31fee579443be1be35240869a11e7865b49bba99ec3.png" style="width: 360px; height: 200px;" /></a>
+</div>
+</div>
+<p>How many peaks are accessible in each cell type?</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fraction_accessible_per_cell_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_distribution</span><span class="p">(</span>
+    <span class="n">fraction_accessible_per_cell_type</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Fraction of peaks accessible per cell type&#39;</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;histogram&#39;</span><span class="p">,</span> <span class="c1"># alternative: density</span>
+    <span class="n">binwidth</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.6</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="c1"># width, height</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/8639fe25a4626315fe54993de8302bada1baa249149732aa38ffeac75f0ffad7.png"><img alt="../_images/8639fe25a4626315fe54993de8302bada1baa249149732aa38ffeac75f0ffad7.png" src="../_images/8639fe25a4626315fe54993de8302bada1baa249149732aa38ffeac75f0ffad7.png" style="width: 360px; height: 200px;" /></a>
+</div>
+</div>
+<p>It seems that some cell types have very few accessible peaks. We will drop these cell types from the dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">ad</span> <span class="o">=</span> <span class="n">ad</span><span class="p">[</span><span class="n">ad</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">.03</span><span class="p">,</span> <span class="p">:]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(222, 1154464)
+(203, 1154464)
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can plot the distribution once again to see the effect of this filtering:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fraction_accessible_per_cell_type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">X</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+<span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_distribution</span><span class="p">(</span>
+    <span class="n">fraction_accessible_per_cell_type</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Fraction of peaks accessible per cell type&#39;</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;histogram&#39;</span><span class="p">,</span> <span class="c1"># alternative: density</span>
+    <span class="n">binwidth</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">3.6</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="c1"># width, height</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/df8df9bd13d7fc112998f661dabb765bd64a00de6e8572ba08fd73fc7d87840f.png"><img alt="../_images/df8df9bd13d7fc112998f661dabb765bd64a00de6e8572ba08fd73fc7d87840f.png" src="../_images/df8df9bd13d7fc112998f661dabb765bd64a00de6e8572ba08fd73fc7d87840f.png" style="width: 360px; height: 200px;" /></a>
+</div>
+</div>
+</section>
+<section id="resize-peaks">
+<h2>Resize peaks<a class="headerlink" href="#resize-peaks" title="Link to this heading">#</a></h2>
+<p>Finally, since the ATAC-seq peaks can have different lengths, we resize all of them to a constant length in order to train the model. Here, we take 200 bp. We can use the <code class="docutils literal notranslate"><span class="pre">resize</span></code> function in <code class="docutils literal notranslate"><span class="pre">grelu.sequence.utils</span></code>, which contains functions to manipulate DNA sequences.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.sequence.utils</span>
+<span class="n">seq_len</span> <span class="o">=</span> <span class="mi">200</span>
+
+<span class="n">ad</span><span class="o">.</span><span class="n">var</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">sequence</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">ad</span><span class="o">.</span><span class="n">var</span><span class="p">,</span> <span class="n">seq_len</span><span class="p">)</span>
+<span class="n">ad</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>cre_class</th>
+      <th>in_fetal</th>
+      <th>in_adult</th>
+      <th>cre_module</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>10055</td>
+      <td>10255</td>
+      <td>Promoter Proximal</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>146</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>29263</td>
+      <td>29463</td>
+      <td>Promoter</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>37</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>79315</td>
+      <td>79515</td>
+      <td>Distal</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>75</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="split-data">
+<h2>Split data<a class="headerlink" href="#split-data" title="Link to this heading">#</a></h2>
+<p>We will split the peaks by chromosome to create separate sets for training, validation and testing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_chroms</span><span class="o">=</span><span class="s1">&#39;autosomes&#39;</span>
+<span class="n">val_chroms</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;chr10&#39;</span><span class="p">]</span>
+<span class="n">test_chroms</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;chr11&#39;</span><span class="p">]</span>
+
+<span class="n">ad_train</span><span class="p">,</span> <span class="n">ad_val</span><span class="p">,</span> <span class="n">ad_test</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+    <span class="n">ad</span><span class="p">,</span>
+    <span class="n">train_chroms</span><span class="o">=</span><span class="n">train_chroms</span><span class="p">,</span> <span class="n">val_chroms</span><span class="o">=</span><span class="n">val_chroms</span><span class="p">,</span> <span class="n">test_chroms</span><span class="o">=</span><span class="n">test_chroms</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Selecting training samples
+Keeping 1007912 intervals
+
+
+Selecting validation samples
+Keeping 56974 intervals
+
+
+Selecting test samples
+Keeping 56433 intervals
+Final sizes: train: (203, 1007912), val: (203, 56974), test: (203, 56433)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="make-labeled-sequence-datasets">
+<h2>Make labeled sequence datasets<a class="headerlink" href="#make-labeled-sequence-datasets" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">grelu.data.dataset</span></code> contains PyTorch Dataset classes that can load and process genomic data for training a deep learning model. Here, we use the <code class="docutils literal notranslate"><span class="pre">AnnDataSeqDataset</span></code> class which loads data from an AnnData object. Other available dataset classes include <code class="docutils literal notranslate"><span class="pre">DFSeqDataset</span></code> and <code class="docutils literal notranslate"><span class="pre">BigWigSeqDataset</span></code>.</p>
+<p>We first make the training dataset. To increase model robustness we use several forms of data augmentation here: <code class="docutils literal notranslate"><span class="pre">rc=True</span></code> (reverse complementing the input sequence), and <code class="docutils literal notranslate"><span class="pre">max_seq_shift=1</span></code> (shifting the coordinates of the input sequence by upto 1 bp in either direction; also known as jitter). We use <code class="docutils literal notranslate"><span class="pre">augmentation_mode=&quot;random&quot;</span></code> which means that at each iteration, the model sees a randomly selected augmented version for each sequence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.data.dataset</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_dataset</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">AnnDataSeqDataset</span><span class="p">(</span>
+    <span class="n">ad_train</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+    <span class="n">genome</span><span class="o">=</span><span class="s1">&#39;hg38&#39;</span><span class="p">,</span>
+    <span class="n">rc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># reverse complement</span>
+    <span class="n">max_seq_shift</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># Shift the sequence</span>
+    <span class="n">augment_mode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="c1"># Randomly select which augmentations to apply</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We do not apply any augmentations to the validation and test datasets (although it is possible to do so).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">val_dataset</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">AnnDataSeqDataset</span><span class="p">(</span><span class="n">ad_val</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">genome</span><span class="o">=</span><span class="s1">&#39;hg38&#39;</span><span class="p">)</span>
+<span class="n">test_dataset</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">AnnDataSeqDataset</span><span class="p">(</span><span class="n">ad_test</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">genome</span><span class="o">=</span><span class="s1">&#39;hg38&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="build-the-enformer-model">
+<h2>Build the enformer model<a class="headerlink" href="#build-the-enformer-model" title="Link to this heading">#</a></h2>
+<p>gReLU contains many model architectures. One of these is a class called <code class="docutils literal notranslate"><span class="pre">EnformerPretrainedModel</span></code>. This class creates a model identical to the published Enformer model and initialized with the trained weights, but where you can change the number of transformer layers and the output head.</p>
+<p>Models are created using the <code class="docutils literal notranslate"><span class="pre">grelu.lightning</span></code> module. In order to instantiate a model, we need to specify <code class="docutils literal notranslate"><span class="pre">model_params</span></code> (parameters for the model architecture) and <code class="docutils literal notranslate"><span class="pre">train_params</span></code> (parameters for training).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;model_type&#39;</span><span class="p">:</span><span class="s1">&#39;EnformerPretrainedModel&#39;</span><span class="p">,</span> <span class="c1"># Type of model</span>
+    <span class="s1">&#39;n_tasks&#39;</span><span class="p">:</span> <span class="n">ad</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="c1"># Number of cell types to predict</span>
+    <span class="s1">&#39;crop_len&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># No cropping of the model output</span>
+    <span class="s1">&#39;n_transformers&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># Number of transformer layers; the published Enformer model has 11</span>
+<span class="p">}</span>
+
+<span class="n">train_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;task&#39;</span><span class="p">:</span><span class="s1">&#39;binary&#39;</span><span class="p">,</span> <span class="c1"># binary classification</span>
+    <span class="s1">&#39;lr&#39;</span><span class="p">:</span><span class="mf">1e-4</span><span class="p">,</span> <span class="c1"># learning rate</span>
+    <span class="s1">&#39;logger&#39;</span><span class="p">:</span> <span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="c1"># Logs will be written to a CSV file</span>
+    <span class="s1">&#39;batch_size&#39;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+    <span class="s1">&#39;num_workers&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+    <span class="s1">&#39;devices&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="c1"># GPU index</span>
+    <span class="s1">&#39;save_dir&#39;</span><span class="p">:</span> <span class="n">experiment</span><span class="p">,</span>
+    <span class="s1">&#39;optimizer&#39;</span><span class="p">:</span> <span class="s1">&#39;adam&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;max_epochs&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="s1">&#39;checkpoint&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># Save checkpoints</span>
+<span class="p">}</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">grelu.lightning</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">lightning</span><span class="o">.</span><span class="n">LightningModel</span><span class="p">(</span><span class="n">model_params</span><span class="o">=</span><span class="n">model_params</span><span class="p">,</span> <span class="n">train_params</span><span class="o">=</span><span class="n">train_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+</section>
+<section id="train-the-model">
+<h2>Train the model<a class="headerlink" href="#train-the-model" title="Link to this heading">#</a></h2>
+<p>We train the model on the new training dataset using the <code class="docutils literal notranslate"><span class="pre">train_on_dataset</span></code> method. Note that here, we update the weights of the entire model during training. If you want to hold the enformer weights fixed and only learn a linear layer from the enformer embedding to the outputs, see the <code class="docutils literal notranslate"><span class="pre">tune_on_dataset</span></code> method.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># See the &#39;tutorial_2&#39; folder for logs</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train_on_dataset</span><span class="p">(</span>
+    <span class="n">train_dataset</span><span class="o">=</span><span class="n">train_dataset</span><span class="p">,</span>
+    <span class="n">val_dataset</span><span class="o">=</span><span class="n">val_dataset</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:07&lt;00:00,  7.65it/s]
+Epoch 0: 100%|█████████████████████████████| 985/985 [05:32&lt;00:00,  2.97it/s, v_num=0, train_loss_step=0.156]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.40it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 13.29it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:04, 12.80it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:04, 12.89it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 12.97it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.02it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.03it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.04it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 12.99it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.02it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.04it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.06it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.08it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.10it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.10it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.10it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.12it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.12it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.12it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.12it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.14it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.14it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.15it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.15it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.15it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.25it/s]
+Epoch 1: 100%|█████| 985/985 [03:29&lt;00:00,  4.70it/s, v_num=0, train_loss_step=0.169, train_loss_epoch=0.171]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.22it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 13.12it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:04, 13.08it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:03, 13.12it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 13.08it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.12it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.15it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.15it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.15it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.15it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.14it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.13it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.13it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.15it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.16it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.15it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.15it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.15it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.15it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.15it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.14it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.14it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.14it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.14it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.14it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.15it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.15it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.25it/s]
+Epoch 2: 100%|█████| 985/985 [03:33&lt;00:00,  4.61it/s, v_num=0, train_loss_step=0.145, train_loss_epoch=0.151]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.38it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 13.33it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:03, 13.31it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:03, 13.29it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 13.30it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.31it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.29it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.29it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.20it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.21it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.22it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.21it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.22it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.23it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.23it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.23it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.22it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.21it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.20it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.19it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.19it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.19it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.19it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.19it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.18it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.17it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.17it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.24it/s]
+Epoch 3: 100%|█████| 985/985 [03:31&lt;00:00,  4.65it/s, v_num=0, train_loss_step=0.154, train_loss_epoch=0.148]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.52it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 13.32it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:03, 13.32it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:03, 13.34it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 13.34it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.34it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.34it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.34it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.24it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.25it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.25it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.26it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.27it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.27it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.27it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.27it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.26it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.25it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.25it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.25it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.25it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.25it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.25it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.24it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.24it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.24it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.23it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.23it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.23it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.23it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.22it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.22it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.22it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.22it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.22it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.21it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.21it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.21it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.21it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.21it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.21it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.21it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.21it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.21it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.21it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.21it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.21it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.20it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.20it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.20it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.20it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.20it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.20it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.20it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.21it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.28it/s]
+Epoch 4: 100%|█████| 985/985 [07:07&lt;00:00,  2.30it/s, v_num=0, train_loss_step=0.160, train_loss_epoch=0.146]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.36it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 13.24it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:04, 13.19it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:03, 13.11it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 13.06it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.07it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.08it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.08it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.10it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.11it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.10it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.11it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.11it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.12it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.14it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.14it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.18it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.25it/s]
+Epoch 5: 100%|█████| 985/985 [03:29&lt;00:00,  4.69it/s, v_num=0, train_loss_step=0.150, train_loss_epoch=0.145]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.37it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 12.92it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:04, 12.99it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:03, 13.05it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 13.04it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.07it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.12it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.12it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.11it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.12it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.11it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.12it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.13it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.11it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.11it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.11it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.11it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.10it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.10it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.11it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.11it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.11it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.12it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.12it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.12it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.12it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.12it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.12it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.12it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.12it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.12it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.20it/s]
+Epoch 6: 100%|█████| 985/985 [03:29&lt;00:00,  4.70it/s, v_num=0, train_loss_step=0.167, train_loss_epoch=0.144]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.36it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 13.14it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:04, 13.19it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:03, 13.23it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 13.23it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.19it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.21it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.21it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.19it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.21it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.18it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.08it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.07it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.06it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 12.95it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:03, 12.88it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 12.89it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 12.90it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 12.90it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 12.90it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 12.85it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 12.87it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 12.88it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 12.88it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:02&lt;00:02, 12.89it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 12.90it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 12.90it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 12.90it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:02, 12.91it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 12.92it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 12.92it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 12.93it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 12.94it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 12.94it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 12.94it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 12.94it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 12.95it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:03&lt;00:01, 12.96it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 12.96it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 12.97it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 12.97it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:01, 12.97it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 12.98it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 12.99it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 12.99it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 12.99it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.00it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.00it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.01it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.01it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.01it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.02it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.02it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.03it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.10it/s]
+Epoch 7: 100%|█████| 985/985 [03:29&lt;00:00,  4.69it/s, v_num=0, train_loss_step=0.151, train_loss_epoch=0.143]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.51it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 13.42it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:03, 13.40it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:03, 13.38it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 13.30it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.24it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.26it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.22it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.18it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.19it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.17it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.17it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.18it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.19it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.20it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.17it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.17it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.16it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.16it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.24it/s]
+Epoch 8: 100%|█████| 985/985 [03:30&lt;00:00,  4.68it/s, v_num=0, train_loss_step=0.134, train_loss_epoch=0.142]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.19it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 13.08it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:04, 13.10it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:03, 13.13it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 13.10it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 13.13it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.07it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.08it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.07it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.08it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.08it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.10it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.11it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.11it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.12it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.12it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.13it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.13it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.14it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.15it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.16it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.16it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.17it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.18it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.18it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.18it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.18it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.18it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.26it/s]
+Epoch 9: 100%|█████| 985/985 [03:30&lt;00:00,  4.68it/s, v_num=0, train_loss_step=0.127, train_loss_epoch=0.141]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                     | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                        | 0/56 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   2%|▊                                               | 1/56 [00:00&lt;00:04, 13.36it/s]
+Validation DataLoader 0:   4%|█▋                                              | 2/56 [00:00&lt;00:04, 12.62it/s]
+Validation DataLoader 0:   5%|██▌                                             | 3/56 [00:00&lt;00:04, 12.75it/s]
+Validation DataLoader 0:   7%|███▍                                            | 4/56 [00:00&lt;00:04, 12.87it/s]
+Validation DataLoader 0:   9%|████▎                                           | 5/56 [00:00&lt;00:03, 12.90it/s]
+Validation DataLoader 0:  11%|█████▏                                          | 6/56 [00:00&lt;00:03, 12.95it/s]
+Validation DataLoader 0:  12%|██████                                          | 7/56 [00:00&lt;00:03, 13.00it/s]
+Validation DataLoader 0:  14%|██████▊                                         | 8/56 [00:00&lt;00:03, 13.05it/s]
+Validation DataLoader 0:  16%|███████▋                                        | 9/56 [00:00&lt;00:03, 13.06it/s]
+Validation DataLoader 0:  18%|████████▍                                      | 10/56 [00:00&lt;00:03, 13.01it/s]
+Validation DataLoader 0:  20%|█████████▏                                     | 11/56 [00:00&lt;00:03, 13.03it/s]
+Validation DataLoader 0:  21%|██████████                                     | 12/56 [00:00&lt;00:03, 13.05it/s]
+Validation DataLoader 0:  23%|██████████▉                                    | 13/56 [00:00&lt;00:03, 13.05it/s]
+Validation DataLoader 0:  25%|███████████▊                                   | 14/56 [00:01&lt;00:03, 13.07it/s]
+Validation DataLoader 0:  27%|████████████▌                                  | 15/56 [00:01&lt;00:03, 13.09it/s]
+Validation DataLoader 0:  29%|█████████████▍                                 | 16/56 [00:01&lt;00:03, 13.10it/s]
+Validation DataLoader 0:  30%|██████████████▎                                | 17/56 [00:01&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  32%|███████████████                                | 18/56 [00:01&lt;00:02, 13.10it/s]
+Validation DataLoader 0:  34%|███████████████▉                               | 19/56 [00:01&lt;00:02, 13.09it/s]
+Validation DataLoader 0:  36%|████████████████▊                              | 20/56 [00:01&lt;00:02, 13.09it/s]
+Validation DataLoader 0:  38%|█████████████████▋                             | 21/56 [00:01&lt;00:02, 13.07it/s]
+Validation DataLoader 0:  39%|██████████████████▍                            | 22/56 [00:01&lt;00:02, 13.07it/s]
+Validation DataLoader 0:  41%|███████████████████▎                           | 23/56 [00:01&lt;00:02, 13.08it/s]
+Validation DataLoader 0:  43%|████████████████████▏                          | 24/56 [00:01&lt;00:02, 13.09it/s]
+Validation DataLoader 0:  45%|████████████████████▉                          | 25/56 [00:01&lt;00:02, 13.09it/s]
+Validation DataLoader 0:  46%|█████████████████████▊                         | 26/56 [00:01&lt;00:02, 13.08it/s]
+Validation DataLoader 0:  48%|██████████████████████▋                        | 27/56 [00:02&lt;00:02, 13.08it/s]
+Validation DataLoader 0:  50%|███████████████████████▌                       | 28/56 [00:02&lt;00:02, 13.08it/s]
+Validation DataLoader 0:  52%|████████████████████████▎                      | 29/56 [00:02&lt;00:02, 13.07it/s]
+Validation DataLoader 0:  54%|█████████████████████████▏                     | 30/56 [00:02&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  55%|██████████████████████████                     | 31/56 [00:02&lt;00:01, 13.08it/s]
+Validation DataLoader 0:  57%|██████████████████████████▊                    | 32/56 [00:02&lt;00:01, 13.08it/s]
+Validation DataLoader 0:  59%|███████████████████████████▋                   | 33/56 [00:02&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  61%|████████████████████████████▌                  | 34/56 [00:02&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  62%|█████████████████████████████▍                 | 35/56 [00:02&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  64%|██████████████████████████████▏                | 36/56 [00:02&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  66%|███████████████████████████████                | 37/56 [00:02&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  68%|███████████████████████████████▉               | 38/56 [00:02&lt;00:01, 13.06it/s]
+Validation DataLoader 0:  70%|████████████████████████████████▋              | 39/56 [00:02&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  71%|█████████████████████████████████▌             | 40/56 [00:03&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  73%|██████████████████████████████████▍            | 41/56 [00:03&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  75%|███████████████████████████████████▎           | 42/56 [00:03&lt;00:01, 13.07it/s]
+Validation DataLoader 0:  77%|████████████████████████████████████           | 43/56 [00:03&lt;00:00, 13.06it/s]
+Validation DataLoader 0:  79%|████████████████████████████████████▉          | 44/56 [00:03&lt;00:00, 13.06it/s]
+Validation DataLoader 0:  80%|█████████████████████████████████████▊         | 45/56 [00:03&lt;00:00, 13.07it/s]
+Validation DataLoader 0:  82%|██████████████████████████████████████▌        | 46/56 [00:03&lt;00:00, 13.07it/s]
+Validation DataLoader 0:  84%|███████████████████████████████████████▍       | 47/56 [00:03&lt;00:00, 13.07it/s]
+Validation DataLoader 0:  86%|████████████████████████████████████████▎      | 48/56 [00:03&lt;00:00, 13.08it/s]
+Validation DataLoader 0:  88%|█████████████████████████████████████████▏     | 49/56 [00:03&lt;00:00, 13.08it/s]
+Validation DataLoader 0:  89%|█████████████████████████████████████████▉     | 50/56 [00:03&lt;00:00, 13.08it/s]
+Validation DataLoader 0:  91%|██████████████████████████████████████████▊    | 51/56 [00:03&lt;00:00, 13.09it/s]
+Validation DataLoader 0:  93%|███████████████████████████████████████████▋   | 52/56 [00:03&lt;00:00, 13.09it/s]
+Validation DataLoader 0:  95%|████████████████████████████████████████████▍  | 53/56 [00:04&lt;00:00, 13.09it/s]
+Validation DataLoader 0:  96%|█████████████████████████████████████████████▎ | 54/56 [00:04&lt;00:00, 13.09it/s]
+Validation DataLoader 0:  98%|██████████████████████████████████████████████▏| 55/56 [00:04&lt;00:00, 13.10it/s]
+Validation DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.17it/s]
+Epoch 9: 100%|█████| 985/985 [03:37&lt;00:00,  4.53it/s, v_num=0, train_loss_step=0.127, train_loss_epoch=0.140]
+Epoch 9: 100%|█████| 985/985 [03:42&lt;00:00,  4.42it/s, v_num=0, train_loss_step=0.127, train_loss_epoch=0.140]
+</pre></div>
+</div>
+<div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold">      Validate metric      </span>┃<span style="font-weight: bold">       DataLoader 0        </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│<span style="color: #008080; text-decoration-color: #008080">       val_accuracy        </span>│<span style="color: #800080; text-decoration-color: #800080">    0.5403909087181091     </span>│
+│<span style="color: #008080; text-decoration-color: #008080">         val_auroc         </span>│<span style="color: #800080; text-decoration-color: #800080">    0.49658727645874023    </span>│
+│<span style="color: #008080; text-decoration-color: #008080">        val_avgprec        </span>│<span style="color: #800080; text-decoration-color: #800080">    0.10710577666759491    </span>│
+│<span style="color: #008080; text-decoration-color: #008080">        val_best_f1        </span>│<span style="color: #800080; text-decoration-color: #800080">    0.17067663371562958    </span>│
+│<span style="color: #008080; text-decoration-color: #008080">         val_loss          </span>│<span style="color: #800080; text-decoration-color: #800080">    0.6907404065132141     </span>│
+└───────────────────────────┴───────────────────────────┘
+</pre>
+</div></div>
+</div>
+</section>
+<section id="load-best-model-from-checkpoint">
+<h2>Load best model from checkpoint<a class="headerlink" href="#load-best-model-from-checkpoint" title="Link to this heading">#</a></h2>
+<p>During training, the performance of the model on the validation set is checked after each epoch. We will load the version of the model that had the best validation set performance.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_checkpoint</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">checkpoint_callback</span><span class="o">.</span><span class="n">best_model_path</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">best_checkpoint</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">lightning</span><span class="o">.</span><span class="n">LightningModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">best_checkpoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tutorial_2/2025_10_03_17_49/version_0/checkpoints/epoch=5-step=5910.ckpt
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="calculate-performance-metrics-on-the-test-set">
+<h2>Calculate performance metrics on the test set<a class="headerlink" href="#calculate-performance-metrics-on-the-test-set" title="Link to this heading">#</a></h2>
+<p>We calculate global performance metrics using the <code class="docutils literal notranslate"><span class="pre">test_on_dataset</span></code> method.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_metrics</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">test_on_dataset</span><span class="p">(</span>
+    <span class="n">test_dataset</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Testing DataLoader 0: 100%|██████████████████████████████████████████████████| 56/56 [00:08&lt;00:00,  6.60it/s]
+</pre></div>
+</div>
+<div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold">        Test metric        </span>┃<span style="font-weight: bold">       DataLoader 0        </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│<span style="color: #008080; text-decoration-color: #008080">       test_accuracy       </span>│<span style="color: #800080; text-decoration-color: #800080">     0.945804238319397     </span>│
+│<span style="color: #008080; text-decoration-color: #008080">        test_auroc         </span>│<span style="color: #800080; text-decoration-color: #800080">    0.9041470289230347     </span>│
+│<span style="color: #008080; text-decoration-color: #008080">       test_avgprec        </span>│<span style="color: #800080; text-decoration-color: #800080">    0.6055856943130493     </span>│
+│<span style="color: #008080; text-decoration-color: #008080">       test_best_f1        </span>│<span style="color: #800080; text-decoration-color: #800080">    0.5670822262763977     </span>│
+│<span style="color: #008080; text-decoration-color: #008080">         test_loss         </span>│<span style="color: #800080; text-decoration-color: #800080">    0.15506847202777863    </span>│
+└───────────────────────────┴───────────────────────────┘
+</pre>
+</div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">test_metrics</span></code> is a dataframe containing metrics for each model task.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_metrics</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>test_accuracy</th>
+      <th>test_auroc</th>
+      <th>test_avgprec</th>
+      <th>test_best_f1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Follicular</th>
+      <td>0.908582</td>
+      <td>0.878644</td>
+      <td>0.625833</td>
+      <td>0.579764</td>
+    </tr>
+    <tr>
+      <th>Fibro General</th>
+      <td>0.915440</td>
+      <td>0.882260</td>
+      <td>0.624358</td>
+      <td>0.576104</td>
+    </tr>
+    <tr>
+      <th>Acinar</th>
+      <td>0.943809</td>
+      <td>0.913334</td>
+      <td>0.649064</td>
+      <td>0.601570</td>
+    </tr>
+    <tr>
+      <th>T Lymphocyte 1 (CD8+)</th>
+      <td>0.961583</td>
+      <td>0.930609</td>
+      <td>0.633020</td>
+      <td>0.591118</td>
+    </tr>
+    <tr>
+      <th>T lymphocyte 2 (CD4+)</th>
+      <td>0.967484</td>
+      <td>0.940214</td>
+      <td>0.619009</td>
+      <td>0.568158</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="visualize-performance-metrics">
+<h2>Visualize performance metrics<a class="headerlink" href="#visualize-performance-metrics" title="Link to this heading">#</a></h2>
+<p>We can plot the distribution of each metric across all cell types:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_distribution</span><span class="p">(</span>
+    <span class="n">test_metrics</span><span class="o">.</span><span class="n">test_best_f1</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;histogram&#39;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Best F1 Score per task&#39;</span><span class="p">,</span>
+    <span class="n">binwidth</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/45aa0850a17f63e683643b2f406ae8328e60351b13dfa95f6c277f6e5ec5bca3.png"><img alt="../_images/45aa0850a17f63e683643b2f406ae8328e60351b13dfa95f6c277f6e5ec5bca3.png" src="../_images/45aa0850a17f63e683643b2f406ae8328e60351b13dfa95f6c277f6e5ec5bca3.png" style="width: 300px; height: 200px;" /></a>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_distribution</span><span class="p">(</span>
+    <span class="n">test_metrics</span><span class="o">.</span><span class="n">test_avgprec</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;histogram&#39;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Average Precision per task&#39;</span><span class="p">,</span>
+    <span class="n">binwidth</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/27cc3df203dbcbc17fc947b11672152e3776176a73f834bf00f5458431136d11.png"><img alt="../_images/27cc3df203dbcbc17fc947b11672152e3776176a73f834bf00f5458431136d11.png" src="../_images/27cc3df203dbcbc17fc947b11672152e3776176a73f834bf00f5458431136d11.png" style="width: 300px; height: 200px;" /></a>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_distribution</span><span class="p">(</span>
+    <span class="n">test_metrics</span><span class="o">.</span><span class="n">test_auroc</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;histogram&#39;</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;AUROC per task&#39;</span><span class="p">,</span>
+    <span class="n">binwidth</span><span class="o">=</span><span class="mf">0.005</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/5bef5b71af779f21fa50430b5d30c959d4b6ff0ec73d82329a3b10613dd7734c.png"><img alt="../_images/5bef5b71af779f21fa50430b5d30c959d4b6ff0ec73d82329a3b10613dd7734c.png" src="../_images/5bef5b71af779f21fa50430b5d30c959d4b6ff0ec73d82329a3b10613dd7734c.png" style="width: 300px; height: 200px;" /></a>
+</div>
+</div>
+</section>
+<section id="run-inference-on-the-test-set">
+<h2>Run inference on the test set<a class="headerlink" href="#run-inference-on-the-test-set" title="Link to this heading">#</a></h2>
+<p>Instead of overall metrics, we can also get the individual predictions for each test set example.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">probs</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_on_dataset</span><span class="p">(</span>
+    <span class="n">test_dataset</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+    <span class="n">return_df</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># Return the output as a pandas dataframe</span>
+<span class="p">)</span>
+
+<span class="n">probs</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Predicting DataLoader 0: 100%|███████████████████████████████████████████████| 56/56 [00:04&lt;00:00, 13.60it/s]
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Follicular</th>
+      <th>Fibro General</th>
+      <th>Acinar</th>
+      <th>T Lymphocyte 1 (CD8+)</th>
+      <th>T lymphocyte 2 (CD4+)</th>
+      <th>Natural Killer T</th>
+      <th>Naive T</th>
+      <th>Fibro Epithelial</th>
+      <th>Cardiac Pericyte 1</th>
+      <th>Pericyte General 1</th>
+      <th>...</th>
+      <th>Fetal Cardiac Fibroblast</th>
+      <th>Fetal Fibro General 2</th>
+      <th>Fetal Fibro Muscle 1</th>
+      <th>Fetal Fibro General 3</th>
+      <th>Fetal Mesangial 2</th>
+      <th>Fetal Stellate</th>
+      <th>Fetal Alveolar Epithelial 1</th>
+      <th>Fetal Cilliated</th>
+      <th>Fetal Excitatory Neuron 1</th>
+      <th>Fetal Excitatory Neuron 2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.246584</td>
+      <td>0.631227</td>
+      <td>0.401028</td>
+      <td>0.737432</td>
+      <td>0.446210</td>
+      <td>0.359249</td>
+      <td>0.362619</td>
+      <td>0.503613</td>
+      <td>0.325819</td>
+      <td>0.600575</td>
+      <td>...</td>
+      <td>0.096280</td>
+      <td>0.113305</td>
+      <td>0.142196</td>
+      <td>0.120180</td>
+      <td>0.180818</td>
+      <td>0.062197</td>
+      <td>0.115317</td>
+      <td>0.075760</td>
+      <td>0.146371</td>
+      <td>0.066766</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.012661</td>
+      <td>0.030349</td>
+      <td>0.003691</td>
+      <td>0.120318</td>
+      <td>0.134325</td>
+      <td>0.088101</td>
+      <td>0.032150</td>
+      <td>0.007142</td>
+      <td>0.066219</td>
+      <td>0.007032</td>
+      <td>...</td>
+      <td>0.071350</td>
+      <td>0.032026</td>
+      <td>0.019897</td>
+      <td>0.028728</td>
+      <td>0.009674</td>
+      <td>0.024987</td>
+      <td>0.039601</td>
+      <td>0.020358</td>
+      <td>0.037166</td>
+      <td>0.019341</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.022788</td>
+      <td>0.036146</td>
+      <td>0.012045</td>
+      <td>0.033261</td>
+      <td>0.033194</td>
+      <td>0.057675</td>
+      <td>0.014275</td>
+      <td>0.035036</td>
+      <td>0.170055</td>
+      <td>0.020254</td>
+      <td>...</td>
+      <td>0.050655</td>
+      <td>0.016251</td>
+      <td>0.026099</td>
+      <td>0.054175</td>
+      <td>0.031049</td>
+      <td>0.012836</td>
+      <td>0.026930</td>
+      <td>0.024365</td>
+      <td>0.295303</td>
+      <td>0.029504</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.543615</td>
+      <td>0.563422</td>
+      <td>0.638997</td>
+      <td>0.593161</td>
+      <td>0.540665</td>
+      <td>0.434793</td>
+      <td>0.449609</td>
+      <td>0.421495</td>
+      <td>0.479576</td>
+      <td>0.392053</td>
+      <td>...</td>
+      <td>0.460450</td>
+      <td>0.484270</td>
+      <td>0.436842</td>
+      <td>0.566088</td>
+      <td>0.443496</td>
+      <td>0.427716</td>
+      <td>0.626493</td>
+      <td>0.537759</td>
+      <td>0.388494</td>
+      <td>0.227976</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.249463</td>
+      <td>0.270736</td>
+      <td>0.376773</td>
+      <td>0.491053</td>
+      <td>0.299808</td>
+      <td>0.248376</td>
+      <td>0.287306</td>
+      <td>0.160203</td>
+      <td>0.168654</td>
+      <td>0.144926</td>
+      <td>...</td>
+      <td>0.128210</td>
+      <td>0.158565</td>
+      <td>0.145321</td>
+      <td>0.228435</td>
+      <td>0.140189</td>
+      <td>0.127122</td>
+      <td>0.315865</td>
+      <td>0.236325</td>
+      <td>0.153972</td>
+      <td>0.076631</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 203 columns</p>
+</div></div></div>
+</div>
+<p>Since this is a binary classification model, the output takes the form of probabilities ranging from 0 to 1. We interpret these as the predicted probabilities of the element being accessible in each cell type.</p>
+</section>
+<section id="plot-additional-visualizations-of-the-test-set-predictions">
+<h2>Plot additional visualizations of the test set predictions<a class="headerlink" href="#plot-additional-visualizations-of-the-test-set-predictions" title="Link to this heading">#</a></h2>
+<p>We can plot a calibration curve for all the tasks. This shows us the fraction of true positive examples, for different levels of model-predicted probability.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_calibration_curve</span><span class="p">(</span>
+    <span class="n">probs</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">test_dataset</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span> <span class="n">aggregate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">show_legend</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/f6aa22292aa0632a68e9755147446ba94e73456bff3becb757ae4f81e3a236e6.png"><img alt="../_images/f6aa22292aa0632a68e9755147446ba94e73456bff3becb757ae4f81e3a236e6.png" src="../_images/f6aa22292aa0632a68e9755147446ba94e73456bff3becb757ae4f81e3a236e6.png" style="width: 400px; height: 300px;" /></a>
+</div>
+</div>
+<p>We can also pick any cell type and compare the predictions on accessible and non-accessible elements.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_binary_preds</span><span class="p">(</span>
+    <span class="n">probs</span><span class="p">,</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">test_dataset</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+    <span class="n">tasks</span><span class="o">=</span><span class="s1">&#39;Microglia&#39;</span><span class="p">,</span>
+    <span class="n">figure_size</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="c1"># Width, height</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/37edbd8fea7369b753674116d84395498ce3462dfda804f87302ce8160d23a4d.png"><img alt="../_images/37edbd8fea7369b753674116d84395498ce3462dfda804f87302ce8160d23a4d.png" src="../_images/37edbd8fea7369b753674116d84395498ce3462dfda804f87302ce8160d23a4d.png" style="width: 400px; height: 300px;" /></a>
+</div>
+</div>
+</section>
+<section id="interpret-model-predictions-for-microglia-using-tf-modisco">
+<h2>Interpret model predictions (for microglia) using TF-modisco<a class="headerlink" href="#interpret-model-predictions-for-microglia-using-tf-modisco" title="Link to this heading">#</a></h2>
+<p>Suppose we want to focus specifically on Microglia. We can create a transform - a class that takes in the model’s prediction and returns a function of the prediction, e.g. the prediction for only a subset of cell types that we are interested in. Then, all subsquent analyses that we do will be based only on this subset of the full prediction matrix.</p>
+<p>Here, we use the <code class="docutils literal notranslate"><span class="pre">Aggregate</span></code> class to create a transform that will take in the full set of predictions produced by the model and subset only the predictions in Microglia.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">grelu.transforms.prediction_transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Aggregate</span>
+
+<span class="n">microglia_score</span> <span class="o">=</span> <span class="n">Aggregate</span><span class="p">(</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Microglia&quot;</span><span class="p">],</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">model</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let us now identify all peaks in the test set that are accessible in microglia.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">is_accessible_in_mcg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ad_test</span><span class="p">[</span><span class="s2">&quot;Microglia&quot;</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">todense</span><span class="p">()</span><span class="o">==</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+<span class="n">mcg_peaks</span> <span class="o">=</span> <span class="n">ad_test</span><span class="o">.</span><span class="n">var</span><span class="p">[</span><span class="n">is_accessible_in_mcg</span><span class="p">]</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">mcg_peaks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2273
+</pre></div>
+</div>
+</div>
+</div>
+<p>We now run TF-Modisco on these peaks. TF-modisco identifies motifs that consistently contribute to the model’s output. Since we are using the <code class="docutils literal notranslate"><span class="pre">microglia_score</span></code> filter to limit the model’s prediction to microglia, we will only get motifs relevant to this cell type. We also use TOMTOM to match the TF-Modisco motifs to a set of reference motifs. Here, we use a reference set of non-redundant motifs (<a class="reference external" href="https://www.vierstra.org/resources/motif_clustering">https://www.vierstra.org/resources/motif_clustering</a>) that are provided with gReLU as <code class="docutils literal notranslate"><span class="pre">consensus</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">grelu.interpret.modisco</span>
+<span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">modisco</span><span class="o">.</span><span class="n">run_modisco</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">seqs</span><span class="o">=</span><span class="n">mcg_peaks</span><span class="p">,</span> 
+    <span class="n">genome</span><span class="o">=</span><span class="s2">&quot;hg38&quot;</span><span class="p">,</span>
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span> <span class="c1"># Base importance scores will be calculated with respect to this output</span>
+    <span class="n">meme_file</span><span class="o">=</span><span class="s2">&quot;hocomoco_v12&quot;</span><span class="p">,</span> <span class="c1"># We will compare the Modisco CWMs to HOCOMOCO motifs</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ism&quot;</span><span class="p">,</span> <span class="c1"># Base-level attribution scores will be calculated using ISM. You can also use &quot;saliency&quot;.</span>
+    <span class="n">out_dir</span><span class="o">=</span><span class="n">experiment</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">window</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="c1"># ISM scores will be calculated over the central 100 bp of each peak</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Performing ISM
+Predicting DataLoader 0: 100%|█████████████████████████████████████████████████| 3/3 [00:00&lt;00:00, 13.47it/s]
+Predicting DataLoader 0: 100%|█████████████████████████████████████████████| 666/666 [00:48&lt;00:00, 13.71it/s]
+Running modisco
+Writing modisco output
+Creating sequence logos
+Creating html report
+Running TOMTOM
+CPU times: user 2h 48min 40s, sys: 1min 20s, total: 2h 50min 1s
+Wall time: 7min 29s
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="load-tomtom-output-for-modisco-motifs">
+<h2>Load TOMTOM output for modisco motifs<a class="headerlink" href="#load-tomtom-output-for-modisco-motifs" title="Link to this heading">#</a></h2>
+<p>The full output of TF-Modisco and TOMTOM can be found in the experiment folder. Here, we read the output of TOMTOM and list the significant TOMTOM matches, i.e. known TF motifs that are similar to those found by TF-MoDISco.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tomtom_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">experiment</span><span class="p">,</span> <span class="s1">&#39;tomtom.csv&#39;</span><span class="p">)</span>
+<span class="n">tomtom</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">tomtom_file</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">tomtom</span><span class="p">[</span><span class="n">tomtom</span><span class="p">[</span><span class="s1">&#39;q-value&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">1e-4</span><span class="p">]</span> <span class="c1"># Display most significant matches</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Query_ID</th>
+      <th>Target_ID</th>
+      <th>Optimal_offset</th>
+      <th>p-value</th>
+      <th>E-value</th>
+      <th>q-value</th>
+      <th>Overlap</th>
+      <th>Query_consensus</th>
+      <th>Target_consensus</th>
+      <th>Orientation</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>168</th>
+      <td>pos_pattern_0</td>
+      <td>ELF5.H12CORE.0.PSM.A</td>
+      <td>2.0</td>
+      <td>3.914810e-08</td>
+      <td>5.649071e-05</td>
+      <td>4.236803e-05</td>
+      <td>10.0</td>
+      <td>ACTTCCTCTT</td>
+      <td>AGGAAGGAGGAAGTAA</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>177</th>
+      <td>pos_pattern_0</td>
+      <td>ERF.H12CORE.0.PS.A</td>
+      <td>1.0</td>
+      <td>2.769070e-08</td>
+      <td>3.995768e-05</td>
+      <td>3.424944e-05</td>
+      <td>10.0</td>
+      <td>ACTTCCTCTT</td>
+      <td>AACAGGAAGTG</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>203</th>
+      <td>pos_pattern_0</td>
+      <td>ETV6.H12CORE.1.P.B</td>
+      <td>2.0</td>
+      <td>5.419583e-10</td>
+      <td>7.820458e-07</td>
+      <td>1.564092e-06</td>
+      <td>10.0</td>
+      <td>ACTTCCTCTT</td>
+      <td>AAGAGGAAGTGG</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>950</th>
+      <td>pos_pattern_0</td>
+      <td>SPI1.H12CORE.0.P.B</td>
+      <td>2.0</td>
+      <td>1.424794e-11</td>
+      <td>2.055977e-08</td>
+      <td>1.233586e-07</td>
+      <td>10.0</td>
+      <td>ACTTCCTCTT</td>
+      <td>AAAAGAGGAAGTGA</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>951</th>
+      <td>pos_pattern_0</td>
+      <td>SPI1.H12CORE.1.S.B</td>
+      <td>2.0</td>
+      <td>2.030075e-08</td>
+      <td>2.929399e-05</td>
+      <td>2.929399e-05</td>
+      <td>10.0</td>
+      <td>ACTTCCTCTT</td>
+      <td>AAGGGGAAGTAG</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>952</th>
+      <td>pos_pattern_0</td>
+      <td>SPIB.H12CORE.0.P.B</td>
+      <td>5.0</td>
+      <td>1.870986e-10</td>
+      <td>2.699832e-07</td>
+      <td>8.099497e-07</td>
+      <td>10.0</td>
+      <td>ACTTCCTCTT</td>
+      <td>AAAGAGGAAGTGAAAG</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>1551</th>
+      <td>pos_pattern_1</td>
+      <td>CTCF.H12CORE.0.P.B</td>
+      <td>4.0</td>
+      <td>2.482863e-09</td>
+      <td>3.582771e-06</td>
+      <td>5.374157e-06</td>
+      <td>13.0</td>
+      <td>TGCCACCTAGTGG</td>
+      <td>TGGCCACTAGGGGGCGCTAG</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>3304</th>
+      <td>pos_pattern_2</td>
+      <td>IRF4.H12CORE.0.P.B</td>
+      <td>2.0</td>
+      <td>7.689133e-08</td>
+      <td>1.109542e-04</td>
+      <td>7.396946e-05</td>
+      <td>10.0</td>
+      <td>TTTCACTTCC</td>
+      <td>AAAGAGGAACTGAAACT</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>3313</th>
+      <td>pos_pattern_2</td>
+      <td>IRF8.H12CORE.0.P.B</td>
+      <td>5.0</td>
+      <td>6.406269e-09</td>
+      <td>9.244246e-06</td>
+      <td>1.109310e-05</td>
+      <td>10.0</td>
+      <td>TTTCACTTCC</td>
+      <td>AAGAGGAAGTGAAAGTAAA</td>
+      <td>-</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="1_inference.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Inference using Borzoi</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="3_train.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Train a single-task regression model from scratch</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-experiment-parameters">Set experiment parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-data">Load data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#filter-peaks">Filter peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-data">Visualize data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resize-peaks">Resize peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#split-data">Split data</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-labeled-sequence-datasets">Make labeled sequence datasets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-the-enformer-model">Build the enformer model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-the-model">Train the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-best-model-from-checkpoint">Load best model from checkpoint</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-performance-metrics-on-the-test-set">Calculate performance metrics on the test set</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualize-performance-metrics">Visualize performance metrics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-inference-on-the-test-set">Run inference on the test set</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-additional-visualizations-of-the-test-set-predictions">Plot additional visualizations of the test set predictions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interpret-model-predictions-for-microglia-using-tf-modisco">Interpret model predictions (for microglia) using TF-modisco</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-tomtom-output-for-modisco-motifs">Load TOMTOM output for modisco motifs</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/tutorials/2_finetune.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorials/2_finetune.ipynb"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
