@@ -163,12 +163,12 @@ class LightningModel(pl.LightningModule):
         """
         # Regression
         if self.train_params["task"] == "regression":
-            if self.train_params["loss"] == "poisson":
+            if self.train_params["loss"] in ["poisson", "poisson_multinomial"]:
                 self.activation = torch.exp
             elif self.train_params["loss"] == "mse":
                 self.activation = nn.Identity()
             else:
-                raise Exception("Regression losses: poisson, MSE")
+                raise Exception("Regression losses: poisson, poisson_multinomial, MSE")
 
         # Binary
         elif self.train_params["task"] == "binary":
