@@ -36,7 +36,7 @@ class Genome:
         Get the sequence for a given chromosome and interval.
         """
         return self._genome.get_seq(chrom, start, end, rc=rc)
-        
+
     @property
     def sizes_file(self) -> str:
         if self.custom_genome:
