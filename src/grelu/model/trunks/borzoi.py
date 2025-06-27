@@ -71,7 +71,7 @@ class BorzoiConvTower(nn.Module):
                     norm=True,
                     norm_type=norm_type,
                     norm_kwargs=norm_kwargs,
-                    act_func="gelu",
+                    act_func="gelu_borzoi",
                     order="NACDR",
                     pool_func="max",
                     pool_size=2,
@@ -142,6 +142,7 @@ class BorzoiTrunk(nn.Module):
         value_len: int,
         pos_dropout: float,
         attn_dropout: float,
+        ff_dropout: float,
         n_heads: int,
         n_pos_features: int,
         # Crop
@@ -173,6 +174,8 @@ class BorzoiTrunk(nn.Module):
             value_len=value_len,
             pos_dropout=pos_dropout,
             attn_dropout=attn_dropout,
+            ff_dropout=ff_dropout,
+            norm_kwargs=norm_kwargs,
             n_heads=n_heads,
             n_pos_features=n_pos_features,
             flash_attn=flash_attn,
@@ -192,7 +195,7 @@ class BorzoiTrunk(nn.Module):
             in_channels=channels,
             out_channels=round(channels * 1.25),
             kernel_size=1,
-            act_func="gelu",
+            act_func="gelu_borzoi",
             dropout=0.1,
             norm=True,
             norm_type=norm_type,
@@ -201,7 +204,7 @@ class BorzoiTrunk(nn.Module):
             device=device,
             dtype=dtype,
         )
-        self.act = Activation("gelu")
+        self.act = Activation("gelu_borzoi")
         self.crop = Crop(crop_len=crop_len)
 
     def forward(self, x: Tensor) -> Tensor:
