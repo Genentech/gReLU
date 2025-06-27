@@ -192,7 +192,7 @@ html_title = f"{project}"
 html_short_title = project
 html_sourcelink_suffix = ""
 html_last_updated_fmt = ""  # to reveal the build date in the pages meta
-html_baseurl = "https://braid-relu.pages.roche.com/grelu/latest/index.html"
+html_baseurl = "https://genentech.github.io/gReLU"
 
 
 # The name of an image file (relative to this directory) to place at the top
