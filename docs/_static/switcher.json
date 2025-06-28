@@ -1,6 +1,6 @@
 [
-        {
-          "version": "latest",
-          "url": "https://genentech.github.io/gReLU/"
-        },
-      ]
+  {
+    "version": "latest",
+    "url": "https://genentech.github.io/gReLU/"
+  }
+]
