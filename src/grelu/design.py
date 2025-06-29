@@ -136,6 +136,7 @@ def evolve(
             curr_output.loc[curr_best_idxs, "seq"] = convert_input_type(
                 torch.stack([ds[j] for j in curr_best_idxs]), "strings"
             )
+            curr_output = curr_output.loc[curr_best_idxs]
 
         # Concatenate outputs
         outputs = pd.concat([outputs, curr_output])
