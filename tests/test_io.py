@@ -1,14 +1,16 @@
 import os
 
+import pytest
 import numpy as np
 import pandas as pd
+import genomepy
 from pandas.testing import assert_frame_equal
 
 from grelu.io import read_tomtom
 from grelu.io.bed import read_bed
 from grelu.io.bigwig import read_bigwig
 from grelu.io.fasta import read_fasta
-from grelu.io.genome import read_sizes
+from grelu.io.genome import read_sizes, Genome
 from grelu.io.motifs import read_meme_file, read_modisco_report
 from grelu.sequence.utils import resize
 
@@ -19,6 +21,16 @@ def test_read_sizes():
     df = read_sizes("hg38")
     assert df.shape == (194, 2)
     assert df.iloc[0].to_dict() == {"chrom": "chr1", "size": 248956422}
+
+    with pytest.raises(FileNotFoundError):
+        Genome('tests/files/test.fa.bgz').sizes_file
+
+    chrom_sizes = Genome('tests/files/test.fa').sizes_file
+    assert chrom_sizes == 'tests/files/test.fa.sizes'
+    df = read_sizes('tests/files/test.fa')
+    assert df.shape == (2, 2)
+    assert df.iloc[0].to_dict() == {'chrom': 'seq1', 'size': 3}
+    assert df.iloc[1].to_dict() == {'chrom': 'seq2', 'size': 3}
 
 
 def test_read_tomtom():
@@ -34,7 +46,13 @@ def test_read_tomtom():
 
 
 def test_read_fasta():
+    fa_file = os.path.join(cwd, "files", "test.fa")
+    assert np.all(read_fasta(fa_file) == ["AAC", "ATG"])
+
     fa_file = os.path.join(cwd, "files", "test.fa.gz")
+    assert np.all(read_fasta(fa_file) == ["AAC", "ATG"])
+
+    fa_file = os.path.join(cwd, "files", "test.fa.bgz")
     assert np.all(read_fasta(fa_file) == ["AAC", "ATG"])
 
 
