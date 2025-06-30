@@ -7,3 +7,5 @@
 * Jayaram Kancherla <kancherla.jayaram@gene.com>
 * Ketrin Gjoni <gjonik@external.gene.com>
 * M. Hasan Celik <celik.hasan@external.gene.com>
+* Carlo de Donno <carlo.de_donno@roche.com>
+* Johannes Hingerl <hingerl.johannes@gene.com>
