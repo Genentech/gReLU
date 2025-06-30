@@ -123,18 +123,19 @@ def evolve(
         curr_best_idxs = (
             curr_output.groupby("start_seq").total_score.idxmax()
             if for_each
-            else curr_output.total_score.idxmax()
+            else [curr_output.total_score.idxmax()]
         )
         curr_output.loc[curr_best_idxs, "best_in_iter"] = True
 
         # Add full sequences
-        if return_seqs == "all":
+        if return_seqs == "best":
+            curr_output = curr_output.loc[curr_best_idxs]
+            curr_output["seq"] = convert_input_type(
+                torch.stack([ds[j] for j in curr_best_idxs]), "strings"
+            )
+        elif return_seqs == "all":
             curr_output["seq"] = convert_input_type(
                 torch.stack([ds[j] for j in range(len(ds))]), "strings"
-            )
-        elif return_seqs == "best":
-            curr_output.loc[curr_best_idxs, "seq"] = convert_input_type(
-                torch.stack([ds[j] for j in curr_best_idxs]), "strings"
             )
 
         # Concatenate outputs
@@ -174,13 +175,11 @@ def evolve(
 
     # Remove the transform
     model.reset_transform()
-
     outputs = outputs.reset_index(drop=True)
 
     # Get model predictions
     if return_preds:
-        to_predict = outputs.seq.apply(check_string_dna)
-        ds = SeqDataset(outputs[to_predict].seq.tolist())
+        ds = SeqDataset(outputs.seq.tolist())
         preds = model.predict_on_dataset(
             ds,
             devices=devices,
@@ -211,7 +210,7 @@ def evolve(
 
         # Add model predictions to output dataframe
         outputs[task_names] = np.nan
-        outputs.loc[to_predict, task_names] = preds
+        outputs.loc[:, task_names] = preds
 
     return outputs
 
