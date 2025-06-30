@@ -13,6 +13,8 @@ from grelu.data.dataset import (
     MotifScanDataset,
     PatternMarginalizeDataset,
     SeqDataset,
+    SpacingMarginalizeDataset,
+    TilingShuffleDataset,
     VariantDataset,
     VariantMarginalizeDataset,
 )
@@ -848,7 +850,7 @@ def test_marginalize_dataset_motifs():
     assert (
         (ds.n_shuffles == 2)
         and (ds.n_seqs == 1)
-        and (ds.alleles.shape == (1, 3))
+        and (np.allclose(ds.alleles, [[0.0, 0.0, 0.0]]))
         and (len(ds) == 4)
         and (ds.n_augmented == 1)
         and (ds.n_shuffles == 2)
@@ -897,3 +899,79 @@ def test_motifscan_dataset():
     assert (ds.seqs.shape == (1, 9)) and (len(ds) == 3)
     xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
     assert xs == ["ACAAACACT", "ACCAAAACT", "ACCTAAACT"]
+
+
+def test_marginalize_dataset_spacing():
+    ds = SpacingMarginalizeDataset(
+        seqs=["AAGACATACAACGCGCGCTAACATAGCAAC"],
+        fixed_pattern="AAA",
+        moving_pattern="CCC",
+        n_shuffles=2,
+        seed=0,
+        stride=3,
+    )
+    assert (
+        (ds.n_shuffles == 2)
+        and (ds.n_seqs == 1)
+        and (ds.stride == 3)
+        and (np.allclose(ds.fixed_pattern, [[0.0, 0.0, 0.0]]))
+        and (np.allclose(ds.moving_pattern, [[1.0, 1.0, 1.0]]))
+        and (ds.n_augmented == 1)
+        and (ds.n_shuffles == 2)
+        and (ds.n_alleles == 9)
+        and (len(ds) == 18)
+        and (ds.fixed_pattern_len == 3)
+        and (ds.moving_pattern_len == 3)
+        and (np.all(ds.positions == [0, 3, 6, 9, 18, 21, 24, 27]))
+    )
+
+    xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
+    bg = convert_input_type(ds.bg, "strings")
+    assert bg == ["ACAACGCTAGACAAAAGCAGCAATATAAAC", "AAAACAGCGCTAAAAAGCACGCATATACAC"]
+
+    assert xs == [
+        "ACAACGCTAGACAAAAGCAGCAATATAAAC",
+        "CCCACGCTAGACAAAAGCAGCAATATAAAC",
+        "ACACCCCTAGACAAAAGCAGCAATATAAAC",
+        "ACAACGCCCGACAAAAGCAGCAATATAAAC",
+        "ACAACGCTACCCAAAAGCAGCAATATAAAC",
+        "ACAACGCTAGACAAAAGCCCCAATATAAAC",
+        "ACAACGCTAGACAAAAGCAGCCCCATAAAC",
+        "ACAACGCTAGACAAAAGCAGCAATCCCAAC",
+        "ACAACGCTAGACAAAAGCAGCAATATACCC",
+        "AAAACAGCGCTAAAAAGCACGCATATACAC",
+        "CCCACAGCGCTAAAAAGCACGCATATACAC",
+        "AAACCCGCGCTAAAAAGCACGCATATACAC",
+        "AAAACACCCCTAAAAAGCACGCATATACAC",
+        "AAAACAGCGCCCAAAAGCACGCATATACAC",
+        "AAAACAGCGCTAAAAAGCCCCCATATACAC",
+        "AAAACAGCGCTAAAAAGCACGCCCATACAC",
+        "AAAACAGCGCTAAAAAGCACGCATCCCCAC",
+        "AAAACAGCGCTAAAAAGCACGCATATACCC",
+    ]
+
+
+def test_tiling_shuffle_dataset():
+    ds = TilingShuffleDataset(
+        seqs=["AAGACATACAACGCGCGCTAACATAGCAAC"],
+        tile_len=8,
+        protect_center=2,
+        stride=None,
+        n_shuffles=2,
+    )
+
+    assert np.all(ds.positions.start == [0, 16])
+    assert np.all(ds.positions.end == [8, 24])
+    assert len(ds) == 4
+    assert ds.n_shuffles == 2
+    assert ds.n_seqs == 1
+    assert ds.n_positions == 2
+    assert ds.stride == 8
+
+    xs = [convert_input_type(ds[i], "strings") for i in range(len(ds))]
+    assert xs == [
+        "ACAGAATACAACGCGCGCTAACATAGCAAC",
+        "AACAGATACAACGCGCGCTAACATAGCAAC",
+        "AAGACATACAACGCGCGCTACAATAGCAAC",
+        "AAGACATACAACGCGCGCTAACATAGCAAC",
+    ]

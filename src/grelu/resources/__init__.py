@@ -1,6 +1,6 @@
 """
-`grelu.resources` contains additional data files that can be used by gReLU functions. 
-It also contains functions to load these files as well as files stored externally, 
+`grelu.resources` contains additional data files that can be used by gReLU functions.
+It also contains functions to load these files as well as files stored externally,
 such as model checkpoints and datasets in the model zoo.
 """
 
@@ -93,7 +93,7 @@ def projects(host: str=DEFAULT_WANDB_HOST) -> List[str]:
         List of project names
     """
     _check_wandb(host=host)
-    
+
     api = wandb.Api()
     projects = api.projects(DEFAULT_WANDB_ENTITY)
     return [p.name for p in projects]
@@ -102,7 +102,7 @@ def projects(host: str=DEFAULT_WANDB_HOST) -> List[str]:
 def artifacts(project: str, host: str=DEFAULT_WANDB_HOST, type_is: Optional[str]=None, type_contains: Optional[str]=None) -> List[str]:
     """
     List all artifacts associated with a project in the model zoo
-    
+
     Args:
         project: Name of the project to search
         host: URL of the Weights & Biases host
@@ -114,7 +114,7 @@ def artifacts(project: str, host: str=DEFAULT_WANDB_HOST, type_is: Optional[str]
     """
     _check_wandb(host)
     project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
-    
+
     api = wandb.Api()
     if type_is is not None:
         types = [x.name for x in api.artifact_types(project_path) if type_is == x.name]
@@ -173,7 +173,7 @@ def runs(project:str, host:str=DEFAULT_WANDB_HOST, field:str='id', filters: Opti
     """
     _check_wandb(host=host)
     project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
-    
+
     api = wandb.Api()
     return [getattr(run, field) for run in api.runs(project_path, filters=filters)]
 
@@ -193,8 +193,8 @@ def get_artifact(name:str, project:str, host:str=DEFAULT_WANDB_HOST, alias:str='
     """
     _check_wandb(host=host)
     project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
-    
-    api = wandb.Api()    
+
+    api = wandb.Api()
     return api.artifact(f'{project_path}/{name}:{alias}')
 
 
