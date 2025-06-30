@@ -13,6 +13,7 @@ from grelu.resources import (
 def test_resources():
     assert "hg38" in get_blacklist_file("hg38")
     assert get_meme_file_path("hocomoco_v12")
+    assert get_meme_file_path("hocomoco_v13")
     assert get_meme_file_path("consensus")
 
     import wandb
