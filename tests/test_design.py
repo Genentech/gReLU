@@ -199,3 +199,42 @@ def test_evolve_6():
     assert np.all(output["iter"] == [0] + [1] * 3)
     assert len(output[output.best_in_iter]) == 2
     assert output.seq.tolist() == ["GCCT", "AACT", "GAAT", "GCAA"]
+
+
+def test_evolve_7():
+    # Single starting sequence, one task
+
+    output = evolve(
+        [seqs[0]],
+        model,
+        max_iter=2,
+        prediction_transform=Aggregate(tasks=["label1"], model=model),
+        devices="cpu",
+        num_workers=1,
+        return_seqs='best'
+    )
+
+    # Check output format
+    assert isinstance(output, pd.DataFrame)
+    assert len(output) == 13
+    assert np.all(
+        output.columns
+        == [
+            "iter",
+            "start_seq",
+            "best_in_iter",
+            "prediction_score",
+            "seq_score",
+            "total_score",
+            "seq",
+            "position",
+            "allele",
+            "label1",
+        ]
+    )
+    assert np.all(output["iter"] == [0] + [1] * 6 + [2] * 6)
+    assert np.all(output.seq == ['AT', 'na', 'na', 'na', 'na', 'AC', 'na', 'CC', 'na', 'na', 'na', 'na', 'na'])
+    assert output.label1[0] == 0.5
+    assert output.label1[5] == 1.5
+    assert output.label1[7] == 2
+    assert np.all(np.isnan(output.label1[[1,2,3,4,6,8,9,10,11,12]]))

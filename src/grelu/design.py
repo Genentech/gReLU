@@ -11,7 +11,7 @@ import torch
 from torch import Tensor, nn
 
 from grelu.lightning import LightningModel
-from grelu.sequence.format import convert_input_type
+from grelu.sequence.format import convert_input_type, check_string_dna
 from grelu.utils import make_list
 
 
@@ -179,7 +179,8 @@ def evolve(
 
     # Get model predictions
     if return_preds:
-        ds = SeqDataset(outputs[outputs.seq != "nan"].seq.tolist())
+        to_predict = outputs.seq.apply(check_string_dna)
+        ds = SeqDataset(outputs[to_predict].seq.tolist())
         preds = model.predict_on_dataset(
             ds,
             devices=devices,
@@ -210,7 +211,7 @@ def evolve(
 
         # Add model predictions to output dataframe
         outputs[task_names] = np.nan
-        outputs.loc[outputs.seq != "nan", task_names] = preds
+        outputs.loc[to_predict, task_names] = preds
 
     return outputs
 
