@@ -1,16 +1,21 @@
 import os
 
 import numpy as np
+import pandas as pd
 from torch import Tensor, nn
 
 from grelu.interpret.motifs import (
-    marginalize_patterns,
     motifs_to_strings,
     run_tomtom,
     scan_sequences,
     trim_pwm,
 )
 from grelu.interpret.score import ISM_predict, get_attention_scores, get_attributions
+from grelu.interpret.simulate import (
+    marginalize_pattern_spacing,
+    marginalize_patterns,
+    shuffle_tiles,
+)
 from grelu.lightning import LightningModel
 from grelu.sequence.utils import generate_random_sequences
 
@@ -73,6 +78,24 @@ assert model.get_task_idxs("task") == 0
 
 def test_marginalize_patterns():
     seqs = ["CATACGTGAGGC", "AGGAGGCCAAAG"]
+
+    # Simple case
+    preds_before, preds_after = marginalize_patterns(
+        model,
+        patterns=["A"],
+        seqs=seqs,
+        n_shuffles=1,
+        seed=0,
+        compare_func=None,
+    )
+    assert preds_before.shape == (2, 1, 1, 1, 1)
+    assert np.allclose(preds_before.squeeze(), [0.5, 1.3333334])
+    assert preds_after.shape == (2, 1, 1, 1, 1)
+    assert np.allclose(
+        preds_after.squeeze(),
+        [0.8333333, 1.6666666],
+    )
+    # Multiple shuffles
     preds_before, preds_after = marginalize_patterns(
         model,
         patterns=["A"],
@@ -81,15 +104,42 @@ def test_marginalize_patterns():
         seed=0,
         compare_func=None,
     )
-    assert preds_before.shape == (2, 3, 1)
+    assert preds_before.shape == (2, 3, 1, 1, 1)
     assert np.allclose(
         preds_before.squeeze(), [[0.5, 0.5, 0.5], [1.3333334, 1.3333334, 1.3333334]]
     )
-    assert preds_after.shape == (2, 3, 1)
+    assert preds_after.shape == (2, 3, 1, 1, 1)
     assert np.allclose(
         preds_after.squeeze(),
         [[0.8333333, 0.5, 0.8333333], [1.6666666, 1.3333334, 1.6666666]],
     )
+    # Multiple shuffles + rc augmentation
+    preds_before, preds_after = marginalize_patterns(
+        model,
+        patterns=["A"],
+        seqs=seqs,
+        n_shuffles=3,
+        rc=True,
+        seed=0,
+        compare_func=None,
+    )
+    assert preds_before.shape == (2, 3, 1, 1, 1)
+    assert np.allclose(preds_before.squeeze(), [[0.25, 0.25, 0.25], [0.25, 0.25, 0.25]])
+    assert preds_after.shape == (2, 3, 1, 1, 1)
+    assert np.allclose(preds_after.squeeze(), [[0.25, 0.25, 0.25], [0.5, 0.25, 0.5]])
+
+    # Multiple shuffles + rc augmentation + compare_func
+    preds = marginalize_patterns(
+        model,
+        patterns=["A"],
+        seqs=seqs,
+        n_shuffles=3,
+        seed=0,
+        rc=True,
+        compare_func="subtract",
+    )
+    assert preds.shape == (2, 3, 1, 1, 1)
+    assert np.allclose(preds.squeeze(), [[0.0, 0.0, 0.0], [0.25, 0.0, 0.25]], atol=1e-5)
 
 
 def test_ISM_predict():
@@ -165,38 +215,57 @@ def test_get_attention_scores():
 
 
 def test_scan_sequences():
-    seqs = ["TCACGTGAA", "CCTGCGTGA", "CACGCAGGA"]
+    seqs = ["TCACGTGAA", "CACGCAGGA", "CCTGCGTGA"]
 
     # No reverse complement
     out = scan_sequences(seqs, motifs=meme_file, rc=False, pthresh=1e-3)
-    assert out.motif.tolist() == ["MA0004.1 Arnt", "MA0006.1 Ahr::Arnt"]
-    assert out.sequence.tolist() == ["0", "1"]
-    assert out.start.tolist() == [1, 2]
-    assert out.end.tolist() == [7, 8]
-    assert out.strand.tolist() == ["+", "+"]
-    assert out.matched_seq.tolist() == ["CACGTG", "TGCGTG"]
+    expected = pd.DataFrame({
+        'motif': ['MA0004.1 Arnt', 'MA0006.1 Ahr::Arnt'],
+     'sequence': ['0', '2'],
+     'seq_idx': [0, 2],
+     'start': [1, 2],
+     'end': [7, 8],
+     'strand': ['+', '+'],
+     'score': [11.60498046875, 10.691319823265076],
+     'p-value': [0.000244140625, 0.000244140625],
+     'matched_seq': ['CACGTG', 'TGCGTG']
+    })
+    assert out.equals(expected)
 
     # Allow reverse complement
     out = scan_sequences(seqs, motifs=meme_file, rc=True, pthresh=1e-3)
-    assert out.motif.tolist() == [
-        "MA0004.1 Arnt",
-        "MA0004.1 Arnt",
-        "MA0006.1 Ahr::Arnt",
-        "MA0006.1 Ahr::Arnt",
-    ]
-    assert out.sequence.tolist() == ["0", "0", "1", "2"]
-    assert out.start.tolist() == [1, 1, 2, 0]
-    assert out.end.tolist() == [7, 7, 8, 6]
-    assert out.strand.tolist() == ["+", "-", "+", "-"]
-    assert out.matched_seq.tolist() == ["CACGTG", "CACGTG", "TGCGTG", "CACGCA"]
+
+    expected = pd.DataFrame({
+        'motif': ['MA0004.1 Arnt', 'MA0004.1 Arnt','MA0006.1 Ahr::Arnt', 'MA0006.1 Ahr::Arnt'],
+     'sequence': ['0', '0', '1', '2'],
+     'seq_idx': [0, 0, 1, 2],
+     'start': [1, 1, 0, 2],
+     'end': [7, 7, 6, 8],
+     'strand': ['+', '-', '-', '+'],
+     'score': [11.60498046875, 11.60498046875, 10.691319823265076, 10.691319823265076],
+     'p-value': [0.000244140625, 0.000244140625, 0.000244140625, 0.000244140625],
+     'matched_seq': ['CACGTG', 'CACGTG', 'CACGCA', 'TGCGTG']
+    })
+
+    assert out.equals(expected)
 
     # Reverse complement with attributions
     attrs = get_attributions(model, seqs, method="inputxgradient")
     out = scan_sequences(seqs, motifs=meme_file, rc=True, pthresh=1e-3, attrs=attrs)
-    assert np.allclose(out.site_attr_score, [0.0, 0.0, -0.009259, 0.009259], rtol=0.001)
-    assert np.allclose(
-        out.motif_attr_score, [0.003704, 0.0, -0.035494, 0.0], rtol=0.001
-    )
+    expected = pd.DataFrame({
+    'motif': ['MA0004.1 Arnt', 'MA0004.1 Arnt', 'MA0006.1 Ahr::Arnt', 'MA0006.1 Ahr::Arnt'],
+     'sequence': ['0', '0', '1', '2'],
+     'seq_idx': [0, 0, 1, 2],
+     'start': [1, 1, 0, 2],
+     'end': [7, 7, 6, 8],
+     'strand': ['+', '-', '-', '+'],
+     'score': [11.60498046875, 11.60498046875, 10.691319823265076, 10.691319823265076],
+     'p-value': [0.000244140625, 0.000244140625, 0.000244140625, 0.000244140625],
+     'matched_seq': ['CACGTG', 'CACGTG', 'CACGCA', 'TGCGTG'],
+     'site_attr_score': np.float32([0.0, 0.0, 0.009259258396923542, -0.009259259328246117]),
+     'motif_attr_score': [0.003703703731298441, 0.0, 0.0, -0.03549381507926434]
+    })
+    assert out.equals(expected)
 
 
 def test_run_tomtom():
@@ -267,3 +336,52 @@ def test_run_tomtom():
     assert df.Query_consensus.tolist() == ["CACGTG", "CACGTG", "TGCGTG", "TGCGTG"]
     assert df.Target_consensus.tolist() == ["CACGTG", "TGCGTG", "CACGTG", "TGCGTG"]
     assert df.Orientation.tolist() == ["+", "+", "+", "+"]
+
+
+def test_marginalize_pattern_spacing():
+
+    seqs = ["CATACGTGAGGC", "AGGAGGCCAAAG"]
+
+    preds, distances = marginalize_pattern_spacing(
+        model,
+        fixed_pattern="A",
+        moving_pattern="CCC",
+        seqs=seqs,
+        n_shuffles=3,
+        seed=0,
+        stride=3,
+        compare_func="subtract",
+    )
+    assert preds.shape == (2, 3, 3, 1, 1)
+    expected_preds = np.array(
+        [
+            [[-0.5, -5 / 6, -2 / 3], [-0.5, -5 / 6, -1 / 3], [-0.5, -5 / 6, -1 / 3]],
+            [
+                [-3 / 2, -2 / 3, -2 / 3],
+                [-5 / 6, -1 / 6, -7 / 6],
+                [-7 / 6, -1 / 3, -2 / 3],
+            ],
+        ]
+    )
+    assert np.allclose(preds.squeeze(), expected_preds)
+    assert distances == [-5, 1, 4]
+
+
+def test_shuffle_tiles():
+    seqs = ["CATACGTGAGGC", "AGGAGGCCAAAG"]
+    before_preds, after_preds, positions = shuffle_tiles(
+        model=model,
+        seqs=seqs,
+        tile_len=8,
+        stride=4,
+        n_shuffles=3,
+        seed=0,
+        compare_func=None,
+    )
+    assert positions.equals(pd.DataFrame({"start": [0, 4], "end": [8, 12]}))
+    assert before_preds.shape == (2, 1, 1, 1, 1)
+    assert after_preds.shape == (2, 2, 3, 1, 1)
+    assert np.allclose(before_preds.squeeze(), np.array([0.5, 4 / 3]))
+    assert np.allclose(
+        after_preds.squeeze(), np.repeat([0.5, 4 / 3], 6).reshape(2, 2, 3)
+    )

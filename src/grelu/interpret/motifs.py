@@ -6,7 +6,7 @@ functionality necessary for interpreting sequence-to-function deep learning mode
 using these motifs.
 """
 
-from typing import Callable, Dict, Generator, List, Optional, Tuple, Union
+from typing import Dict, Generator, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -49,7 +49,6 @@ def motifs_to_strings(
 
     # Convert a single motif
     if isinstance(motifs, np.ndarray):
-
         # Extract sequence as indices
         if sample:
             indices = np.array(
@@ -151,8 +150,6 @@ def scan_sequences(
     """
     from tangermeme.tools.fimo import fimo
 
-    from grelu.sequence.format import strings_to_one_hot
-
     # Format sequences
     seqs = make_list(seqs)
     seq_ids = seq_ids or [str(i) for i in range(len(seqs))]
@@ -161,46 +158,53 @@ def scan_sequences(
     if isinstance(motifs, str):
         motifs = read_meme_file(motifs)
 
-    # Scan each sequence in seqs
-    sites = pd.DataFrame()
+    import tempfile
+
+    # write sequences to fasta file
+    tmp_seq_dir_path = tempfile.mkdtemp()
+    tmp_seq_file_path = f"{tmp_seq_dir_path}/my_seq.fasta"
+    tmpf_seq_fp = open(tmp_seq_file_path, "w")
     for i, (seq, seq_id) in enumerate(zip(seqs, seq_ids)):
-        one_hot = strings_to_one_hot(seq, add_batch_axis=True)
-        curr_sites = fimo(
-            motifs={k: Tensor(v) for k, v in motifs.items()},
-            sequences=one_hot,
-            alphabet=["A", "C", "G", "T"],
-            bin_size=bin_size,
-            eps=eps,
-            threshold=pthresh,
-            reverse_complement=rc,
-            dim=1,
+        tmpf_seq_fp.write(">" + seq_id + "\n" + seq + "\n\n")
+    tmpf_seq_fp.close()
+
+    # run fimo on all seqs
+    all_sites = fimo(
+        motifs={k: Tensor(v) for k, v in motifs.items()},
+        sequences=tmp_seq_file_path,
+        alphabet=["A", "C", "G", "T"],
+        bin_size=bin_size,
+        eps=eps,
+        threshold=pthresh,
+        reverse_complement=rc,
+        dim=1,
+    )
+
+    sites = pd.DataFrame()
+    for all_idx, curr_sites in enumerate(all_sites):
+        curr_sites["seq_idx"] = curr_sites.sequence_name.apply(seq_ids.index)
+        curr_sites["matched_seq"] = curr_sites.apply(
+            lambda row: seqs[row.seq_idx][row.start : row.end], axis=1
         )
-        if len(curr_sites) == 1:
-            curr_sites = curr_sites[0]
-            curr_sites["seq_idx"] = i
-            curr_sites["sequence"] = seq_id
-            curr_sites["matched_seq"] = curr_sites.apply(
-                lambda row: seq[row.start : row.end], axis=1
-            )
-            curr_sites = curr_sites[
-                [
-                    "motif_name",
-                    "sequence",
-                    "seq_idx",
-                    "start",
-                    "end",
-                    "strand",
-                    "score",
-                    "p-value",
-                    "matched_seq",
-                ]
+        curr_sites = curr_sites[
+            [
+                "motif_name",
+                "sequence_name",
+                "seq_idx",
+                "start",
+                "end",
+                "strand",
+                "score",
+                "p-value",
+                "matched_seq",
             ]
-            sites = pd.concat([sites, curr_sites])
+        ]
+        sites = pd.concat([sites, curr_sites])
 
     # Concatenate results from all sequences
     if len(sites) > 0:
         sites = sites.reset_index(drop=True)
-        sites = sites.rename(columns={"motif_name": "motif"})
+        sites = sites.rename(columns={"motif_name": "motif","sequence_name": "sequence"})
 
         # Add attribution scores
         if attrs is not None:
@@ -295,90 +299,6 @@ def score_motifs(
     )
 
     return df
-
-
-def marginalize_patterns(
-    model: Callable,
-    patterns: Union[str, List[str]],
-    seqs: Union[pd.DataFrame, List[str], np.ndarray],
-    genome: Optional[str] = None,
-    devices: Union[str, int, List[int]] = "cpu",
-    num_workers: int = 1,
-    batch_size: int = 64,
-    n_shuffles: int = 0,
-    seed: Optional[int] = None,
-    prediction_transform: Optional[Callable] = None,
-    rc: bool = False,
-    max_seq_shift: int = 0,
-    compare_func: Optional[Union[str, Callable]] = None,
-) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
-    """
-    Runs a marginalization experiment.
-
-        Given a model, a pattern (short sequence) to insert, and a set of background
-        sequences, get the predictions from the model before and after
-        inserting the patterns into the (optionally shuffled) background sequences.
-
-    Args:
-        model: trained model
-        patterns: a sequence or list of sequences to insert
-        seqs: background sequences
-        genome: Name of the genome to use if genomic intervals are supplied
-        device: Index of device on which to run inference
-        num_workers: Number of workers for inference
-        batch_size: Batch size for inference
-        seed: Random seed
-        prediction_transform: A module to transform the model output
-        rc: If True, augment by reverse complementation
-        max_seq_shift: Maximum number of bases to shift the sequence for augmentation.
-            This is normally a small value. If 0, sequences will not be augmented by shifting.
-        compare_func: Function to compare the predictions with and without the pattern. Options
-            are "divide" or "subtract". If not provided, the predictions for
-            the shuffled sequences and each pattern will be returned.
-
-    Returns:
-        preds_before: The predictions from the background sequences
-        preds_after: The predictions after inserting the pattern into
-            the background sequences.
-    """
-    # Create torch dataset
-    from grelu.data.dataset import PatternMarginalizeDataset
-    from grelu.utils import get_compare_func
-
-    # Set transform
-    model.add_transform(prediction_transform)
-
-    # Make marginalization dataset
-    ds = PatternMarginalizeDataset(
-        seqs=seqs,
-        patterns=patterns,
-        genome=genome,
-        rc=rc,
-        max_seq_shift=max_seq_shift,
-        n_shuffles=n_shuffles,
-        seed=seed,
-    )
-
-    # Get predictions on the sequences before motif insertion
-    preds = model.predict_on_dataset(
-        ds,
-        devices=devices,
-        num_workers=num_workers,
-        batch_size=batch_size,
-        augment_aggfunc="mean",
-    )
-    preds = preds.squeeze(axis=(-1, -2))  # B, S, motifs+1
-
-    # Drop transform
-    model.reset_transform()
-
-    # Extract the reference sequence predictions
-    before_preds, after_preds = preds[:, :, [0]], preds[:, :, 1:]
-
-    if compare_func is None:
-        return before_preds, after_preds
-    else:
-        return get_compare_func(compare_func)(after_preds, before_preds)  # B, S, motifs
 
 
 def compare_motifs(

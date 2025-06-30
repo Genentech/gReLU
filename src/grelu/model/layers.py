@@ -21,7 +21,7 @@ class Activation(nn.Module):
 
     Args:
         func: The type of activation function. Supported values are 'relu',
-            'elu', 'softplus', 'gelu', 'gelu_enformer' and 'exp'. If None, will return nn.Identity.
+            'elu', 'softplus', 'gelu', 'gelu_borzoi', 'gelu_enformer' and 'exp'. If None, will return nn.Identity.
 
     Raises:
         NotImplementedError: If 'func' is not a supported activation function.
@@ -36,6 +36,8 @@ class Activation(nn.Module):
             self.layer = nn.ELU()
         elif func == "gelu":
             self.layer = nn.GELU()
+        elif func == "gelu_borzoi":
+            self.layer = nn.GELU(approximate = 'tanh')
         elif func == "gelu_enformer":
             self.layer = GELU()
         elif func == "softplus":

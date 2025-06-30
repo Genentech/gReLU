@@ -2,8 +2,9 @@
 `grelu.data.utils` contains Dataset-related utility functions.
 """
 
-from typing import List, Union
+from typing import List, Optional, Union
 
+import numpy as np
 import pandas as pd
 from pandas.api.types import is_categorical_dtype, is_string_dtype
 
@@ -62,3 +63,32 @@ def get_chromosomes(chroms: Union[str, List[str]]) -> List[str]:
     # Return the chromosome names if they are given directly
     else:
         return chroms
+
+
+def _tile_positions(
+    seq_len: int,
+    tile_len: int,
+    stride: int,
+    protect_center: Optional[int] = None,
+    return_distances=False,
+) -> List[int]:
+    max_pos = seq_len - tile_len + 1
+
+    if protect_center is not None:
+        # Coordinates to protect
+        protect_start = int(np.floor(seq_len / 2 - protect_center / 2))
+        protect_end = protect_start + protect_center
+
+        # Positions to exclude
+        excl_start = protect_start - tile_len + 1
+        excl = range(excl_start, protect_end)
+    else:
+        excl = []
+
+    # Final tiles
+    positions = [x for x in range(0, max_pos, stride) if x not in excl]
+    if return_distances:
+        distances = [x - protect_start for x in positions]
+        return positions, distances
+    else:
+        return positions

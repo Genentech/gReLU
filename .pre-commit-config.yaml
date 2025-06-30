@@ -1,4 +1,4 @@
-exclude: '^docs/conf.py|src/grelu/resources'
+exclude: '^docs/conf.py'
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -17,35 +17,27 @@ repos:
   - id: mixed-line-ending
     args: ['--fix=auto']  # replace 'auto' with 'lf' to enforce Linux/Mac line endings or 'crlf' for Windows
 
-## If you want to automatically "modernize" your Python code:
-# - repo: https://github.com/asottile/pyupgrade
-#   rev: v3.3.1
+# - repo: https://github.com/PyCQA/docformatter
+#   rev: master
 #   hooks:
-#   - id: pyupgrade
-#     args: ['--py37-plus']
+#     - id: docformatter
+#       additional_dependencies: [tomli]
+#       args: [--in-place, --wrap-descriptions=120, --wrap-summaries=120]
+#       # --config, ./pyproject.toml
 
-## If you want to avoid flake8 errors due to unused vars or imports:
-# - repo: https://github.com/PyCQA/autoflake
-#   rev: v2.0.2
+# - repo: https://github.com/psf/black
+#   rev: 24.8.0
 #   hooks:
-#   - id: autoflake
-#     args: [
-#       --in-place,
-#       --remove-all-unused-imports,
-#       --remove-unused-variables,
-#     ]
+#   - id: black
+#     language_version: python3
 
-- repo: https://github.com/PyCQA/isort
-  rev: 6.0.1
-  hooks:
-  - id: isort
-    args: ["--profile", "black"]
-
-- repo: https://github.com/psf/black
-  rev: 25.1.0
-  hooks:
-  - id: black
-    language_version: python3
+# - repo: https://github.com/astral-sh/ruff-pre-commit
+#   # Ruff version.
+#   rev: v0.8.6
+#   hooks:
+#     - id: ruff
+#       args: [--fix, --exit-non-zero-on-fix]
+#     - id: ruff-format
 
 ## If like to embrace black styles even in the docs:
 # - repo: https://github.com/asottile/blacken-docs
@@ -54,15 +46,8 @@ repos:
 #   - id: blacken-docs
 #     additional_dependencies: [black]
 
-- repo: https://github.com/PyCQA/flake8
-  rev: 7.1.2
-  hooks:
-  - id: flake8
-  ## You can add flake8 plugins via `additional_dependencies`:
-  #  additional_dependencies: [flake8-bugbear]
-
 ## Check for misspells in documentation files:
 # - repo: https://github.com/codespell-project/codespell
-#   rev: v2.2.4
+#   rev: v2.2.5
 #   hooks:
 #   - id: codespell
