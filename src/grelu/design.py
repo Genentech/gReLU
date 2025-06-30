@@ -270,7 +270,7 @@ def ledidi(
 
     try:
         print("Running Ledidi")
-        
+
         # Initialize ledidi
         designer = Ledidi(
             model,
@@ -282,16 +282,16 @@ def ledidi(
             **kwargs,
         )
         designer = designer.to(torch.device(devices))
-    
+
         # Run ledidi
         X_hat = designer.fit_transform(X, torch.tensor(0)).cpu()
 
     finally:
         print("Cleaning up model state...")
-        
+
         # Transfer device
         model = model.to(orig_device)
-    
+
         # Remove the transform
         model.reset_transform()
 
