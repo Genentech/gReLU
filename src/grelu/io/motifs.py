@@ -48,9 +48,6 @@ def read_meme_file(
 
         motifs = motifs_subset
 
-    # Convert to numpy
-    motifs = {k: v.numpy() for k, v in motifs.items()}
-
     return motifs
 
 
