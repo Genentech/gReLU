@@ -27,7 +27,7 @@ def read_meme_file(
         values are the motif position probability matrices (PPMs)
         as numpy arrays of shape (4, L).
     """
-    from tangermeme.io import read_meme
+    from memelite.io import read_meme
 
     from grelu.resources import get_meme_file_path
 
