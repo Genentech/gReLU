@@ -129,7 +129,20 @@ def test_seq_formatting():
         convert_input_type(indices[0], "one_hot", add_batch_axis=True), batch[[0]]
     )
 
+    # Test custom genome
+    intervals = pd.DataFrame(
+        {"chrom": ["seq1", "seq2"], "start": [1, 1], "end": [3, 3]}
+    )
+    assert convert_input_type(intervals, "strings", genome="tests/files/test.fa") == ["AC", "TG"]
 
+    intervals = pd.DataFrame(
+        {"chrom": ["seq1", "seq2"], "start": [1, 1], "end": [3, 3]}
+    )
+    assert convert_input_type(intervals, "strings", genome="tests/files/test.fa.bgz") == ["AC", "TG"]
+
+    intervals = pd.DataFrame(
+        {"chrom": ["seq1", "seq2"], "start": [1, 1], "end": [3, 3]}
+    )
 # Test Metrics functions
 
 

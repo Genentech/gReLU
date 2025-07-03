@@ -18,7 +18,7 @@ def check_fasta(fasta_file: str) -> bool:
     Returns:
         True if the file path has a valid FASTA extension and exists, False otherwise.
     """
-    fasta_extensions = (".fa", ".fasta", ".fa.gz", ".fasta.gz")
+    fasta_extensions = (".fa", ".fasta", ".fa.gz", ".fasta.gz", ".fa.bgz", ".fasta.bgz")
     return (
         isinstance(fasta_file, str)
         and fasta_file.endswith(fasta_extensions)
@@ -36,13 +36,17 @@ def read_fasta(fasta_file: str) -> List[str]:
     Returns:
         A list of DNA sequences as strings.
     """
-    from Bio import SeqIO
+    from Bio import SeqIO, bgzf
 
     assert check_fasta(fasta_file), "Input is not a valid FASTA file."
 
     if fasta_file.endswith(".gz"):
         # Read sequences from a gzipped FASTA file
         with gzip.open(fasta_file, "rt") as handle:
+            return [str(record.seq) for record in SeqIO.parse(handle, "fasta")]
+    elif fasta_file.endswith(".bgz"):
+        # Read sequences from a bgzipped FASTA file
+        with bgzf.BgzfReader(fasta_file, "rt") as handle:
             return [str(record.seq) for record in SeqIO.parse(handle, "fasta")]
     else:
         # Read sequences from a FASTA file
