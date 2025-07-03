@@ -81,7 +81,10 @@ def get_genome(genome: str, **kwargs) -> Union[CustomGenome, genomepy.Genome]:
     if os.path.isfile(genome):
         return CustomGenome(genome, **kwargs)
     else:
-        return genomepy.Genome(genome, **kwargs)
+        if genome not in genomepy.list_installed_genomes():
+            return genomepy.install_genome(genome, annotation=False, **kwargs)
+        else:
+            return genomepy.Genome(genome, **kwargs)
 
 def read_gtf(
     genome: str, features: Optional[Union[str, List[str]]] = None
