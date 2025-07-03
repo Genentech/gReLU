@@ -13,7 +13,7 @@ import pyfaidx
 class CustomGenome:
     """
     A custom genome object that can be used to load a genome from a file.
-    
+
     Args:
         genome: Path to the genome file.
     """
