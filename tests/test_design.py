@@ -222,7 +222,7 @@ def test_evolve_7():
     assert np.all(output.seq == ['AT', 'AC', 'CC'])
     assert np.all(output.label1 == [0.5, 1.5, 2.])
 
-    
+
 def test_ledidi():
     output = ledidi(
         seq='GGTATTCATT',
