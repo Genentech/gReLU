@@ -28,7 +28,14 @@ def get_meme_file_path(meme_motif_db: str) -> str:
     Returns:
         Path to the specified MEME file.
     """
-    if meme_motif_db == "hocomoco_v12":
+    if meme_motif_db == "hocomoco_v13":
+        meme_motif_db = (
+            importlib_resources.files("grelu")
+            / "resources"
+            / "meme"
+            / "H13CORE_meme_format.meme"
+        )
+    elif meme_motif_db == "hocomoco_v12":
         meme_motif_db = (
             importlib_resources.files("grelu")
             / "resources"

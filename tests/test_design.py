@@ -202,6 +202,27 @@ def test_evolve_6():
     assert output.seq.tolist() == ["GCCT", "AACT", "GAAT", "GCAA"]
 
 
+def test_evolve_7():
+    # Single starting sequence, one task
+
+    output = evolve(
+        [seqs[0]],
+        model,
+        max_iter=2,
+        prediction_transform=Aggregate(tasks=["label1"], model=model),
+        devices="cpu",
+        num_workers=1,
+        return_seqs='best'
+    )
+
+    # Check output format
+    assert isinstance(output, pd.DataFrame)
+    assert len(output) == 3
+    assert np.all(output["iter"] == [0, 1, 2])
+    assert np.all(output.seq == ['AT', 'AC', 'CC'])
+    assert np.all(output.label1 == [0.5, 1.5, 2.])
+
+    
 def test_ledidi():
     output = ledidi(
         seq='GGTATTCATT',
