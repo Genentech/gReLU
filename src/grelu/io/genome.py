@@ -10,26 +10,24 @@ import pandas as pd
 import pyfaidx
 
 
-class Genome:
-    def __init__(self, genome: str, **kwargs):
+class CustomGenome:
+    """
+    A custom genome object that can be used to load a genome from a file.
+    
+    Args:
+        genome: Path to the genome file.
+    """
+    def __init__(self, genome: str):
         self.genome = genome
-        self.custom_genome = os.path.isfile(genome)
-        if not self.custom_genome:
-            import genomepy
-            if genome not in genomepy.list_installed_genomes():
-                self._genome = genomepy.install_genome(genome, annotation=False, **kwargs)
-            else:
-                self._genome = genomepy.Genome(genome)
-        else:
-            self._genome = pyfaidx.Fasta(genome, rebuild=False)
-            fai_file = genome + ".fai"
-            if not os.path.isfile(fai_file):
-                raise FileNotFoundError(
-                    f"Genome file {fai_file} not found. "
-                    "Please provide a genome name or a path to a chromosome sizes file. "
-                    f"Or generate one with: `samtools faidx {genome}`."
-                )
-            self._sizes_file = genome + ".sizes"
+        self._genome = pyfaidx.Fasta(genome, rebuild=False)
+        fai_file = genome + ".fai"
+        if not os.path.isfile(fai_file):
+            raise FileNotFoundError(
+                f"Genome file {fai_file} not found. "
+                "Please provide a genome name or a path to a chromosome sizes file. "
+                f"Or generate one with: `samtools faidx {genome}`."
+            )
+        self._sizes_file = genome + ".sizes"
 
     def get_seq(self, chrom: str, start: int, end: int, rc: bool = False) -> str:
         """
@@ -39,16 +37,13 @@ class Genome:
 
     @property
     def sizes_file(self) -> str:
-        if self.custom_genome:
-            if not os.path.isfile(self._sizes_file):
-                raise FileNotFoundError(
-                    f"Genome file {self._sizes_file} not found. "
-                    "Please provide a genome name or a path to a chromosome sizes file. "
-                    f"Or generate one with: `faidx -i chromsizes {self.genome} > {self._sizes_file}`."
-                )
-            return self._sizes_file
-        else:
-            return self._genome.sizes_file
+        if not os.path.isfile(self._sizes_file):
+            raise FileNotFoundError(
+                f"Genome file {self._sizes_file} not found. "
+                "Please provide a genome name or a path to a chromosome sizes file. "
+                f"Or generate one with: `faidx -i chromsizes {self.genome} > {self._sizes_file}`."
+            )
+        return self._sizes_file
 
 
 def read_sizes(genome: str = "hg38") -> pd.DataFrame:
@@ -82,7 +77,11 @@ def get_genome(genome: str, **kwargs):
     Returns:
         Genome object
     """
-    return Genome(genome, **kwargs)
+    if os.path.isfile(genome):
+        return CustomGenome(genome, **kwargs)
+    else:
+        import genomepy
+        return genomepy.Genome(genome, **kwargs)
 
 def read_gtf(
     genome: str, features: Optional[Union[str, List[str]]] = None

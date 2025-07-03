@@ -10,7 +10,7 @@ from grelu.io import read_tomtom
 from grelu.io.bed import read_bed
 from grelu.io.bigwig import read_bigwig
 from grelu.io.fasta import read_fasta
-from grelu.io.genome import read_sizes, Genome
+from grelu.io.genome import read_sizes, CustomGenome
 from grelu.io.motifs import read_meme_file, read_modisco_report
 from grelu.sequence.utils import resize
 
@@ -23,11 +23,11 @@ def test_read_sizes():
     assert df.iloc[0].to_dict() == {"chrom": "chr1", "size": 248956422}
 
     with pytest.raises(FileNotFoundError):
-        Genome('tests/files/test.fa.bgz').sizes_file
+        CustomGenome("tests/files/test.fa.bgz").sizes_file
 
-    chrom_sizes = Genome('tests/files/test.fa').sizes_file
-    assert chrom_sizes == 'tests/files/test.fa.sizes'
-    df = read_sizes('tests/files/test.fa')
+    chrom_sizes = CustomGenome("tests/files/test.fa").sizes_file
+    assert chrom_sizes == "tests/files/test.fa.sizes"
+    df = read_sizes("tests/files/test.fa")
     assert df.shape == (2, 2)
     assert df.iloc[0].to_dict() == {'chrom': 'seq1', 'size': 3}
     assert df.iloc[1].to_dict() == {'chrom': 'seq2', 'size': 3}
