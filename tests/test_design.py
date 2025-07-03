@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 from torch import Tensor, nn
 
-from grelu.design import evolve
+from grelu.design import evolve, ledidi
 from grelu.lightning import LightningModel
 from grelu.transforms.prediction_transforms import Aggregate, Specificity
 from grelu.transforms.seq_transforms import PatternScore
+from grelu.sequence.format import check_string_dna
 
 model = LightningModel(
     model_params={
@@ -220,3 +221,19 @@ def test_evolve_7():
     assert np.all(output["iter"] == [0, 1, 2])
     assert np.all(output.seq == ['AT', 'AC', 'CC'])
     assert np.all(output.label1 == [0.5, 1.5, 2.])
+
+
+def test_ledidi():
+    output = ledidi(
+        seq='GGTATTCATT',
+        model= model,
+        prediction_transform = None,
+        max_iter = 20000,
+        positions = None,
+        devices = "cpu",
+        num_workers = 1,
+        lr=0.01,
+        early_stopping_iter=1000
+    )
+    assert isinstance(output, list)
+    assert check_string_dna(output)
