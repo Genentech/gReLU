@@ -122,8 +122,7 @@ def scan_sequences(
     attrs: Optional[np.ndarray] = None,
 ):
     """
-    Scan a DNA sequence using motifs. Based on
-    https://github.com/jmschrei/tangermeme/blob/main/tangermeme/tools/fimo.py.
+    Scan a DNA sequence using motifs. Based on https://github.com/jmschrei/memesuite-lite.
 
     Args:
         seqs: A string or a list of DNA sequences as strings
@@ -148,7 +147,7 @@ def scan_sequences(
         pd.DataFrame containing columns 'motif', 'sequence', 'start', 'end',
         'strand', 'score', 'pval', and 'matched_seq'.
     """
-    from tangermeme.tools.fimo import fimo
+    from memelite import fimo
 
     # Format sequences
     seqs = make_list(seqs)
@@ -369,7 +368,7 @@ def compare_motifs(
 def run_tomtom(motifs: Dict[str, np.ndarray], meme_file: str) -> pd.DataFrame:
     """
     Function to compare given motifs to reference motifs using the
-    tomtom algorithm, as implemented in tangermeme.
+    tomtom algorithm, as implemented in memelite (https://github.com/jmschrei/memesuite-lite).
 
     Args:
         motifs: A dictionary whose values are Position Probability Matrices
@@ -380,7 +379,7 @@ def run_tomtom(motifs: Dict[str, np.ndarray], meme_file: str) -> pd.DataFrame:
         df: Pandas dataframe containing all tomtom results.
     """
     from statsmodels.stats.multitest import fdrcorrection
-    from tangermeme.tools.tomtom import tomtom
+    from memelite import tomtom
 
     from grelu.interpret.motifs import motifs_to_strings
     from grelu.resources import get_meme_file_path
