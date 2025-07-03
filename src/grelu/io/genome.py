@@ -8,6 +8,7 @@ from typing import List, Optional, Union
 
 import pandas as pd
 import pyfaidx
+import genomepy
 
 
 class CustomGenome:
@@ -66,7 +67,7 @@ def read_sizes(genome: str = "hg38") -> pd.DataFrame:
     )
 
 
-def get_genome(genome: str, **kwargs):
+def get_genome(genome: str, **kwargs) -> Union[CustomGenome, genomepy.Genome]:
     """
     Install a genome from genomepy and load it as a Genome object
 
@@ -80,7 +81,6 @@ def get_genome(genome: str, **kwargs):
     if os.path.isfile(genome):
         return CustomGenome(genome, **kwargs)
     else:
-        import genomepy
         return genomepy.Genome(genome, **kwargs)
 
 def read_gtf(
@@ -101,7 +101,6 @@ def read_gtf(
         GTF annotations
     """
     from grelu.utils import make_list
-    import genomepy
 
     # Read GTF annotations
     try:
