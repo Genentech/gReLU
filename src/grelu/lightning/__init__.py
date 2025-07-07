@@ -1202,7 +1202,7 @@ class LightningModelEnsemble(pl.LightningModule):
         **kwargs,
     ):
         """
-        Predict for a dataset of sequences or variants. This will return 
+        Predict for a dataset of sequences or variants. This will return
         the concatenated predictions from all the constituent models, in the
         order in which they were supplied to __.init__. Predictions will be
         concatenated along the task axis.
