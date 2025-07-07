@@ -20,8 +20,15 @@ class Activation(nn.Module):
     A nonlinear activation layer.
 
     Args:
-        func: The type of activation function. Supported values are 'relu',
-            'elu', 'softplus', 'gelu', 'gelu_borzoi', 'gelu_enformer' and 'exp'. If None, will return nn.Identity.
+        func: The type of activation function. Supported values are:
+            - 'relu': Standard ReLU activation
+            - 'elu': Exponential Linear Unit
+            - 'softplus': Softplus activation
+            - 'gelu': Standard GELU activation using PyTorch's default approximation
+            - 'gelu_borzoi': GELU activation using tanh approximation (different from PyTorch's default)
+            - 'gelu_enformer': Custom GELU implementation from Enformer
+            - 'exp': Exponential activation
+            - None: Returns identity function (no activation)
 
     Raises:
         NotImplementedError: If 'func' is not a supported activation function.
@@ -159,6 +166,14 @@ class Norm(nn.Module):
             'syncbatch', 'instance',  or 'layer'. If None, will return nn.Identity.
         in_dim: Number of features in the input tensor.
         **kwargs: Additional arguments to pass to the normalization function.
+            Common arguments include:
+            - eps: Small constant added to denominator for numerical stability.
+                Defaults to 1e-5 for all normalization types unless overridden.
+            - momentum: Value used for the running_mean and running_var computation.
+                Defaults to 0.1 for batch and sync batch norm.
+            - affine: If True, adds learnable affine parameters. Defaults to True.
+            - track_running_stats: If True, tracks running mean and variance.
+                Defaults to True for batch and sync batch norm.
     """
 
     def __init__(

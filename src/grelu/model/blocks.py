@@ -34,6 +34,7 @@ class LinearBlock(nn.Module):
         act_func: Name of activation function
         dropout: Dropout probability
         norm: If True, apply layer normalization
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layer
         bias: If True, include bias term.
         dtype: Data type of the weights
         device: Device on which to store the weights
@@ -46,7 +47,7 @@ class LinearBlock(nn.Module):
         act_func: str = "relu",
         dropout: float = 0.0,
         norm: bool = False,
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
         bias: bool = True,
         dtype=None,
         device=None,
@@ -54,7 +55,7 @@ class LinearBlock(nn.Module):
         super().__init__()
 
         self.norm = Norm(
-            func="layer" if norm else None, in_dim=in_len, **norm_kwargs, dtype=dtype, device=device
+            func="layer" if norm else None, in_dim=in_len, **(norm_kwargs or dict()), dtype=dtype, device=device
         )
         self.linear = nn.Linear(in_len, out_len, bias=bias, dtype=dtype, device=device)
         self.dropout = Dropout(dropout)
@@ -123,7 +124,7 @@ class ConvBlock(nn.Module):
         dropout: float = 0.0,
         norm: bool = True,
         norm_type="batch",
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
         residual: bool = False,
         order: str = "CDNRA",
         bias: bool = True,
@@ -152,7 +153,7 @@ class ConvBlock(nn.Module):
                     in_dim=out_channels,
                     dtype=dtype,
                     device=device,
-                    **norm_kwargs,
+                    **(norm_kwargs or dict()),
                 )
             else:
                 self.norm = Norm(
@@ -160,7 +161,7 @@ class ConvBlock(nn.Module):
                     in_dim=in_channels,
                     dtype=dtype,
                     device=device,
-                    **norm_kwargs,
+                    **(norm_kwargs or dict()),
                 )
         else:
             self.norm = Norm(None)
@@ -231,7 +232,7 @@ class ChannelTransformBlock(nn.Module):
         act_func: Name of the activation function
         dropout: Dropout probability
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
-        norm_kwargs: Additional arguments to be passed to the normalization layer
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers
         order: A string representing the order in which operations are
             to be performed on the input. For example, "CDNA" means that the
             operations will be performed in the order: convolution, dropout,
@@ -250,7 +251,7 @@ class ChannelTransformBlock(nn.Module):
         dropout: float = 0.0,
         order: str = "CDNA",
         norm_type="batch",
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
         if_equal: bool = False,
         dtype=None,
         device=None,
@@ -274,7 +275,7 @@ class ChannelTransformBlock(nn.Module):
                     in_dim=out_channels,
                     dtype=dtype,
                     device=device,
-                    **norm_kwargs,
+                    **(norm_kwargs or dict()),
                 )
             else:
                 self.norm = Norm(
@@ -282,7 +283,7 @@ class ChannelTransformBlock(nn.Module):
                     in_dim=in_channels,
                     dtype=dtype,
                     device=device,
-                    **norm_kwargs,
+                    **(norm_kwargs or dict()),
                 )
         else:
             self.norm = Norm(None)
@@ -441,6 +442,7 @@ class ConvTower(nn.Module):
         pool_size: Width of the pooling layers
         dropout: Dropout probability
         norm: If True, apply batch norm
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers
         residual: If True, apply residual connection
         order: A string representing the order in which operations are
             to be performed on the input. For example, "CDNRA" means that the
@@ -464,7 +466,7 @@ class ConvTower(nn.Module):
         dilation_mult: float = 1,
         act_func: str = "relu",
         norm: bool = False,
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
         pool_func: Optional[str] = None,
         pool_size: Optional[int] = None,
         residual: bool = False,
@@ -565,7 +567,8 @@ class FeedForwardBlock(nn.Module):
         in_len: Length of the input tensor
         dropout: Dropout probability
         act_func: Name of the activation function
-        kwargs: Additional arguments to be passed to the linear layers
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers
+        **kwargs: Additional arguments to be passed to the linear layers
     """
 
     def __init__(
@@ -573,7 +576,7 @@ class FeedForwardBlock(nn.Module):
         in_len: int,
         dropout: float = 0.0,
         act_func: str = "relu",
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
         **kwargs,
     ) -> None:
         super().__init__()
@@ -693,6 +696,7 @@ class TransformerBlock(nn.Module):
         key_len: Length of the key vectors
         value_len: Length of the value vectors.
         pos_dropout: Dropout probability in the positional embeddings
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers
         dtype: Data type of the weights
         device: Device on which to store the weights
     """
@@ -710,12 +714,12 @@ class TransformerBlock(nn.Module):
         key_len: Optional[int] = None,
         value_len: Optional[int] = None,
         pos_dropout: Optional[float] = None,
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
         dtype=None,
         device=None,
     ) -> None:
         super().__init__()
-        self.norm = Norm("layer", in_len, **norm_kwargs)
+        self.norm = Norm("layer", in_len, **(norm_kwargs or dict()))
 
         if flash_attn:
             if (
@@ -795,10 +799,10 @@ class TransformerTower(nn.Module):
         key_len: Length of the key vectors
         value_len: Length of the value vectors.
         pos_dropout: Dropout probability in the positional embeddings
-        attn_dropout: Dropout probability in the output layer
-        ff_droppout: Dropout probability in the linear feed-forward layers
-        flash_attn: If True, uses Flash Attention with Rotational Position Embeddings. key_len, value_len,
-            pos_dropout and n_pos_features are ignored.
+        attn_dropout: Dropout probability in the attention layer
+        ff_dropout: Dropout probability in the feed-forward layers
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers
+        flash_attn: If True, uses Flash Attention with Rotational Position Embeddings
         dtype: Data type of the weights
         device: Device on which to store the weights
     """
@@ -814,7 +818,7 @@ class TransformerTower(nn.Module):
         pos_dropout: float = 0.0,
         attn_dropout: float = 0.0,
         ff_dropout: float = 0.0,
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
         flash_attn: bool = False,
         dtype=None,
         device=None,
@@ -865,9 +869,11 @@ class UnetBlock(nn.Module):
         in_channels: Number of channels in the input
         y_in_channels: Number of channels in the higher-resolution representation.
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
-        norm_kwargs: Additional arguments to be passed to the normalization layer
-        device: Device on which to store the weights
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers
+        act_func: Name of the activation function. Defaults to 'gelu_borzoi' which uses
+            tanh approximation (different from PyTorch's default GELU implementation).
         dtype: Data type of the weights
+        device: Device on which to store the weights
     """
 
     def __init__(
@@ -875,7 +881,8 @@ class UnetBlock(nn.Module):
         in_channels: int,
         y_in_channels: int,
         norm_type="batch",
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
+        act_func="gelu_borzoi",
         dtype=None,
         device=None,
     ) -> None:
@@ -887,7 +894,7 @@ class UnetBlock(nn.Module):
             norm=True,
             norm_type=norm_type,
             norm_kwargs=norm_kwargs,
-            act_func="gelu_borzoi",
+            act_func=act_func,
             order="NACDR",
             dtype=dtype,
             device=device,
@@ -899,7 +906,7 @@ class UnetBlock(nn.Module):
             norm=True,
             norm_type=norm_type,
             norm_kwargs=norm_kwargs,
-            act_func="gelu_borzoi",
+            act_func=act_func,
             order="NACD",
             if_equal=True,
             dtype=dtype,
@@ -932,16 +939,18 @@ class UnetTower(nn.Module):
         in_channels: Number of channels in the input
         y_in_channels: Number of channels in the higher-resolution representations.
         n_blocks: Number of U-net blocks
+        act_func: Name of the activation function. Defaults to 'gelu_borzoi' which uses
+            tanh approximation (different from PyTorch's default GELU implementation).
         kwargs: Additional arguments to be passed to the U-net blocks
     """
 
     def __init__(
-        self, in_channels: int, y_in_channels: List[int], n_blocks: int, **kwargs
+        self, in_channels: int, y_in_channels: List[int], n_blocks: int, act_func: str = "gelu_borzoi", **kwargs
     ) -> None:
         super().__init__()
         self.blocks = nn.ModuleList()
         for y_c in y_in_channels:
-            self.blocks.append(UnetBlock(in_channels, y_c, **kwargs))
+            self.blocks.append(UnetBlock(in_channels, y_c, act_func=act_func, **kwargs))
 
     def forward(self, x: Tensor, ys: List[Tensor]) -> Tensor:
         """
