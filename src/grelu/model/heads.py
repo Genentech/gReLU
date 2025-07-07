@@ -27,6 +27,8 @@ class ConvHead(nn.Module):
         norm: If True, batch normalization will be included.
         act_func: Activation function for the convolutional layer
         pool_func: Pooling function.
+        norm: If True, batch normalization will be included.
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layer
         dtype: Data type for the layers.
         device: Device for the layers.
     """
@@ -38,7 +40,7 @@ class ConvHead(nn.Module):
         act_func: Optional[str] = None,
         pool_func: Optional[str] = None,
         norm: bool = False,
-        norm_kwargs: Optional[dict] = dict(),
+        norm_kwargs: Optional[dict] = None,
         dtype=None,
         device=None,
     ) -> None:
@@ -56,7 +58,7 @@ class ConvHead(nn.Module):
             self.n_tasks,
             act_func=self.act_func,
             norm=self.norm,
-            norm_kwargs=norm_kwargs,
+            norm_kwargs=(norm_kwargs or dict()),
             dtype=dtype,
             device=device,
         )

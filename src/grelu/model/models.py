@@ -518,17 +518,19 @@ class BorzoiModel(BaseModel):
         pos_dropout: float = 0.01,
         attn_dropout: float = 0.05,
         ff_dropout: float = 0.2,
-        norm_kwargs: Optional[dict] = {"eps" : 0.001},
+        norm_kwargs: Optional[dict] = None,
         n_heads: int = 8,
         n_pos_features: int = 32,
         # Head
         crop_len: int = 16,
+        act_func: str = "gelu_borzoi",
         final_act_func: Optional[str] = None,
         final_pool_func: Optional[str] = "avg",
         flash_attn=False,
         dtype=None,
         device=None,
     ) -> None:
+        norm_kwargs = norm_kwargs or {"eps": 0.001}
         super().__init__(
             embedding=BorzoiTrunk(
                 stem_channels=stem_channels,
@@ -548,6 +550,7 @@ class BorzoiModel(BaseModel):
                 n_pos_features=n_pos_features,
                 crop_len=crop_len,
                 flash_attn=flash_attn,
+                act_func=act_func,
                 dtype=dtype,
                 device=device,
             ),
@@ -577,10 +580,13 @@ class BorzoiPretrainedModel(BaseModel):
         n_transformers: int = 8,
         # head
         crop_len=0,
+        act_func="gelu_borzoi",
+        norm_kwargs: Optional[dict] = None,
         final_pool_func="avg",
         dtype=None,
         device=None,
     ):
+        norm_kwargs = norm_kwargs or {"eps": 0.001}
         model = BorzoiModel(
             crop_len=crop_len,
             n_tasks=7611,
@@ -595,9 +601,10 @@ class BorzoiPretrainedModel(BaseModel):
             pos_dropout=0.01,
             attn_dropout=0.05,
             ff_dropout=0.2,
-            norm_kwargs={"eps": 0.001},
+            norm_kwargs=norm_kwargs,
             n_heads=8,
             n_pos_features=32,
+            act_func=act_func,
             final_act_func=None,
             final_pool_func=None,
             dtype=dtype,
