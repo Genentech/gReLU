@@ -719,7 +719,7 @@ class TransformerBlock(nn.Module):
         device=None,
     ) -> None:
         super().__init__()
-        self.norm = Norm("layer", in_len, **norm_kwargs)
+        self.norm = Norm("layer", in_len, **(norm_kwargs or dict()))
 
         if flash_attn:
             if (
