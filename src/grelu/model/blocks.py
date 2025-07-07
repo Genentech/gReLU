@@ -870,7 +870,8 @@ class UnetBlock(nn.Module):
         y_in_channels: Number of channels in the higher-resolution representation.
         norm_type: Type of normalization to apply: 'batch', 'syncbatch', 'layer', 'instance' or None
         norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers
-        act_func: Name of the activation function
+        act_func: Name of the activation function. Defaults to 'gelu_borzoi' which uses
+            tanh approximation (different from PyTorch's default GELU implementation).
         dtype: Data type of the weights
         device: Device on which to store the weights
     """
@@ -938,7 +939,8 @@ class UnetTower(nn.Module):
         in_channels: Number of channels in the input
         y_in_channels: Number of channels in the higher-resolution representations.
         n_blocks: Number of U-net blocks
-        act_func: Name of the activation function
+        act_func: Name of the activation function. Defaults to 'gelu_borzoi' which uses
+            tanh approximation (different from PyTorch's default GELU implementation).
         kwargs: Additional arguments to be passed to the U-net blocks
     """
 

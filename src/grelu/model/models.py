@@ -496,6 +496,10 @@ class BorzoiModel(BaseModel):
             If None, no pooling will be applied at the end.
         flash_attn: If True, uses Flash Attention with Rotational Position Embeddings. key_len, value_len,
             pos_dropout and n_pos_features are ignored.
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers.
+            Defaults to {"eps": 0.001}.
+        act_func: Name of the activation function. Defaults to 'gelu_borzoi' which uses
+            tanh approximation (different from PyTorch's default GELU implementation).
         dtype: Data type for the layers.
         device: Device for the layers.
     """
@@ -570,6 +574,19 @@ class BorzoiModel(BaseModel):
 class BorzoiPretrainedModel(BaseModel):
     """
     Borzoi model with published weights (ported from Keras).
+
+    Args:
+        n_tasks: Number of tasks for the model to predict
+        fold: Which fold of the model to load (default=0)
+        n_transformers: Number of transformer blocks to use (default=8)
+        crop_len: Number of positions to crop at either end of the output (default=0)
+        act_func: Name of the activation function. Defaults to 'gelu_borzoi' which uses
+            tanh approximation (different from PyTorch's default GELU implementation).
+        norm_kwargs: Optional dictionary of keyword arguments to pass to the normalization layers.
+            Defaults to {"eps": 0.001}.
+        final_pool_func: Name of the pooling function to apply to the final output (default="avg")
+        dtype: Data type for the layers
+        device: Device for the layers
     """
 
     def __init__(
