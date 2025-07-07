@@ -46,6 +46,7 @@ class LinearBlock(nn.Module):
         act_func: str = "relu",
         dropout: float = 0.0,
         norm: bool = False,
+        norm_kwargs: Optional[dict] = dict(),
         bias: bool = True,
         dtype=None,
         device=None,
@@ -53,7 +54,7 @@ class LinearBlock(nn.Module):
         super().__init__()
 
         self.norm = Norm(
-            func="layer" if norm else None, in_dim=in_len, dtype=dtype, device=device
+            func="layer" if norm else None, in_dim=in_len, **norm_kwargs, dtype=dtype, device=device
         )
         self.linear = nn.Linear(in_len, out_len, bias=bias, dtype=dtype, device=device)
         self.dropout = Dropout(dropout)
@@ -122,7 +123,7 @@ class ConvBlock(nn.Module):
         dropout: float = 0.0,
         norm: bool = True,
         norm_type="batch",
-        norm_kwargs=None,
+        norm_kwargs: Optional[dict] = dict(),
         residual: bool = False,
         order: str = "CDNRA",
         bias: bool = True,
@@ -142,7 +143,6 @@ class ConvBlock(nn.Module):
             "R",
         ], "The string supplied in order must contain one occurrence each of A, C, D, N and R."
         self.order = order
-        norm_kwargs = norm_kwargs or dict()
 
         # Create norm
         if norm:
@@ -250,7 +250,7 @@ class ChannelTransformBlock(nn.Module):
         dropout: float = 0.0,
         order: str = "CDNA",
         norm_type="batch",
-        norm_kwargs=None,
+        norm_kwargs: Optional[dict] = dict(),
         if_equal: bool = False,
         dtype=None,
         device=None,
@@ -265,7 +265,6 @@ class ChannelTransformBlock(nn.Module):
             "N",
         ], "The string supplied in order must contain one occurrence each of A, C, D and N."
         self.order = order
-        norm_kwargs = norm_kwargs or dict()
 
         # Create batch norm
         if norm:
@@ -465,6 +464,7 @@ class ConvTower(nn.Module):
         dilation_mult: float = 1,
         act_func: str = "relu",
         norm: bool = False,
+        norm_kwargs: Optional[dict] = dict(),
         pool_func: Optional[str] = None,
         pool_size: Optional[int] = None,
         residual: bool = False,
@@ -507,6 +507,7 @@ class ConvTower(nn.Module):
                     dilation=dilation,
                     act_func=act_func,
                     norm=norm,
+                    norm_kwargs=norm_kwargs,
                     residual=residual,
                     pool_func=pool_func,
                     pool_size=pool_size,
@@ -572,6 +573,7 @@ class FeedForwardBlock(nn.Module):
         in_len: int,
         dropout: float = 0.0,
         act_func: str = "relu",
+        norm_kwargs: Optional[dict] = dict(),
         **kwargs,
     ) -> None:
         super().__init__()
@@ -579,6 +581,7 @@ class FeedForwardBlock(nn.Module):
             in_len,
             in_len * 2,
             norm=True,
+            norm_kwargs=norm_kwargs,
             dropout=dropout,
             act_func=act_func,
             bias=True,
@@ -588,6 +591,7 @@ class FeedForwardBlock(nn.Module):
             in_len * 2,
             in_len,
             norm=False,
+            norm_kwargs=norm_kwargs,
             dropout=dropout,
             act_func=None,
             bias=True,
@@ -706,11 +710,12 @@ class TransformerBlock(nn.Module):
         key_len: Optional[int] = None,
         value_len: Optional[int] = None,
         pos_dropout: Optional[float] = None,
+        norm_kwargs: Optional[dict] = dict(),
         dtype=None,
         device=None,
     ) -> None:
         super().__init__()
-        self.norm = Norm("layer", in_len)
+        self.norm = Norm("layer", in_len, **norm_kwargs)
 
         if flash_attn:
             if (
@@ -752,6 +757,7 @@ class TransformerBlock(nn.Module):
             in_len=in_len,
             dropout=ff_dropout,
             act_func="relu",
+            norm_kwargs=norm_kwargs,
             dtype=dtype,
             device=device,
         )
@@ -808,6 +814,7 @@ class TransformerTower(nn.Module):
         pos_dropout: float = 0.0,
         attn_dropout: float = 0.0,
         ff_dropout: float = 0.0,
+        norm_kwargs: Optional[dict] = dict(),
         flash_attn: bool = False,
         dtype=None,
         device=None,
@@ -825,6 +832,7 @@ class TransformerTower(nn.Module):
                     key_len=key_len,
                     value_len=value_len,
                     pos_dropout=pos_dropout,
+                    norm_kwargs=norm_kwargs,
                     dtype=dtype,
                     device=device,
                 )
@@ -867,7 +875,7 @@ class UnetBlock(nn.Module):
         in_channels: int,
         y_in_channels: int,
         norm_type="batch",
-        norm_kwargs=None,
+        norm_kwargs: Optional[dict] = dict(),
         dtype=None,
         device=None,
     ) -> None:
@@ -877,10 +885,10 @@ class UnetBlock(nn.Module):
             in_channels,
             1,
             norm=True,
-            act_func="gelu",
-            order="NACDR",
             norm_type=norm_type,
             norm_kwargs=norm_kwargs,
+            act_func="gelu_borzoi",
+            order="NACDR",
             dtype=dtype,
             device=device,
         )
@@ -891,7 +899,7 @@ class UnetBlock(nn.Module):
             norm=True,
             norm_type=norm_type,
             norm_kwargs=norm_kwargs,
-            act_func="gelu",
+            act_func="gelu_borzoi",
             order="NACD",
             if_equal=True,
             dtype=dtype,

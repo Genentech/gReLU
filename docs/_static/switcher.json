@@ -1,10 +1,6 @@
 [
-        {
-          "version": "latest",
-          "url": "https://braid-relu.pages.roche.com/grelu/latest/"
-        },
-        {
-          "version": "main",
-          "url": "https://braid-relu.pages.roche.com/grelu/main/"
-        }
-      ]
+  {
+    "version": "latest",
+    "url": "https://genentech.github.io/gReLU/"
+  }
+]

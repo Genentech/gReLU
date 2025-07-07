@@ -136,6 +136,7 @@ def evolve(
             curr_output.loc[curr_best_idxs, "seq"] = convert_input_type(
                 torch.stack([ds[j] for j in curr_best_idxs]), "strings"
             )
+            curr_output = curr_output.loc[curr_best_idxs]
 
         # Concatenate outputs
         outputs = pd.concat([outputs, curr_output])
@@ -246,9 +247,6 @@ def ledidi(
     """
     from ledidi import Ledidi
 
-    # Add the prediction transform
-    model.add_transform(prediction_transform)
-
     def loss_func(x, target):
         return -Tensor(x).mean()
 
@@ -263,30 +261,40 @@ def ledidi(
     else:
         input_mask = None
 
+    # Add the prediction transform
+    model.add_transform(prediction_transform)
+
     # Move model to device
     orig_device = model.device
     model = model.to(torch.device(devices))
+    model.eval()
 
-    # Initialize ledidi
-    designer = Ledidi(
-        model,
-        X[0].shape,
-        output_loss=loss_func,
-        max_iter=max_iter,
-        input_mask=input_mask,
-        target=None,
-        **kwargs,
-    )
-    designer = designer.to(torch.device(devices))
+    try:
+        print("Running Ledidi")
 
-    # Run ledidi
-    X_hat = designer.fit_transform(X, None).cpu()
+        # Initialize ledidi
+        designer = Ledidi(
+            model,
+            X[0].shape,
+            output_loss=loss_func,
+            max_iter=max_iter,
+            input_mask=input_mask,
+            target=None,
+            **kwargs,
+        )
+        designer = designer.to(torch.device(devices))
 
-    # Transfer device
-    model = model.to(orig_device)
+        # Run ledidi
+        X_hat = designer.fit_transform(X, torch.tensor(0)).cpu()
 
-    # Remove the transform
-    model.reset_transform()
+    finally:
+        print("Cleaning up model state...")
+
+        # Transfer device
+        model = model.to(orig_device)
+
+        # Remove the transform
+        model.reset_transform()
 
     # Return sequences as strings
     return convert_input_type(X_hat, "strings")

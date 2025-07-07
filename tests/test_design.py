@@ -2,10 +2,11 @@ import numpy as np
 import pandas as pd
 from torch import Tensor, nn
 
-from grelu.design import evolve
+from grelu.design import evolve, ledidi
 from grelu.lightning import LightningModel
 from grelu.transforms.prediction_transforms import Aggregate, Specificity
 from grelu.transforms.seq_transforms import PatternScore
+from grelu.sequence.format import check_string_dna
 
 model = LightningModel(
     model_params={
@@ -199,3 +200,40 @@ def test_evolve_6():
     assert np.all(output["iter"] == [0] + [1] * 3)
     assert len(output[output.best_in_iter]) == 2
     assert output.seq.tolist() == ["GCCT", "AACT", "GAAT", "GCAA"]
+
+
+def test_evolve_7():
+    # Single starting sequence, one task
+
+    output = evolve(
+        [seqs[0]],
+        model,
+        max_iter=2,
+        prediction_transform=Aggregate(tasks=["label1"], model=model),
+        devices="cpu",
+        num_workers=1,
+        return_seqs='best'
+    )
+
+    # Check output format
+    assert isinstance(output, pd.DataFrame)
+    assert len(output) == 3
+    assert np.all(output["iter"] == [0, 1, 2])
+    assert np.all(output.seq == ['AT', 'AC', 'CC'])
+    assert np.all(output.label1 == [0.5, 1.5, 2.])
+
+
+def test_ledidi():
+    output = ledidi(
+        seq='GGTATTCATT',
+        model= model,
+        prediction_transform = None,
+        max_iter = 20000,
+        positions = None,
+        devices = "cpu",
+        num_workers = 1,
+        lr=0.01,
+        early_stopping_iter=1000
+    )
+    assert isinstance(output, list)
+    assert check_string_dna(output)

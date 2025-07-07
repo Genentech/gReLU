@@ -38,6 +38,7 @@ class ConvHead(nn.Module):
         act_func: Optional[str] = None,
         pool_func: Optional[str] = None,
         norm: bool = False,
+        norm_kwargs: Optional[dict] = dict(),
         dtype=None,
         device=None,
     ) -> None:
@@ -55,6 +56,7 @@ class ConvHead(nn.Module):
             self.n_tasks,
             act_func=self.act_func,
             norm=self.norm,
+            norm_kwargs=norm_kwargs,
             dtype=dtype,
             device=device,
         )
