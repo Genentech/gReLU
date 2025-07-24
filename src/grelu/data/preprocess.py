@@ -326,7 +326,7 @@ def filter_overlapping(
         ]
 
     # list intervals to keep
-    keep = intervals.index.isin(overlap["index"])
+    keep = intervals.index.astype(overlap["index"].dtype).isin(overlap["index"]).to_numpy()
     if invert:
         keep = ~keep
 
