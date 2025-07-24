@@ -14,6 +14,7 @@ import bioframe as bf
 import numpy as np
 import pandas as pd
 from anndata import AnnData
+from pybedtools import BedTool
 
 from grelu.data.utils import get_chromosomes
 from grelu.utils import get_aggfunc
@@ -304,31 +305,32 @@ def filter_overlapping(
         elif "pos" in data.columns:
             intervals = variants_to_intervals(data, seq_len=1)
 
+    intervals_bed = BedTool.from_dataframe(intervals)
+    ref_intervals_bed = BedTool.from_dataframe(
+        bf.expand(ref_intervals, pad=window)
+    )
+
     # Overlap
     if method == "any":
-        overlap = bf.overlap(
-            intervals,
-            bf.expand(ref_intervals, pad=window),
-            how="inner",
-            return_index=True,
-            return_input=False,
-        )
+        non_overlap = intervals_bed.intersect(
+            ref_intervals_bed,
+            v=True,
+        ).to_dataframe(names=intervals.columns)
     elif method == "all":
-        overlap = bf.overlap(
-            intervals,
-            bf.expand(ref_intervals, pad=window),
-            how="inner",
-            return_index=True,
-            return_input=True,
-        )
-        overlap = overlap[
-            (overlap.start >= overlap.start_) & ((overlap.end <= overlap.end_))
-        ]
+        non_overlap = intervals_bed.intersect(
+            ref_intervals_bed,
+            v=True,
+            f=1.0
+        ).to_dataframe(intervals.columns)
 
     # list intervals to keep
-    keep = intervals.index.isin(overlap["index"])
-    if invert:
-        keep = ~keep
+    keep = pd.merge(
+        intervals.reset_index(),
+        non_overlap,
+        on=non_overlap.columns.tolist(),
+        how="inner"
+    )["index"].to_list()
+    keep = intervals.index.isin(keep)
 
     # Filter
     return filter_intervals(data, keep, inplace=inplace)
