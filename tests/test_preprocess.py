@@ -98,7 +98,7 @@ def test_filter_overlapping():
             "end": [200, 970],
         }
     )
-    
+
     # Test with DataFrame input
 
     # method='any'
@@ -108,7 +108,7 @@ def test_filter_overlapping():
 
     # method='any'
     # Window, non-overlapping
-    assert filter_overlapping(intervals, ref_intervals, window=50, invert=True, 
+    assert filter_overlapping(intervals, ref_intervals, window=50, invert=True,
                               method="any").equals(intervals.iloc[[3], :])
 
     # method='all'
