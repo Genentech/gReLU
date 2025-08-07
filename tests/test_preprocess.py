@@ -83,11 +83,12 @@ def test_filter_cells():
 
 
 def test_filter_overlapping():
+    # Test data for 'any' overlap method
     intervals = pd.DataFrame(
         {
-            "chrom": ["chr10", "chr10", "chr10"],
-            "start": [10, 1000, 45000],
-            "end": [1010, 2000, 46000],
+            "chrom": ["chr10", "chr10", "chr10", "chr10"],
+            "start": [10, 150, 1000, 45000],
+            "end": [1010, 180, 2000, 46000],
         }
     )
     ref_intervals = pd.DataFrame(
@@ -97,14 +98,41 @@ def test_filter_overlapping():
             "end": [200, 970],
         }
     )
+    
+    # Test with DataFrame input
 
+    # method='any'
     # No window, overlapping
-    assert filter_overlapping(intervals, ref_intervals).equals(intervals.iloc[[0], :])
+    assert filter_overlapping(intervals, ref_intervals, method="any"
+                             ).equals(intervals.iloc[[0, 1], :])
 
+    # method='any'
     # Window, non-overlapping
-    assert filter_overlapping(intervals, ref_intervals, window=50, invert=True).equals(
-        intervals.iloc[[2], :]
+    assert filter_overlapping(intervals, ref_intervals, window=50, invert=True, 
+                              method="any").equals(intervals.iloc[[3], :])
+
+    # method='all'
+    assert filter_overlapping(intervals, ref_intervals, method="all").equals(
+        intervals.iloc[[1], :]
     )
+
+    # Test with anndata input
+    ad = anndata.AnnData(np.random.rand(2, 4), dtype=np.float32)
+    ad.var = intervals.copy()
+    ad.var.index = ad.var.index.astype(str)
+
+    # method='any'
+    # AnnData, No window, overlapping
+    ad_filtered = filter_overlapping(ad, ref_intervals, method="any")
+    assert ad_filtered.var.equals(ad.var.iloc[[0, 1], :])
+
+    # AnnData, Window, non-overlapping
+    ad_filtered = filter_overlapping(ad, ref_intervals, window=50, invert=True, method="any")
+    assert ad_filtered.var.equals(ad.var.iloc[[3], :])
+
+    # method='all'
+    ad_filtered = filter_overlapping(ad, ref_intervals, method="all")
+    assert ad_filtered.var.equals(ad.var.iloc[[1], :])
 
 
 def test_filter_blacklist():
@@ -115,7 +143,16 @@ def test_filter_blacklist():
             "end": [1010, 2000, 46000, 47000, 49000],
         }
     )
+
+    # DataFrame input
     assert filter_blacklist(intervals, genome="hg38").equals(intervals.iloc[-2:, :])
+
+    # AnnData input
+    ad = anndata.AnnData(np.random.rand(2, 5), dtype=np.float32)
+    ad.var = intervals.copy()
+    ad.var.index = ad.var.index.astype(str)
+    ad_filtered = filter_blacklist(ad, genome="hg38")
+    assert ad_filtered.var.equals(ad.var.iloc[-2:, :])
 
 
 chrom_end_intervals = pd.DataFrame(
@@ -129,6 +166,7 @@ chrom_end_intervals = pd.DataFrame(
 
 def test_filter_chrom_ends():
 
+    # DataFrame input
     assert filter_chrom_ends(chrom_end_intervals, genome="hg38").equals(
         chrom_end_intervals.iloc[[1, 2, 3], :]
     )
@@ -136,8 +174,21 @@ def test_filter_chrom_ends():
         chrom_end_intervals.iloc[[2], :]
     )
 
+    # AnnData input
+    ad = anndata.AnnData(np.random.rand(2, 5), dtype=np.float32)
+    ad.var = chrom_end_intervals.copy()
+    ad.var.index = ad.var.index.astype(str)
+
+    ad_filtered = filter_chrom_ends(ad, genome="hg38")
+    assert ad_filtered.var.equals(ad.var.iloc[[1, 2, 3], :])
+
+    ad_filtered = filter_chrom_ends(ad, genome="hg38", pad=100)
+    assert ad_filtered.var.equals(ad.var.iloc[[2], :])
+
 
 def test_check_chrom_ends():
+
+    # DataFrame input
     with pytest.raises(Exception) as e_info:
         check_chrom_ends(chrom_end_intervals, genome="hg38")
         assert (
@@ -146,6 +197,19 @@ def test_check_chrom_ends():
         )
 
     check_chrom_ends(chrom_end_intervals.iloc[1:2], genome="hg38")
+
+    # AnnData input
+    ad = anndata.AnnData(np.random.rand(2, 5), dtype=np.float32)
+    ad.var = chrom_end_intervals.copy()
+    ad.var.index = ad.var.index.astype(str)
+
+    with pytest.raises(Exception) as e_info:
+        check_chrom_ends(ad, genome="hg38")
+    assert (
+        str(e_info.value)
+        == "Indices of intervals that extend beyond the chromosome ends: 0,4."
+    )
+    check_chrom_ends(ad[:, 1:2], genome="hg38")
 
 
 def test_merge_intervals_by_column():
