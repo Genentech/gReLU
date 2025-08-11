@@ -75,7 +75,8 @@ def _add_tomtom_to_modisco_report(
     """
     Modified from https://github.com/jmschrei/tfmodisco-lite/blob/3c6e38f/modiscolite/report.py#L245
     """
-    from modiscolite.report import make_logo, path_to_image_html, read_meme
+    from modiscolite.report import make_logo, path_to_image_html
+    from memelite.io import read_meme
 
     from grelu.resources import get_meme_file_path
 
@@ -123,6 +124,7 @@ def _add_tomtom_to_modisco_report(
     # Reading reference motifs from the meme file
     meme_file = get_meme_file_path(meme_file)
     motifs = read_meme(meme_file)
+    motifs = {name: pwm.T for name, pwm in motifs.items()}
 
     # Generating logos for the reference motifs
     for i in range(top_n_matches):
