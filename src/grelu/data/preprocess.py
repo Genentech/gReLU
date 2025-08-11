@@ -296,8 +296,10 @@ def filter_overlapping(
     from grelu.sequence.format import check_intervals
     from grelu.variant import variants_to_intervals
 
+    # Get genomic intervals
     if isinstance(data, AnnData):
-        intervals = data.var
+        intervals = data.var.reset_index(drop=True)
+
     elif isinstance(data, pd.DataFrame):
         if check_intervals(data):
             intervals = data
@@ -319,14 +321,16 @@ def filter_overlapping(
             bf.expand(ref_intervals, pad=window),
             how="inner",
             return_index=True,
-            return_input=True,
         )
         overlap = overlap[
             (overlap.start >= overlap.start_) & ((overlap.end <= overlap.end_))
         ]
 
     # list intervals to keep
-    keep = intervals.index.isin(overlap["index"])
+    if isinstance(data, AnnData):
+        keep = data.var.index.isin(data.var.index[overlap["index"].values])
+    else:
+        keep = intervals.index.isin(overlap["index"])
     if invert:
         keep = ~keep
 
