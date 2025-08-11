@@ -319,8 +319,6 @@ def compare_motifs(
         motifs: A dictionary whose values are Position Probability Matrices
             (PPMs) of shape (4, L), or the path to a MEME file.
         alt_seq: The alternate sequence as a string
-        ref_allele: The alternate allele as a string. Only used if
-            alt_seq is not supplied.
         alt_allele: The alternate allele as a string. Only needed if
             alt_seq is not supplied.
         pos: The position at which to substitute the alternate allele.
