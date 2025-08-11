@@ -345,7 +345,7 @@ def compare_motifs(
         names=names,
         seq_ids=["ref", "alt"],
         pthresh=pthresh,
-        rc=True,  # Scan both strands
+        rc=rc,  # Scan both strands
     )
 
     # Compare the results for alt and ref sequences
