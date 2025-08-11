@@ -12,6 +12,7 @@ from grelu.data.preprocess import (
     filter_overlapping,
     merge_intervals_by_column,
     split,
+    get_gc_matched_intervals
 )
 
 
@@ -277,3 +278,17 @@ def test_merge_intervals_by_column():
             }
         )
         merge_intervals_by_column(intervals, group_col="gene")
+
+
+def test_get_gc_matched_intervals():
+    intervals = pd.DataFrame(
+        {
+            "chrom": ["chr10"],
+            "start": [int(1e7)],
+            "end": [int(1e7+10)],
+        }
+    )
+
+    res = get_gc_matched_intervals(
+        intervals=intervals, genome='hg38', chroms=['chr21'])
+    assert len(res) == 1

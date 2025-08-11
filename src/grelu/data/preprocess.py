@@ -547,7 +547,8 @@ def get_gc_matched_intervals(
         genome: Name of the genome corresponding to intervals
         binwidth: Resolution of GC content
         chroms: Chromosomes to search for matched intervals
-        blacklist: Blacklist file of regions to exclude
+        blacklist: Blacklist file of regions to exclude. If None, the
+            genome name will be used to find the appropriate blacklist file.
         seed: Random seed
 
     Returns:
@@ -558,7 +559,7 @@ def get_gc_matched_intervals(
     from grelu.io.genome import get_genome
     from grelu.sequence.utils import get_unique_length
 
-    genome = get_genome(genome)
+    genome_obj = get_genome(genome)
     chroms = get_chromosomes(chroms)
 
     # Get seq_len
@@ -567,7 +568,7 @@ def get_gc_matched_intervals(
     print("Extracting matching intervals")
     matched_loci = extract_matching_loci(
         intervals,
-        fasta=genome.genome_file,
+        fasta=genome_obj.genome_file,
         in_window=seq_len,
         gc_bin_width=binwidth,
         chroms=chroms,
@@ -576,9 +577,17 @@ def get_gc_matched_intervals(
     )
 
     print("Filtering blacklist")
-    if blacklist is not None:
+    if blacklist is None:
+        try:
+            matched_loci = filter_blacklist(
+            data=matched_loci, genome=genome
+        )
+        except:
+            print(f"Failed to load a blacklist file for genome {genome}.")
+            print("Skipping blacklist filtering.")
+    else:
         matched_loci = filter_blacklist(
-            data=matched_loci, genome=genome, blacklist=blacklist
+            data=matched_loci, blacklist=blacklist
         )
     return matched_loci
 
