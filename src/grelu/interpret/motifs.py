@@ -155,7 +155,7 @@ def scan_sequences(
 
     # Format motifs
     if isinstance(motifs, str):
-        motifs = read_meme_file(motifs)
+        motifs = read_meme_file(motifs, names=names)
 
     import tempfile
 
