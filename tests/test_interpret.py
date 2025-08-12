@@ -9,6 +9,7 @@ from grelu.interpret.motifs import (
     run_tomtom,
     scan_sequences,
     trim_pwm,
+    compare_motifs
 )
 from grelu.interpret.score import ISM_predict, get_attention_scores, get_attributions
 from grelu.interpret.simulate import (
@@ -264,6 +265,28 @@ def test_scan_sequences():
      'matched_seq': ['CACGTG', 'CACGTG', 'CACGCA', 'TGCGTG'],
      'site_attr_score': np.float32([0.0, 0.0, 0.009259258396923542, -0.009259259328246117]),
      'motif_attr_score': [0.003703703731298441, 0.0, 0.0, -0.03549381507926434]
+    })
+    assert out.equals(expected)
+
+
+def test_compare_motifs():
+    out = compare_motifs(
+        ref_seq="CACGTGACGCATGA",
+        motifs=meme_file,
+        alt_seq="TAAGTGACGCGTGA",
+        pthresh = 5e-4,
+        rc=False
+    )
+    expected = pd.DataFrame({
+        'motif': ['MA0004.1 Arnt', 'MA0006.1 Ahr::Arnt'],
+        'start': [0, 7],
+        'end': [6, 13],
+        'strand': ['+', '+'],
+        'p-value_alt': [0.015625, 0.000244140625],
+        'p-value_ref': [0.000244140625, 0.010009765624999995],
+        'score_alt': [-14.648840188980103, 10.232005834579468],
+        'score_ref': [11.60498046875, -2.9944558143615723],
+        'score_diff': [-26.253820657730103, 13.22646164894104]
     })
     assert out.equals(expected)
 
