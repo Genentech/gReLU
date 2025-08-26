@@ -290,5 +290,5 @@ def test_get_gc_matched_intervals():
     )
 
     res = get_gc_matched_intervals(
-        intervals=intervals, genome='hg38', chroms=['chr21'])
+        intervals=intervals, genome='hg38', chroms=['chr21'], seed=0)
     assert len(res) == 1
