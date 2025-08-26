@@ -1,0 +1,944 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contributing &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=4e48d009"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://genentech.github.io/gReLU/contributing.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="License" href="license.html" />
+    <link rel="prev" title="Querying the public gReLU model zoo on Weights and Biases (wandb)" href="tutorials/6_model_zoo.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="unknown" />
+    <meta name="docbuild:last-update" content="Aug 26, 2025"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="tutorials/5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="tutorials/6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Contributing</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
+<p>Welcome to the <code class="docutils literal notranslate"><span class="pre">gReLU</span></code> contributor’s guide.</p>
+<p>This document focuses on getting any potential contributor familiarized with the development processes, but <a class="reference external" href="https://opensource.guide/how-to-contribute">other kinds of contributions</a> are also appreciated.</p>
+<p>If you are new to using git or have never collaborated in a project previously, please have a look at
+<a class="reference external" href="https://www.contribution-guide.org/">contribution-guide.org</a>. Other resources are also listed in the
+excellent <a class="reference external" href="https://github.com/FreeCodeCamp/how-to-contribute">guide created by FreeCodeCamp</a>.</p>
+<p>Please notice, all users and contributors are expected to be <strong>open, considerate, reasonable, and
+respectful</strong>. When in doubt, <a class="reference external" href="https://www.python.org/psf/conduct/">Python Software Foundation’s Code of Conduct</a> is a good reference in terms of behavior guidelines.</p>
+<section id="issue-reports">
+<h2>Issue Reports<a class="headerlink" href="#issue-reports" title="Link to this heading">#</a></h2>
+<p>If you experience bugs or general issues with <code class="docutils literal notranslate"><span class="pre">gReLU</span></code>, please have a look at the
+<a class="reference external" href="https://github.com/Genentech/gReLU/issues">issue tracker</a>. If you don’t see anything useful there, please file a new issue report.</p>
+<p>(Don’t forget to include the closed issues in your search. Sometimes a solution was already reported, and the problem is considered solved.)</p>
+<p>You can file a new issue by clicking the “New issue” button at the top right of the issue tracker.
+<img alt="New Issue" src="media/new_issue.jpg" /></p>
+<p>Your new issue report should include the following information:</p>
+<ol class="arabic simple">
+<li><p>Information about your programming environment (e.g., operating system, Python version)</p></li>
+<li><p>Steps to reproduce the problem. Please try to simplify the reproduction steps to a very minimal example that still illustrates the problem you are facing. By removing other factors, you help us to identify the root cause of the issue.</p></li>
+<li><p>The full error message that you encountered, if any.</p></li>
+<li><p>Any steps that you took to diagnose or fix the issue, and their outcomes.</p></li>
+<li><p>Any suggestions for resolving the issue.</p></li>
+</ol>
+</section>
+<section id="making-code-contributions">
+<h2>Making code contributions<a class="headerlink" href="#making-code-contributions" title="Link to this heading">#</a></h2>
+<section id="coding-resources">
+<h3>Coding resources<a class="headerlink" href="#coding-resources" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">gReLU</span></code> uses pytorch and pytorch-lightning. The below tutorials are good starting points to become familiar with these frameworks:</p>
+<p><a class="reference external" href="https://pytorch.org/tutorials/beginner/basics/intro.html">PyTorch tutorials</a></p>
+<p><a class="reference external" href="https://lightning.ai/docs/pytorch/stable/levels/core_skills.html">Lightning tutorials</a></p>
+</section>
+<section id="understanding-project-structure">
+<h3>Understanding project structure<a class="headerlink" href="#understanding-project-structure" title="Link to this heading">#</a></h3>
+<p>We welcome external contributions to <code class="docutils literal notranslate"><span class="pre">gReLU</span></code>. Before planning changes to the code, we suggest carefully examining the current structure and organization of the package.</p>
+<p>The <a class="reference external" href="https://genentech.github.io/gReLU/autoapi/index.html">API reference</a> lists all the modules and submodules available in gReLU. Clicking on individual modules on this list will reveal a description of the module and what kinds of functions it is meant to contain. The descriptions also contain more detailed explanations of the expected structure of each module. This will help you find the appropriate location to make changes.</p>
+<p>For instance, the table below lists some different types of functionality that contributors may want to add or change, and the corresponding module / submodule of <code class="docutils literal notranslate"><span class="pre">gReLU</span></code>. Click on the name of a module for more details on its structure.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Functionality</p></th>
+<th class="head"><p>Module</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Functions to read / write genomic data</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/io/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.io</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Functions to preprocess genomic data after it is loaded</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/data/preprocess/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.data.preprocess</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>New data augmentation methods</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/data/augment/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.data.augment</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Functions to introduce various types of in silico mutations into DNA sequences</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/sequence/mutate/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.sequence.mutate</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Other functions to manipulate DNA sequences</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/sequence/utils/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.sequence.utils</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>Functions to score DNA sequences based on their content</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/transforms/seq_transforms/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.transforms.seq_transforms</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Functions to transform model predictions</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/transforms/prediction_transforms/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.transforms.prediction_transforms</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>New types of model layers</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/model/layers/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.model.layers</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>New model architectures</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/model/models/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.model.models</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>New loss functions</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/lightning/losses/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.lightning.losses</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>New metrics to calculate model performance</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/lightning/metrics/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.lightning.metrics</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p>New plots and visualizations</p></td>
+<td><p><a class="reference external" href="https://genentech.github.io/gReLU/autoapi/grelu/visualize/index.html"><code class="docutils literal notranslate"><span class="pre">grelu.visualize</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p>Unit tests for new functions</p></td>
+<td><p><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/tests"><code class="docutils literal notranslate"><span class="pre">tests</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Two ex</p>
+<p>For complex changes that may not fit clearly within the established package structure, it is important to first raise an issue (see instructions below).</p>
+</section>
+</section>
+<section id="step-by-step-instructions-to-contribute-new-code">
+<h2>Step-by-step instructions to contribute new code<a class="headerlink" href="#step-by-step-instructions-to-contribute-new-code" title="Link to this heading">#</a></h2>
+<section id="submit-an-issue">
+<h3>Submit an issue<a class="headerlink" href="#submit-an-issue" title="Link to this heading">#</a></h3>
+<p>Before you work on any non-trivial code contribution it’s best to first create an issue in the
+<a class="reference external" href="https://github.com/Genentech/gReLU/issues">issue tracker</a> to start a discussion on the subject.
+This often provides additional considerations and avoids unnecessary work.</p>
+</section>
+<section id="create-an-environment">
+<h3>Create an environment<a class="headerlink" href="#create-an-environment" title="Link to this heading">#</a></h3>
+<p>Before you start coding, we recommend creating an isolated <a class="reference external" href="https://realpython.com/python-virtual-environments-a-primer/">virtual
+environment</a> to avoid any problems with your installed Python packages. This can easily be done via either <a class="reference external" href="https://virtualenv.pypa.io/en/stable/">virtualenv</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">virtualenv</span> <span class="o">&lt;</span><span class="n">PATH</span> <span class="n">TO</span> <span class="n">VENV</span><span class="o">&gt;</span>
+    <span class="n">source</span> <span class="o">&lt;</span><span class="n">PATH</span> <span class="n">TO</span> <span class="n">VENV</span><span class="o">&gt;/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>or <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">Miniconda</a>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">grelu</span> <span class="n">python</span><span class="o">=</span><span class="mi">3</span> <span class="n">six</span> <span class="n">virtualenv</span> <span class="n">pytest</span> <span class="n">pytest</span><span class="o">-</span><span class="n">cov</span>
+    <span class="n">conda</span> <span class="n">activate</span> <span class="n">grelu</span>
+</pre></div>
+</div>
+</section>
+<section id="clone-the-repository">
+<h3>Clone the repository<a class="headerlink" href="#clone-the-repository" title="Link to this heading">#</a></h3>
+<ol class="arabic">
+<li><p>Create an user account on <a class="reference external" href="https://github.com">GitHub</a>, if you do not already have one.</p></li>
+<li><p>Fork the <a class="reference external" href="https://github.com/Genentech/gReLU/">project repository</a>: click on the <em>Fork</em> button near the top of
+the page. This creates a copy of the code under your account on <a class="reference external" href="https://github.com/">GitHub</a>.</p>
+<p><img alt="Fork" src="media/fork.jpg" /></p>
+</li>
+<li><p>Clone this copy to your local disk::</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">YourLogin</span><span class="o">/</span><span class="n">grelu</span><span class="o">.</span><span class="n">git</span>
+    <span class="n">cd</span> <span class="n">grelu</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p>You should run::</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">U</span> <span class="n">pip</span> <span class="n">setuptools</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>to be able to import the package under development in the Python REPL.</p>
+<ol class="arabic simple" start="5">
+<li><p>Install <a class="reference external" href="https://pre-commit.com/">pre-commit</a>:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">pip</span> <span class="n">install</span> <span class="n">pre</span><span class="o">-</span><span class="n">commit</span>
+    <span class="n">pre</span><span class="o">-</span><span class="n">commit</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">grelu</span></code> comes with a lot of hooks configured to automatically help the
+developer to check the code being written.</p>
+</section>
+<section id="implement-your-changes">
+<h3>Implement your changes<a class="headerlink" href="#implement-your-changes" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Create a branch to hold your changes::</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">b</span> <span class="n">my</span><span class="o">-</span><span class="n">feature</span>
+</pre></div>
+</div>
+<p>and start making changes. Never work on the main branch!</p>
+<ol class="arabic simple" start="2">
+<li><p>Implement your code changes on this branch.</p></li>
+<li><p>If you change or add any functions, modules and classes, don’t forget to update or add docstrings to describe these changes.</p></li>
+<li><p>If your contribution adds an additional feature and is not just a bugfix, we suggest also adding unit tests in <a class="github reference external" href="https://github.com/Genentech/gReLU/tree/main/tests">Genentech/gReLU</a>.</p></li>
+<li><p>Add yourself to the list of contributors in <code class="docutils literal notranslate"><span class="pre">AUTHORS.rst</span></code>.</p></li>
+<li><p>When you’re done editing, do::</p></li>
+</ol>
+<div class="highlight-p notranslate"><div class="highlight"><pre><span></span>    git add &lt;MODIFIED FILES&gt;
+    git commit
+</pre></div>
+</div>
+<p>to record your changes in git. Moreover, writing a <a class="reference external" href="https://chris.beams.io/posts/git-commit">descriptive commit message</a>
+is highly recommended.</p>
+<p>Please make sure to see the validation messages from <a class="reference external" href="https://pre-commit.com/">pre-commit</a> and fix any issues.
+This should automatically use <a class="reference external" href="https://flake8.pycqa.org/en/stable/">flake8</a>/<a class="reference external" href="https://pypi.org/project/black/">black</a>
+to check/fix the code style in a way that is compatible with the project.</p>
+</section>
+<section id="test-your-changes">
+<h3>Test your changes<a class="headerlink" href="#test-your-changes" title="Link to this heading">#</a></h3>
+<p>Please check that your changes don’t break any unit tests with::</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">tox</span>
+</pre></div>
+</div>
+<p>(after having installed <a class="reference external" href="https://tox.wiki/en/stable/">tox</a> with <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">tox</span></code> or <code class="docutils literal notranslate"><span class="pre">pipx</span></code>).
+You can also use <a class="reference external" href="https://tox.wiki/en/stable/">tox</a> to run several other pre-configured tasks in the
+repository. Try <code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">-av</span></code> to see a list of the available checks.</p>
+</section>
+<section id="submit-your-contribution">
+<h3>Submit your contribution<a class="headerlink" href="#submit-your-contribution" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>If everything works fine, push your local branch to <a class="reference external" href="https://github.com/">GitHub</a> with:</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="n">git</span> <span class="n">push</span> <span class="o">-</span><span class="n">u</span> <span class="n">origin</span> <span class="n">my</span><span class="o">-</span><span class="n">feature</span>
+</pre></div>
+</div>
+<ol class="arabic" start="2">
+<li><p>Go to the web page of your fork and click “Create pull request”
+to send your changes for review.</p>
+<p>Find more detailed information in <a class="reference external" href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request">creating a PR</a>. You might also want to open the PR as a draft first and mark it as ready for review
+after the feedback from the continuous integration (CI) system or any required fixes.</p>
+</li>
+</ol>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">#</a></h2>
+<p>The following tips can be used when facing problems to build or test the
+package:</p>
+<ol class="arabic simple">
+<li><p>Make sure to fetch all the tags from the upstream repository_.
+The command <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span> <span class="pre">--abbrev=0</span> <span class="pre">--tags</span></code> should return the version you
+are expecting. If you are trying to run CI scripts in a fork repository,
+make sure to push all the tags.
+You can also try to remove all the egg files or the complete egg folder, i.e.,
+<code class="docutils literal notranslate"><span class="pre">.eggs</span></code>, as well as the <code class="docutils literal notranslate"><span class="pre">*.egg-info</span></code> folders in the <code class="docutils literal notranslate"><span class="pre">src</span></code> folder or
+potentially in the root of your project.</p></li>
+<li><p>Sometimes <a class="reference external" href="https://tox.wiki/en/stable/">tox</a> misses out when new dependencies are added, especially to
+<code class="docutils literal notranslate"><span class="pre">setup.cfg</span></code> and <code class="docutils literal notranslate"><span class="pre">docs/requirements.txt</span></code>. If you find any problems with
+missing dependencies when running a command with <a class="reference external" href="https://tox.wiki/en/stable/">tox</a>, try to recreate the
+<code class="docutils literal notranslate"><span class="pre">tox</span></code> environment using the <code class="docutils literal notranslate"><span class="pre">-r</span></code> flag. For example, instead of::</p></li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>tox<span class="w"> </span>-e<span class="w"> </span>docs
+</pre></div>
+</div>
+<p>Try running::</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>tox<span class="w"> </span>-r<span class="w"> </span>-e<span class="w"> </span>docs
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Make sure to have a reliable <a class="reference external" href="https://tox.wiki/en/stable/">tox</a> installation that uses the correct
+Python version (e.g., 3.7+). When in doubt you can run::</p></li>
+</ol>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="w">    </span>tox<span class="w"> </span>--version
+<span class="w">    </span><span class="c1"># OR</span>
+<span class="w">    </span>which<span class="w"> </span>tox
+</pre></div>
+</div>
+<p>If you have trouble and are seeing weird errors upon running <a class="reference external" href="https://tox.wiki/en/stable/">tox</a>, you can
+also try to create a dedicated <a class="reference external" href="https://realpython.com/python-virtual-environments-a-primer/">virtual environment</a>
+with a <a class="reference external" href="https://tox.wiki/en/stable/">tox</a> binary freshly installed. For example::</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>virtualenv .venv
+source .venv/bin/activate
+.venv/bin/pip install tox
+.venv/bin/tox -e all
+</pre></div>
+</div>
+<ol class="arabic simple" start="4">
+<li><p><a class="reference external" href="https://docs.pytest.org/en/stable/how-to/failures.html#using-python-library-pdb-with-pytest">Pytest can drop you</a> in an
+interactive session in the case an error occurs. In order to do that you need to pass a <code class="docutils literal notranslate"><span class="pre">--pdb</span></code> option (for example by
+running <code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">--</span> <span class="pre">-k</span> <span class="pre">&lt;NAME</span> <span class="pre">OF</span> <span class="pre">THE</span> <span class="pre">FALLING</span> <span class="pre">TEST&gt;</span> <span class="pre">--pdb</span></code>).
+You can also setup breakpoints manually instead of using the <code class="docutils literal notranslate"><span class="pre">--pdb</span></code> option.</p></li>
+</ol>
+</section>
+<section id="maintainer-tasks">
+<h2>Maintainer tasks<a class="headerlink" href="#maintainer-tasks" title="Link to this heading">#</a></h2>
+<section id="releases">
+<h3>Releases<a class="headerlink" href="#releases" title="Link to this heading">#</a></h3>
+<p>If you are part of the group of maintainers and have correct user permissions on <a class="reference external" href="https://pypi.org/">PyPI</a>,
+the following steps can be used to release a new version for <code class="docutils literal notranslate"><span class="pre">grelu</span></code>:</p>
+<ol class="arabic simple">
+<li><p>Make sure all unit tests are successful.</p></li>
+<li><p>Tag the current commit on the main branch with a release tag, e.g., <code class="docutils literal notranslate"><span class="pre">v1.2.3</span></code>.</p></li>
+<li><p>Push the new tag to the upstream repository_, e.g., <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">upstream</span> <span class="pre">v1.2.3</span></code></p></li>
+<li><p>Clean up the <code class="docutils literal notranslate"><span class="pre">dist</span></code> and <code class="docutils literal notranslate"><span class="pre">build</span></code> folders with <code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">clean</span></code>
+(or <code class="docutils literal notranslate"><span class="pre">rm</span> <span class="pre">-rf</span> <span class="pre">dist</span> <span class="pre">build</span></code>)
+to avoid confusion with old builds and Sphinx docs.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">build</span></code> and check that the files in <code class="docutils literal notranslate"><span class="pre">dist</span></code> have
+the correct version (no <code class="docutils literal notranslate"><span class="pre">.dirty</span></code> or git hash) according to the git tag.
+Also check the sizes of the distributions, if they are too big (e.g., &gt;
+500KB), unwanted clutter may have been accidentally included.</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">tox</span> <span class="pre">-e</span> <span class="pre">publish</span> <span class="pre">--</span> <span class="pre">--repository</span> <span class="pre">pypi</span></code> and check that everything was
+uploaded to PyPI_ correctly.</p></li>
+</ol>
+</section>
+</section>
+<section id="contributing-to-the-model-zoo">
+<h2>Contributing to the model zoo<a class="headerlink" href="#contributing-to-the-model-zoo" title="Link to this heading">#</a></h2>
+<p>gReLU’s <a class="reference external" href="https://wandb.ai/grelu">model zoo</a> is intended to host a curated set of models which are likely to be broadly useful to many users of the package. If you would like to contribute such a model, please let us know via a GitHub issue (see instructions above). Note that it is not necessary to contribute a model to the zoo in order to share it with the community, as gReLU saves checkpoint files that contain exhaustive metadata and can be easily shared and reused.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorials/6_model_zoo.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Querying the public gReLU model zoo on Weights and Biases (wandb)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="license.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">License</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#issue-reports">Issue Reports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#making-code-contributions">Making code contributions</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#coding-resources">Coding resources</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#understanding-project-structure">Understanding project structure</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-by-step-instructions-to-contribute-new-code">Step-by-step instructions to contribute new code</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#submit-an-issue">Submit an issue</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#create-an-environment">Create an environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#clone-the-repository">Clone the repository</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implement-your-changes">Implement your changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#test-your-changes">Test your changes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#submit-your-contribution">Submit your contribution</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#troubleshooting">Troubleshooting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#maintainer-tasks">Maintainer tasks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#releases">Releases</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contributing-to-the-model-zoo">Contributing to the model zoo</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/contributing.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/contributing.rst"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

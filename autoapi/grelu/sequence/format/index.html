@@ -1,0 +1,1073 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>grelu.sequence.format &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=4e48d009"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://genentech.github.io/gReLU/autoapi/grelu/sequence/format/index.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="grelu.sequence.metrics" href="../metrics/index.html" />
+    <link rel="prev" title="grelu.sequence" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="unknown" />
+    <meta name="docbuild:last-update" content="Aug 26, 2025"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../tutorials/5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../tutorials/6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../../../index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">grelu</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../data/index.html">grelu.data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../data/augment/index.html">grelu.data.augment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../data/dataset/index.html">grelu.data.dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../data/preprocess/index.html">grelu.data.preprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../data/utils/index.html">grelu.data.utils</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../design/index.html">grelu.design</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../interpret/index.html">grelu.interpret</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../interpret/modisco/index.html">grelu.interpret.modisco</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../interpret/motifs/index.html">grelu.interpret.motifs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../interpret/score/index.html">grelu.interpret.score</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../interpret/simulate/index.html">grelu.interpret.simulate</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../io/index.html">grelu.io</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../io/bed/index.html">grelu.io.bed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/bigwig/index.html">grelu.io.bigwig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/fasta/index.html">grelu.io.fasta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/genome/index.html">grelu.io.genome</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/motifs/index.html">grelu.io.motifs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../lightning/index.html">grelu.lightning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../lightning/losses/index.html">grelu.lightning.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lightning/metrics/index.html">grelu.lightning.metrics</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../model/index.html">grelu.model</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../model/blocks/index.html">grelu.model.blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../model/heads/index.html">grelu.model.heads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../model/layers/index.html">grelu.model.layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../model/models/index.html">grelu.model.models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../model/position/index.html">grelu.model.position</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../model/trunks/index.html">grelu.model.trunks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../model/trunks/borzoi/index.html">grelu.model.trunks.borzoi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../model/trunks/enformer/index.html">grelu.model.trunks.enformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../model/trunks/explainn/index.html">grelu.model.trunks.explainn</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/index.html">grelu.resources</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">grelu.sequence</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">grelu.sequence.format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../metrics/index.html">grelu.sequence.metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../mutate/index.html">grelu.sequence.mutate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/index.html">grelu.sequence.utils</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../transforms/index.html">grelu.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../transforms/label_transforms/index.html">grelu.transforms.label_transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transforms/prediction_transforms/index.html">grelu.transforms.prediction_transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transforms/seq_transforms/index.html">grelu.transforms.seq_transforms</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../utils/index.html">grelu.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../variant/index.html">grelu.variant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualize/index.html">grelu.visualize</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">grelu</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">grelu.sequence</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">grelu.sequence.format</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="grelu-sequence-format">
+<h1>grelu.sequence.format<a class="headerlink" href="#grelu-sequence-format" title="Link to this heading">#</a></h1>
+<p id="module-grelu.sequence.format"><cite>grelu.sequence.format</cite> contains functions related to checking the format of
+input DNA sequences and converting them between accepted sequence formats.</p>
+<p>The following are accepted sequence formats in gReLU:
+1. intervals: a pd.DataFrame object containing valid genomic intervals
+2. strings: A string or list of strings
+3. indices: A numpy array of shape (length,) or (N, length) and dtype np.int8
+4. one_hot: A torch tensor of shape (4, length) or (N, 4, length) and dtype torch.float32</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.ALLOWED_BASES" title="grelu.sequence.format.ALLOWED_BASES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ALLOWED_BASES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.sequence.format.STANDARD_BASES" title="grelu.sequence.format.STANDARD_BASES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">STANDARD_BASES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.BASE_TO_INDEX_HASH" title="grelu.sequence.format.BASE_TO_INDEX_HASH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BASE_TO_INDEX_HASH</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.sequence.format.INDEX_TO_BASE_HASH" title="grelu.sequence.format.INDEX_TO_BASE_HASH"><code class="xref py py-obj docutils literal notranslate"><span class="pre">INDEX_TO_BASE_HASH</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.check_intervals" title="grelu.sequence.format.check_intervals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_intervals</span></code></a>(→ bool)</p></td>
+<td><p>Check if a pandas dataframe contains valid genomic intervals.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.sequence.format.check_string_dna" title="grelu.sequence.format.check_string_dna"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_string_dna</span></code></a>(→ bool)</p></td>
+<td><p>Check if an input string or list of strings contains only valid DNA bases.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.check_indices" title="grelu.sequence.format.check_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_indices</span></code></a>(→ bool)</p></td>
+<td><p>Check if an input array contains valid integer-encoded DNA sequences.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.sequence.format.check_one_hot" title="grelu.sequence.format.check_one_hot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_one_hot</span></code></a>(→ bool)</p></td>
+<td><p>Check if an input tensor contains valid one-hot encoded DNA sequences.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.get_input_type" title="grelu.sequence.format.get_input_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_input_type</span></code></a>(inputs)</p></td>
+<td><p>Given one or more DNA sequences in any accepted format, return the sequence format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.sequence.format.intervals_to_strings" title="grelu.sequence.format.intervals_to_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">intervals_to_strings</span></code></a>(→ Union[str, List[str]])</p></td>
+<td><p>Extract DNA sequences from the specified intervals in a genome.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.strings_to_indices" title="grelu.sequence.format.strings_to_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strings_to_indices</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Convert DNA sequence strings into integer encoded format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.sequence.format.indices_to_one_hot" title="grelu.sequence.format.indices_to_one_hot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">indices_to_one_hot</span></code></a>(→ torch.Tensor)</p></td>
+<td><p>Convert integer-encoded DNA sequences to one-hot encoded format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.strings_to_one_hot" title="grelu.sequence.format.strings_to_one_hot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strings_to_one_hot</span></code></a>(→ torch.Tensor)</p></td>
+<td><p>Convert a list of DNA sequences to one-hot encoded format.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.sequence.format.one_hot_to_indices" title="grelu.sequence.format.one_hot_to_indices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_hot_to_indices</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Convert a one-hot encoded sequence to integer encoded format</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.one_hot_to_strings" title="grelu.sequence.format.one_hot_to_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">one_hot_to_strings</span></code></a>(→ List[str])</p></td>
+<td><p>Convert a one-hot encoded sequence to a list of strings</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.sequence.format.indices_to_strings" title="grelu.sequence.format.indices_to_strings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">indices_to_strings</span></code></a>(→ List[str])</p></td>
+<td><p>Convert indices to strings. Any index outside 0:3 range will be converted to 'N'</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.sequence.format.convert_input_type" title="grelu.sequence.format.convert_input_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">convert_input_type</span></code></a>(→ Union[pandas.DataFrame, str, ...)</p></td>
+<td><p>Convert input DNA sequence data into the desired format.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<dl class="py data">
+<dt class="sig sig-object py" id="grelu.sequence.format.ALLOWED_BASES">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">ALLOWED_BASES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['A',</span> <span class="pre">'C',</span> <span class="pre">'G',</span> <span class="pre">'T',</span> <span class="pre">'N']</span></em><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.ALLOWED_BASES" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="grelu.sequence.format.STANDARD_BASES">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">STANDARD_BASES</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['A',</span> <span class="pre">'C',</span> <span class="pre">'G',</span> <span class="pre">'T']</span></em><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.STANDARD_BASES" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="grelu.sequence.format.BASE_TO_INDEX_HASH">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">BASE_TO_INDEX_HASH</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.BASE_TO_INDEX_HASH" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="grelu.sequence.format.INDEX_TO_BASE_HASH">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">INDEX_TO_BASE_HASH</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></em><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.INDEX_TO_BASE_HASH" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.check_intervals">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">check_intervals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><span class="pre">pandas.DataFrame</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.check_intervals" title="Link to this definition">#</a></dt>
+<dd><p>Check if a pandas dataframe contains valid genomic intervals.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>df</strong> – Dataframe to check</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether the dataframe contains valid genomic intervals</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.check_string_dna">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">check_string_dna</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.check_string_dna" title="Link to this definition">#</a></dt>
+<dd><p>Check if an input string or list of strings contains only valid DNA bases.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>strings</strong> – string or list of strings</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If all the provided strings are valid DNA sequences, returns True.
+Otherwise, returns False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.check_indices">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">check_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.check_indices" title="Link to this definition">#</a></dt>
+<dd><p>Check if an input array contains valid integer-encoded DNA sequences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>indices</strong> – Numpy array.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>If the array contains valid integer-encoded DNA sequences, returns True.
+Otherwise, returns False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.check_one_hot">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">check_one_hot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.check_one_hot" title="Link to this definition">#</a></dt>
+<dd><p>Check if an input tensor contains valid one-hot encoded DNA sequences.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>one_hot</strong> – torch tensor</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether the tensor is a valid one-hot encoded DNA sequence or batch of sequences.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.get_input_type">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">get_input_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.get_input_type" title="Link to this definition">#</a></dt>
+<dd><p>Given one or more DNA sequences in any accepted format, return the sequence format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>inputs</strong> – Input sequences as intervals, strings, index-encoded, or one-hot encoded</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input format, one of “intervals”, “strings”, “indices” or “one_hot”</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#KeyError" title="(in Python v3.10)"><strong>KeyError</strong></a> – If the input dataframe is missing one or more of the required columns chrom, start, end.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#ValueError" title="(in Python v3.10)"><strong>ValueError</strong></a> – If the input sequence has non-allowed characters.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#TypeError" title="(in Python v3.10)"><strong>TypeError</strong></a> – If the input is not of a supported type.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.intervals_to_strings">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">intervals_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">intervals</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v2.3.2)"><span class="pre">pandas.Series</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#dict" title="(in Python v3.10)"><span class="pre">dict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">genome</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.intervals_to_strings" title="Link to this definition">#</a></dt>
+<dd><p>Extract DNA sequences from the specified intervals in a genome.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>intervals</strong> – A pandas DataFrame, Series or dictionary containing
+the genomic interval(s) to extract.</p></li>
+<li><p><strong>genome</strong> – Name of the genome to use.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of DNA sequences extracted from the intervals.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.strings_to_indices">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">strings_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_batch_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.strings_to_indices" title="Link to this definition">#</a></dt>
+<dd><p>Convert DNA sequence strings into integer encoded format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>strings</strong> – A DNA sequence or list of sequences. If a list of multiple sequences
+is provided, they must all have equal length.</p></li>
+<li><p><strong>add_batch_axis</strong> – If True, a batch axis will be included in the output for single
+sequences. If False, the output for a single sequence will be a 1-dimensional
+array.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The integer-encoded sequences.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.indices_to_one_hot">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">indices_to_one_hot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_batch_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.indices_to_one_hot" title="Link to this definition">#</a></dt>
+<dd><p>Convert integer-encoded DNA sequences to one-hot encoded format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>indices</strong> – Integer-encoded DNA sequences.</p></li>
+<li><p><strong>add_batch_axis</strong> – If True, a batch axis will be included in the output for single
+sequences. If False, the output for a single sequence will be a 2-dimensional
+tensor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The one-hot encoded sequences.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.strings_to_one_hot">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">strings_to_one_hot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">strings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_batch_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.strings_to_one_hot" title="Link to this definition">#</a></dt>
+<dd><p>Convert a list of DNA sequences to one-hot encoded format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>seqs</strong> – A DNA sequence or a list of DNA sequences.</p></li>
+<li><p><strong>add_batch_axis</strong> – If True, a batch axis will be included in the output for single
+sequences. If False, the output for a single sequence will be a 2-dimensional
+tensor.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The one-hot encoded DNA sequence(s).</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#AssertionError" title="(in Python v3.10)"><strong>AssertionError</strong></a> – If the input sequences are not of the same length,</p></li>
+<li><p><strong>or if the input is not a string</strong><strong> or </strong><strong>a list</strong><strong> of </strong><strong>strings.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.one_hot_to_indices">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">one_hot_to_indices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.one_hot_to_indices" title="Link to this definition">#</a></dt>
+<dd><p>Convert a one-hot encoded sequence to integer encoded format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>one_hot</strong> – A one-hot encoded DNA sequence or batch of sequences.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The integer-encoded sequences.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.one_hot_to_strings">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">one_hot_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">one_hot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.one_hot_to_strings" title="Link to this definition">#</a></dt>
+<dd><p>Convert a one-hot encoded sequence to a list of strings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>one_hot</strong> – A one-hot encoded DNA sequence or batch of sequences.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of DNA sequences.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.indices_to_strings">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">indices_to_strings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.indices_to_strings" title="Link to this definition">#</a></dt>
+<dd><p>Convert indices to strings. Any index outside 0:3 range will be converted to ‘N’</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>strings</strong> – A DNA sequence or list of sequences.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input sequences as a list of strings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="grelu.sequence.format.convert_input_type">
+<span class="sig-prename descclassname"><span class="pre">grelu.sequence.format.</span></span><span class="sig-name descname"><span class="pre">convert_input_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'indices'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">genome</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_batch_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.2)"><span class="pre">pandas.DataFrame</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v2.3)"><span class="pre">numpy.ndarray</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/sequence/format.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.sequence.format.convert_input_type" title="Link to this definition">#</a></dt>
+<dd><p>Convert input DNA sequence data into the desired format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inputs</strong> – DNA sequence(s) in one of the following formats: intervals, strings, indices, or one-hot encoded.</p></li>
+<li><p><strong>output_type</strong> – The desired output format.</p></li>
+<li><p><strong>genome</strong> – The name of the genome to use if genomic intervals are provided.</p></li>
+<li><p><strong>add_batch_axis</strong> – If True, a batch axis will be included in the output for single
+sequences. If False, the output for a single sequence will be a 2-dimensional
+tensor.</p></li>
+<li><p><strong>input_type</strong> – Format of the input sequence (optional)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The converted DNA sequence(s) in the desired format.</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#ValueError" title="(in Python v3.10)"><strong>ValueError</strong></a> – If the conversion is not possible between the input and output formats.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">grelu.sequence</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../metrics/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">grelu.sequence.metrics</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.ALLOWED_BASES"><code class="docutils literal notranslate"><span class="pre">ALLOWED_BASES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.STANDARD_BASES"><code class="docutils literal notranslate"><span class="pre">STANDARD_BASES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.BASE_TO_INDEX_HASH"><code class="docutils literal notranslate"><span class="pre">BASE_TO_INDEX_HASH</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.INDEX_TO_BASE_HASH"><code class="docutils literal notranslate"><span class="pre">INDEX_TO_BASE_HASH</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.check_intervals"><code class="docutils literal notranslate"><span class="pre">check_intervals()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.check_string_dna"><code class="docutils literal notranslate"><span class="pre">check_string_dna()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.check_indices"><code class="docutils literal notranslate"><span class="pre">check_indices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.check_one_hot"><code class="docutils literal notranslate"><span class="pre">check_one_hot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.get_input_type"><code class="docutils literal notranslate"><span class="pre">get_input_type()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.intervals_to_strings"><code class="docutils literal notranslate"><span class="pre">intervals_to_strings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.strings_to_indices"><code class="docutils literal notranslate"><span class="pre">strings_to_indices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.indices_to_one_hot"><code class="docutils literal notranslate"><span class="pre">indices_to_one_hot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.strings_to_one_hot"><code class="docutils literal notranslate"><span class="pre">strings_to_one_hot()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.one_hot_to_indices"><code class="docutils literal notranslate"><span class="pre">one_hot_to_indices()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.one_hot_to_strings"><code class="docutils literal notranslate"><span class="pre">one_hot_to_strings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.indices_to_strings"><code class="docutils literal notranslate"><span class="pre">indices_to_strings()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.sequence.format.convert_input_type"><code class="docutils literal notranslate"><span class="pre">convert_input_type()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/autoapi/grelu/sequence/format/index.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/autoapi/grelu/sequence/format/index.rst"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

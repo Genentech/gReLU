@@ -1,0 +1,1382 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Train a single-task regression model from scratch &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=4e48d009"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://genentech.github.io/gReLU/tutorials/3_train.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Model-guided design of regulatory elements" href="4_design.html" />
+    <link rel="prev" title="Fine-tune Enformer to perform binary classification on human snATAC-seq data" href="2_finetune.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="unknown" />
+    <meta name="docbuild:last-update" content="Aug 26, 2025"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Train a single-task regression model from scratch</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="train-a-single-task-regression-model-from-scratch">
+<h1>Train a single-task regression model from scratch<a class="headerlink" href="#train-a-single-task-regression-model-from-scratch" title="Link to this heading">#</a></h1>
+<p>In this tutorial, we train a single-task convolutional regression model to predict total coverage over ATAC-seq peaks, starting from an ATAC-seq fragment file.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="set-experiment-parameters">
+<h2>Set experiment parameters<a class="headerlink" href="#set-experiment-parameters" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">experiment</span><span class="o">=</span><span class="s1">&#39;tutorial_3&#39;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">experiment</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">experiment</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="peak-and-fragment-files">
+<h2>Peak and fragment files<a class="headerlink" href="#peak-and-fragment-files" title="Link to this heading">#</a></h2>
+<p>We downloaded pseudobulk scATAC data for human microglia from Corces et al. (2020): <code class="docutils literal notranslate"><span class="pre">https://www.nature.com/articles/s41588-020-00721-x</span></code>. Here, we use the <code class="docutils literal notranslate"><span class="pre">grelu.resources</span></code> module to download the fragment file and peak file from the model zoo:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.resources</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download these datasets into local directories</span>
+
+<span class="n">fragment_file_dir</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">get_artifact</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="s1">&#39;microglia-scatac-tutorial&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;fragment_file&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+
+<span class="n">peak_file_dir</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">get_artifact</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="s1">&#39;microglia-scatac-tutorial&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;peak_file&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Paths to files</span>
+<span class="n">frag_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">fragment_file_dir</span><span class="p">,</span> <span class="s2">&quot;Microglia_full.bed&quot;</span><span class="p">)</span>
+<span class="n">peak_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">peak_file_dir</span><span class="p">,</span> <span class="s2">&quot;Microglia_full_peaks.narrowPeak&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="set-parameters">
+<h2>Set parameters<a class="headerlink" href="#set-parameters" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">seq_len</span><span class="o">=</span><span class="mi">2114</span> <span class="c1"># Length of the input sequence</span>
+<span class="n">label_len</span><span class="o">=</span><span class="mi">1000</span> <span class="c1"># Length over which we calculate total coverage</span>
+<span class="n">val_chroms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chr10&quot;</span><span class="p">]</span>
+<span class="n">test_chroms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chr11&quot;</span><span class="p">]</span>
+<span class="n">genome</span><span class="o">=</span><span class="s2">&quot;hg38&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="read-peak-file">
+<h2>Read peak file<a class="headerlink" href="#read-peak-file" title="Link to this heading">#</a></h2>
+<p>We read peak coordinates from the narrowPeak file.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.io.bed</span>
+
+<span class="n">peaks</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">bed</span><span class="o">.</span><span class="n">read_narrowpeak</span><span class="p">(</span><span class="n">peak_file</span><span class="p">)</span>
+<span class="n">peaks</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>name</th>
+      <th>score</th>
+      <th>strand</th>
+      <th>signal</th>
+      <th>pvalue</th>
+      <th>qvalue</th>
+      <th>summit</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>83316</th>
+      <td>chrY</td>
+      <td>56870777</td>
+      <td>56870983</td>
+      <td>Microglia_full_peak_83318</td>
+      <td>94</td>
+      <td>.</td>
+      <td>3.83352</td>
+      <td>11.58170</td>
+      <td>9.41381</td>
+      <td>116</td>
+    </tr>
+    <tr>
+      <th>83317</th>
+      <td>chrY</td>
+      <td>56873629</td>
+      <td>56873811</td>
+      <td>Microglia_full_peak_83319</td>
+      <td>49</td>
+      <td>.</td>
+      <td>3.01171</td>
+      <td>7.02098</td>
+      <td>4.99754</td>
+      <td>105</td>
+    </tr>
+    <tr>
+      <th>83318</th>
+      <td>chrY</td>
+      <td>56874075</td>
+      <td>56874225</td>
+      <td>Microglia_full_peak_83320</td>
+      <td>42</td>
+      <td>.</td>
+      <td>2.86533</td>
+      <td>6.19767</td>
+      <td>4.20704</td>
+      <td>17</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="summit-center-peaks">
+<h2>Summit-center peaks<a class="headerlink" href="#summit-center-peaks" title="Link to this heading">#</a></h2>
+<p>We extract the genomic coordinates for the 2114 bases surrounding the summit of each peak.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.data.preprocess</span>
+
+<span class="n">peaks</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">extend_from_coord</span><span class="p">(</span>
+    <span class="n">peaks</span><span class="p">,</span>
+    <span class="n">seq_len</span><span class="o">=</span><span class="n">seq_len</span><span class="p">,</span>
+    <span class="n">center_col</span><span class="o">=</span><span class="s2">&quot;summit&quot;</span>
+<span class="p">)</span>
+<span class="n">peaks</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>83316</th>
+      <td>chrY</td>
+      <td>56869836</td>
+      <td>56871950</td>
+    </tr>
+    <tr>
+      <th>83317</th>
+      <td>chrY</td>
+      <td>56872677</td>
+      <td>56874791</td>
+    </tr>
+    <tr>
+      <th>83318</th>
+      <td>chrY</td>
+      <td>56873035</td>
+      <td>56875149</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="filter-peaks">
+<h2>Filter peaks<a class="headerlink" href="#filter-peaks" title="Link to this heading">#</a></h2>
+<p>We filter the peaks to include only those within autosomes. You can also use “autosomesX” or “autosomesXY” to include sex chromosomes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">peaks</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">filter_chromosomes</span><span class="p">(</span><span class="n">peaks</span><span class="p">,</span> <span class="s1">&#39;autosomes&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Keeping 80823 intervals
+</pre></div>
+</div>
+</div>
+</div>
+<p>We drop peaks that are close to ENCODE hg38 blacklist regions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">peaks</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">filter_blacklist</span><span class="p">(</span>
+    <span class="n">peaks</span><span class="p">,</span>
+    <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">,</span>
+    <span class="n">window</span><span class="o">=</span><span class="mi">50</span> <span class="c1"># Remove peaks if they are within 50 bp of a blacklist region</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Keeping 80028 intervals
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="get-gc-matched-negative-regions">
+<h2>Get GC matched negative regions<a class="headerlink" href="#get-gc-matched-negative-regions" title="Link to this heading">#</a></h2>
+<p>To ensure that the model also learns to recognize regions that are not peaks, we will include a set of “negative” (non-peak) regions with similar GC content to the peaks.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">negatives</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">get_gc_matched_intervals</span><span class="p">(</span>
+    <span class="n">peaks</span><span class="p">,</span>
+    <span class="n">binwidth</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="c1"># resolution of measuring GC content</span>
+    <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">,</span>
+    <span class="n">chroms</span><span class="o">=</span><span class="s2">&quot;autosomes&quot;</span><span class="p">,</span> <span class="c1"># negative regions will also be chosen from autosomes</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">negatives</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Extracting matching intervals
+Filtering blacklist
+Keeping 77148 intervals
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>39048</th>
+      <td>chr1</td>
+      <td>801206</td>
+      <td>803320</td>
+    </tr>
+    <tr>
+      <th>13936</th>
+      <td>chr1</td>
+      <td>813890</td>
+      <td>816004</td>
+    </tr>
+    <tr>
+      <th>20216</th>
+      <td>chr1</td>
+      <td>858284</td>
+      <td>860398</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>We can visualize a histogram of GC content in the peaks and negative regions to verify that they are similar.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.visualize</span>
+<span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_gc_match</span><span class="p">(</span>
+    <span class="n">positives</span><span class="o">=</span><span class="n">peaks</span><span class="p">,</span> <span class="n">negatives</span><span class="o">=</span><span class="n">negatives</span><span class="p">,</span> <span class="n">binwidth</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">genome</span><span class="o">=</span><span class="s2">&quot;hg38&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/8fc4c53d922be935a990ece9bd434a4375e3a04aced760ae906dfae61c7b7c6c.png"><img alt="../_images/8fc4c53d922be935a990ece9bd434a4375e3a04aced760ae906dfae61c7b7c6c.png" src="../_images/8fc4c53d922be935a990ece9bd434a4375e3a04aced760ae906dfae61c7b7c6c.png" style="width: 400px; height: 300px;" /></a>
+</div>
+</div>
+</section>
+<section id="combine-peaks-and-negative-regions">
+<h2>Combine peaks and negative regions<a class="headerlink" href="#combine-peaks-and-negative-regions" title="Link to this heading">#</a></h2>
+<p>The full dataset includes both peaks and negative regions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">regions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">peaks</span><span class="p">,</span> <span class="n">negatives</span><span class="p">])</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">regions</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>157176
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="make-bigwig-file">
+<h2>Make BigWig file<a class="headerlink" href="#make-bigwig-file" title="Link to this heading">#</a></h2>
+<p>We convert the ATAC-seq fragment file into a bigWig file which contains the number of Tn5 insertions at each position.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bw_file</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">make_insertion_bigwig</span><span class="p">(</span>
+    <span class="n">frag_file</span> <span class="o">=</span> <span class="n">frag_file</span><span class="p">,</span>
+    <span class="n">plus_shift</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">minus_shift</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># This corrects the +4/-5 Tn5 shift to a +4/-4 shift</span>
+    <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">,</span>
+    <span class="n">chroms</span><span class="o">=</span><span class="s2">&quot;autosomes&quot;</span><span class="p">,</span> <span class="c1"># The output bigWig file contains coverage over autosomes.</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Making bedgraph file
+cat /code/gReLU/docs/tutorials/artifacts/fragment_file:v0/Microglia_full.bed | awk -v OFS=&quot;\t&quot; &#39;{print $1,$2+0,$3,1000,0,&quot;+&quot;;
+    print $1,$2,$3+1,1000,0,&quot;-&quot;}&#39; | sort -k1,1 | grep -e ^chr1 -e ^chr2 -e ^chr3 -e ^chr4 -e ^chr5 -e ^chr6 -e ^chr7 -e ^chr8 -e ^chr9 -e ^chr10 -e ^chr11 -e ^chr12 -e ^chr13 -e ^chr14 -e ^chr15 -e ^chr16 -e ^chr17 -e ^chr18 -e ^chr19 -e ^chr20 -e ^chr21 -e ^chr22  | bedtools genomecov -bg -5 -i stdin -g /root/.local/share/genomes/hg38/hg38.fa.sizes | bedtools sort -i stdin &gt; ./Microglia_full.bedGraph
+Making bigWig file
+bedGraphToBigWig ./Microglia_full.bedGraph /root/.local/share/genomes/hg38/hg38.fa.sizes ./Microglia_full.bw
+Deleting temporary files
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="split-data-by-chromosome">
+<h2>Split data by chromosome<a class="headerlink" href="#split-data-by-chromosome" title="Link to this heading">#</a></h2>
+<p>We now split the dataset by chromosome to create separate datasets for training, validation and testing.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train</span><span class="p">,</span> <span class="n">val</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+    <span class="n">regions</span><span class="p">,</span> <span class="n">val_chroms</span><span class="o">=</span><span class="n">val_chroms</span><span class="p">,</span> <span class="n">test_chroms</span><span class="o">=</span><span class="n">test_chroms</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Selecting training samples
+Keeping 140654 intervals
+
+
+Selecting validation samples
+Keeping 8115 intervals
+
+
+Selecting test samples
+Keeping 8407 intervals
+Final sizes: train: (126394, 3), val: (699, 3), test: (791, 3)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="make-labeled-datasets">
+<h2>Make labeled datasets<a class="headerlink" href="#make-labeled-datasets" title="Link to this heading">#</a></h2>
+<p>We now make pytorch dataset objects in order to load paired sequences and coverage values from the genome and the bigWig file. We use the <code class="docutils literal notranslate"><span class="pre">BigWigSeqDataset</span></code> class.</p>
+<p>We first make the training dataset. To increase model robustness we use several forms of data augmentation here: <code class="docutils literal notranslate"><span class="pre">rc=True</span></code> (reverse complementing the input sequence), <code class="docutils literal notranslate"><span class="pre">max_seq_shift=2</span></code> (shifting the coordinates of the input sequence by upto 2 bp in either direction; also known as jitter), and <code class="docutils literal notranslate"><span class="pre">max_pair_shift=20</span></code> (shifting both the input sequence and the region for which to calculate coverage by upto 20 bp in either direction).</p>
+<p>Further, we use <code class="docutils literal notranslate"><span class="pre">label_aggfunc=&quot;sum&quot;</span></code> which means that the label will be the summed coverage over the central region of the interval.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.data.dataset</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_ds</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">BigWigSeqDataset</span><span class="p">(</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="n">train</span><span class="p">,</span>
+    <span class="n">bw_files</span><span class="o">=</span><span class="p">[</span><span class="n">bw_file</span><span class="p">],</span>
+    <span class="n">label_len</span><span class="o">=</span><span class="n">label_len</span><span class="p">,</span>
+    <span class="n">label_aggfunc</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">,</span>
+    <span class="n">rc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># reverse complement</span>
+    <span class="n">max_seq_shift</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="c1"># Shift the sequence</span>
+    <span class="n">max_pair_shift</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="c1"># Shift both sequence and label</span>
+    <span class="n">augment_mode</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We do not apply any augmentations to the validation and test datasets (although it is possible to do so).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">val_ds</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">BigWigSeqDataset</span><span class="p">(</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="n">val</span><span class="p">,</span>
+    <span class="n">bw_files</span><span class="o">=</span><span class="p">[</span><span class="n">bw_file</span><span class="p">],</span>
+    <span class="n">label_len</span><span class="o">=</span><span class="n">label_len</span><span class="p">,</span>
+    <span class="n">label_aggfunc</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">,</span> 
+    <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">dataset</span><span class="o">.</span><span class="n">BigWigSeqDataset</span><span class="p">(</span>
+    <span class="n">intervals</span> <span class="o">=</span> <span class="n">test</span><span class="p">,</span>
+    <span class="n">bw_files</span><span class="o">=</span><span class="p">[</span><span class="n">bw_file</span><span class="p">],</span>
+    <span class="n">label_len</span><span class="o">=</span><span class="n">label_len</span><span class="p">,</span>
+    <span class="n">label_aggfunc</span><span class="o">=</span><span class="s2">&quot;sum&quot;</span><span class="p">,</span>
+    <span class="n">genome</span><span class="o">=</span><span class="n">genome</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">len</span><span class="p">(</span><span class="n">train_ds</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">val_ds</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_ds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(126394, 699, 791)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="build-model">
+<h2>Build model<a class="headerlink" href="#build-model" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;model_type&#39;</span><span class="p">:</span><span class="s1">&#39;DilatedConvModel&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;crop_len&#39;</span><span class="p">:(</span><span class="n">seq_len</span><span class="o">-</span><span class="n">label_len</span><span class="p">)</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span>
+    <span class="s1">&#39;n_tasks&#39;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+    <span class="s1">&#39;channels&#39;</span><span class="p">:</span><span class="mi">512</span><span class="p">,</span>
+    <span class="s1">&#39;n_conv&#39;</span><span class="p">:</span><span class="mi">8</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">train_params</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;task&#39;</span><span class="p">:</span><span class="s1">&#39;regression&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="s1">&#39;poisson&#39;</span><span class="p">,</span> <span class="c1"># Poisson loss. Other regression loss functions are &quot;mse&quot; and &quot;poisson_multinomial&quot;</span>
+    <span class="s1">&#39;logger&#39;</span><span class="p">:</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;lr&#39;</span><span class="p">:</span><span class="mf">1e-4</span><span class="p">,</span>
+    <span class="s1">&#39;batch_size&#39;</span><span class="p">:</span><span class="mi">512</span><span class="p">,</span>
+    <span class="s1">&#39;max_epochs&#39;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span>
+    <span class="s1">&#39;devices&#39;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+    <span class="s1">&#39;num_workers&#39;</span><span class="p">:</span><span class="mi">16</span><span class="p">,</span>
+    <span class="s1">&#39;save_dir&#39;</span><span class="p">:</span><span class="n">experiment</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">grelu.lightning</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">lightning</span><span class="o">.</span><span class="n">LightningModel</span><span class="p">(</span><span class="n">model_params</span><span class="p">,</span> <span class="n">train_params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="train-model">
+<h2>Train model<a class="headerlink" href="#train-model" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># See the tutorial_3 folder for logs.</span>
+<span class="n">trainer</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">train_on_dataset</span><span class="p">(</span><span class="n">train_ds</span><span class="p">,</span> <span class="n">val_ds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  4.93it/s]
+Epoch 0: 100%|█████████████████████████████| 247/247 [02:17&lt;00:00,  1.79it/s, v_num=0, train_loss_step=159.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.25it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.47it/s]
+Epoch 1: 100%|█████| 247/247 [02:18&lt;00:00,  1.78it/s, v_num=0, train_loss_step=223.0, train_loss_epoch=178.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.27it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.49it/s]
+Epoch 2: 100%|█████| 247/247 [02:19&lt;00:00,  1.78it/s, v_num=0, train_loss_step=136.0, train_loss_epoch=162.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.28it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.50it/s]
+Epoch 3: 100%|█████| 247/247 [02:18&lt;00:00,  1.78it/s, v_num=0, train_loss_step=140.0, train_loss_epoch=154.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.25it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.47it/s]
+Epoch 4: 100%|█████| 247/247 [02:18&lt;00:00,  1.78it/s, v_num=0, train_loss_step=127.0, train_loss_epoch=141.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.27it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.49it/s]
+Epoch 5: 100%|█████| 247/247 [02:18&lt;00:00,  1.78it/s, v_num=0, train_loss_step=136.0, train_loss_epoch=132.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.29it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.49it/s]
+Epoch 6: 100%|█████| 247/247 [02:18&lt;00:00,  1.78it/s, v_num=0, train_loss_step=135.0, train_loss_epoch=131.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.27it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.50it/s]
+Epoch 7: 100%|█████| 247/247 [02:18&lt;00:00,  1.79it/s, v_num=0, train_loss_step=120.0, train_loss_epoch=129.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.29it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.50it/s]
+Epoch 8: 100%|█████| 247/247 [02:18&lt;00:00,  1.79it/s, v_num=0, train_loss_step=125.0, train_loss_epoch=126.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.28it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.51it/s]
+Epoch 9: 100%|█████| 247/247 [02:18&lt;00:00,  1.79it/s, v_num=0, train_loss_step=120.0, train_loss_epoch=124.0]
+Validation: |                                                                          | 0/? [00:00&lt;?, ?it/s]
+Validation:   0%|                                                                      | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:   0%|                                                         | 0/2 [00:00&lt;?, ?it/s]
+Validation DataLoader 0:  50%|████████████████████████▌                        | 1/2 [00:00&lt;00:00,  5.28it/s]
+Validation DataLoader 0: 100%|█████████████████████████████████████████████████| 2/2 [00:00&lt;00:00,  7.49it/s]
+Epoch 9: 100%|█████| 247/247 [02:19&lt;00:00,  1.77it/s, v_num=0, train_loss_step=120.0, train_loss_epoch=124.0]
+Epoch 9: 100%|█████| 247/247 [02:19&lt;00:00,  1.76it/s, v_num=0, train_loss_step=120.0, train_loss_epoch=124.0]
+</pre></div>
+</div>
+<div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold">      Validate metric      </span>┃<span style="font-weight: bold">       DataLoader 0        </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│<span style="color: #008080; text-decoration-color: #008080">         val_loss          </span>│<span style="color: #800080; text-decoration-color: #800080">     1094.100830078125     </span>│
+│<span style="color: #008080; text-decoration-color: #008080">          val_mse          </span>│<span style="color: #800080; text-decoration-color: #800080">       228943.296875       </span>│
+│<span style="color: #008080; text-decoration-color: #008080">        val_pearson        </span>│<span style="color: #800080; text-decoration-color: #800080">    -0.3829006552696228    </span>│
+└───────────────────────────┴───────────────────────────┘
+</pre>
+</div></div>
+</div>
+</section>
+<section id="load-the-best-model-version">
+<h2>Load the best model version<a class="headerlink" href="#load-the-best-model-version" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">best_checkpoint</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">checkpoint_callback</span><span class="o">.</span><span class="n">best_model_path</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">best_checkpoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>tutorial_3/2025_10_03_18_14/version_0/checkpoints/epoch=8-step=2223.ckpt
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">lightning</span><span class="o">.</span><span class="n">LightningModel</span><span class="o">.</span><span class="n">load_from_checkpoint</span><span class="p">(</span><span class="n">best_checkpoint</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="evaluate-model">
+<h2>Evaluate model<a class="headerlink" href="#evaluate-model" title="Link to this heading">#</a></h2>
+<p>We now evaluate the model’s performance on the test dataset.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_metrics</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">test_on_dataset</span><span class="p">(</span>
+    <span class="n">test_ds</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span>
+<span class="p">)</span>
+
+<span class="n">test_metrics</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Testing DataLoader 0: 100%|████████████████████████████████████████████████████| 4/4 [00:00&lt;00:00, 11.47it/s]
+</pre></div>
+</div>
+<div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace">┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃<span style="font-weight: bold">        Test metric        </span>┃<span style="font-weight: bold">       DataLoader 0        </span>┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│<span style="color: #008080; text-decoration-color: #008080">         test_loss         </span>│<span style="color: #800080; text-decoration-color: #800080">    120.50166320800781     </span>│
+│<span style="color: #008080; text-decoration-color: #008080">         test_mse          </span>│<span style="color: #800080; text-decoration-color: #800080">       111406.171875       </span>│
+│<span style="color: #008080; text-decoration-color: #008080">       test_pearson        </span>│<span style="color: #800080; text-decoration-color: #800080">    0.6874542236328125     </span>│
+└───────────────────────────┴───────────────────────────┘
+</pre>
+</div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>test_mse</th>
+      <th>test_pearson</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Microglia_full</th>
+      <td>111406.171875</td>
+      <td>0.687454</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="run-inference-on-held-out-sequences">
+<h2>Run inference on held out sequences<a class="headerlink" href="#run-inference-on-held-out-sequences" title="Link to this heading">#</a></h2>
+<p>We can now get the predicted total coverage for each sequence in the test set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_on_dataset</span><span class="p">(</span>
+    <span class="n">test_ds</span><span class="p">,</span> <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span>
+    <span class="p">)</span>
+<span class="n">preds</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Predicting DataLoader 0: 100%|█████████████████████████████████████████████████| 4/4 [00:00&lt;00:00, 12.16it/s]
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(791, 1, 1)
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can visualize a scatter plot of predicted vs. true coverage values</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_pred_scatter</span><span class="p">(</span>
+    <span class="n">preds</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">preds</span><span class="p">),</span>
+    <span class="n">labels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">test_ds</span><span class="o">.</span><span class="n">get_labels</span><span class="p">()),</span>
+    <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Color points by local density</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">),</span> <span class="c1"># width, height</span>
+    <span class="n">size</span><span class="o">=</span><span class="mf">.5</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/6f15daded3dc0ac134fbd2097fb5753f77abae2eba139ce602ac25503b882ee3.png"><img alt="../_images/6f15daded3dc0ac134fbd2097fb5753f77abae2eba139ce602ac25503b882ee3.png" src="../_images/6f15daded3dc0ac134fbd2097fb5753f77abae2eba139ce602ac25503b882ee3.png" style="width: 300px; height: 250px;" /></a>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="2_finetune.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Fine-tune Enformer to perform binary classification on human snATAC-seq data</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="4_design.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Model-guided design of regulatory elements</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-experiment-parameters">Set experiment parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#peak-and-fragment-files">Peak and fragment files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#set-parameters">Set parameters</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#read-peak-file">Read peak file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#summit-center-peaks">Summit-center peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#filter-peaks">Filter peaks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-gc-matched-negative-regions">Get GC matched negative regions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#combine-peaks-and-negative-regions">Combine peaks and negative regions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-bigwig-file">Make BigWig file</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#split-data-by-chromosome">Split data by chromosome</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-labeled-datasets">Make labeled datasets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-model">Build model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#train-model">Train model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-best-model-version">Load the best model version</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluate-model">Evaluate model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-inference-on-held-out-sequences">Run inference on held out sequences</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/tutorials/3_train.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorials/3_train.ipynb"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

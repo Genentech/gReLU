@@ -1,0 +1,2212 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Inference using Borzoi &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=4e48d009"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://genentech.github.io/gReLU/tutorials/1_inference.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Fine-tune Enformer to perform binary classification on human snATAC-seq data" href="2_finetune.html" />
+    <link rel="prev" title="gReLU" href="../readme.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="unknown" />
+    <meta name="docbuild:last-update" content="Aug 26, 2025"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Inference using Borzoi</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="inference-using-borzoi">
+<h1>Inference using Borzoi<a class="headerlink" href="#inference-using-borzoi" title="Link to this heading">#</a></h1>
+<p>In this tutorial, we learn how to download a pre-trained model from the gReLU model zoo, use it for inference, visualize the results and interpret the model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="load-the-pre-trained-borzoi-model-from-the-model-zoo">
+<h2>Load the pre-trained Borzoi model from the model zoo<a class="headerlink" href="#load-the-pre-trained-borzoi-model-from-the-model-zoo" title="Link to this heading">#</a></h2>
+<p>The grelu.resources module contains functions to access saved models and datasets associated with gReLU. grelu.resources.load_model is the function to load a saved model from the model zoo.</p>
+<p>We will load the Borzoi model (<a class="reference external" href="https://www.biorxiv.org/content/10.1101/2023.08.30.555582v1">https://www.biorxiv.org/content/10.1101/2023.08.30.555582v1</a>) trained to predict thousands of human genomic tracks from sequence.</p>
+<p>Note that here we specify the model_name to be <code class="docutils literal notranslate"><span class="pre">human_rep0</span></code>. You can change human to mouse or change the replicate number to 1, 2, or 3 to access different versions of the Borzoi model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.resources</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span>
+    <span class="n">project</span><span class="o">=</span><span class="s2">&quot;borzoi&quot;</span><span class="p">,</span>
+    <span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;human_rep0&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+</section>
+<section id="view-the-model-s-metadata">
+<h2>View the model’s metadata<a class="headerlink" href="#view-the-model-s-metadata" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">model.data_params</span></code> is a dictionary containing metadata about the data used to train the model. Let’s look at what information is stored:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>dict_keys([&#39;tasks&#39;, &#39;train&#39;, &#39;val&#39;, &#39;test&#39;])
+</pre></div>
+</div>
+</div>
+</div>
+<p>Here, <code class="docutils literal notranslate"><span class="pre">tasks</span></code> is a large dictionary containing metadata about the output tracks that the model predicts. We can collect these into a dataframe:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tasks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">&#39;tasks&#39;</span><span class="p">])</span>
+<span class="n">tasks</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>file</th>
+      <th>clip</th>
+      <th>clip_soft</th>
+      <th>scale</th>
+      <th>sum_stat</th>
+      <th>strand_pair</th>
+      <th>description</th>
+      <th>assay</th>
+      <th>sample</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>CNhs10608+</td>
+      <td>/home/drk/tillage/datasets/human/cage/fantom/C...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>1.0</td>
+      <td>sum</td>
+      <td>1</td>
+      <td>CAGE:Clontech Human Universal Reference Total ...</td>
+      <td>CAGE</td>
+      <td>Clontech Human Universal Reference Total RNA, ...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>CNhs10608-</td>
+      <td>/home/drk/tillage/datasets/human/cage/fantom/C...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>1.0</td>
+      <td>sum</td>
+      <td>0</td>
+      <td>CAGE:Clontech Human Universal Reference Total ...</td>
+      <td>CAGE</td>
+      <td>Clontech Human Universal Reference Total RNA, ...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>CNhs10610+</td>
+      <td>/home/drk/tillage/datasets/human/cage/fantom/C...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>1.0</td>
+      <td>sum</td>
+      <td>3</td>
+      <td>CAGE:SABiosciences XpressRef Human Universal T...</td>
+      <td>CAGE</td>
+      <td>SABiosciences XpressRef Human Universal Total ...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Also, we have metadata related to the training data:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>dict_keys([&#39;seq_len&#39;, &#39;label_len&#39;, &#39;genome&#39;, &#39;bin_size&#39;, &#39;intervals&#39;])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span><span class="s2">&quot;intervals&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>seq_len 524288
+label_len 196608
+genome hg38
+bin_size 32
+</pre></div>
+</div>
+</div>
+</div>
+<p>This tells us that the model was trained on sequences of length 524288 bp from the hg38 genome, and makes predictions for 196608 bp at 32 bp resolution.</p>
+<p>You’ll notice we left out <code class="docutils literal notranslate"><span class="pre">intervals</span></code>. This is a dictionary containing the intervals used for training, which we can extract into a dataframe:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">&#39;train&#39;</span><span class="p">][</span><span class="s1">&#39;intervals&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr4</td>
+      <td>82360581</td>
+      <td>82884869</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>chr13</td>
+      <td>18440958</td>
+      <td>18965246</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr2</td>
+      <td>189759568</td>
+      <td>190283856</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr10</td>
+      <td>59711903</td>
+      <td>60236191</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>chr1</td>
+      <td>116945627</td>
+      <td>117469915</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The genomic intervals used for validation and testing can also be extracted similarly.</p>
+</section>
+<section id="make-inference-intervals">
+<h2>Make inference intervals<a class="headerlink" href="#make-inference-intervals" title="Link to this heading">#</a></h2>
+<p>We will now use the model to make predictions on a specific genomic interval from chromosome 1. Since the model was trained on sequences of length 524288 bp, our input interval will be of the same length.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_len</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s2">&quot;train&quot;</span><span class="p">][</span><span class="s2">&quot;seq_len&quot;</span><span class="p">]</span>
+<span class="n">chrom</span> <span class="o">=</span> <span class="s2">&quot;chr1&quot;</span>
+<span class="n">input_start</span> <span class="o">=</span> <span class="mi">69993520</span>
+<span class="n">input_end</span> <span class="o">=</span> <span class="n">input_start</span> <span class="o">+</span> <span class="n">input_len</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We format the interval(s) that we want to make predictions on as a dataframe containing columns “chrom”, “start” and “end”. A “strand” column can be supplied optionally.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_intervals</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;chrom&#39;</span><span class="p">:[</span><span class="n">chrom</span><span class="p">],</span> <span class="s1">&#39;start&#39;</span><span class="p">:[</span><span class="n">input_start</span><span class="p">],</span> <span class="s1">&#39;end&#39;</span><span class="p">:[</span><span class="n">input_end</span><span class="p">],</span> <span class="s2">&quot;strand&quot;</span><span class="p">:[</span><span class="s2">&quot;+&quot;</span><span class="p">],</span>
+<span class="p">})</span>
+
+<span class="n">input_intervals</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>strand</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>69993520</td>
+      <td>70517808</td>
+      <td>+</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="extract-the-sequence">
+<h2>Extract the sequence<a class="headerlink" href="#extract-the-sequence" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">grelu.sequence.format</span></code> contains functions to convert DNA sequences from one format to another. Here, we use it to convert the genomic interval into a string:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.sequence.format</span>
+
+<span class="n">input_seqs</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">sequence</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">convert_input_type</span><span class="p">(</span>
+    <span class="n">input_intervals</span><span class="p">,</span>
+    <span class="n">output_type</span><span class="o">=</span><span class="s2">&quot;strings&quot;</span><span class="p">,</span>
+    <span class="n">genome</span><span class="o">=</span><span class="s2">&quot;hg38&quot;</span>
+<span class="p">)</span>
+<span class="n">input_seq</span> <span class="o">=</span> <span class="n">input_seqs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="nb">len</span><span class="p">(</span><span class="n">input_seq</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>524288
+</pre></div>
+</div>
+</div>
+</div>
+<p>This is a very long sequence - don’t try to print the whole thing! Let’s just look at the beginning.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_seq</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&#39;ACTGTGCACC&#39;
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="run-inference-on-a-single-sequence">
+<h2>Run inference on a single sequence<a class="headerlink" href="#run-inference-on-a-single-sequence" title="Link to this heading">#</a></h2>
+<p>If we want to use the model to make a prediction on a single sequence or a few sequences, gReLU provides a very simple command to do this: <code class="docutils literal notranslate"><span class="pre">model.predict_on_seqs</span></code>.</p>
+<p>On the other hand, if we want to make batched predictions on many sequences, or average the predictions over different versions of the sequence, we should use gReLU’s pytorch dataset classes. We’ll see how to do that later.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+<span class="n">preds</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict_on_seqs</span><span class="p">(</span><span class="n">input_seqs</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">preds</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: user 4.11 s, sys: 67.6 ms, total: 4.17 s
+Wall time: 1.36 s
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(1, 7611, 6144)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note the shape of <code class="docutils literal notranslate"><span class="pre">preds</span></code>: it’s in the format <code class="docutils literal notranslate"><span class="pre">Batch,</span> <span class="pre">Tasks,</span> <span class="pre">Length</span></code>. So we have 1 sequence, 7611 tasks, and 6144 bins along the length axis.</p>
+</section>
+<section id="get-output-interval-coordinates">
+<h2>Get output interval coordinates<a class="headerlink" href="#get-output-interval-coordinates" title="Link to this heading">#</a></h2>
+<p>We know that the input was a 524288 bp region from chr1:69993520-70517808. But Borzoi is not making predictions for the entire region; it’s cropping some positions from the sides.</p>
+<p>We can find out the region for which we are actually making predictions using the <code class="docutils literal notranslate"><span class="pre">input_intervals_to_output_intervals</span></code> method.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_intervals</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">input_intervals_to_output_intervals</span><span class="p">(</span><span class="n">input_intervals</span><span class="p">)</span>
+<span class="n">output_intervals</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>strand</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>chr1</td>
+      <td>70157360</td>
+      <td>70353968</td>
+      <td>+</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_start</span> <span class="o">=</span> <span class="n">output_intervals</span><span class="o">.</span><span class="n">start</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">output_end</span> <span class="o">=</span> <span class="n">output_intervals</span><span class="o">.</span><span class="n">end</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">output_len</span> <span class="o">=</span> <span class="n">output_end</span> <span class="o">-</span> <span class="n">output_start</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">output_len</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>196608
+</pre></div>
+</div>
+</div>
+</div>
+<p>We see that our predictions encompass the central 196608 bp of the input 524288 bp.</p>
+</section>
+<section id="plot-predictions">
+<h2>Plot predictions<a class="headerlink" href="#plot-predictions" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">grelu.visualize</span></code> provides a variety of functions to plot model predictions and performance. To start, we visualize the Borzoi predictions over the output region.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.visualize</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+</div>
+<p>As an example, we will visualize the first 2 CAGE and RNA-seq output tracks for brain tissue.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cage_brain_tasks</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[(</span><span class="n">tasks</span><span class="o">.</span><span class="n">assay</span><span class="o">==</span><span class="s2">&quot;CAGE&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">tasks</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;brain&quot;</span><span class="p">))]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">rna_brain_tasks</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[(</span><span class="n">tasks</span><span class="o">.</span><span class="n">assay</span><span class="o">==</span><span class="s2">&quot;RNA&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">tasks</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;brain&quot;</span><span class="p">))]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">tasks_to_plot</span> <span class="o">=</span> <span class="n">cage_brain_tasks</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="o">+</span> <span class="n">rna_brain_tasks</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">task_names</span> <span class="o">=</span> <span class="n">tasks</span><span class="o">.</span><span class="n">description</span><span class="p">[</span><span class="n">tasks_to_plot</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="c1"># Description of these tracks from the `tasks` dataframe</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">tasks_to_plot</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">task_names</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[10, 11, 6635, 6636]
+[&#39;CAGE:brain, adult, pool1&#39;, &#39;CAGE:brain, adult, pool1&#39;, &#39;RNA:brain tissue female adult (66 years)&#39;, &#39;RNA:brain tissue female adult (66 years)&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_tracks</span><span class="p">(</span>
+    <span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">tasks_to_plot</span><span class="p">,</span> <span class="p">:],</span> <span class="c1"># Outputs to plot</span>
+    <span class="n">start_pos</span><span class="o">=</span><span class="n">output_start</span><span class="p">,</span> <span class="c1"># Start coordinate for the x-axis label</span>
+    <span class="n">end_pos</span><span class="o">=</span><span class="n">output_end</span><span class="p">,</span> <span class="c1"># End coordinate for the x-axis label</span>
+    <span class="n">titles</span><span class="o">=</span><span class="n">task_names</span><span class="p">,</span> <span class="c1"># titles for each track</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">3.5</span><span class="p">),</span> <span class="c1"># width, height</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/f824fe0c190ebb8c97e705c034b4396207d77aa30fa45dc29d1823c182a74815.png" src="../_images/f824fe0c190ebb8c97e705c034b4396207d77aa30fa45dc29d1823c182a74815.png" />
+</div>
+</div>
+</section>
+<section id="add-genomic-annotations">
+<h2>Add genomic annotations<a class="headerlink" href="#add-genomic-annotations" title="Link to this heading">#</a></h2>
+<p>We can also extract genomic annotations and visualize them alongside the predicted activity. Note that we use genomepy and you may need to install some UCSC tools to access the annotations. If you do not have these installed, you can use the commands below, or skip this section.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="ch">#!rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/genePredToBed /usr/bin/</span>
+<span class="c1">#!rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/genePredToGtf /usr/bin/</span>
+<span class="c1">#!rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/bedToGenePred /usr/bin/</span>
+<span class="c1">#!rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/gtfToGenePred /usr/bin/</span>
+<span class="c1">#!rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/gff3ToGenePred /usr/bin/</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>receiving incremental file list
+genePredToBed
+     24,381,216 100%   54.97MB/s    0:00:00 (xfr#1, to-chk=0/1)
+receiving incremental file list
+genePredToGtf
+     24,399,048 100%   73.40MB/s    0:00:00 (xfr#1, to-chk=0/1)
+receiving incremental file list
+bedToGenePred
+     24,379,912 100%   79.08MB/s    0:00:00 (xfr#1, to-chk=0/1)
+receiving incremental file list
+gtfToGenePred
+     24,385,272 100%   72.90MB/s    0:00:00 (xfr#1, to-chk=0/1)
+receiving incremental file list
+gff3ToGenePred
+     24,480,328 100%   77.05MB/s    0:00:00 (xfr#1, to-chk=0/1)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Below, we will extract the coordinates for exons in the hg38 human genome:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.io.genome</span>
+
+<span class="n">exons</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">genome</span><span class="o">.</span><span class="n">read_gtf</span><span class="p">(</span><span class="s2">&quot;hg38&quot;</span><span class="p">,</span> <span class="n">features</span><span class="o">=</span><span class="s2">&quot;exon&quot;</span><span class="p">)</span>
+<span class="n">exons</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Genome annotation files not found. Installing genome annotation files.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>gene_name</th>
+      <th>source</th>
+      <th>feature</th>
+      <th>score</th>
+      <th>strand</th>
+      <th>frame</th>
+      <th>attribute</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1</th>
+      <td>chr1</td>
+      <td>11874</td>
+      <td>12227</td>
+      <td>DDX11L1</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>+</td>
+      <td>.</td>
+      <td>gene_id "DDX11L1"; transcript_id "NR_046018.2"...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>chr1</td>
+      <td>12613</td>
+      <td>12721</td>
+      <td>DDX11L1</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>+</td>
+      <td>.</td>
+      <td>gene_id "DDX11L1"; transcript_id "NR_046018.2"...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>chr1</td>
+      <td>13221</td>
+      <td>14409</td>
+      <td>DDX11L1</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>+</td>
+      <td>.</td>
+      <td>gene_id "DDX11L1"; transcript_id "NR_046018.2"...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>We filter those exons that overlap with the output region we are predicting:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.data.preprocess</span>
+
+<span class="n">output_exons</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">filter_overlapping</span><span class="p">(</span>
+    <span class="n">exons</span><span class="p">,</span>
+    <span class="n">ref_intervals</span><span class="o">=</span><span class="n">output_intervals</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;any&quot;</span> <span class="c1"># return the exon if there any overlap at all with the output interval. Set to &#39;all&#39; for completely contained exons.</span>
+<span class="p">)</span>
+<span class="n">output_exons</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Keeping 560 intervals
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>gene_name</th>
+      <th>source</th>
+      <th>feature</th>
+      <th>score</th>
+      <th>strand</th>
+      <th>frame</th>
+      <th>attribute</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>176820</th>
+      <td>chr1</td>
+      <td>70159330</td>
+      <td>70159438</td>
+      <td>LRRC40</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>-</td>
+      <td>.</td>
+      <td>gene_id "LRRC40"; transcript_id "XM_047424520....</td>
+    </tr>
+    <tr>
+      <th>176822</th>
+      <td>chr1</td>
+      <td>70173465</td>
+      <td>70173510</td>
+      <td>LRRC40</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>-</td>
+      <td>.</td>
+      <td>gene_id "LRRC40"; transcript_id "XM_047424520....</td>
+    </tr>
+    <tr>
+      <th>176824</th>
+      <td>chr1</td>
+      <td>70173622</td>
+      <td>70173709</td>
+      <td>LRRC40</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>-</td>
+      <td>.</td>
+      <td>gene_id "LRRC40"; transcript_id "XM_047424520....</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>This gives us all the exon coordinates in the output region. Since some of these exons may exceed the output region, we clip the start and end values to the output interval coordinates.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_exons</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">clip_intervals</span><span class="p">(</span><span class="n">output_exons</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">output_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">output_end</span><span class="p">)</span>
+<span class="n">output_exons</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>gene_name</th>
+      <th>source</th>
+      <th>feature</th>
+      <th>score</th>
+      <th>strand</th>
+      <th>frame</th>
+      <th>attribute</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>176820</th>
+      <td>chr1</td>
+      <td>70159330</td>
+      <td>70159438</td>
+      <td>LRRC40</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>-</td>
+      <td>.</td>
+      <td>gene_id "LRRC40"; transcript_id "XM_047424520....</td>
+    </tr>
+    <tr>
+      <th>176822</th>
+      <td>chr1</td>
+      <td>70173465</td>
+      <td>70173510</td>
+      <td>LRRC40</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>-</td>
+      <td>.</td>
+      <td>gene_id "LRRC40"; transcript_id "XM_047424520....</td>
+    </tr>
+    <tr>
+      <th>176824</th>
+      <td>chr1</td>
+      <td>70173622</td>
+      <td>70173709</td>
+      <td>LRRC40</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>-</td>
+      <td>.</td>
+      <td>gene_id "LRRC40"; transcript_id "XM_047424520....</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>We also want to annotate each gene, so we create a dataframe called genes that spans the region from the start of the first exon to the end of the last exon for each gene.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_genes</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">merge_intervals_by_column</span><span class="p">(</span>
+    <span class="n">output_exons</span><span class="p">,</span> <span class="n">group_col</span><span class="o">=</span><span class="s2">&quot;gene_name&quot;</span>
+<span class="p">)</span>
+<span class="n">output_genes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>gene_name</th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>strand</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>ANKRD13C</td>
+      <td>chr1</td>
+      <td>70258999</td>
+      <td>70336099</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>LRRC40</td>
+      <td>chr1</td>
+      <td>70159330</td>
+      <td>70205579</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>SRSF11</td>
+      <td>chr1</td>
+      <td>70205696</td>
+      <td>70253052</td>
+      <td>+</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="plot-predictions-with-annotations">
+<h2>Plot predictions with annotations<a class="headerlink" href="#plot-predictions-with-annotations" title="Link to this heading">#</a></h2>
+<p>Now, we can add these annotations to the plot.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_tracks</span><span class="p">(</span>
+    <span class="n">preds</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">tasks_to_plot</span><span class="p">,</span> <span class="p">:],</span> <span class="c1"># Outputs to plot</span>
+    <span class="n">start_pos</span><span class="o">=</span><span class="n">output_start</span><span class="p">,</span> <span class="c1"># Start coordinate for x-axis</span>
+    <span class="n">end_pos</span><span class="o">=</span><span class="n">output_end</span><span class="p">,</span> <span class="c1"># End coordinate for x-axis</span>
+    <span class="n">titles</span><span class="o">=</span><span class="n">task_names</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="n">annotations</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;genes&quot;</span><span class="p">:</span><span class="n">output_genes</span><span class="p">,</span> <span class="s2">&quot;exons&quot;</span><span class="p">:</span><span class="n">output_exons</span><span class="p">}</span> <span class="c1"># Dictionary of annotation dataframes</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/489f770ad3ebde6b649c05c976231453cc0f3b7075453ffc52dfdbb5593e9b44.png" src="../_images/489f770ad3ebde6b649c05c976231453cc0f3b7075453ffc52dfdbb5593e9b44.png" />
+</div>
+</div>
+</section>
+<section id="analyze-attention-weights">
+<h2>Analyze attention weights<a class="headerlink" href="#analyze-attention-weights" title="Link to this heading">#</a></h2>
+<p>Borzoi contains several transformer layers. Here, we can analyze the attention weights to see the relationships between local sequence regions. We use the <code class="docutils literal notranslate"><span class="pre">grelu.interpret.score</span></code> module which contains functions to score the importance of input bases.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.interpret.score</span>
+
+<span class="n">attn</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">get_attention_scores</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">seqs</span><span class="o">=</span><span class="n">input_seq</span><span class="p">,</span> <span class="c1"># You can also supply just the genomic interval</span>
+    <span class="n">genome</span><span class="o">=</span><span class="s1">&#39;hg38&#39;</span><span class="p">,</span>
+    <span class="n">block_idx</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="c1"># We take attention weights from the final transformer layer</span>
+<span class="p">)</span>
+
+<span class="n">attn</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(8, 4096, 4096)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note the shape of <code class="docutils literal notranslate"><span class="pre">attn</span></code>: It is in the form (heads, bins, bins). The first dimension is of length 8 since the transformer layer contains 8 heads. We will average the weights of all heads together to get a single bin x bin matrix.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">attn</span> <span class="o">=</span> <span class="n">attn</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">attn</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(4096, 4096)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Before visualizing this matrix, let us once again collect the gene annotations. Since the attention matrix is obtained from the transformer layers before cropping, it corresponds to the 524 kb input interval, not the 196 kb output interval. So, we once again extract exons and genes, this time overlapping with the input interval.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">input_exons</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">filter_overlapping</span><span class="p">(</span>
+    <span class="n">exons</span><span class="p">,</span>
+    <span class="n">ref_intervals</span><span class="o">=</span><span class="n">input_intervals</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;any&quot;</span> <span class="c1"># return the exon if there any overlap at all with the output interval. Set to &#39;all&#39; for completely contained exons.</span>
+<span class="p">)</span>
+<span class="n">input_exons</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">clip_intervals</span><span class="p">(</span><span class="n">input_exons</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">output_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">output_end</span><span class="p">)</span>
+<span class="n">input_genes</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">preprocess</span><span class="o">.</span><span class="n">merge_intervals_by_column</span><span class="p">(</span>
+    <span class="n">input_exons</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">4</span><span class="p">],</span> <span class="n">group_col</span><span class="o">=</span><span class="s2">&quot;gene_name&quot;</span>
+<span class="p">)</span>
+<span class="n">input_genes</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Keeping 762 intervals
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>gene_name</th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>ANKRD13C</td>
+      <td>chr1</td>
+      <td>70258999</td>
+      <td>70353968</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>ANKRD13C-DT</td>
+      <td>chr1</td>
+      <td>70354811</td>
+      <td>70353968</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>CTH</td>
+      <td>chr1</td>
+      <td>70411268</td>
+      <td>70353968</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>LINC03102</td>
+      <td>chr1</td>
+      <td>70359559</td>
+      <td>70353968</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>LOC105378793</td>
+      <td>chr1</td>
+      <td>70449080</td>
+      <td>70353968</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>LRRC40</td>
+      <td>chr1</td>
+      <td>70157360</td>
+      <td>70205579</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>LRRC7</td>
+      <td>chr1</td>
+      <td>70157360</td>
+      <td>70144364</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>LRRC7-AS1</td>
+      <td>chr1</td>
+      <td>70157360</td>
+      <td>70042259</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>SRSF11</td>
+      <td>chr1</td>
+      <td>70205696</td>
+      <td>70253052</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_attention_matrix</span><span class="p">(</span>
+    <span class="n">attn</span><span class="p">,</span>
+    <span class="n">start_pos</span><span class="o">=</span><span class="n">input_start</span><span class="p">,</span>
+    <span class="n">end_pos</span><span class="o">=</span><span class="n">input_end</span><span class="p">,</span>
+    <span class="n">highlight_intervals</span><span class="o">=</span><span class="n">input_genes</span><span class="p">,</span> <span class="c1"># Draw a box around each gene</span>
+    <span class="n">vmax</span><span class="o">=</span><span class="mf">0.003</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">5</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/71ec1fd7d13445669a9278e440c1a91d9257c524ab02c27d07fd3dedc6fa3ae8.png" src="../_images/71ec1fd7d13445669a9278e440c1a91d9257c524ab02c27d07fd3dedc6fa3ae8.png" />
+</div>
+</div>
+</section>
+<section id="calculate-tissue-specific-expression-over-srsf11-exons">
+<h2>Calculate tissue specific expression over SRSF11 exons<a class="headerlink" href="#calculate-tissue-specific-expression-over-srsf11-exons" title="Link to this heading">#</a></h2>
+<p>Suppose we are interested in a specific function of the output - the total RNA-seq expression over all exons of the SRSF11 gene. Further, we are interested in the tissue specificity of this expression, in brain vs. liver. We first identify the relevant tasks in the model’s predictions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">brain_tasks</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[(</span><span class="n">tasks</span><span class="o">.</span><span class="n">assay</span> <span class="o">==</span> <span class="s2">&quot;RNA&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">tasks</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;brain&quot;</span><span class="p">))]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">brain_tasks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[6635, 6636, 7539, 7540, 7541]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">liver_tasks</span> <span class="o">=</span> <span class="n">tasks</span><span class="p">[(</span><span class="n">tasks</span><span class="o">.</span><span class="n">assay</span> <span class="o">==</span> <span class="s2">&quot;RNA&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">tasks</span><span class="p">[</span><span class="s2">&quot;sample&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="s2">&quot;liver&quot;</span><span class="p">))]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">liver_tasks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[6132, 6133, 6146, 6147, 6437, 6438, 6490, 6491, 6579, 6580, 6582, 6583, 6691, 6692, 6730, 6731, 6770, 6916, 6917, 7181, 7182, 7563, 7564, 7565]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s look at what these tasks are:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tasks</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">brain_tasks</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>file</th>
+      <th>clip</th>
+      <th>clip_soft</th>
+      <th>scale</th>
+      <th>sum_stat</th>
+      <th>strand_pair</th>
+      <th>description</th>
+      <th>assay</th>
+      <th>sample</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>6635</th>
+      <td>ENCFF637ZBG+</td>
+      <td>/home/drk/tillage/datasets/human/rna/encode/EN...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>0.30</td>
+      <td>sum_sqrt</td>
+      <td>6636</td>
+      <td>RNA:brain tissue female adult (66 years)</td>
+      <td>RNA</td>
+      <td>brain tissue female adult (66 years)</td>
+    </tr>
+    <tr>
+      <th>6636</th>
+      <td>ENCFF637ZBG-</td>
+      <td>/home/drk/tillage/datasets/human/rna/encode/EN...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>0.30</td>
+      <td>sum_sqrt</td>
+      <td>6635</td>
+      <td>RNA:brain tissue female adult (66 years)</td>
+      <td>RNA</td>
+      <td>brain tissue female adult (66 years)</td>
+    </tr>
+    <tr>
+      <th>7539</th>
+      <td>GTEX-13FTY-0011-R11a-SM-5IJEA.1</td>
+      <td>/home/drk/tillage/datasets/human/rna/recount3/...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>0.01</td>
+      <td>sum_sqrt</td>
+      <td>7539</td>
+      <td>RNA:brain</td>
+      <td>RNA</td>
+      <td>brain</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tasks</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">liver_tasks</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>file</th>
+      <th>clip</th>
+      <th>clip_soft</th>
+      <th>scale</th>
+      <th>sum_stat</th>
+      <th>strand_pair</th>
+      <th>description</th>
+      <th>assay</th>
+      <th>sample</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>6132</th>
+      <td>ENCFF945UHI+</td>
+      <td>/home/drk/tillage/datasets/human/rna/encode/EN...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>0.3</td>
+      <td>sum_sqrt</td>
+      <td>6133</td>
+      <td>RNA:liver tissue female child (6 years) and wi...</td>
+      <td>RNA</td>
+      <td>liver tissue female child (6 years) and with n...</td>
+    </tr>
+    <tr>
+      <th>6133</th>
+      <td>ENCFF945UHI-</td>
+      <td>/home/drk/tillage/datasets/human/rna/encode/EN...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>0.3</td>
+      <td>sum_sqrt</td>
+      <td>6132</td>
+      <td>RNA:liver tissue female child (6 years) and wi...</td>
+      <td>RNA</td>
+      <td>liver tissue female child (6 years) and with n...</td>
+    </tr>
+    <tr>
+      <th>6146</th>
+      <td>ENCFF630VID+</td>
+      <td>/home/drk/tillage/datasets/human/rna/encode/EN...</td>
+      <td>768</td>
+      <td>384</td>
+      <td>0.3</td>
+      <td>sum_sqrt</td>
+      <td>6147</td>
+      <td>RNA:liver tissue female embryo (20 weeks) and ...</td>
+      <td>RNA</td>
+      <td>liver tissue female embryo (20 weeks) and male...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Now, let us get the coordinates of the exons of the SRSF11 gene.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">srsf11_exons</span> <span class="o">=</span> <span class="n">exons</span><span class="p">[</span><span class="n">exons</span><span class="o">.</span><span class="n">gene_name</span> <span class="o">==</span> <span class="s2">&quot;SRSF11&quot;</span><span class="p">]</span>
+<span class="n">srsf11_exons</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>chrom</th>
+      <th>start</th>
+      <th>end</th>
+      <th>gene_name</th>
+      <th>source</th>
+      <th>feature</th>
+      <th>score</th>
+      <th>strand</th>
+      <th>frame</th>
+      <th>attribute</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>176920</th>
+      <td>chr1</td>
+      <td>70205696</td>
+      <td>70205780</td>
+      <td>SRSF11</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>+</td>
+      <td>.</td>
+      <td>gene_id "SRSF11"; transcript_id "XM_047434541....</td>
+    </tr>
+    <tr>
+      <th>176921</th>
+      <td>chr1</td>
+      <td>70216294</td>
+      <td>70221839</td>
+      <td>SRSF11</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>+</td>
+      <td>.</td>
+      <td>gene_id "SRSF11"; transcript_id "XM_047434541....</td>
+    </tr>
+    <tr>
+      <th>176923</th>
+      <td>chr1</td>
+      <td>70228422</td>
+      <td>70228555</td>
+      <td>SRSF11</td>
+      <td>genomepy</td>
+      <td>exon</td>
+      <td>.</td>
+      <td>+</td>
+      <td>.</td>
+      <td>gene_id "SRSF11"; transcript_id "XM_047434541....</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Remember that the model makes predictions for bins of width 32 bp. In order to get the predicted coverage over the SRSF11 exons, we need to identify the relevant bins in the output track that overlap with exons of SRSF11. We have another coordinate-conversion function for this:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">srsf11_exon_bins</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">input_intervals_to_output_bins</span><span class="p">(</span>
+    <span class="n">intervals</span><span class="o">=</span><span class="n">srsf11_exons</span><span class="p">,</span>
+    <span class="n">start_pos</span><span class="o">=</span><span class="n">input_start</span> <span class="c1"># Start coordinate of the input sequence</span>
+<span class="p">)</span>
+<span class="n">srsf11_exon_bins</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>start</th>
+      <th>end</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>176920</th>
+      <td>1510</td>
+      <td>1514</td>
+    </tr>
+    <tr>
+      <th>176921</th>
+      <td>1841</td>
+      <td>2015</td>
+    </tr>
+    <tr>
+      <th>176923</th>
+      <td>2220</td>
+      <td>2225</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>We now have the indices of all the bins that overlap with each exon! Let’s combine them:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">selected_bins</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">srsf11_exon_bins</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+    <span class="n">selected_bins</span> <span class="o">=</span> <span class="n">selected_bins</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">row</span><span class="o">.</span><span class="n">end</span><span class="p">)))</span>
+
+<span class="n">selected_bins</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">selected_bins</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">selected_bins</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>380
+</pre></div>
+</div>
+</div>
+</div>
+<p>Thus, out of the 6144 bins in the model’s output, we are interested in only a subset of them. Now, we can use the <code class="docutils literal notranslate"><span class="pre">grelu.transforms</span></code> module to define a transform or objective function that calculates a specific score from the model’s predictions.</p>
+<p>We use the <code class="docutils literal notranslate"><span class="pre">Specificity</span></code> transform since we are computing the difference between on- and off- target tasks. To simply compute the mean or total prediction over specific regions/tasks, use the <code class="docutils literal notranslate"><span class="pre">Aggregate</span></code> transform.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.transforms.prediction_transforms</span>
+
+<span class="n">brain_specific_srsf11_score</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">prediction_transforms</span><span class="o">.</span><span class="n">Specificity</span><span class="p">(</span>
+    <span class="n">on_tasks</span> <span class="o">=</span> <span class="n">brain_tasks</span><span class="p">,</span> <span class="c1"># positive tasks</span>
+    <span class="n">off_tasks</span> <span class="o">=</span> <span class="n">liver_tasks</span><span class="p">,</span> <span class="c1"># negative tasks</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">selected_bins</span><span class="p">,</span> <span class="c1"># The relevant regions of the output</span>
+    <span class="n">on_aggfunc</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="c1"># Average expression over the positive tasks</span>
+    <span class="n">off_aggfunc</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="c1"># Average expression over the negative tasks</span>
+    <span class="n">length_aggfunc</span> <span class="o">=</span> <span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="c1"># Average expression over the bins</span>
+    <span class="n">compare_func</span> <span class="o">=</span> <span class="s2">&quot;divide&quot;</span><span class="p">,</span> <span class="c1"># Return the ratio of expression in positive tasks to negative tasks</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>By applying this function to our model’s predictions, we get the ratio between the mean expression in exons of SRSF11 in brain RNA-seq tracks vs. in liver RNA-seq tracks.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">brain_specific_srsf11_score</span><span class="o">.</span><span class="n">compute</span><span class="p">(</span><span class="n">preds</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([[[1.6088623]]], dtype=float32)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Thus, the total expression over all annotated SRSF11 exons is on average 1.6x higher in brain RNA-seq tracks.</p>
+</section>
+<section id="ism-with-respect-to-specific-expression">
+<h2>ISM with respect to specific expression<a class="headerlink" href="#ism-with-respect-to-specific-expression" title="Link to this heading">#</a></h2>
+<p>We can perform In Silico Mutagenesis (ISM) to identify which bases in the input sequence are contributing to the tissue-specific expression. Since ISM on all 524288 bases would take a long time, we will take 100 bases upstream and downstream of the start position of the first exon.</p>
+<p>gReLU also offers other interpretation methods - see <code class="docutils literal notranslate"><span class="pre">grelu.interpret.score.get_attributions</span></code> to compute gradients instead of ISM.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ism_start_pos</span> <span class="o">=</span> <span class="n">srsf11_exons</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">100</span>
+<span class="n">ism_end_pos</span> <span class="o">=</span> <span class="n">srsf11_exons</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">+</span> <span class="mi">100</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">ism_start_pos</span><span class="p">,</span> <span class="n">ism_end_pos</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>70205596 70205796
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
+
+<span class="n">ism</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">ISM_predict</span><span class="p">(</span>
+    <span class="n">seqs</span><span class="o">=</span><span class="n">input_seq</span><span class="p">,</span> <span class="c1"># You can also supply genomic intervals</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">brain_specific_srsf11_score</span><span class="p">,</span> <span class="c1"># We will compute how each base affects this score</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># Index of the GPU to use</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">start_pos</span><span class="o">=</span><span class="n">ism_start_pos</span><span class="o">-</span><span class="n">input_start</span><span class="p">,</span> <span class="c1"># Relative start position from the first base</span>
+    <span class="n">end_pos</span><span class="o">=</span><span class="n">ism_end_pos</span><span class="o">-</span><span class="n">input_start</span><span class="p">,</span> <span class="c1"># Relative end position from the first base</span>
+    <span class="n">return_df</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Return a dataframe</span>
+    <span class="n">compare_func</span><span class="o">=</span><span class="s2">&quot;log2FC&quot;</span><span class="p">,</span> <span class="c1"># Return the log2 ratio between the predictions for the mutated sequence and the reference sequence</span>
+<span class="p">)</span>
+
+<span class="n">ism</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Predicting DataLoader 0: 100%|█████████████████████████████████████████████| 100/100 [03:32&lt;00:00,  0.47it/s]
+CPU times: user 3min 33s, sys: 2.06 s, total: 3min 35s
+Wall time: 3min 35s
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(4, 200)
+</pre></div>
+</div>
+</div>
+</div>
+<p>The output here is a dataframe with 4 rows corresponding to the bases that were substituted at each position (A, C, G and T) and 200 columns, one for each position that was mutated. Because we selected <code class="docutils literal notranslate"><span class="pre">compare_func=&quot;log2FC&quot;</span></code>, the values in the dataframe represent log (score of mutated sequence / score of original sequence).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ism</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>C</th>
+      <th>C</th>
+      <th>G</th>
+      <th>T</th>
+      <th>T</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A</th>
+      <td>-0.000303</td>
+      <td>-0.001695</td>
+      <td>-0.000815</td>
+      <td>-0.002089</td>
+      <td>-0.001104</td>
+    </tr>
+    <tr>
+      <th>C</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-0.002890</td>
+      <td>-0.002399</td>
+      <td>0.000142</td>
+    </tr>
+    <tr>
+      <th>G</th>
+      <td>-0.004893</td>
+      <td>-0.004773</td>
+      <td>0.000000</td>
+      <td>-0.002275</td>
+      <td>-0.002599</td>
+    </tr>
+    <tr>
+      <th>T</th>
+      <td>0.000046</td>
+      <td>0.000599</td>
+      <td>-0.004783</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>We can visualize these ISM scores in two ways: as a heatmap or as a sequence logo where the height of each base corresponds to its importance.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_ISM</span><span class="p">(</span><span class="n">ism</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;heatmap&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Axes: &gt;
+</pre></div>
+</div>
+<img alt="../_images/e9ba67d243ac2b2f8c7bfcaca1a9a2c06ea465e4e96ad0a653de596b4bf92f76.png" src="../_images/e9ba67d243ac2b2f8c7bfcaca1a9a2c06ea465e4e96ad0a653de596b4bf92f76.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_ISM</span><span class="p">(</span><span class="n">ism</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;logo&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x7f91eb50c850&gt;
+</pre></div>
+</div>
+<img alt="../_images/b40c8fc051922eacab96a19197ba142ea2113a6ce904f68e4b0a1c228303a4e2.png" src="../_images/b40c8fc051922eacab96a19197ba142ea2113a6ce904f68e4b0a1c228303a4e2.png" />
+</div>
+</div>
+<p>See the subsequent tutorials to learn about other things you can do with this model, including fine-tuning, variant effect prediction, and sequence design.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../readme.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">gReLU</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="2_finetune.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Fine-tune Enformer to perform binary classification on human snATAC-seq data</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-pre-trained-borzoi-model-from-the-model-zoo">Load the pre-trained Borzoi model from the model zoo</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#view-the-model-s-metadata">View the model’s metadata</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#make-inference-intervals">Make inference intervals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extract-the-sequence">Extract the sequence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-inference-on-a-single-sequence">Run inference on a single sequence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#get-output-interval-coordinates">Get output interval coordinates</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-predictions">Plot predictions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-genomic-annotations">Add genomic annotations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#plot-predictions-with-annotations">Plot predictions with annotations</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#analyze-attention-weights">Analyze attention weights</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-tissue-specific-expression-over-srsf11-exons">Calculate tissue specific expression over SRSF11 exons</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ism-with-respect-to-specific-expression">ISM with respect to specific expression</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/tutorials/1_inference.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/tutorials/1_inference.ipynb"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

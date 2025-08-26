@@ -1,0 +1,3120 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=4e48d009"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://genentech.github.io/gReLU/genindex.html" />
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="unknown" />
+    <meta name="docbuild:last-update" content="Aug 26, 2025"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="tutorials/5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="tutorials/6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="tutorials/6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="autoapi/index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.__call__">__call__() (grelu.data.augment.Augmenter method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/transforms/label_transforms/index.html#grelu.transforms.label_transforms.LabelTransform.__call__">(grelu.transforms.label_transforms.LabelTransform method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.MotifScore.__call__">(grelu.transforms.seq_transforms.MotifScore method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.PatternScore.__call__">(grelu.transforms.seq_transforms.PatternScore method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.__getitem__">__getitem__() (grelu.data.dataset.ISMDataset method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.__getitem__">(grelu.data.dataset.LabeledSeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.__getitem__">(grelu.data.dataset.MotifScanDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.__getitem__">(grelu.data.dataset.PatternMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.__getitem__">(grelu.data.dataset.SeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.__getitem__">(grelu.data.dataset.SpacingMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.__getitem__">(grelu.data.dataset.TilingShuffleDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.__getitem__">(grelu.data.dataset.VariantDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.__getitem__">(grelu.data.dataset.VariantMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.__getitem__">(grelu.lightning.ISMDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.__getitem__">(grelu.lightning.LabeledSeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.__getitem__">(grelu.lightning.MotifScanDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.__getitem__">(grelu.lightning.PatternMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.__getitem__">(grelu.lightning.SeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.__getitem__">(grelu.lightning.SpacingMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.__getitem__">(grelu.lightning.TilingShuffleDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.__getitem__">(grelu.lightning.VariantDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.__getitem__">(grelu.lightning.VariantMarginalizeDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.__len__">__len__() (grelu.data.augment.Augmenter method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.__len__">(grelu.data.dataset.ISMDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.__len__">(grelu.data.dataset.LabeledSeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.__len__">(grelu.data.dataset.MotifScanDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.__len__">(grelu.data.dataset.PatternMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.__len__">(grelu.data.dataset.SeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.__len__">(grelu.data.dataset.SpacingMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.__len__">(grelu.data.dataset.TilingShuffleDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.__len__">(grelu.data.dataset.VariantDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.__len__">(grelu.data.dataset.VariantMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.__len__">(grelu.lightning.ISMDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.__len__">(grelu.lightning.LabeledSeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.__len__">(grelu.lightning.MotifScanDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.__len__">(grelu.lightning.PatternMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.__len__">(grelu.lightning.SeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.__len__">(grelu.lightning.SpacingMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.__len__">(grelu.lightning.TilingShuffleDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.__len__">(grelu.lightning.VariantDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.__len__">(grelu.lightning.VariantMarginalizeDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.__update__">__update__() (grelu.data.dataset.PatternMarginalizeDataset method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.__update__">(grelu.data.dataset.SpacingMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.__update__">(grelu.data.dataset.VariantMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.__update__">(grelu.lightning.PatternMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.__update__">(grelu.lightning.SpacingMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.__update__">(grelu.lightning.VariantMarginalizeDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/interpret/modisco/index.html#grelu.interpret.modisco._add_tomtom_to_modisco_report">_add_tomtom_to_modisco_report() (in module grelu.interpret.modisco)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/utils/index.html#grelu.data.utils._check_multiclass">_check_multiclass() (in module grelu.data.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources._check_wandb">_check_wandb() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize._collect_preds_and_labels">_collect_preds_and_labels() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble._combine_tasks">_combine_tasks() (grelu.lightning.LightningModelEnsemble method)</a>
+</li>
+      <li><a href="autoapi/grelu/data/utils/index.html#grelu.data.utils._create_task_data">_create_task_data() (in module grelu.data.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.CustomGenome._genome">_genome (grelu.io.genome.CustomGenome attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel._get_dataset_attrs">_get_dataset_attrs() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel._get_dataset_attrs">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment._get_multipliers">_get_multipliers() (in module grelu.data.augment)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention._get_pos_k">_get_pos_k() (grelu.model.layers.Attention method)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter._get_random_idxs">_get_random_idxs() (grelu.data.augment.Augmenter method)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/modisco/index.html#grelu.interpret.modisco._ism_attrs">_ism_attrs() (in module grelu.interpret.modisco)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset._load_alleles">_load_alleles() (grelu.data.dataset.PatternMarginalizeDataset method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset._load_alleles">(grelu.data.dataset.VariantDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset._load_alleles">(grelu.data.dataset.VariantMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset._load_alleles">(grelu.lightning.PatternMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset._load_alleles">(grelu.lightning.VariantDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset._load_alleles">(grelu.lightning.VariantMarginalizeDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.BigWigSeqDataset._load_labels">_load_labels() (grelu.data.dataset.BigWigSeqDataset method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset._load_labels">(grelu.data.dataset.LabeledSeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset._load_labels">(grelu.lightning.LabeledSeqDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset._load_patterns">_load_patterns() (grelu.data.dataset.SpacingMarginalizeDataset method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset._load_patterns">(grelu.lightning.SpacingMarginalizeDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset._load_seqs">_load_seqs() (grelu.data.dataset.ISMDataset method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset._load_seqs">(grelu.data.dataset.LabeledSeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset._load_seqs">(grelu.data.dataset.MotifScanDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset._load_seqs">(grelu.data.dataset.PatternMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset._load_seqs">(grelu.data.dataset.SeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset._load_seqs">(grelu.data.dataset.SpacingMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset._load_seqs">(grelu.data.dataset.TilingShuffleDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset._load_seqs">(grelu.data.dataset.VariantDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset._load_seqs">(grelu.data.dataset.VariantMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset._load_seqs">(grelu.lightning.ISMDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset._load_seqs">(grelu.lightning.LabeledSeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset._load_seqs">(grelu.lightning.MotifScanDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset._load_seqs">(grelu.lightning.PatternMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset._load_seqs">(grelu.lightning.SeqDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset._load_seqs">(grelu.lightning.SpacingMarginalizeDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset._load_seqs">(grelu.lightning.TilingShuffleDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset._load_seqs">(grelu.lightning.VariantDataset method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset._load_seqs">(grelu.lightning.VariantMarginalizeDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset._load_tasks">_load_tasks() (grelu.data.dataset.LabeledSeqDataset method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset._load_tasks">(grelu.lightning.LabeledSeqDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.CustomGenome._sizes_file">_sizes_file (grelu.io.genome.CustomGenome attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter._split">_split() (grelu.data.augment.Augmenter method)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment._split_overall_idx">_split_overall_idx() (in module grelu.data.augment)</a>
+</li>
+      <li><a href="autoapi/grelu/data/utils/index.html#grelu.data.utils._tile_positions">_tile_positions() (in module grelu.data.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/modisco/index.html#grelu.interpret.modisco._tomtom_on_modisco">_tomtom_on_modisco() (in module grelu.interpret.modisco)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ChannelTransformBlock.act">act (grelu.model.blocks.ChannelTransformBlock attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock.act">(grelu.model.blocks.ConvBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.LinearBlock.act">(grelu.model.blocks.LinearBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.Stem.act">(grelu.model.blocks.Stem attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiTrunk.act">(grelu.model.trunks.borzoi.BorzoiTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTrunk.act">(grelu.model.trunks.enformer.EnformerTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNConvBlock.act">(grelu.model.trunks.explainn.ExplaiNNConvBlock attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead.act_func">act_func (grelu.lightning.ConvHead attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead.act_func">(grelu.model.heads.ConvHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.act_func">(grelu.model.heads.MLPHead attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Activation">Activation (class in grelu.model.layers)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.AdaptivePool">AdaptivePool (class in grelu.model.layers)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.add_highlights">add_highlights() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.add_negatives">add_negatives() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.add_transform">add_transform() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.add_transform">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate">Aggregate (class in grelu.transforms.prediction_transforms)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.ALLOWED_BASES">ALLOWED_BASES (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.AnnDataSeqDataset">AnnDataSeqDataset (class in grelu.data.dataset)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.artifacts">artifacts() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention">Attention (class in grelu.model.layers)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.attn_dropout">attn_dropout (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.AUGMENTATION_MULTIPLIER_FUNCS">AUGMENTATION_MULTIPLIER_FUNCS (in module grelu.data.augment)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter">Augmenter (class in grelu.data.augment)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.augmenter">augmenter (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.augmenter">(grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.augmenter">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.augmenter">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.augmenter">(grelu.data.dataset.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.augmenter">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.augmenter">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.augmenter">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.augmenter">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.augmenter">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.augmenter">(grelu.lightning.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.augmenter">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.BestF1.average">average (grelu.lightning.BestF1 attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.BestF1.average">(grelu.lightning.metrics.BestF1 attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.MSE.average">(grelu.lightning.metrics.MSE attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.PearsonCorrCoef.average">(grelu.lightning.metrics.PearsonCorrCoef attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MSE.average">(grelu.lightning.MSE attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PearsonCorrCoef.average">(grelu.lightning.PearsonCorrCoef attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.BASE_TO_INDEX_HASH">BASE_TO_INDEX_HASH (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.BaseModel">BaseModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.BestF1">BestF1 (class in grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.BestF1">(class in grelu.lightning.metrics)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.bg">bg (grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.bg">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.bg">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.bg">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.bg">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.bg">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.BigWigSeqDataset">BigWigSeqDataset (class in grelu.data.dataset)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.bin_size">bin_size (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.bin_size">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvTower.blocks">blocks (grelu.model.blocks.ConvTower attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerTower.blocks">(grelu.model.blocks.TransformerTower attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetTower.blocks">(grelu.model.blocks.UnetTower attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.blocks">(grelu.model.heads.MLPHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiConvTower.blocks">(grelu.model.trunks.borzoi.BorzoiConvTower attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTower.blocks">(grelu.model.trunks.ConvTower attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerConvTower.blocks">(grelu.model.trunks.enformer.EnformerConvTower attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerTower.blocks">(grelu.model.trunks.enformer.EnformerTransformerTower attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNTrunk.blocks">(grelu.model.trunks.explainn.ExplaiNNTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.TransformerTower.blocks">(grelu.model.trunks.TransformerTower attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiConvTower">BorzoiConvTower (class in grelu.model.trunks.borzoi)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.BorzoiModel">BorzoiModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.BorzoiPretrainedModel">BorzoiPretrainedModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiTrunk">BorzoiTrunk (class in grelu.model.trunks.borzoi)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.build_model">build_model() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.build_model">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.change_head">change_head() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.change_head">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead.channel_transform">channel_transform (grelu.lightning.ConvHead attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetBlock.channel_transform">(grelu.model.blocks.UnetBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead.channel_transform">(grelu.model.heads.ConvHead attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNTrunk.channels">channels (grelu.model.trunks.explainn.ExplaiNNTrunk attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.ChannelTransform">ChannelTransform (class in grelu.model.layers)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ChannelTransformBlock">ChannelTransformBlock (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/io/bigwig/index.html#grelu.io.bigwig.check_bigwig">check_bigwig() (in module grelu.io.bigwig)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.check_chrom_ends">check_chrom_ends() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.check_equal_lengths">check_equal_lengths() (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/io/fasta/index.html#grelu.io.fasta.check_fasta">check_fasta() (in module grelu.io.fasta)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.check_indices">check_indices() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.check_intervals">check_intervals() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.check_one_hot">check_one_hot() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/variant/index.html#grelu.variant.check_reference">check_reference() (in module grelu.variant)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.check_string_dna">check_string_dna() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.clip_intervals">clip_intervals() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.compare_func">compare_func (grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.compare_func_numpy">compare_func_numpy (grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/motifs/index.html#grelu.interpret.motifs.compare_motifs">compare_motifs() (in module grelu.interpret.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.BestF1.compute">compute() (grelu.lightning.BestF1 method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.BestF1.compute">(grelu.lightning.metrics.BestF1 method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.MSE.compute">(grelu.lightning.metrics.MSE method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.PearsonCorrCoef.compute">(grelu.lightning.metrics.PearsonCorrCoef method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MSE.compute">(grelu.lightning.MSE method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PearsonCorrCoef.compute">(grelu.lightning.PearsonCorrCoef method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.compute">(grelu.transforms.prediction_transforms.Aggregate method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.compute">(grelu.transforms.prediction_transforms.Specificity method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.configure_optimizers">configure_optimizers() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.configure_optimizers">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ChannelTransformBlock.conv">conv (grelu.model.blocks.ChannelTransformBlock attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock.conv">(grelu.model.blocks.ConvBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.Stem.conv">(grelu.model.blocks.Stem attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetBlock.conv">(grelu.model.blocks.UnetBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNConvBlock.conv">(grelu.model.trunks.explainn.ExplaiNNConvBlock attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiTrunk.conv_tower">conv_tower (grelu.model.trunks.borzoi.BorzoiTrunk attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvGRUTrunk.conv_tower">(grelu.model.trunks.ConvGRUTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTransformerTrunk.conv_tower">(grelu.model.trunks.ConvTransformerTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTrunk.conv_tower">(grelu.model.trunks.ConvTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.DilatedConvTrunk.conv_tower">(grelu.model.trunks.DilatedConvTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTrunk.conv_tower">(grelu.model.trunks.enformer.EnformerTrunk attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock">ConvBlock (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.convert_input_type">convert_input_type() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.ConvGRUModel">ConvGRUModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvGRUTrunk">ConvGRUTrunk (class in grelu.model.trunks)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead">ConvHead (class in grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead">(class in grelu.model.heads)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.ConvMLPModel">ConvMLPModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.ConvModel">ConvModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvTower">ConvTower (class in grelu.model.blocks)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTower">(class in grelu.model.trunks)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.ConvTransformerModel">ConvTransformerModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTransformerTrunk">ConvTransformerTrunk (class in grelu.model.trunks)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTrunk">ConvTrunk (class in grelu.model.trunks)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.count_params">count_params() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.count_params">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Crop">Crop (class in grelu.model.layers)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvTower.crop">crop (grelu.model.blocks.ConvTower attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiTrunk.crop">(grelu.model.trunks.borzoi.BorzoiTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTower.crop">(grelu.model.trunks.ConvTower attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTrunk.crop">(grelu.model.trunks.enformer.EnformerTrunk attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.curr_seq_idx">curr_seq_idx (grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.curr_seq_idx">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.curr_seq_idx">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.curr_seq_idx">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.curr_seq_idx">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.curr_seq_idx">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.CustomGenome">CustomGenome (class in grelu.io.genome)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.data_params">data_params (grelu.lightning.LightningModel attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble.data_params">(grelu.lightning.LightningModelEnsemble attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.data_params">(grelu.resources.LightningModel attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.datasets">datasets() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.default_train_params">default_train_params (in module grelu.lightning)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.DEFAULT_WANDB_ENTITY">DEFAULT_WANDB_ENTITY (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.DEFAULT_WANDB_HOST">DEFAULT_WANDB_HOST (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/mutate/index.html#grelu.sequence.mutate.delete">delete() (in module grelu.sequence.mutate)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.FeedForwardBlock.dense1">dense1 (grelu.model.blocks.FeedForwardBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.FeedForwardBlock.dense2">dense2 (grelu.model.blocks.FeedForwardBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.SeparableConv.depthwise">depthwise (grelu.model.blocks.SeparableConv attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.DFSeqDataset">DFSeqDataset (class in grelu.data.dataset)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.DilatedConvModel">DilatedConvModel (class in grelu.model.models)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.DilatedConvTrunk">DilatedConvTrunk (class in grelu.model.trunks)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.dinuc_shuffle">dinuc_shuffle() (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/index.html#grelu.dist_name">dist_name (in module grelu)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.drop_ref">drop_ref (grelu.data.dataset.ISMDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.drop_ref">(grelu.lightning.ISMDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Dropout">Dropout (class in grelu.model.layers)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ChannelTransformBlock.dropout">dropout (grelu.model.blocks.ChannelTransformBlock attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock.dropout">(grelu.model.blocks.ConvBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.LinearBlock.dropout">(grelu.model.blocks.LinearBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerBlock.dropout">(grelu.model.blocks.TransformerBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.dropout">(grelu.model.heads.MLPHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerBlock.dropout">(grelu.model.trunks.enformer.EnformerTransformerBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNConvBlock.dropout">(grelu.model.trunks.explainn.ExplaiNNConvBlock attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.dropout_p">dropout_p (grelu.model.layers.FlashAttention attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.embed_dim">embed_dim (grelu.model.layers.FlashAttention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.embed_on_dataset">embed_on_dataset() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.embed_on_dataset">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.BaseModel.embedding">embedding (grelu.model.models.BaseModel attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.end">end (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.end">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.end">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.end">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerConvTower">EnformerConvTower (class in grelu.model.trunks.enformer)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.EnformerModel">EnformerModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.EnformerPretrainedModel">EnformerPretrainedModel (class in grelu.model.models)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerBlock">EnformerTransformerBlock (class in grelu.model.trunks.enformer)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerTower">EnformerTransformerTower (class in grelu.model.trunks.enformer)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTrunk">EnformerTrunk (class in grelu.model.trunks.enformer)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/losses/index.html#grelu.lightning.losses.PoissonMultinomialLoss.eps">eps (grelu.lightning.losses.PoissonMultinomialLoss attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PoissonMultinomialLoss.eps">(grelu.lightning.PoissonMultinomialLoss attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/design/index.html#grelu.design.evolve">evolve() (in module grelu.design)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.except_tasks">except_tasks (grelu.transforms.prediction_transforms.Aggregate attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNConvBlock">ExplaiNNConvBlock (class in grelu.model.trunks.explainn)</a>
+</li>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.ExplaiNNModel">ExplaiNNModel (class in grelu.model.models)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNTrunk">ExplaiNNTrunk (class in grelu.model.trunks.explainn)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.extend_from_coord">extend_from_coord() (in module grelu.data.preprocess)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.FeedForwardBlock">FeedForwardBlock (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.GRUBlock.ffn">ffn (grelu.model.blocks.GRUBlock attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerBlock.ffn">(grelu.model.blocks.TransformerBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerBlock.ffn">(grelu.model.trunks.enformer.EnformerTransformerBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.GRUBlock.ffn">(grelu.model.trunks.GRUBlock attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.filter">filter() (grelu.transforms.prediction_transforms.Aggregate method)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_blacklist">filter_blacklist() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_cells">filter_cells() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_chrom_ends">filter_chrom_ends() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_chromosomes">filter_chromosomes() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_coverage">filter_coverage() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_intervals">filter_intervals() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_obs">filter_obs() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_overlapping">filter_overlapping() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.filter_random">filter_random() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/variant/index.html#grelu.variant.filter_variants">filter_variants() (in module grelu.variant)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiConvTower.filters">filters (grelu.model.trunks.borzoi.BorzoiConvTower attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.flash_attn_qkvpacked_func">flash_attn_qkvpacked_func (grelu.model.layers.FlashAttention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerBlock.flash_attn_warn">flash_attn_warn (grelu.model.blocks.TransformerBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention">FlashAttention (class in grelu.model.layers)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNConvBlock.flatten">flatten (grelu.model.trunks.explainn.ExplaiNNConvBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.format_input">format_input() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.format_input">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead.forward">forward() (grelu.lightning.ConvHead method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.forward">(grelu.lightning.LightningModel method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble.forward">(grelu.lightning.LightningModelEnsemble method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/losses/index.html#grelu.lightning.losses.PoissonMultinomialLoss.forward">(grelu.lightning.losses.PoissonMultinomialLoss method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PoissonMultinomialLoss.forward">(grelu.lightning.PoissonMultinomialLoss method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ChannelTransformBlock.forward">(grelu.model.blocks.ChannelTransformBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock.forward">(grelu.model.blocks.ConvBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvTower.forward">(grelu.model.blocks.ConvTower method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.FeedForwardBlock.forward">(grelu.model.blocks.FeedForwardBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.GRUBlock.forward">(grelu.model.blocks.GRUBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.LinearBlock.forward">(grelu.model.blocks.LinearBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.SeparableConv.forward">(grelu.model.blocks.SeparableConv method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.Stem.forward">(grelu.model.blocks.Stem method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerBlock.forward">(grelu.model.blocks.TransformerBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerTower.forward">(grelu.model.blocks.TransformerTower method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetBlock.forward">(grelu.model.blocks.UnetBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetTower.forward">(grelu.model.blocks.UnetTower method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead.forward">(grelu.model.heads.ConvHead method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.forward">(grelu.model.heads.MLPHead method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Activation.forward">(grelu.model.layers.Activation method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.AdaptivePool.forward">(grelu.model.layers.AdaptivePool method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.forward">(grelu.model.layers.Attention method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.ChannelTransform.forward">(grelu.model.layers.ChannelTransform method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Crop.forward">(grelu.model.layers.Crop method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Dropout.forward">(grelu.model.layers.Dropout method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.forward">(grelu.model.layers.FlashAttention method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Norm.forward">(grelu.model.layers.Norm method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Pool.forward">(grelu.model.layers.Pool method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.BaseModel.forward">(grelu.model.models.BaseModel method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiConvTower.forward">(grelu.model.trunks.borzoi.BorzoiConvTower method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiTrunk.forward">(grelu.model.trunks.borzoi.BorzoiTrunk method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvGRUTrunk.forward">(grelu.model.trunks.ConvGRUTrunk method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTower.forward">(grelu.model.trunks.ConvTower method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTransformerTrunk.forward">(grelu.model.trunks.ConvTransformerTrunk method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTrunk.forward">(grelu.model.trunks.ConvTrunk method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.DilatedConvTrunk.forward">(grelu.model.trunks.DilatedConvTrunk method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerConvTower.forward">(grelu.model.trunks.enformer.EnformerConvTower method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerBlock.forward">(grelu.model.trunks.enformer.EnformerTransformerBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerTower.forward">(grelu.model.trunks.enformer.EnformerTransformerTower method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTrunk.forward">(grelu.model.trunks.enformer.EnformerTrunk method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNConvBlock.forward">(grelu.model.trunks.explainn.ExplaiNNConvBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNTrunk.forward">(grelu.model.trunks.explainn.ExplaiNNTrunk method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.GRUBlock.forward">(grelu.model.trunks.GRUBlock method)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.TransformerTower.forward">(grelu.model.trunks.TransformerTower method)</a>
+</li>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.forward">(grelu.resources.LightningModel method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/label_transforms/index.html#grelu.transforms.label_transforms.LabelTransform.forward">(grelu.transforms.label_transforms.LabelTransform method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.forward">(grelu.transforms.prediction_transforms.Aggregate method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.forward">(grelu.transforms.prediction_transforms.Specificity method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.MotifScore.forward">(grelu.transforms.seq_transforms.MotifScore method)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.PatternScore.forward">(grelu.transforms.seq_transforms.PatternScore method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/sequence/metrics/index.html#grelu.sequence.metrics.gc">gc() (in module grelu.sequence.metrics)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/metrics/index.html#grelu.sequence.metrics.gc_distribution">gc_distribution() (in module grelu.sequence.metrics)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.generate_random_sequences">generate_random_sequences() (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.genome">genome (grelu.data.dataset.ISMDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.genome">(grelu.data.dataset.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.genome">(grelu.data.dataset.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.genome">(grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.genome">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.genome">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.genome">(grelu.data.dataset.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.genome">(grelu.data.dataset.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.genome">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.CustomGenome.genome">(grelu.io.genome.CustomGenome attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.genome">(grelu.lightning.ISMDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.genome">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.genome">(grelu.lightning.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.genome">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.genome">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.genome">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.genome">(grelu.lightning.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.genome">(grelu.lightning.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.genome">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.get_aggfunc">get_aggfunc() (in module grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/utils/index.html#grelu.utils.get_aggfunc">(in module grelu.utils)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.get_artifact">get_artifact() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/score/index.html#grelu.interpret.score.get_attention_scores">get_attention_scores() (in module grelu.interpret.score)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.get_attn_scores">get_attn_scores() (grelu.model.layers.Attention method)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/score/index.html#grelu.interpret.score.get_attributions">get_attributions() (in module grelu.interpret.score)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.get_blacklist_file">get_blacklist_file() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/model/position/index.html#grelu.model.position.get_central_mask">get_central_mask() (in module grelu.model.position)</a>
+</li>
+      <li><a href="autoapi/grelu/data/utils/index.html#grelu.data.utils.get_chromosomes">get_chromosomes() (in module grelu.data.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/utils/index.html#grelu.utils.get_compare_func">get_compare_func() (in module grelu.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.get_dataset_by_model">get_dataset_by_model() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/model/position/index.html#grelu.model.position.get_exponential_embedding">get_exponential_embedding() (in module grelu.model.position)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.get_gc_matched_intervals">get_gc_matched_intervals() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.get_genome">get_genome() (in module grelu.io.genome)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.get_input_type">get_input_type() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/io/motifs/index.html#grelu.io.motifs.get_jaspar">get_jaspar() (in module grelu.io.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.get_labels">get_labels() (grelu.data.dataset.LabeledSeqDataset method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.get_labels">(grelu.lightning.LabeledSeqDataset method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.get_lengths">get_lengths() (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.get_meme_file_path">get_meme_file_path() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.get_model_by_dataset">get_model_by_dataset() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.CustomGenome.get_seq">get_seq() (grelu.io.genome.CustomGenome method)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.get_task_idxs">get_task_idxs() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble.get_task_idxs">(grelu.lightning.LightningModelEnsemble method)</a>
+</li>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.get_task_idxs">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/utils/index.html#grelu.utils.get_transform_func">get_transform_func() (in module grelu.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.get_unique_length">get_unique_length() (in module grelu.sequence.utils)</a>
+</li>
+      <li>
+    grelu
+
+      <ul>
+        <li><a href="autoapi/grelu/index.html#module-grelu">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.data
+
+      <ul>
+        <li><a href="autoapi/grelu/data/index.html#module-grelu.data">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.data.augment
+
+      <ul>
+        <li><a href="autoapi/grelu/data/augment/index.html#module-grelu.data.augment">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.data.dataset
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#module-grelu.data.dataset">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.data.preprocess
+
+      <ul>
+        <li><a href="autoapi/grelu/data/preprocess/index.html#module-grelu.data.preprocess">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.data.utils
+
+      <ul>
+        <li><a href="autoapi/grelu/data/utils/index.html#module-grelu.data.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.design
+
+      <ul>
+        <li><a href="autoapi/grelu/design/index.html#module-grelu.design">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.interpret
+
+      <ul>
+        <li><a href="autoapi/grelu/interpret/index.html#module-grelu.interpret">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.interpret.modisco
+
+      <ul>
+        <li><a href="autoapi/grelu/interpret/modisco/index.html#module-grelu.interpret.modisco">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.interpret.motifs
+
+      <ul>
+        <li><a href="autoapi/grelu/interpret/motifs/index.html#module-grelu.interpret.motifs">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.interpret.score
+
+      <ul>
+        <li><a href="autoapi/grelu/interpret/score/index.html#module-grelu.interpret.score">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    grelu.interpret.simulate
+
+      <ul>
+        <li><a href="autoapi/grelu/interpret/simulate/index.html#module-grelu.interpret.simulate">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.io
+
+      <ul>
+        <li><a href="autoapi/grelu/io/index.html#module-grelu.io">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.io.bed
+
+      <ul>
+        <li><a href="autoapi/grelu/io/bed/index.html#module-grelu.io.bed">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.io.bigwig
+
+      <ul>
+        <li><a href="autoapi/grelu/io/bigwig/index.html#module-grelu.io.bigwig">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.io.fasta
+
+      <ul>
+        <li><a href="autoapi/grelu/io/fasta/index.html#module-grelu.io.fasta">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.io.genome
+
+      <ul>
+        <li><a href="autoapi/grelu/io/genome/index.html#module-grelu.io.genome">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.io.motifs
+
+      <ul>
+        <li><a href="autoapi/grelu/io/motifs/index.html#module-grelu.io.motifs">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.lightning
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#module-grelu.lightning">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.lightning.losses
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/losses/index.html#module-grelu.lightning.losses">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.lightning.metrics
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#module-grelu.lightning.metrics">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model
+
+      <ul>
+        <li><a href="autoapi/grelu/model/index.html#module-grelu.model">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.blocks
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#module-grelu.model.blocks">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.heads
+
+      <ul>
+        <li><a href="autoapi/grelu/model/heads/index.html#module-grelu.model.heads">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.layers
+
+      <ul>
+        <li><a href="autoapi/grelu/model/layers/index.html#module-grelu.model.layers">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.models
+
+      <ul>
+        <li><a href="autoapi/grelu/model/models/index.html#module-grelu.model.models">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.position
+
+      <ul>
+        <li><a href="autoapi/grelu/model/position/index.html#module-grelu.model.position">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.trunks
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#module-grelu.model.trunks">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.trunks.borzoi
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#module-grelu.model.trunks.borzoi">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.trunks.enformer
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#module-grelu.model.trunks.enformer">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.model.trunks.explainn
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#module-grelu.model.trunks.explainn">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.resources
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#module-grelu.resources">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.sequence
+
+      <ul>
+        <li><a href="autoapi/grelu/sequence/index.html#module-grelu.sequence">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.sequence.format
+
+      <ul>
+        <li><a href="autoapi/grelu/sequence/format/index.html#module-grelu.sequence.format">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.sequence.metrics
+
+      <ul>
+        <li><a href="autoapi/grelu/sequence/metrics/index.html#module-grelu.sequence.metrics">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.sequence.mutate
+
+      <ul>
+        <li><a href="autoapi/grelu/sequence/mutate/index.html#module-grelu.sequence.mutate">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.sequence.utils
+
+      <ul>
+        <li><a href="autoapi/grelu/sequence/utils/index.html#module-grelu.sequence.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.transforms
+
+      <ul>
+        <li><a href="autoapi/grelu/transforms/index.html#module-grelu.transforms">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.transforms.label_transforms
+
+      <ul>
+        <li><a href="autoapi/grelu/transforms/label_transforms/index.html#module-grelu.transforms.label_transforms">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.transforms.prediction_transforms
+
+      <ul>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#module-grelu.transforms.prediction_transforms">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.transforms.seq_transforms
+
+      <ul>
+        <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#module-grelu.transforms.seq_transforms">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.utils
+
+      <ul>
+        <li><a href="autoapi/grelu/utils/index.html#module-grelu.utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.variant
+
+      <ul>
+        <li><a href="autoapi/grelu/variant/index.html#module-grelu.variant">module</a>
+</li>
+      </ul></li>
+      <li>
+    grelu.visualize
+
+      <ul>
+        <li><a href="autoapi/grelu/visualize/index.html#module-grelu.visualize">module</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.GRUBlock.gru">gru (grelu.model.blocks.GRUBlock attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.GRUBlock.gru">(grelu.model.trunks.GRUBlock attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvGRUTrunk.gru_tower">gru_tower (grelu.model.trunks.ConvGRUTrunk attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.GRUBlock">GRUBlock (class in grelu.model.blocks)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.GRUBlock">(class in grelu.model.trunks)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/models/index.html#grelu.model.models.BaseModel.head">head (grelu.model.models.BaseModel attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.head_dim">head_dim (grelu.model.layers.FlashAttention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.hidden_size">hidden_size (grelu.model.heads.MLPHead attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead.in_channels">in_channels (grelu.lightning.ConvHead attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead.in_channels">(grelu.model.heads.ConvHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.in_channels">(grelu.model.heads.MLPHead attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.in_len">in_len (grelu.model.heads.MLPHead attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.in_len">(grelu.model.layers.Attention attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.INDEX_TO_BASE_HASH">INDEX_TO_BASE_HASH (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.indices_to_one_hot">indices_to_one_hot() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.indices_to_strings">indices_to_strings() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.initialize_activation">initialize_activation() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.initialize_activation">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.initialize_loss">initialize_loss() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.initialize_loss">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.initialize_metrics">initialize_metrics() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.initialize_metrics">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.input_coord_to_output_bin">input_coord_to_output_bin() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.input_coord_to_output_bin">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.input_intervals_to_output_bins">input_intervals_to_output_bins() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.input_intervals_to_output_bins">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.input_intervals_to_output_intervals">input_intervals_to_output_intervals() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.input_intervals_to_output_intervals">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/sequence/mutate/index.html#grelu.sequence.mutate.insert">insert() (in module grelu.sequence.mutate)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.intervals_to_strings">intervals_to_strings() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/score/index.html#grelu.interpret.score.ISM_predict">ISM_predict() (in module grelu.interpret.score)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset">ISMDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.key_len">key_len (grelu.model.layers.Attention attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.label_aggfunc">label_aggfunc (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.label_aggfunc">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.label_len">label_len (grelu.data.augment.Augmenter attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.label_len">(grelu.data.dataset.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.label_len">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.label_transform">label_transform (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.label_transform">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.label_transform_func">label_transform_func (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.label_transform_func">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset">LabeledSeqDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/label_transforms/index.html#grelu.transforms.label_transforms.LabelTransform">LabelTransform (class in grelu.transforms.label_transforms)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Dropout.layer">layer (grelu.model.layers.Dropout attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/design/index.html#grelu.design.ledidi">ledidi() (in module grelu.design)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.length_aggfunc">length_aggfunc (grelu.transforms.prediction_transforms.Aggregate attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.length_aggfunc">(grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.length_aggfunc_numpy">length_aggfunc_numpy (grelu.transforms.prediction_transforms.Aggregate attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.length_aggfunc_numpy">(grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel">LightningModel (class in grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel">(class in grelu.resources)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble">LightningModelEnsemble (class in grelu.lightning)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.LinearBlock.linear">linear (grelu.model.blocks.LinearBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.LinearBlock">LinearBlock (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.load_model">load_model() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/losses/index.html#grelu.lightning.losses.PoissonMultinomialLoss.log_input">log_input (grelu.lightning.losses.PoissonMultinomialLoss attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PoissonMultinomialLoss.log_input">(grelu.lightning.PoissonMultinomialLoss attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.make_insertion_bigwig">make_insertion_bigwig() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.make_list">make_list() (in module grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/utils/index.html#grelu.utils.make_list">(in module grelu.utils)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.make_predict_loader">make_predict_loader() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.make_predict_loader">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.make_test_loader">make_test_loader() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.make_test_loader">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.make_train_loader">make_train_loader() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.make_train_loader">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/interpret/simulate/index.html#grelu.interpret.simulate.marginalize_pattern_spacing">marginalize_pattern_spacing() (in module grelu.interpret.simulate)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/simulate/index.html#grelu.interpret.simulate.marginalize_patterns">marginalize_patterns() (in module grelu.interpret.simulate)</a>
+</li>
+      <li><a href="autoapi/grelu/variant/index.html#grelu.variant.marginalize_variants">marginalize_variants() (in module grelu.variant)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/label_transforms/index.html#grelu.transforms.label_transforms.LabelTransform.max_clip">max_clip (grelu.transforms.label_transforms.LabelTransform attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.max_label_clip">max_label_clip (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.max_label_clip">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.max_motif_len">max_motif_len (grelu.data.dataset.MotifScanDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.max_motif_len">(grelu.lightning.MotifScanDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.max_pair_shift">max_pair_shift (grelu.data.augment.Augmenter attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.max_pair_shift">(grelu.data.dataset.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.max_pair_shift">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.max_seq_shift">max_seq_shift (grelu.data.augment.Augmenter attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.max_seq_shift">(grelu.data.dataset.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.max_seq_shift">(grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.max_seq_shift">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.max_seq_shift">(grelu.data.dataset.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.max_seq_shift">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.max_seq_shift">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.max_seq_shift">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.max_seq_shift">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.max_seq_shift">(grelu.lightning.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.max_seq_shift">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.max_values">max_values (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.merge_intervals_by_column">merge_intervals_by_column() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerBlock.mha">mha (grelu.model.trunks.enformer.EnformerTransformerBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/label_transforms/index.html#grelu.transforms.label_transforms.LabelTransform.min_clip">min_clip (grelu.transforms.label_transforms.LabelTransform attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.min_label_clip">min_label_clip (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.min_label_clip">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead">MLPHead (class in grelu.model.heads)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.mode">mode (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble.model_names">model_names (grelu.lightning.LightningModelEnsemble attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.model_params">model_params (grelu.lightning.LightningModel attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble.model_params">(grelu.lightning.LightningModelEnsemble attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.model_params">(grelu.resources.LightningModel attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble.models">models (grelu.lightning.LightningModelEnsemble attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.models">models() (in module grelu.resources)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="autoapi/grelu/index.html#module-grelu">grelu</a>
+</li>
+        <li><a href="autoapi/grelu/data/index.html#module-grelu.data">grelu.data</a>
+</li>
+        <li><a href="autoapi/grelu/data/augment/index.html#module-grelu.data.augment">grelu.data.augment</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#module-grelu.data.dataset">grelu.data.dataset</a>
+</li>
+        <li><a href="autoapi/grelu/data/preprocess/index.html#module-grelu.data.preprocess">grelu.data.preprocess</a>
+</li>
+        <li><a href="autoapi/grelu/data/utils/index.html#module-grelu.data.utils">grelu.data.utils</a>
+</li>
+        <li><a href="autoapi/grelu/design/index.html#module-grelu.design">grelu.design</a>
+</li>
+        <li><a href="autoapi/grelu/interpret/index.html#module-grelu.interpret">grelu.interpret</a>
+</li>
+        <li><a href="autoapi/grelu/interpret/modisco/index.html#module-grelu.interpret.modisco">grelu.interpret.modisco</a>
+</li>
+        <li><a href="autoapi/grelu/interpret/motifs/index.html#module-grelu.interpret.motifs">grelu.interpret.motifs</a>
+</li>
+        <li><a href="autoapi/grelu/interpret/score/index.html#module-grelu.interpret.score">grelu.interpret.score</a>
+</li>
+        <li><a href="autoapi/grelu/interpret/simulate/index.html#module-grelu.interpret.simulate">grelu.interpret.simulate</a>
+</li>
+        <li><a href="autoapi/grelu/io/index.html#module-grelu.io">grelu.io</a>
+</li>
+        <li><a href="autoapi/grelu/io/bed/index.html#module-grelu.io.bed">grelu.io.bed</a>
+</li>
+        <li><a href="autoapi/grelu/io/bigwig/index.html#module-grelu.io.bigwig">grelu.io.bigwig</a>
+</li>
+        <li><a href="autoapi/grelu/io/fasta/index.html#module-grelu.io.fasta">grelu.io.fasta</a>
+</li>
+        <li><a href="autoapi/grelu/io/genome/index.html#module-grelu.io.genome">grelu.io.genome</a>
+</li>
+        <li><a href="autoapi/grelu/io/motifs/index.html#module-grelu.io.motifs">grelu.io.motifs</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#module-grelu.lightning">grelu.lightning</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/losses/index.html#module-grelu.lightning.losses">grelu.lightning.losses</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#module-grelu.lightning.metrics">grelu.lightning.metrics</a>
+</li>
+        <li><a href="autoapi/grelu/model/index.html#module-grelu.model">grelu.model</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#module-grelu.model.blocks">grelu.model.blocks</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#module-grelu.model.heads">grelu.model.heads</a>
+</li>
+        <li><a href="autoapi/grelu/model/layers/index.html#module-grelu.model.layers">grelu.model.layers</a>
+</li>
+        <li><a href="autoapi/grelu/model/models/index.html#module-grelu.model.models">grelu.model.models</a>
+</li>
+        <li><a href="autoapi/grelu/model/position/index.html#module-grelu.model.position">grelu.model.position</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/index.html#module-grelu.model.trunks">grelu.model.trunks</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#module-grelu.model.trunks.borzoi">grelu.model.trunks.borzoi</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#module-grelu.model.trunks.enformer">grelu.model.trunks.enformer</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#module-grelu.model.trunks.explainn">grelu.model.trunks.explainn</a>
+</li>
+        <li><a href="autoapi/grelu/resources/index.html#module-grelu.resources">grelu.resources</a>
+</li>
+        <li><a href="autoapi/grelu/sequence/index.html#module-grelu.sequence">grelu.sequence</a>
+</li>
+        <li><a href="autoapi/grelu/sequence/format/index.html#module-grelu.sequence.format">grelu.sequence.format</a>
+</li>
+        <li><a href="autoapi/grelu/sequence/metrics/index.html#module-grelu.sequence.metrics">grelu.sequence.metrics</a>
+</li>
+        <li><a href="autoapi/grelu/sequence/mutate/index.html#module-grelu.sequence.mutate">grelu.sequence.mutate</a>
+</li>
+        <li><a href="autoapi/grelu/sequence/utils/index.html#module-grelu.sequence.utils">grelu.sequence.utils</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/index.html#module-grelu.transforms">grelu.transforms</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/label_transforms/index.html#module-grelu.transforms.label_transforms">grelu.transforms.label_transforms</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#module-grelu.transforms.prediction_transforms">grelu.transforms.prediction_transforms</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#module-grelu.transforms.seq_transforms">grelu.transforms.seq_transforms</a>
+</li>
+        <li><a href="autoapi/grelu/utils/index.html#module-grelu.utils">grelu.utils</a>
+</li>
+        <li><a href="autoapi/grelu/variant/index.html#module-grelu.variant">grelu.variant</a>
+</li>
+        <li><a href="autoapi/grelu/visualize/index.html#module-grelu.visualize">grelu.visualize</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.motifs">motifs (grelu.data.dataset.MotifScanDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.motifs">(grelu.lightning.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.MotifScore.motifs">(grelu.transforms.seq_transforms.MotifScore attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/interpret/motifs/index.html#grelu.interpret.motifs.motifs_to_strings">motifs_to_strings() (in module grelu.interpret.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset">MotifScanDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.MotifScore">MotifScore (class in grelu.transforms.seq_transforms)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MSE">MSE (class in grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.MSE">(class in grelu.lightning.metrics)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.mutate">mutate (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/mutate/index.html#grelu.sequence.mutate.mutate">mutate() (in module grelu.sequence.mutate)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.n_alleles">n_alleles (grelu.data.dataset.ISMDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.n_alleles">(grelu.data.dataset.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.n_alleles">(grelu.data.dataset.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.n_alleles">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.n_alleles">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.n_alleles">(grelu.data.dataset.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.n_alleles">(grelu.lightning.ISMDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.n_alleles">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.n_alleles">(grelu.lightning.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.n_alleles">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.n_alleles">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.n_alleles">(grelu.lightning.VariantDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.n_augmented">n_augmented (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.n_augmented">(grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.n_augmented">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.n_augmented">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.n_augmented">(grelu.data.dataset.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.n_augmented">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.n_augmented">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.n_augmented">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.n_augmented">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.n_augmented">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.n_augmented">(grelu.lightning.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.n_augmented">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.n_heads">n_heads (grelu.model.layers.Attention attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.n_heads">(grelu.model.layers.FlashAttention attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.n_mutated_bases">n_mutated_bases (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.n_mutated_seqs">n_mutated_seqs (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.n_pos_features">n_pos_features (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.n_positions">n_positions (grelu.data.dataset.ISMDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.n_positions">(grelu.data.dataset.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.n_positions">(grelu.data.dataset.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.n_positions">(grelu.lightning.ISMDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.n_positions">(grelu.lightning.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.n_positions">(grelu.lightning.TilingShuffleDataset attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.n_seqs">n_seqs (grelu.data.dataset.ISMDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.n_seqs">(grelu.data.dataset.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.n_seqs">(grelu.data.dataset.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.n_seqs">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.n_seqs">(grelu.data.dataset.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.n_seqs">(grelu.lightning.ISMDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.n_seqs">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.n_seqs">(grelu.lightning.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.n_seqs">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.n_seqs">(grelu.lightning.VariantDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.n_shuffles">n_shuffles (grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.n_shuffles">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.n_shuffles">(grelu.data.dataset.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.n_shuffles">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.n_shuffles">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.n_shuffles">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.n_shuffles">(grelu.lightning.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.n_shuffles">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.n_tasks">n_tasks (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead.n_tasks">(grelu.lightning.ConvHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.n_tasks">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead.n_tasks">(grelu.model.heads.ConvHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.n_tasks">(grelu.model.heads.MLPHead attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Norm">Norm (class in grelu.model.layers)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead.norm">norm (grelu.lightning.ConvHead attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.LinearBlock.norm">(grelu.model.blocks.LinearBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerBlock.norm">(grelu.model.blocks.TransformerBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead.norm">(grelu.model.heads.ConvHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.MLPHead.norm">(grelu.model.heads.MLPHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTransformerBlock.norm">(grelu.model.trunks.enformer.EnformerTransformerBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNConvBlock.norm">(grelu.model.trunks.explainn.ExplaiNNConvBlock attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/utils/index.html#grelu.utils.np_log2fc">np_log2fc() (in module grelu.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.numpy_aggregate">numpy_aggregate() (grelu.transforms.prediction_transforms.Aggregate method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.off_thresh">off_thresh (grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.off_transform">off_transform (grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.off_weight">off_weight (grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.on_load_checkpoint">on_load_checkpoint() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.on_load_checkpoint">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.on_save_checkpoint">on_save_checkpoint() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.on_save_checkpoint">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.on_test_epoch_end">on_test_epoch_end() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.on_test_epoch_end">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.on_transform">on_transform (grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.on_validation_epoch_end">on_validation_epoch_end() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.on_validation_epoch_end">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.one_hot_to_indices">one_hot_to_indices() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.one_hot_to_strings">one_hot_to_strings() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ChannelTransformBlock.order">order (grelu.model.blocks.ChannelTransformBlock attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock.order">(grelu.model.blocks.ConvBlock attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.out">out (grelu.model.layers.FlashAttention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvTower.out_channels">out_channels (grelu.model.blocks.ConvTower attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTower.out_channels">(grelu.model.trunks.ConvTower attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.output_bin_to_input_coord">output_bin_to_input_coord() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.output_bin_to_input_coord">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.pad">pad() (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.padded_label_len">padded_label_len (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.padded_label_len">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.padded_seq_len">padded_seq_len (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.padded_seq_len">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.padded_seq_len">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.padded_seq_len">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.parse_devices">parse_devices() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.parse_devices">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.parse_logger">parse_logger() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.parse_logger">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset">PatternMarginalizeDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.PatternScore.patterns">patterns (grelu.transforms.seq_transforms.PatternScore attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.PatternScore">PatternScore (class in grelu.transforms.seq_transforms)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.PearsonCorrCoef.pearson">pearson (grelu.lightning.metrics.PearsonCorrCoef attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PearsonCorrCoef.pearson">(grelu.lightning.PearsonCorrCoef attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PearsonCorrCoef">PearsonCorrCoef (class in grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.PearsonCorrCoef">(class in grelu.lightning.metrics)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.performance">performance (grelu.lightning.LightningModel attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.performance">(grelu.resources.LightningModel attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_attention_matrix">plot_attention_matrix() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_attributions">plot_attributions() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_binary_preds">plot_binary_preds() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_calibration_curve">plot_calibration_curve() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_distribution">plot_distribution() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_evolution">plot_evolution() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_gc_match">plot_gc_match() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_ISM">plot_ISM() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_motif">plot_motif() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_position_effect">plot_position_effect() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_pred_distribution">plot_pred_distribution() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_pred_scatter">plot_pred_scatter() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/visualize/index.html#grelu.visualize.plot_tracks">plot_tracks() (in module grelu.visualize)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.SeparableConv.pointwise">pointwise (grelu.model.blocks.SeparableConv attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiTrunk.pointwise_conv">pointwise_conv (grelu.model.trunks.borzoi.BorzoiTrunk attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTrunk.pointwise_conv">(grelu.model.trunks.enformer.EnformerTrunk attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PoissonMultinomialLoss">PoissonMultinomialLoss (class in grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/losses/index.html#grelu.lightning.losses.PoissonMultinomialLoss">(class in grelu.lightning.losses)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Pool">Pool (class in grelu.model.layers)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead.pool">pool (grelu.lightning.ConvHead attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock.pool">(grelu.model.blocks.ConvBlock attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.Stem.pool">(grelu.model.blocks.Stem attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead.pool">(grelu.model.heads.ConvHead attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/explainn/index.html#grelu.model.trunks.explainn.ExplaiNNConvBlock.pool">(grelu.model.trunks.explainn.ExplaiNNConvBlock attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvTower.pool_factor">pool_factor (grelu.model.blocks.ConvTower attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTower.pool_factor">(grelu.model.trunks.ConvTower attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ConvHead.pool_func">pool_func (grelu.lightning.ConvHead attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/heads/index.html#grelu.model.heads.ConvHead.pool_func">(grelu.model.heads.ConvHead attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.pos_dropout">pos_dropout (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.positional_embed">positional_embed (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.positions">positions (grelu.data.dataset.ISMDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.positions">(grelu.data.dataset.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.positions">(grelu.data.dataset.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.positions">(grelu.lightning.ISMDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.positions">(grelu.lightning.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.positions">(grelu.lightning.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.positions">(grelu.transforms.prediction_transforms.Aggregate attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.predict">predict (grelu.data.dataset.LabeledSeqDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.predict">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.predict_on_dataset">predict_on_dataset() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModelEnsemble.predict_on_dataset">(grelu.lightning.LightningModelEnsemble method)</a>
+</li>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.predict_on_dataset">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.predict_on_seqs">predict_on_seqs() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.predict_on_seqs">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/variant/index.html#grelu.variant.predict_variant_effects">predict_variant_effects() (in module grelu.variant)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.products">products (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.projects">projects() (in module grelu.resources)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.protect">protect (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.protect_center">protect_center (grelu.data.dataset.TilingShuffleDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.protect_center">(grelu.lightning.TilingShuffleDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.MotifScore.pthresh">pthresh (grelu.transforms.seq_transforms.MotifScore attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.qkv">qkv (grelu.model.layers.FlashAttention attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/sequence/mutate/index.html#grelu.sequence.mutate.random_mutate">random_mutate() (in module grelu.sequence.mutate)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.rc">rc (grelu.data.augment.Augmenter attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.rc">(grelu.data.dataset.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.rc">(grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.rc">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.rc">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.rc">(grelu.data.dataset.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.rc">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.rc">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.rc">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.rc">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.rc">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.rc">(grelu.lightning.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.rc">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.MotifScore.rc">(grelu.transforms.seq_transforms.MotifScore attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.RC_HASH">RC_HASH (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.rc_label">rc_label() (in module grelu.data.augment)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.rc_seq">rc_seq() (in module grelu.data.augment)</a>
+</li>
+      <li><a href="autoapi/grelu/io/bed/index.html#grelu.io.bed.read_bed">read_bed() (in module grelu.io.bed)</a>
+</li>
+      <li><a href="autoapi/grelu/io/bigwig/index.html#grelu.io.bigwig.read_bigwig">read_bigwig() (in module grelu.io.bigwig)</a>
+</li>
+      <li><a href="autoapi/grelu/io/fasta/index.html#grelu.io.fasta.read_fasta">read_fasta() (in module grelu.io.fasta)</a>
+</li>
+      <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.read_gtf">read_gtf() (in module grelu.io.genome)</a>
+</li>
+      <li><a href="autoapi/grelu/io/motifs/index.html#grelu.io.motifs.read_meme_file">read_meme_file() (in module grelu.io.motifs)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/io/motifs/index.html#grelu.io.motifs.read_modisco_report">read_modisco_report() (in module grelu.io.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/io/bed/index.html#grelu.io.bed.read_narrowpeak">read_narrowpeak() (in module grelu.io.bed)</a>
+</li>
+      <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.read_sizes">read_sizes() (in module grelu.io.genome)</a>
+</li>
+      <li><a href="autoapi/grelu/io/index.html#grelu.io.read_tomtom">read_tomtom() (in module grelu.io)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvTower.receptive_field">receptive_field (grelu.model.blocks.ConvTower attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTower.receptive_field">(grelu.model.trunks.ConvTower attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/losses/index.html#grelu.lightning.losses.PoissonMultinomialLoss.reduction">reduction (grelu.lightning.losses.PoissonMultinomialLoss attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PoissonMultinomialLoss.reduction">(grelu.lightning.PoissonMultinomialLoss attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.rel_content_bias">rel_content_bias (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.rel_pos_bias">rel_pos_bias (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.PearsonCorrCoef.reset">reset() (grelu.lightning.metrics.PearsonCorrCoef method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PearsonCorrCoef.reset">(grelu.lightning.PearsonCorrCoef method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.reset_transform">reset_transform() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.reset_transform">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock.residual">residual (grelu.model.blocks.ConvBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.resize">resize() (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.ConvBlock.return_pre_pool">return_pre_pool (grelu.model.blocks.ConvBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.reverse_complement">reverse_complement() (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.rng">rng (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.FlashAttention.rotary_embed">rotary_embed (grelu.model.layers.FlashAttention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/modisco/index.html#grelu.interpret.modisco.run_modisco">run_modisco() (in module grelu.interpret.modisco)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/motifs/index.html#grelu.interpret.motifs.run_tomtom">run_tomtom() (in module grelu.interpret.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/resources/index.html#grelu.resources.runs">runs() (in module grelu.resources)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/interpret/motifs/index.html#grelu.interpret.motifs.scan_sequences">scan_sequences() (in module grelu.interpret.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetBlock.sconv">sconv (grelu.model.blocks.UnetBlock attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/motifs/index.html#grelu.interpret.motifs.score_motifs">score_motifs() (in module grelu.interpret.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/motifs/index.html#grelu.interpret.motifs.score_sites">score_sites() (in module grelu.interpret.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.PatternMarginalizeDataset.seed">seed (grelu.data.dataset.PatternMarginalizeDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.seed">(grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.seed">(grelu.data.dataset.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.seed">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PatternMarginalizeDataset.seed">(grelu.lightning.PatternMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.seed">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.seed">(grelu.lightning.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.seed">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.SeparableConv">SeparableConv (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/mutate/index.html#grelu.sequence.mutate.seq_differences">seq_differences() (in module grelu.sequence.mutate)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.seq_len">seq_len (grelu.data.augment.Augmenter attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.ISMDataset.seq_len">(grelu.data.dataset.ISMDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.LabeledSeqDataset.seq_len">(grelu.data.dataset.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.MotifScanDataset.seq_len">(grelu.data.dataset.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset.seq_len">(grelu.data.dataset.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset.seq_len">(grelu.data.dataset.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset.seq_len">(grelu.data.dataset.VariantMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.ISMDataset.seq_len">(grelu.lightning.ISMDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LabeledSeqDataset.seq_len">(grelu.lightning.LabeledSeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MotifScanDataset.seq_len">(grelu.lightning.MotifScanDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset.seq_len">(grelu.lightning.SeqDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset.seq_len">(grelu.lightning.VariantDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset.seq_len">(grelu.lightning.VariantMarginalizeDataset attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SeqDataset">SeqDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SeqDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.shift">shift() (in module grelu.data.augment)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.shift_label">shift_label (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/data/augment/index.html#grelu.data.augment.Augmenter.shift_seq">shift_seq (grelu.data.augment.Augmenter attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/simulate/index.html#grelu.interpret.simulate.shuffle_tiles">shuffle_tiles() (in module grelu.interpret.simulate)</a>
+</li>
+      <li><a href="autoapi/grelu/io/genome/index.html#grelu.io.genome.CustomGenome.sizes_file">sizes_file (grelu.io.genome.CustomGenome property)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset">SpacingMarginalizeDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity">Specificity (class in grelu.transforms.prediction_transforms)</a>
+</li>
+      <li><a href="autoapi/grelu/data/preprocess/index.html#grelu.data.preprocess.split">split() (in module grelu.data.preprocess)</a>
+</li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.STANDARD_BASES">STANDARD_BASES (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.Stem">Stem (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.SpacingMarginalizeDataset.stride">stride (grelu.data.dataset.SpacingMarginalizeDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.stride">(grelu.data.dataset.TilingShuffleDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.SpacingMarginalizeDataset.stride">(grelu.lightning.SpacingMarginalizeDataset attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.stride">(grelu.lightning.TilingShuffleDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.strings_to_indices">strings_to_indices() (in module grelu.sequence.format)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.strings_to_one_hot">strings_to_one_hot() (in module grelu.lightning)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/sequence/format/index.html#grelu.sequence.format.strings_to_one_hot">(in module grelu.sequence.format)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.task_aggfunc">task_aggfunc (grelu.transforms.prediction_transforms.Aggregate attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.task_aggfunc_numpy">task_aggfunc_numpy (grelu.transforms.prediction_transforms.Aggregate attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.tasks">tasks (grelu.transforms.prediction_transforms.Aggregate attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.tasks">(grelu.transforms.prediction_transforms.Specificity attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.test_on_dataset">test_on_dataset() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.test_on_dataset">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.test_step">test_step() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.test_step">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset.tile_len">tile_len (grelu.data.dataset.TilingShuffleDataset attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset.tile_len">(grelu.lightning.TilingShuffleDataset attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.TilingShuffleDataset">TilingShuffleDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.TilingShuffleDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.to_k">to_k (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.to_out">to_out (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.to_pos_k">to_pos_k (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.to_q">to_q (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.to_v">to_v (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Aggregate.torch_aggregate">torch_aggregate() (grelu.transforms.prediction_transforms.Aggregate method)</a>
+</li>
+      <li><a href="autoapi/grelu/utils/index.html#grelu.utils.torch_log2fc">torch_log2fc() (in module grelu.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/utils/index.html#grelu.utils.torch_maxval">torch_maxval() (in module grelu.utils)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/utils/index.html#grelu.utils.torch_minval">torch_minval() (in module grelu.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/losses/index.html#grelu.lightning.losses.PoissonMultinomialLoss.total_weight">total_weight (grelu.lightning.losses.PoissonMultinomialLoss attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PoissonMultinomialLoss.total_weight">(grelu.lightning.PoissonMultinomialLoss attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.train_on_dataset">train_on_dataset() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.train_on_dataset">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.train_params">train_params (grelu.lightning.LightningModel attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.train_params">(grelu.resources.LightningModel attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.training_step">training_step() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.training_step">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/transforms/label_transforms/index.html#grelu.transforms.label_transforms.LabelTransform.transform_func">transform_func (grelu.transforms.label_transforms.LabelTransform attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiTrunk.transformer_tower">transformer_tower (grelu.model.trunks.borzoi.BorzoiTrunk attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.ConvTransformerTrunk.transformer_tower">(grelu.model.trunks.ConvTransformerTrunk attribute)</a>
+</li>
+        <li><a href="autoapi/grelu/model/trunks/enformer/index.html#grelu.model.trunks.enformer.EnformerTrunk.transformer_tower">(grelu.model.trunks.enformer.EnformerTrunk attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerBlock">TransformerBlock (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.TransformerTower">TransformerTower (class in grelu.model.blocks)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/model/trunks/index.html#grelu.model.trunks.TransformerTower">(class in grelu.model.trunks)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/sequence/utils/index.html#grelu.sequence.utils.trim">trim() (in module grelu.sequence.utils)</a>
+</li>
+      <li><a href="autoapi/grelu/interpret/motifs/index.html#grelu.interpret.motifs.trim_pwm">trim_pwm() (in module grelu.interpret.motifs)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.tune_on_dataset">tune_on_dataset() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.tune_on_dataset">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/model/trunks/borzoi/index.html#grelu.model.trunks.borzoi.BorzoiTrunk.unet_tower">unet_tower (grelu.model.trunks.borzoi.BorzoiTrunk attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetBlock">UnetBlock (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetTower">UnetTower (class in grelu.model.blocks)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.BestF1.update">update() (grelu.lightning.BestF1 method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.BestF1.update">(grelu.lightning.metrics.BestF1 method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.MSE.update">(grelu.lightning.metrics.MSE method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/metrics/index.html#grelu.lightning.metrics.PearsonCorrCoef.update">(grelu.lightning.metrics.PearsonCorrCoef method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.MSE.update">(grelu.lightning.MSE method)</a>
+</li>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.PearsonCorrCoef.update">(grelu.lightning.PearsonCorrCoef method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/io/index.html#grelu.io.update_ckpt">update_ckpt() (in module grelu.io)</a>
+</li>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.update_metrics">update_metrics() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.update_metrics">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/blocks/index.html#grelu.model.blocks.UnetBlock.upsample">upsample (grelu.model.blocks.UnetBlock attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.LightningModel.validation_step">validation_step() (grelu.lightning.LightningModel method)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/resources/index.html#grelu.resources.LightningModel.validation_step">(grelu.resources.LightningModel method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/model/layers/index.html#grelu.model.layers.Attention.value_len">value_len (grelu.model.layers.Attention attribute)</a>
+</li>
+      <li><a href="autoapi/grelu/variant/index.html#grelu.variant.variant_to_seqs">variant_to_seqs() (in module grelu.variant)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantDataset">VariantDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/data/dataset/index.html#grelu.data.dataset.VariantMarginalizeDataset">VariantMarginalizeDataset (class in grelu.data.dataset)</a>
+
+      <ul>
+        <li><a href="autoapi/grelu/lightning/index.html#grelu.lightning.VariantMarginalizeDataset">(class in grelu.lightning)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/grelu/variant/index.html#grelu.variant.variants_to_intervals">variants_to_intervals() (in module grelu.variant)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/transforms/prediction_transforms/index.html#grelu.transforms.prediction_transforms.Specificity.weight_off">weight_off() (grelu.transforms.prediction_transforms.Specificity method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/grelu/transforms/seq_transforms/index.html#grelu.transforms.seq_transforms.PatternScore.weights">weights (grelu.transforms.seq_transforms.PatternScore attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

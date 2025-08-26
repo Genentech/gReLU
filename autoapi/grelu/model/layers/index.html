@@ -1,0 +1,1243 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>grelu.model.layers &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.8ecb98da25f57f5357bf6f572d296f466b2cfe2517ffebfabe82451661e28f02.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=4e48d009"></script>
+    <script src="../../../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://genentech.github.io/gReLU/autoapi/grelu/model/layers/index.html" />
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="grelu.model.models" href="../models/index.html" />
+    <link rel="prev" title="grelu.model.heads" href="../heads/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="unknown" />
+    <meta name="docbuild:last-update" content="Aug 26, 2025"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../tutorials/5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../tutorials/6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="../../../index.html">
+    API Reference
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../tutorials/6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../changelog.html">
+    Changelog
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    API Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../index.html">grelu</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../data/index.html">grelu.data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../data/augment/index.html">grelu.data.augment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../data/dataset/index.html">grelu.data.dataset</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../data/preprocess/index.html">grelu.data.preprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../data/utils/index.html">grelu.data.utils</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../design/index.html">grelu.design</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../interpret/index.html">grelu.interpret</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../interpret/modisco/index.html">grelu.interpret.modisco</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../interpret/motifs/index.html">grelu.interpret.motifs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../interpret/score/index.html">grelu.interpret.score</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../interpret/simulate/index.html">grelu.interpret.simulate</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../io/index.html">grelu.io</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../io/bed/index.html">grelu.io.bed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/bigwig/index.html">grelu.io.bigwig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/fasta/index.html">grelu.io.fasta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/genome/index.html">grelu.io.genome</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../io/motifs/index.html">grelu.io.motifs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../lightning/index.html">grelu.lightning</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../lightning/losses/index.html">grelu.lightning.losses</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../lightning/metrics/index.html">grelu.lightning.metrics</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../index.html">grelu.model</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../blocks/index.html">grelu.model.blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../heads/index.html">grelu.model.heads</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">grelu.model.layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../models/index.html">grelu.model.models</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../position/index.html">grelu.model.position</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../trunks/index.html">grelu.model.trunks</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../trunks/borzoi/index.html">grelu.model.trunks.borzoi</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../trunks/enformer/index.html">grelu.model.trunks.enformer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../trunks/explainn/index.html">grelu.model.trunks.explainn</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../resources/index.html">grelu.resources</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../sequence/index.html">grelu.sequence</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../sequence/format/index.html">grelu.sequence.format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sequence/metrics/index.html">grelu.sequence.metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sequence/mutate/index.html">grelu.sequence.mutate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../sequence/utils/index.html">grelu.sequence.utils</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../transforms/index.html">grelu.transforms</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../transforms/label_transforms/index.html">grelu.transforms.label_transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transforms/prediction_transforms/index.html">grelu.transforms.prediction_transforms</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../transforms/seq_transforms/index.html">grelu.transforms.seq_transforms</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../utils/index.html">grelu.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../variant/index.html">grelu.variant</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualize/index.html">grelu.visualize</a></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">grelu</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">grelu.model</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">grelu.model.layers</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="grelu-model-layers">
+<h1>grelu.model.layers<a class="headerlink" href="#grelu-model-layers" title="Link to this heading">#</a></h1>
+<p id="module-grelu.model.layers"><cite>grelu.model.layers</cite> contains common types of layers to build deep learning models,
+implemented as torch.nn.Module classes.</p>
+<p>These layers are used by classes in <cite>grelu.model.blocks</cite> and <cite>grelu.model.heads</cite>.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table autosummary">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.model.layers.Activation" title="grelu.model.layers.Activation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Activation</span></code></a></p></td>
+<td><p>A nonlinear activation layer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.model.layers.Pool" title="grelu.model.layers.Pool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Pool</span></code></a></p></td>
+<td><p>A pooling layer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.model.layers.AdaptivePool" title="grelu.model.layers.AdaptivePool"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AdaptivePool</span></code></a></p></td>
+<td><p>An Adaptive Pooling layer. This layer does not have a defined pooling width but</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.model.layers.Norm" title="grelu.model.layers.Norm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Norm</span></code></a></p></td>
+<td><p>A batch normalization or layer normalization layer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.model.layers.ChannelTransform" title="grelu.model.layers.ChannelTransform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ChannelTransform</span></code></a></p></td>
+<td><p>A convolutional layer to transform the number of channels in the input.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.model.layers.Dropout" title="grelu.model.layers.Dropout"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Dropout</span></code></a></p></td>
+<td><p>Optional dropout layer</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.model.layers.Crop" title="grelu.model.layers.Crop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Crop</span></code></a></p></td>
+<td><p>Optional cropping layer.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#grelu.model.layers.Attention" title="grelu.model.layers.Attention"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Attention</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#grelu.model.layers.FlashAttention" title="grelu.model.layers.FlashAttention"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FlashAttention</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.Activation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">Activation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Activation" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>A nonlinear activation layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> – The type of activation function. Supported values are:
+- ‘relu’: Standard ReLU activation
+- ‘elu’: Exponential Linear Unit
+- ‘softplus’: Softplus activation
+- ‘gelu’: Standard GELU activation using PyTorch’s default approximation
+- ‘gelu_borzoi’: GELU activation using tanh approximation (different from PyTorch’s default)
+- ‘gelu_enformer’: Custom GELU implementation from Enformer
+- ‘exp’: Exponential activation
+- None: Returns identity function (no activation)</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#NotImplementedError" title="(in Python v3.10)"><strong>NotImplementedError</strong></a> – If ‘func’ is not a supported activation function.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.Activation.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Activation.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (N, C, L)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.Pool">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">Pool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pool_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Pool" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>A pooling layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – Type of pooling function. Supported values are ‘avg’, ‘max’,
+or ‘attn’. If None, will return nn.Identity.</p></li>
+<li><p><strong>pool_size</strong> – The number of positions to pool together</p></li>
+<li><p><strong>in_channels</strong> – Number of channels in the input. Only needeed for attention pooling.</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments to pass to the pooling function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#NotImplementedError" title="(in Python v3.10)"><strong>NotImplementedError</strong></a> – If ‘func’ is not a supported pooling function.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.Pool.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Pool.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (N, C, L)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.AdaptivePool">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">AdaptivePool</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.AdaptivePool" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>An Adaptive Pooling layer. This layer does not have a defined pooling width but
+instead pools together all the values in the last axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>func</strong> – Type of pooling function. Supported values are ‘avg’ or ‘max’. If None,
+will return nn.Identity.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3.10/library/exceptions.html#NotImplementedError" title="(in Python v3.10)"><strong>NotImplementedError</strong></a> – If ‘func’ is not a supported pooling function.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.AdaptivePool.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.AdaptivePool.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (N, C, L)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.Norm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">Norm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/stdtypes.html#str" title="(in Python v3.10)"><span class="pre">str</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">in_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Norm" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>A batch normalization or layer normalization layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>func</strong> – Type of normalization function. Supported values are ‘batch’,
+‘syncbatch’, ‘instance’,  or ‘layer’. If None, will return nn.Identity.</p></li>
+<li><p><strong>in_dim</strong> – Number of features in the input tensor.</p></li>
+<li><p><strong>**kwargs</strong> – <p>Additional arguments to pass to the normalization function.
+Common arguments include:
+- eps: Small constant added to denominator for numerical stability.</p>
+<blockquote>
+<div><p>Defaults to 1e-5 for all normalization types unless overridden.</p>
+</div></blockquote>
+<ul>
+<li><dl class="simple">
+<dt>momentum: Value used for the running_mean and running_var computation.</dt><dd><p>Defaults to 0.1 for batch and sync batch norm.</p>
+</dd>
+</dl>
+</li>
+<li><p>affine: If True, adds learnable affine parameters. Defaults to True.</p></li>
+<li><dl class="simple">
+<dt>track_running_stats: If True, tracks running mean and variance.</dt><dd><p>Defaults to True for batch and sync batch norm.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.Norm.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Norm.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (N, C, L)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.ChannelTransform">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">ChannelTransform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_channels</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">if_equal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#bool" title="(in Python v3.10)"><span class="pre">bool</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.ChannelTransform" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>A convolutional layer to transform the number of channels in the input.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>in_channels</strong> – Number of channels in the input</p></li>
+<li><p><strong>out_channels</strong> – Number of channels in the output</p></li>
+<li><p><strong>if_equal</strong> – Whether to create layer if input and output channels are equal</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments to pass to the convolutional layer.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.ChannelTransform.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.ChannelTransform.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (N, C, L)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.Dropout">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">Dropout</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">p</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Dropout" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>Optional dropout layer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>p</strong> – Dropout probability. If this is set to 0, will return nn.Identity.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Dropout.layer">
+<span class="sig-name descname"><span class="pre">layer</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Dropout.layer" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.Dropout.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Dropout.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (N, C, L)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.Crop">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">Crop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crop_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">receptive_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.10/library/constants.html#None" title="(in Python v3.10)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Crop" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>Optional cropping layer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>crop_len</strong> – Number of positions to crop at each end of the input.</p></li>
+<li><p><strong>receptive_field</strong> – Receptive field of the model to calculate crop_len.
+Only needed if crop_len is None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.Crop.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Crop.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (N, C, L)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">Attention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">in_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">value_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_pos_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">attn_dropout</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#float" title="(in Python v3.10)"><span class="pre">float</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.in_len">
+<span class="sig-name descname"><span class="pre">in_len</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.in_len" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.key_len">
+<span class="sig-name descname"><span class="pre">key_len</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.key_len" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.value_len">
+<span class="sig-name descname"><span class="pre">value_len</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.value_len" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.n_heads">
+<span class="sig-name descname"><span class="pre">n_heads</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.n_heads" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.n_pos_features">
+<span class="sig-name descname"><span class="pre">n_pos_features</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.n_pos_features" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.to_q">
+<span class="sig-name descname"><span class="pre">to_q</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.to_q" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.to_k">
+<span class="sig-name descname"><span class="pre">to_k</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.to_k" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.to_v">
+<span class="sig-name descname"><span class="pre">to_v</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.to_v" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.to_out">
+<span class="sig-name descname"><span class="pre">to_out</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.to_out" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.positional_embed">
+<span class="sig-name descname"><span class="pre">positional_embed</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.positional_embed" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.to_pos_k">
+<span class="sig-name descname"><span class="pre">to_pos_k</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.to_pos_k" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.rel_content_bias">
+<span class="sig-name descname"><span class="pre">rel_content_bias</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.rel_content_bias" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.rel_pos_bias">
+<span class="sig-name descname"><span class="pre">rel_pos_bias</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.rel_pos_bias" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.pos_dropout">
+<span class="sig-name descname"><span class="pre">pos_dropout</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.pos_dropout" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.attn_dropout">
+<span class="sig-name descname"><span class="pre">attn_dropout</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.attn_dropout" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention._get_pos_k">
+<span class="sig-name descname"><span class="pre">_get_pos_k</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention._get_pos_k" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.get_attn_scores">
+<span class="sig-name descname"><span class="pre">get_attn_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.get_attn_scores" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.Attention.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.Attention.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (N, C, L)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">grelu.model.layers.</span></span><span class="sig-name descname"><span class="pre">FlashAttention</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3.10/library/functions.html#int" title="(in Python v3.10)"><span class="pre">int</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_p</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.embed_dim">
+<span class="sig-name descname"><span class="pre">embed_dim</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.embed_dim" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.n_heads">
+<span class="sig-name descname"><span class="pre">n_heads</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.n_heads" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.head_dim">
+<span class="sig-name descname"><span class="pre">head_dim</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.head_dim" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.dropout_p">
+<span class="sig-name descname"><span class="pre">dropout_p</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.0</span></em><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.dropout_p" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.qkv">
+<span class="sig-name descname"><span class="pre">qkv</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.qkv" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.out">
+<span class="sig-name descname"><span class="pre">out</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.out" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.rotary_embed">
+<span class="sig-name descname"><span class="pre">rotary_embed</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.rotary_embed" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.flash_attn_qkvpacked_func">
+<span class="sig-name descname"><span class="pre">flash_attn_qkvpacked_func</span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.flash_attn_qkvpacked_func" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="grelu.model.layers.FlashAttention.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="reference external" href="https://github.com/Genentech/gReLU/tree/main/src/grelu/model/layers.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#grelu.model.layers.FlashAttention.forward" title="Link to this definition">#</a></dt>
+<dd><p>Forward pass</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>x</strong> – Input tensor of shape (batch_size, seq_len, embed_dim)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Output tensor</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../heads/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">grelu.model.heads</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../models/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">grelu.model.models</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Activation"><code class="docutils literal notranslate"><span class="pre">Activation</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Activation.forward"><code class="docutils literal notranslate"><span class="pre">Activation.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Pool"><code class="docutils literal notranslate"><span class="pre">Pool</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Pool.forward"><code class="docutils literal notranslate"><span class="pre">Pool.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.AdaptivePool"><code class="docutils literal notranslate"><span class="pre">AdaptivePool</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.AdaptivePool.forward"><code class="docutils literal notranslate"><span class="pre">AdaptivePool.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Norm"><code class="docutils literal notranslate"><span class="pre">Norm</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Norm.forward"><code class="docutils literal notranslate"><span class="pre">Norm.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.ChannelTransform"><code class="docutils literal notranslate"><span class="pre">ChannelTransform</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.ChannelTransform.forward"><code class="docutils literal notranslate"><span class="pre">ChannelTransform.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Dropout"><code class="docutils literal notranslate"><span class="pre">Dropout</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Dropout.layer"><code class="docutils literal notranslate"><span class="pre">Dropout.layer</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Dropout.forward"><code class="docutils literal notranslate"><span class="pre">Dropout.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Crop"><code class="docutils literal notranslate"><span class="pre">Crop</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Crop.forward"><code class="docutils literal notranslate"><span class="pre">Crop.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention"><code class="docutils literal notranslate"><span class="pre">Attention</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.in_len"><code class="docutils literal notranslate"><span class="pre">Attention.in_len</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.key_len"><code class="docutils literal notranslate"><span class="pre">Attention.key_len</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.value_len"><code class="docutils literal notranslate"><span class="pre">Attention.value_len</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.n_heads"><code class="docutils literal notranslate"><span class="pre">Attention.n_heads</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.n_pos_features"><code class="docutils literal notranslate"><span class="pre">Attention.n_pos_features</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.to_q"><code class="docutils literal notranslate"><span class="pre">Attention.to_q</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.to_k"><code class="docutils literal notranslate"><span class="pre">Attention.to_k</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.to_v"><code class="docutils literal notranslate"><span class="pre">Attention.to_v</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.to_out"><code class="docutils literal notranslate"><span class="pre">Attention.to_out</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.positional_embed"><code class="docutils literal notranslate"><span class="pre">Attention.positional_embed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.to_pos_k"><code class="docutils literal notranslate"><span class="pre">Attention.to_pos_k</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.rel_content_bias"><code class="docutils literal notranslate"><span class="pre">Attention.rel_content_bias</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.rel_pos_bias"><code class="docutils literal notranslate"><span class="pre">Attention.rel_pos_bias</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.pos_dropout"><code class="docutils literal notranslate"><span class="pre">Attention.pos_dropout</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.attn_dropout"><code class="docutils literal notranslate"><span class="pre">Attention.attn_dropout</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention._get_pos_k"><code class="docutils literal notranslate"><span class="pre">Attention._get_pos_k()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.get_attn_scores"><code class="docutils literal notranslate"><span class="pre">Attention.get_attn_scores()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.Attention.forward"><code class="docutils literal notranslate"><span class="pre">Attention.forward()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention"><code class="docutils literal notranslate"><span class="pre">FlashAttention</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.embed_dim"><code class="docutils literal notranslate"><span class="pre">FlashAttention.embed_dim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.n_heads"><code class="docutils literal notranslate"><span class="pre">FlashAttention.n_heads</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.head_dim"><code class="docutils literal notranslate"><span class="pre">FlashAttention.head_dim</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.dropout_p"><code class="docutils literal notranslate"><span class="pre">FlashAttention.dropout_p</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.qkv"><code class="docutils literal notranslate"><span class="pre">FlashAttention.qkv</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.out"><code class="docutils literal notranslate"><span class="pre">FlashAttention.out</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.rotary_embed"><code class="docutils literal notranslate"><span class="pre">FlashAttention.rotary_embed</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.flash_attn_qkvpacked_func"><code class="docutils literal notranslate"><span class="pre">FlashAttention.flash_attn_qkvpacked_func</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#grelu.model.layers.FlashAttention.forward"><code class="docutils literal notranslate"><span class="pre">FlashAttention.forward()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/autoapi/grelu/model/layers/index.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../../../_sources/autoapi/grelu/model/layers/index.rst"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
