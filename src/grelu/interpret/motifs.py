@@ -155,7 +155,7 @@ def scan_sequences(
 
     # Format motifs
     if isinstance(motifs, str):
-        motifs = read_meme_file(motifs)
+        motifs = read_meme_file(motifs, names=names)
 
     import tempfile
 
@@ -319,8 +319,6 @@ def compare_motifs(
         motifs: A dictionary whose values are Position Probability Matrices
             (PPMs) of shape (4, L), or the path to a MEME file.
         alt_seq: The alternate sequence as a string
-        ref_allele: The alternate allele as a string. Only used if
-            alt_seq is not supplied.
         alt_allele: The alternate allele as a string. Only needed if
             alt_seq is not supplied.
         pos: The position at which to substitute the alternate allele.
@@ -345,24 +343,39 @@ def compare_motifs(
         names=names,
         seq_ids=["ref", "alt"],
         pthresh=pthresh,
-        rc=True,  # Scan both strands
+        rc=rc,  # Scan both strands
     )
+    if len(scan) > 0:
 
-    # Compare the results for alt and ref sequences
-    scan = (
-        scan.pivot_table(
-            index=["motif", "start", "end", "strand"],
-            columns=["sequence"],
-            values="score",
+        # Compare the results for alt and ref sequences
+        scan = (
+            scan.pivot_table(
+                index=["motif", "start", "end", "strand"],
+                columns=["sequence"],
+                values=["score", "p-value"],
+            )
+            .reset_index()
         )
-        .fillna(0)
-        .reset_index()
-    )
+        scan.columns = [col[0] if col[1] == '' else '_'.join(col) for col in scan.columns]
+        for col in ["p-value_alt", "p-value_ref", "score_alt", "score_ref"]:
+            if col not in scan.columns:
+                scan[col] = np.nan
 
-    # Compute fold change
-    scan["foldChange"] = scan.alt / scan.ref
-    scan = scan.sort_values("foldChange").reset_index(drop=True)
-    return scan
+        # Fill in empty positions
+        for row in scan[scan.score_alt.isna()].itertuples():
+            sc = scan_sequences(seqs=alt_seq[row.start:row.end+1], motifs=motifs, names=[row.motif], pthresh=1, rc=row.strand=='-').iloc[0]
+            scan.loc[row.Index, 'score_alt'] = sc.score
+            scan.loc[row.Index, 'p-value_alt'] = sc['p-value']
+
+        for row in scan[scan.score_ref.isna()].itertuples():
+            sc = scan_sequences(seqs=ref_seq[row.start:row.end+1], motifs=motifs, names=[row.motif], pthresh=1, rc=row.strand=='-').iloc[0]
+            scan.loc[row.Index, 'score_ref'] = sc.score
+            scan.loc[row.Index, 'p-value_ref'] = sc['p-value']
+
+        # Compute fold change
+        scan["score_diff"] = scan.score_alt - scan.score_ref
+        scan = scan.sort_values("score_diff").reset_index(drop=True)
+        return scan
 
 
 def run_tomtom(motifs: Dict[str, np.ndarray], meme_file: str) -> pd.DataFrame:
