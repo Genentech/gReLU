@@ -203,7 +203,8 @@ def scan_sequences(
     # Concatenate results from all sequences
     if len(sites) > 0:
         sites = sites.reset_index(drop=True)
-        sites = sites.rename(columns={"motif_name": "motif","sequence_name": "sequence"})
+        sites = sites.rename(columns={"motif_name": "motif","sequence_name": "sequence",
+                                      "score":"fimo_score", "p-value":"fimo_p-value"})
 
         # Add attribution scores
         if attrs is not None:
@@ -301,14 +302,14 @@ def score_motifs(
 
 
 def compare_motifs(
-    ref_seq: Union[str, pd.DataFrame],
+    ref_seq: str,
+    alt_seq: str,
     motifs: Union[str, np.ndarray, Dict[str, np.ndarray]],
-    alt_seq: Optional[str] = None,
-    alt_allele: Optional[str] = None,
-    pos: Optional[int] = None,
     names: Optional[List[str]] = None,
     pthresh: float = 1e-3,
     rc: bool = True,
+    ref_attrs: Optional[np.ndarray] = None,
+    alt_attrs: Optional[np.ndarray] = None,
 ) -> pd.DataFrame:
     """
     Scan sequences containing the reference and alternate alleles
@@ -316,25 +317,28 @@ def compare_motifs(
 
     Args:
         ref_seq: The reference sequence as a string
+        alt_seq: The alternate sequence as a string
         motifs: A dictionary whose values are Position Probability Matrices
             (PPMs) of shape (4, L), or the path to a MEME file.
-        alt_seq: The alternate sequence as a string
-        alt_allele: The alternate allele as a string. Only needed if
-            alt_seq is not supplied.
-        pos: The position at which to substitute the alternate allele.
-            Only needed if alt_seq is not supplied.
         names: A list of motif names to read from the MEME file.
             If None, all motifs in the file will be read.
         pthresh: p-value cutoff for binding sites
         rc: If True, both the sequence and its reverse complement will be
             scanned. If False, only the given sequence will be scanned.
+        ref_attrs: A numpy array of shape (1, 4, L) containing attributions for
+            the reference sequence.
+        alt_attrs: A numpy array of shape (1, 4, L) containing attributions for
+            the alternate sequence.
     """
-    from grelu.sequence.mutate import mutate
-
-    # Create alt sequence
-    if alt_seq is None:
-        assert alt_allele is not None, "Either alt_seq or alt_allele must be supplied."
-        alt_seq = mutate(seq=ref_seq, allele=alt_allele, pos=pos, input_type="strings")
+    # Construct attributions
+    if (ref_attrs is not None) and (alt_attrs is not None):
+        attrs = np.vstack([ref_attrs, alt_attrs])
+        score_cols = ["fimo_score", "fimo_p-value",'site_attr_score', 'motif_attr_score']
+    else:
+        if (ref_attrs is not None) or (alt_attrs is not None):
+            warnings.warn("Both ref_attrs and alt_attrs must be supplied to compare attribution scores.")
+        attrs = None
+        score_cols = ["fimo_score", "fimo_p-value"]
 
     # Scan sequences
     scan = scan_sequences(
@@ -344,6 +348,7 @@ def compare_motifs(
         seq_ids=["ref", "alt"],
         pthresh=pthresh,
         rc=rc,  # Scan both strands
+        attrs=attrs,
     )
     if len(scan) > 0:
 
@@ -352,29 +357,47 @@ def compare_motifs(
             scan.pivot_table(
                 index=["motif", "start", "end", "strand"],
                 columns=["sequence"],
-                values=["score", "p-value"],
+                values=score_cols,
             )
             .reset_index()
         )
         scan.columns = [col[0] if col[1] == '' else '_'.join(col) for col in scan.columns]
-        for col in ["p-value_alt", "p-value_ref", "score_alt", "score_ref"]:
-            if col not in scan.columns:
-                scan[col] = np.nan
+        for col in score_cols:
+            for c in [col+"_ref", col+"_alt"]:
+                if c not in scan.columns:
+                    scan[c] = np.nan
+
+        # Do not return results where the motif score is unchanged
+        scan = scan[scan.fimo_score_ref!=scan.fimo_score_alt]
 
         # Fill in empty positions
-        for row in scan[scan.score_alt.isna()].itertuples():
-            sc = scan_sequences(seqs=alt_seq[row.start:row.end+1], motifs=motifs, names=[row.motif], pthresh=1, rc=row.strand=='-').iloc[0]
-            scan.loc[row.Index, 'score_alt'] = sc.score
-            scan.loc[row.Index, 'p-value_alt'] = sc['p-value']
+        for row in scan[scan.fimo_score_alt.isna()].itertuples():
+            sc = scan_sequences(
+                seqs=alt_seq[row.start:row.end+1],
+                motifs=motifs,
+                names=[row.motif],
+                pthresh=1,
+                rc=row.strand=='-',
+                attrs=None if attrs is None else alt_attrs[..., row.start:row.end+1]
+            ).iloc[0]
+            for col in score_cols:
+                scan.loc[row.Index, col+'_alt'] = sc[col]
 
-        for row in scan[scan.score_ref.isna()].itertuples():
-            sc = scan_sequences(seqs=ref_seq[row.start:row.end+1], motifs=motifs, names=[row.motif], pthresh=1, rc=row.strand=='-').iloc[0]
-            scan.loc[row.Index, 'score_ref'] = sc.score
-            scan.loc[row.Index, 'p-value_ref'] = sc['p-value']
+        for row in scan[scan.fimo_score_ref.isna()].itertuples():
+            sc = scan_sequences(
+                seqs=ref_seq[row.start:row.end+1],
+                motifs=motifs,
+                names=[row.motif],
+                pthresh=1,
+                rc=row.strand=='-',
+                attrs=None if attrs is None else ref_attrs[..., row.start:row.end+1]
+            ).iloc[0]
+            for col in score_cols:
+                scan.loc[row.Index, col+'_ref'] = sc[col]
 
         # Compute fold change
-        scan["score_diff"] = scan.score_alt - scan.score_ref
-        scan = scan.sort_values("score_diff").reset_index(drop=True)
+        scan["fimo_score_diff"] = scan.fimo_score_alt - scan.fimo_score_ref
+        scan = scan.sort_values("fimo_score_diff").reset_index(drop=True)
         return scan
 
 
