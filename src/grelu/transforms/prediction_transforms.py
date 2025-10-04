@@ -97,14 +97,14 @@ class Aggregate(nn.Module):
         """
         # Select positions
         if self.positions is not None:
-            x = x[:, :, self.positions]
+            x = x[..., self.positions]
 
         # Select tasks
         if self.tasks is not None:
-            x = x[:, self.tasks, :]
+            x = x[..., self.tasks, :]
         elif self.except_tasks is not None:
             keep = [i for i in range(x.shape[1]) if i not in self.except_tasks]
-            x = x[:, keep, :]
+            x = x[..., keep, :]
         return x
 
     def torch_aggregate(self, x: Tensor) -> Tensor:
@@ -113,11 +113,11 @@ class Aggregate(nn.Module):
         """
         # Aggregate positions
         if self.length_aggfunc is not None:
-            x = self.length_aggfunc(x, axis=2, keepdims=True)
+            x = self.length_aggfunc(x, axis=-1, keepdims=True)
 
         # Aggregate tasks
         if self.task_aggfunc is not None:
-            x = self.task_aggfunc(x, axis=1, keepdims=True)
+            x = self.task_aggfunc(x, axis=-2, keepdims=True)
         return x
 
     def numpy_aggregate(self, x: np.ndarray) -> np.ndarray:
@@ -126,11 +126,11 @@ class Aggregate(nn.Module):
         """
         # Aggregate positions
         if self.length_aggfunc is not None:
-            x = self.length_aggfunc_numpy(x, axis=2, keepdims=True)
+            x = self.length_aggfunc_numpy(x, axis=-1, keepdims=True)
 
         # Aggregate tasks
         if self.task_aggfunc is not None:
-            x = self.task_aggfunc_numpy(x, axis=1, keepdims=True)
+            x = self.task_aggfunc_numpy(x, axis=-2, keepdims=True)
 
         return x
 

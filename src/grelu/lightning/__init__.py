@@ -1146,6 +1146,12 @@ class LightningModelEnsemble(pl.LightningModule):
             "n_tasks": sum([model.model_params["n_tasks"] for model in self.models])
         }
         self.data_params = {"tasks": defaultdict(list)}
+
+        # Set models to eval mode (since this class is used for prediction and design)
+        for model in self.models:
+            model.eval()
+
+        self.reset_transform()
         self._combine_tasks()
 
     def _combine_tasks(self) -> None:
@@ -1171,18 +1177,51 @@ class LightningModelEnsemble(pl.LightningModule):
         """
         Forward Pass.
         """
-        return torch.cat([model(x) for model in self.models], axis=1)  # B, T, L
+        x = torch.cat([model(x) for model in self.models], axis=1)  # B, T, L
 
-    def predict_on_dataset(self, dataset: Callable, **kwargs) -> np.ndarray:
+        # apply transform to ensemble output
+        x = self.transform(x)
+        return x
+
+    def add_transform(self, prediction_transform: Callable) -> None:
         """
-        This will return the concatenated predictions from all the
-        constituent models, in the order in which they were supplied.
-        Predictions will be concatenated along the task axis.
+        Add a prediction transform
         """
-        return np.concatenate(
+        if prediction_transform is not None:
+            self.transform = prediction_transform
+
+    def reset_transform(self) -> None:
+        """
+        Remove a prediction transform
+        """
+        self.transform = nn.Identity()
+
+    def predict_on_dataset(
+        self,
+        dataset: Callable,
+        **kwargs,
+    ):
+        """
+        Predict for a dataset of sequences or variants. This will return
+        the concatenated predictions from all the constituent models, in the
+        order in which they were supplied to __.init__. Predictions will be
+        concatenated along the task axis.
+
+        Args:
+            dataset: Dataset object that yields one-hot encoded sequences
+            **kwargs: Additional arguments to pass to the `predict_on_dataset`
+                functions of the constituent models.
+
+        Returns:
+            Model predictions as a numpy array
+        """
+        preds = np.concatenate(
             [model.predict_on_dataset(dataset, **kwargs) for model in self.models],
             axis=-2,
         )
+        if not isinstance(self.transform, nn.Identity):
+            preds = self.transform(torch.tensor(preds)).numpy()
+        return preds
 
     def get_task_idxs(
         self, tasks: Union[str, int, List[str], List[int]], key: str = "name"
