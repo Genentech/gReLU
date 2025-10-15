@@ -68,4 +68,6 @@ If you want to create ATAC-seq coverage bigWig files using `grelu.data.preproces
 
 ## Citation
 
-Please cite our preprint: https://www.biorxiv.org/content/10.1101/2024.09.18.613778v1
+Please cite our paper: [https://www.biorxiv.org/content/10.1101/2024.09.18.613778v1](https://www.nature.com/articles/s41592-025-02868-z)
+
+Lal, A., Gunsalus, L., Nair, S. et al. gReLU: a comprehensive framework for DNA sequence modeling and design. Nat Methods (2025). https://doi.org/10.1038/s41592-025-02868-z
