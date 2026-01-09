@@ -11,7 +11,7 @@ on:
 jobs:
   docs:
     name: Push Sphinx Pages
-    runs-on: ubuntu-latest
+    runs-on: Linux-x64
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
