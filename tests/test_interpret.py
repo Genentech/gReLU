@@ -24,6 +24,33 @@ cwd = os.path.realpath(os.path.dirname(__file__))
 meme_file = os.path.join(cwd, "files", "test.meme")
 
 
+def test_debug():
+    arr = np.array([[[0., 0., 1., 0., 0., 0., 0., 1., 1.],
+        [0., 1., 0., 1., 0., 0., 0., 0., 0.],
+        [0., 0., 0., 0., 1., 0., 1., 0., 0.],
+        [1., 0., 0., 0., 0., 1., 0., 0., 0.]]], dtype=np.float32)
+
+    import memelite
+    print(memelite.__version__)
+    
+    from memelite import fimo
+    print(help(fimo))
+
+    from grelu.io.motifs import read_meme_file
+    motifs = read_meme_file(meme_file, names=None)
+    pval = fimo(
+        motifs={k: Tensor(v) for k, v in motifs.items()},
+        sequences=arr,
+        alphabet=["A", "C", "G", "T"],
+        bin_size=0.1,
+        eps=0.0001,
+        threshold=1e-3,
+        reverse_complement=False,
+        dim=1,
+    )[0]['p-value'].iloc[0]
+    assert np.equal(pval, 0.000244140625)
+
+
 def test_motifs_to_strings(motifs=meme_file):
     assert motifs_to_strings(motifs, sample=False) == ["CACGTG", "TGCGTG"]
     assert motifs_to_strings(motifs, names=["MA0004.1 Arnt"], sample=False) == [
