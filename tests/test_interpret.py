@@ -48,7 +48,8 @@ def test_debug():
         reverse_complement=False,
         dim=1,
     )[0]['p-value'].iloc[0]
-    assert np.equal(pval, 0.000244140625)
+    assert np.equal(res['score'], 11.60498046875)
+    assert np.equal(res['p-value'], 0.000244140625)
 
 
 def test_motifs_to_strings(motifs=meme_file):
