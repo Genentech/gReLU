@@ -32,13 +32,13 @@ def test_debug():
 
     import memelite
     print(memelite.__version__)
-
+    
     from memelite import fimo
     print(help(fimo))
 
     from grelu.io.motifs import read_meme_file
     motifs = read_meme_file(meme_file, names=None)
-    pval = fimo(
+    res = fimo(
         motifs={k: Tensor(v) for k, v in motifs.items()},
         sequences=arr,
         alphabet=["A", "C", "G", "T"],
@@ -47,7 +47,7 @@ def test_debug():
         threshold=1e-3,
         reverse_complement=False,
         dim=1,
-    )[0]['p-value'].iloc[0]
+    )[0].iloc[0]
     assert np.equal(res['score'], 11.60498046875)
     assert np.equal(res['p-value'], 0.000244140625)
 
