@@ -32,7 +32,7 @@ def test_debug():
 
     import memelite
     print(memelite.__version__)
-    
+
     from memelite import fimo
     print(help(fimo))
 
