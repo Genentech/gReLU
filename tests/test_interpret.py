@@ -25,7 +25,6 @@ meme_file = os.path.join(cwd, "files", "test.meme")
 
 
 def test_debug():
-    import numpy as np
     import math
     from memelite.fimo import _all_pwm_to_mapping
     alphabet=['A', 'C', 'G', 'T']
