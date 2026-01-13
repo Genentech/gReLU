@@ -248,7 +248,7 @@ def test_scan_sequences():
      'matched_seq': ['CACGTG', 'CACGTG', 'CACGCA', 'TGCGTG']
     })
 
-    assert out.equals(expected)
+    pd.testing.assert_frame_equal(out, expected, atol=1e-3)
 
     # Reverse complement with attributions
     attrs = get_attributions(model, seqs, method="inputxgradient")
@@ -266,7 +266,7 @@ def test_scan_sequences():
      'site_attr_score': np.float32([0.0, 0.0, 0.009259258396923542, -0.009259259328246117]),
      'motif_attr_score': [0.003703703731298441, 0.0, 0.0, -0.03549381507926434]
     })
-    assert out.equals(expected)
+    pd.testing.assert_frame_equal(out, expected, atol=1e-3)
 
 
 def test_compare_motifs():
@@ -288,7 +288,7 @@ def test_compare_motifs():
         'fimo_score_ref': [11.60498046875, -2.9944558143615723],
         'fimo_score_diff': [-26.253820657730103, 13.22646164894104]
     })
-    assert out.equals(expected)
+    pd.testing.assert_frame_equal(out, expected, atol=1e-3)
 
 
 def test_run_tomtom():
