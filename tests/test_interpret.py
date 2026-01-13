@@ -31,43 +31,43 @@ def test_debug():
     bin_size=0.1
     eps=0.0001
     threshold=1e-3
-    
+
     log_threshold = math.log2(threshold)
     pwm = np.array([[0.2 , 0.95, 0.  , 0.  , 0.  , 0.  ],
            [0.8 , 0.  , 1.  , 0.  , 0.  , 0.  ],
            [0.  , 0.05, 0.  , 1.  , 0.  , 1.  ],
            [0.  , 0.  , 0.  , 0.  , 1.  , 0.  ]])
     pwm = np.log2(pwm + eps) - math.log2(0.25)
-    
+
     smallest, score_to_pvals = _all_pwm_to_mapping(pwm, [0, 6], bin_size)
     _score_to_pvals_lengths = [0] + [len(score_to_pvals[0])]
     idx = np.where(score_to_pvals[0] < log_threshold)[0]
     score_to_pvals = np.concatenate(score_to_pvals)
-    
+
     score_threshold = np.empty(1, dtype=np.float32)
     score_threshold[0] = (idx[0] + smallest[0]) * bin_size
-    
+
     X = np.array([3, 1, 0, 1, 2, 3, 2, 0, 0], dtype=np.int8)
     score = 0.0
     for j in range(6):
         idx = X[1+j]
         score += pwm[np.uint64(idx), np.uint64(j)]
     s = score
-        
-    score_idx = int(score / bin_size) - smallest[0]   
+
+    score_idx = int(score / bin_size) - smallest[0]
     s_idx = score_idx
-    
+
     pval_ = score_to_pvals[score_idx]
     p = pval_
-    
+
     pval = 2.0 ** score_to_pvals[score_idx]
     p2 = pval
 
     assert s == 11.604980553086907
-    assert s_idx == 794 
+    assert s_idx == 794
     assert p == -12.0
     assert p2 == 0.000244140625
-    
+
 
 
 def test_motifs_to_strings(motifs=meme_file):
