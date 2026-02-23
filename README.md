@@ -6,6 +6,9 @@ gReLU is a Python library to train, interpret, and apply deep learning models to
 
 ![Flowchart](media/flowchart.jpg)
 
+## Notices
+[02-23-2026] Due to deprecated anonymous downloads from wandb (https://github.com/wandb/wandb/pull/10909) the gReLU model zoo has been migrated to huggingface (https://huggingface.co/collections/Genentech/grelu-model-zoo). In the next update, all functions to download models and datasets will connect to huggingface instead of wandb.
+
 ## Installation
 
 To install from source:
