@@ -16,7 +16,7 @@ import pandas as pd
 import pytorch_lightning as pl
 import torch
 from einops import rearrange
-from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import CSVLogger, WandbLogger
 from torch import Tensor, nn, optim
 from torch.utils.data import DataLoader
@@ -57,6 +57,10 @@ default_train_params = {
     "class_weights": None,
     "total_weight": None,
     "accumulate_grad_batches": 1,
+    "early_stopping": False,
+    "patience": 5,
+    "monitor": "val_loss",
+    "mode": "min",
 }
 
 
@@ -544,6 +548,16 @@ class LightningModel(pl.LightningModule):
             checkpoint_callbacks = [ModelCheckpoint(**self.train_params["checkpoint"])]
         else:
             raise Exception("Checkpoint type must be a bool or dict")
+
+        # Early stopping
+        if self.train_params["early_stopping"]:
+            checkpoint_callbacks.append(
+                EarlyStopping(
+                    monitor=self.train_params["monitor"],
+                    patience=self.train_params["patience"],
+                    mode=self.train_params["mode"],
+                )
+            )
 
         # Get device
         accelerator, devices = self.parse_devices(self.train_params["devices"])
