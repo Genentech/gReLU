@@ -12,8 +12,16 @@ from huggingface_hub import hf_hub_download, HfApi
 from grelu.lightning import LightningModel
 from grelu.resources.utils import get_meme_file_path, get_blacklist_file
 
+
+class DeprecationError(Exception):
+    """Raised when deprecated API is used."""
+    pass
+
+
 # Re-export utility functions
 __all__ = [
+    # Exception
+    "DeprecationError",
     # Utility functions
     "get_meme_file_path",
     "get_blacklist_file",
@@ -201,3 +209,61 @@ def get_models_by_dataset(repo_id: str) -> List[str]:
         if repo_id in datasets:
             result.append(model_id)
     return result
+
+
+# === Deprecation stubs for old API ===
+# These provide helpful error messages for users migrating from wandb API
+
+
+def projects(*args, **kwargs):
+    """Deprecated: Use list_models() or list_datasets() for HuggingFace."""
+    raise DeprecationError(
+        "grelu.resources.projects() has been replaced.\n"
+        "  - New (HuggingFace): use grelu.resources.list_models() or list_datasets()\n"
+        "  - Legacy (wandb): use grelu.resources.wandb.projects()"
+    )
+
+
+def artifacts(*args, **kwargs):
+    """Deprecated: Use list_models() or list_datasets() for HuggingFace."""
+    raise DeprecationError(
+        "grelu.resources.artifacts() has been replaced.\n"
+        "  - New (HuggingFace): use grelu.resources.list_models() or list_datasets()\n"
+        "  - Legacy (wandb): use grelu.resources.wandb.artifacts()"
+    )
+
+
+def models(*args, **kwargs):
+    """Deprecated: Use list_models() for HuggingFace."""
+    raise DeprecationError(
+        "grelu.resources.models() has been replaced.\n"
+        "  - New (HuggingFace): use grelu.resources.list_models()\n"
+        "  - Legacy (wandb): use grelu.resources.wandb.models()"
+    )
+
+
+def datasets(*args, **kwargs):
+    """Deprecated: Use list_datasets() for HuggingFace."""
+    raise DeprecationError(
+        "grelu.resources.datasets() has been replaced.\n"
+        "  - New (HuggingFace): use grelu.resources.list_datasets()\n"
+        "  - Legacy (wandb): use grelu.resources.wandb.datasets()"
+    )
+
+
+def runs(*args, **kwargs):
+    """Deprecated: Use get_model_info() for HuggingFace metadata."""
+    raise DeprecationError(
+        "grelu.resources.runs() has been replaced.\n"
+        "  - New (HuggingFace): use grelu.resources.get_model_info() for metadata\n"
+        "  - Legacy (wandb): use grelu.resources.wandb.runs()"
+    )
+
+
+def get_artifact(*args, **kwargs):
+    """Deprecated: Use download_model() or download_dataset() for HuggingFace."""
+    raise DeprecationError(
+        "grelu.resources.get_artifact() has been replaced.\n"
+        "  - New (HuggingFace): use grelu.resources.download_model() or download_dataset()\n"
+        "  - Legacy (wandb): use grelu.resources.wandb.get_artifact()"
+    )
