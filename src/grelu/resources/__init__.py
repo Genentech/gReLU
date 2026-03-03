@@ -1,274 +1,203 @@
 """
-`grelu.resources` contains additional data files that can be used by gReLU functions.
-It also contains functions to load these files as well as files stored externally,
-such as model checkpoints and datasets in the model zoo.
+`grelu.resources` contains functions to access the gReLU model zoo on HuggingFace,
+as well as resource files bundled with gReLU.
+
+For legacy wandb access, use `grelu.resources.wandb`.
 """
 
-import os
-import importlib_resources
-from tempfile import TemporaryDirectory
-from pathlib import Path
-from typing import Optional, List, Dict, Any, Union
+from typing import List, Dict, Any, Union
 
-import wandb
+from huggingface_hub import hf_hub_download, HfApi
+
 from grelu.lightning import LightningModel
+from grelu.resources.utils import get_meme_file_path, get_blacklist_file
 
-DEFAULT_WANDB_ENTITY = 'grelu'
-DEFAULT_WANDB_HOST = 'https://api.wandb.ai'
+# Re-export utility functions
+__all__ = [
+    # Utility functions
+    "get_meme_file_path",
+    "get_blacklist_file",
+    # HuggingFace functions
+    "list_models",
+    "list_datasets",
+    "download_model",
+    "download_dataset",
+    "load_model",
+    "get_datasets_by_model",
+    "get_base_models",
+    "get_models_by_dataset",
+    "get_model_info",
+    "get_dataset_info",
+]
+
+DEFAULT_HF_COLLECTION = "Genentech/grelu-model-zoo-67b0a87e19442de9c2c6bd61"
 
 
-def get_meme_file_path(meme_motif_db: str) -> str:
+def list_models() -> List[str]:
     """
-    Return the path to a MEME file.
-
-    Args:
-        meme_motif_db: Path to a MEME file or the name of a MEME file included with gReLU.
-            Current name options are "jaspar" and "consensus".
+    List all model repo IDs in the gReLU model zoo collection.
 
     Returns:
-        Path to the specified MEME file.
+        List of model repository IDs (e.g., ["Genentech/human-atac-catlas-model", ...])
     """
-    if meme_motif_db == "hocomoco_v13":
-        meme_motif_db = (
-            importlib_resources.files("grelu")
-            / "resources"
-            / "meme"
-            / "H13CORE_meme_format.meme"
-        )
-    elif meme_motif_db == "hocomoco_v12":
-        meme_motif_db = (
-            importlib_resources.files("grelu")
-            / "resources"
-            / "meme"
-            / "H12CORE_meme_format.meme"
-        )
-    elif meme_motif_db == "consensus":
-        meme_motif_db = (
-            importlib_resources.files("grelu")
-            / "resources"
-            / "meme"
-            / "jaspar_2024_consensus.meme"
-        )
-    elif meme_motif_db == 'jaspar':
-        raise Exception("'jaspar' can no longer be supplied as a meme file name. Please see the function grelu.io.motifs.get_jaspar to load motifs from the JASPAR database.")
-    if os.path.isfile(meme_motif_db):
-        return str(meme_motif_db)
-    else:
-        raise Exception(f"{meme_motif_db} is not a valid file.")
+    api = HfApi()
+    collection = api.get_collection(DEFAULT_HF_COLLECTION)
+    return [item.item_id for item in collection.items if item.item_id.endswith("-model")]
 
 
-def get_blacklist_file(genome: str) -> str:
+def list_datasets() -> List[str]:
     """
-    Return the path to a blacklist file
-
-    Args:
-        genome: Name of a genome whose blacklist file is included with gReLU.
-            Current name options are "hg19", "hg38" and "mm10".
+    List all dataset repo IDs in the gReLU model zoo collection.
 
     Returns:
-        Path to the specified blacklist file.
+        List of dataset repository IDs (e.g., ["Genentech/human-atac-catlas-data", ...])
     """
-    blacklist = (
-        importlib_resources.files("grelu")
-        / "resources"
-        / "blacklists"
-        / "encode"
-        / f"{genome}-blacklist.v2.bed"
-    )
-    assert blacklist.exists()
-    return str(blacklist)
+    api = HfApi()
+    collection = api.get_collection(DEFAULT_HF_COLLECTION)
+    return [item.item_id for item in collection.items if item.item_id.endswith("-data")]
 
 
-def _check_wandb(host:str=DEFAULT_WANDB_HOST) -> None:
+def download_model(repo_id: str, filename: str = "model.ckpt") -> str:
     """
-    Check that the user is logged into Weights and Biases
+    Download a model checkpoint file from HuggingFace.
 
     Args:
-        host: URL of the Weights & Biases host
-    """
-    try:
-        wandb.login(host=host, anonymous="allow")
-    except Exception as _:
-        try:
-            wandb.login(host=host, anonymous="must", timeout=0)
-        except Exception as e:
-            raise RuntimeError(f'Weights & Biases (wandb) is not configured, see {host}/authorize') from e
-
-
-def projects(host: str=DEFAULT_WANDB_HOST) -> List[str]:
-    """
-    List all projects in the model zoo
-
-    Args:
-        host: URL of the Weights & Biases host
+        repo_id: HuggingFace repository ID (e.g., "Genentech/human-atac-catlas-model")
+        filename: Name of the checkpoint file to download (default: "model.ckpt")
 
     Returns:
-        List of project names
+        Local path to the downloaded file
     """
-    _check_wandb(host=host)
-
-    api = wandb.Api()
-    projects = api.projects(DEFAULT_WANDB_ENTITY)
-    return [p.name for p in projects]
+    return hf_hub_download(repo_id=repo_id, filename=filename)
 
 
-def artifacts(project: str, host: str=DEFAULT_WANDB_HOST, type_is: Optional[str]=None, type_contains: Optional[str]=None) -> List[str]:
+def download_dataset(repo_id: str, filename: str = "data.h5ad") -> str:
     """
-    List all artifacts associated with a project in the model zoo
+    Download a dataset file from HuggingFace.
 
     Args:
-        project: Name of the project to search
-        host: URL of the Weights & Biases host
-        type_is: Return only artifacts with this type
-        type_contains: Return only artifacts whose type contains this string
+        repo_id: HuggingFace repository ID (e.g., "Genentech/human-atac-catlas-data")
+        filename: Name of the dataset file to download (default: "data.h5ad")
 
     Returns:
-        List of artifact names
+        Local path to the downloaded file
     """
-    _check_wandb(host)
-    project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
-
-    api = wandb.Api()
-    if type_is is not None:
-        types = [x.name for x in api.artifact_types(project_path) if type_is == x.name]
-    elif type_contains is not None:
-        types = [x.name for x in api.artifact_types(project_path) if type_contains in x.name]
-    else:
-        types = [x.name for x in api.artifact_types(project_path)]
-
-    assert len(types) > 0, 'Artifact not found'
-
-    coll = [api.artifact_type(art_type, project_path) for art_type in types]
-    arts = [art.name for arts in coll for art in arts.collections()]
-    return arts
-
-
-def models(project:str, host:str=DEFAULT_WANDB_HOST) -> List[str]:
-    """
-    List all models associated with a project in the model zoo
-
-    Args:
-        project: Name of the project to search
-        host: URL of the Weights & Biases host
-
-    Returns:
-        List of model names
-    """
-    return artifacts(project, host=host, type_contains='model')
-
-
-def datasets(project:str, host:str=DEFAULT_WANDB_HOST) -> List[str]:
-    """
-    List all datasets associated with a project in the model zoo
-
-    Args:
-        project: Name of the project to search
-        host: URL of the Weights & Biases host
-
-    Returns:
-        List of dataset names
-    """
-    return artifacts(project, host=host, type_contains='dataset')
-
-
-def runs(project:str, host:str=DEFAULT_WANDB_HOST, field:str='id', filters: Optional[Dict[str, Any]]=None) -> List[str]:
-    """
-    List attributes of all runs associated with a project in the model zoo
-
-    Args:
-        project: Name of the project to search
-        host: URL of the Weights & Biases host
-        field: Field to return from the run metadata
-        filters: Dictionary of filters to pass to `api.runs`
-
-    Returns:
-        List of run attributes
-    """
-    _check_wandb(host=host)
-    project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
-
-    api = wandb.Api()
-    return [getattr(run, field) for run in api.runs(project_path, filters=filters)]
-
-
-def get_artifact(name:str, project:str, host:str=DEFAULT_WANDB_HOST, alias:str='latest'):
-    """
-    Retrieve an artifact associated with a project in the model zoo
-
-    Args:
-        name: Name of the artifact
-        project: Name of the project containing the artifact
-        host: URL of the Weights & Biases host
-        alias: Alias of the artifact
-
-    Returns:
-        The specific artifact
-    """
-    _check_wandb(host=host)
-    project_path = f'{DEFAULT_WANDB_ENTITY}/{project}'
-
-    api = wandb.Api()
-    return api.artifact(f'{project_path}/{name}:{alias}')
-
-
-def get_dataset_by_model(model_name:str, project:str, host:str=DEFAULT_WANDB_HOST, alias:str='latest') -> List[str]:
-    """
-    List all datasets associated with a model in the model zoo
-
-    Args:
-        model_name: Name of the model
-        project: Name of the project containing the model
-        host: URL of the Weights & Biases host
-        alias: Alias of the model artifact
-
-    Returns:
-        A list containing the names of all datasets linked to the model
-    """
-    art = get_artifact(model_name, project, host=host, alias=alias)
-    run = art.logged_by()
-    return [x.name for x in run.used_artifacts()]
-
-
-def get_model_by_dataset(dataset_name:str, project:str, host:str=DEFAULT_WANDB_HOST, alias:str='latest') -> List[str]:
-    """
-    List all models associated with a dataset in the model zoo
-
-    Args:
-        dataset_name: Name of the dataset
-        project: Name of the project containing the dataset
-        host: URL of the Weights & Biases host
-        alias: Alias of the dataset artifact
-
-    Returns:
-        A list containing the names of all models linked to the dataset
-    """
-    art = get_artifact(dataset_name, project, host=host, alias=alias)
-    runs = art.used_by()
-    assert len(runs) > 0
-    return [x.name for x in runs[0].logged_artifacts()]
+    return hf_hub_download(repo_id=repo_id, filename=filename, repo_type="dataset")
 
 
 def load_model(
-  project:str, model_name:str, device:Union[str, int]='cpu', host:str=DEFAULT_WANDB_HOST, alias:str='latest', checkpoint_file:str='model.ckpt'
+    repo_id: str,
+    filename: str = "model.ckpt",
+    device: Union[str, int] = "cpu",
 ) -> LightningModel:
     """
-    Download and load a model from the model zoo
+    Download and load a model from HuggingFace.
 
     Args:
-        project: Name of the project containing the model
-        model_name: Name of the model
-        device: Device index on which to load the model.
-        host: URL of the Weights & Biases host
-        alias: Alias of the model artifact
-        checkpoint_file: Name of the checkpoint file contained in the model artifact
+        repo_id: HuggingFace repository ID (e.g., "Genentech/human-atac-catlas-model")
+        filename: Name of the checkpoint file (default: "model.ckpt")
+        device: Device to load the model on (default: "cpu")
 
     Returns:
         A LightningModel object
     """
-    art = get_artifact(model_name, project, host=host, alias=alias)
+    path = download_model(repo_id=repo_id, filename=filename)
+    return LightningModel.load_from_checkpoint(path, map_location=device)
 
-    with TemporaryDirectory() as d:
-        art.download(d)
-        model = LightningModel.load_from_checkpoint(Path(d) / checkpoint_file, map_location=device)
 
-    return model
+def get_model_info(repo_id: str) -> Dict[str, Any]:
+    """
+    Get full model card metadata from HuggingFace.
+
+    Args:
+        repo_id: HuggingFace repository ID
+
+    Returns:
+        Dictionary containing model metadata
+    """
+    api = HfApi()
+    info = api.model_info(repo_id)
+    return {
+        "id": info.id,
+        "tags": info.tags,
+        "card_data": info.card_data.__dict__ if info.card_data else {},
+        "downloads": info.downloads,
+        "last_modified": info.last_modified,
+    }
+
+
+def get_dataset_info(repo_id: str) -> Dict[str, Any]:
+    """
+    Get full dataset card metadata from HuggingFace.
+
+    Args:
+        repo_id: HuggingFace repository ID
+
+    Returns:
+        Dictionary containing dataset metadata
+    """
+    api = HfApi()
+    info = api.dataset_info(repo_id)
+    return {
+        "id": info.id,
+        "tags": info.tags,
+        "card_data": info.card_data.__dict__ if info.card_data else {},
+        "downloads": info.downloads,
+        "last_modified": info.last_modified,
+    }
+
+
+def get_datasets_by_model(repo_id: str) -> List[str]:
+    """
+    Get datasets linked to a model (from 'datasets' field in model card).
+
+    Args:
+        repo_id: HuggingFace model repository ID
+
+    Returns:
+        List of dataset repository IDs linked to this model
+    """
+    api = HfApi()
+    info = api.model_info(repo_id)
+    if info.card_data and hasattr(info.card_data, 'datasets') and info.card_data.datasets:
+        return list(info.card_data.datasets)
+    return []
+
+
+def get_base_models(repo_id: str) -> List[str]:
+    """
+    Get base models this model was fine-tuned from (from 'base_model' field).
+
+    Args:
+        repo_id: HuggingFace model repository ID
+
+    Returns:
+        List of base model repository IDs
+    """
+    api = HfApi()
+    info = api.model_info(repo_id)
+    if info.card_data and hasattr(info.card_data, 'base_model') and info.card_data.base_model:
+        base_model = info.card_data.base_model
+        if isinstance(base_model, str):
+            return [base_model]
+        return list(base_model)
+    return []
+
+
+def get_models_by_dataset(repo_id: str) -> List[str]:
+    """
+    Get models trained on a dataset (searches collection models).
+
+    Args:
+        repo_id: HuggingFace dataset repository ID
+
+    Returns:
+        List of model repository IDs that use this dataset
+    """
+    models = list_models()
+    result = []
+    for model_id in models:
+        datasets = get_datasets_by_model(model_id)
+        if repo_id in datasets:
+            result.append(model_id)
+    return result
