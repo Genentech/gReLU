@@ -94,9 +94,12 @@ def download_dataset(repo_id: str, filename: str = "data.h5ad") -> str:
 
 
 def load_model(
-    repo_id: str,
+    repo_id: str = None,
     filename: str = "model.ckpt",
     device: Union[str, int] = "cpu",
+    # Deprecated kwargs - kept for helpful error messages
+    project: str = None,
+    model_name: str = None,
 ) -> LightningModel:
     """
     Download and load a model from HuggingFace.
@@ -109,6 +112,17 @@ def load_model(
     Returns:
         A LightningModel object
     """
+    # Detect old API usage
+    if project is not None or model_name is not None:
+        raise DeprecationError(
+            "grelu.resources.load_model() API has changed.\n"
+            "  - New (HuggingFace): load_model(repo_id='Genentech/X-model')\n"
+            "  - Legacy (wandb): use grelu.resources.wandb.load_model(project='X', model_name='Y')"
+        )
+
+    if repo_id is None:
+        raise ValueError("repo_id is required. Example: load_model(repo_id='Genentech/human-atac-catlas-model')")
+
     path = download_model(repo_id=repo_id, filename=filename)
     return LightningModel.load_from_checkpoint(path, map_location=device)
 
