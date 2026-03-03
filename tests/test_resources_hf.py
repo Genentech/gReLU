@@ -527,3 +527,57 @@ class TestErrorHandling:
 
         with pytest.raises(Exception):
             load_model(repo_id="Genentech/corrupted-model")
+
+
+class TestDeprecationErrors:
+    """Tests for deprecation error messages."""
+
+    def test_projects_raises_deprecation_error(self):
+        from grelu.resources import projects, DeprecationError
+        with pytest.raises(DeprecationError) as exc_info:
+            projects()
+        assert "list_models()" in str(exc_info.value)
+        assert "grelu.resources.wandb.projects()" in str(exc_info.value)
+
+    def test_artifacts_raises_deprecation_error(self):
+        from grelu.resources import artifacts, DeprecationError
+        with pytest.raises(DeprecationError) as exc_info:
+            artifacts("test-project")
+        assert "grelu.resources.wandb.artifacts()" in str(exc_info.value)
+
+    def test_models_raises_deprecation_error(self):
+        from grelu.resources import models, DeprecationError
+        with pytest.raises(DeprecationError) as exc_info:
+            models("test-project")
+        assert "list_models()" in str(exc_info.value)
+
+    def test_datasets_raises_deprecation_error(self):
+        from grelu.resources import datasets, DeprecationError
+        with pytest.raises(DeprecationError) as exc_info:
+            datasets("test-project")
+        assert "list_datasets()" in str(exc_info.value)
+
+    def test_runs_raises_deprecation_error(self):
+        from grelu.resources import runs, DeprecationError
+        with pytest.raises(DeprecationError) as exc_info:
+            runs("test-project")
+        assert "grelu.resources.wandb.runs()" in str(exc_info.value)
+
+    def test_get_artifact_raises_deprecation_error(self):
+        from grelu.resources import get_artifact, DeprecationError
+        with pytest.raises(DeprecationError) as exc_info:
+            get_artifact(name="dataset", project="test")
+        assert "download_model()" in str(exc_info.value) or "download_dataset()" in str(exc_info.value)
+
+    def test_load_model_with_project_kwarg_raises_deprecation_error(self):
+        from grelu.resources import load_model, DeprecationError
+        with pytest.raises(DeprecationError) as exc_info:
+            load_model(project="human-atac-catlas", model_name="model")
+        assert "repo_id=" in str(exc_info.value)
+        assert "grelu.resources.wandb.load_model" in str(exc_info.value)
+
+    def test_load_model_with_only_project_raises_deprecation_error(self):
+        from grelu.resources import load_model, DeprecationError
+        with pytest.raises(DeprecationError) as exc_info:
+            load_model(project="human-atac-catlas")
+        assert "repo_id=" in str(exc_info.value)
