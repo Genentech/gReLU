@@ -11,14 +11,14 @@ gReLU is a Python library to train, interpret, and apply deep learning models to
 **Model Zoo Migration:** The gReLU model zoo has moved from Weights & Biases to [HuggingFace](https://huggingface.co/collections/Genentech/grelu-model-zoo). The `grelu.resources` API has changed:
 
 ```python
-# Old API (wandb) - still available at grelu.resources.wandb
+# Old API (wandb) - still available at grelu.resources.wandb but will be removed in future
 grelu.resources.load_model(project="human-atac-catlas", model_name="model")
 
 # New API (HuggingFace)
 grelu.resources.load_model(repo_id="Genentech/human-atac-catlas-model", filename="model.ckpt")
 ```
 
-See the [Model Zoo Tutorial](docs/tutorials/6_model_zoo.ipynb) for updated usage.
+Browse the zoo at https://huggingface.co/collections/Genentech/grelu-model-zoo and see the [Model Zoo Tutorial](docs/tutorials/6_model_zoo.ipynb) for updated usage.
 
 ## Installation
 
