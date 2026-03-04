@@ -1,9 +1,7 @@
 """
-Tests for HuggingFace-based model zoo functions.
+Tests for HuggingFace-based model zoo functions in grelu.resources.
 
-These tests are written in TDD style - they test the new HuggingFace API
-functions before implementation. All tests use mocking since the functions
-don't exist yet.
+Tests use mocking to avoid network calls and ensure fast, reliable execution.
 """
 
 import pytest
