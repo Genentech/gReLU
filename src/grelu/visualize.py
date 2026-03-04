@@ -670,10 +670,7 @@ def plot_tracks(
         if "strand" not in ann.columns:
             ann["strand"] = 1
         else:
-            # Map strand values to integers expected by pygenomeviz
-            # Handle: "+"/"-", 1/-1, "."/"*" (unstranded)
-            strand_map = {"+": 1, "-": -1, ".": 1, "*": 1, 1: 1, -1: -1}
-            ann["strand"] = ann["strand"].map(lambda x: strand_map.get(x, 1))
+            ann.strand = ann.strand.map({"+": 1, "-": -1})
         # Make tracks
         track = FeatureTrack(name=title, size=coord_len, start_pos=start_pos)
         for row in ann.itertuples():
