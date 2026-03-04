@@ -38,7 +38,7 @@ __all__ = [
     "get_dataset_info",
 ]
 
-DEFAULT_HF_COLLECTION = "Genentech/grelu-model-zoo-67b0a87e19442de9c2c6bd61"
+DEFAULT_HF_COLLECTION = "Genentech/grelu-model-zoo-6977ba73500cd09b6bbec0ae"
 
 
 def list_models() -> List[str]:
@@ -49,7 +49,7 @@ def list_models() -> List[str]:
         List of model repository IDs (e.g., ["Genentech/human-atac-catlas-model", ...])
     """
     api = HfApi()
-    collection = api.get_collection(DEFAULT_HF_COLLECTION)
+    collection = api.get_collection(DEFAULT_HF_COLLECTION, token=False)
     return [item.item_id for item in collection.items if item.item_id.endswith("-model")]
 
 
@@ -61,7 +61,7 @@ def list_datasets() -> List[str]:
         List of dataset repository IDs (e.g., ["Genentech/human-atac-catlas-data", ...])
     """
     api = HfApi()
-    collection = api.get_collection(DEFAULT_HF_COLLECTION)
+    collection = api.get_collection(DEFAULT_HF_COLLECTION, token=False)
     return [item.item_id for item in collection.items if item.item_id.endswith("-data")]
 
 
