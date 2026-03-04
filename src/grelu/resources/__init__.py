@@ -1,6 +1,7 @@
 """
-`grelu.resources` contains functions to access the gReLU model zoo on HuggingFace,
-as well as resource files bundled with gReLU.
+`grelu.resources` contains additional data files that can be used by gReLU functions.
+It also contains functions to load these files as well as files stored externally,
+such as model checkpoints and datasets in the model zoo on huggingface.
 
 For legacy wandb access, use `grelu.resources.wandb`.
 """
