@@ -8,7 +8,7 @@ gReLU is a Python library to train, interpret, and apply deep learning models to
 
 ## Breaking Changes in v1.1.0
 
-**Model Zoo Migration:** The gReLU model zoo has moved from Weights & Biases to HuggingFace. The `grelu.resources` API has changed:
+**Model Zoo Migration:** The gReLU model zoo has moved from Weights & Biases to [HuggingFace](https://huggingface.co/collections/Genentech/grelu-model-zoo). The `grelu.resources` API has changed:
 
 ```python
 # Old API (wandb) - still available at grelu.resources.wandb
