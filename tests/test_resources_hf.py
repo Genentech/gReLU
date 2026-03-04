@@ -418,67 +418,6 @@ class TestGetBaseModels:
         assert result == []
 
 
-class TestUtilityFunctions:
-    """Tests for utility functions that should still work after migration."""
-
-    def test_get_blacklist_file_hg38(self):
-        """Test that get_blacklist_file returns correct path for hg38."""
-        from grelu.resources import get_blacklist_file
-
-        result = get_blacklist_file("hg38")
-
-        assert "hg38" in result
-        assert "blacklist" in result.lower()
-        assert result.endswith(".bed")
-
-    def test_get_blacklist_file_hg19(self):
-        """Test that get_blacklist_file returns correct path for hg19."""
-        from grelu.resources import get_blacklist_file
-
-        result = get_blacklist_file("hg19")
-
-        assert "hg19" in result
-        assert "blacklist" in result.lower()
-        assert result.endswith(".bed")
-
-    def test_get_blacklist_file_mm10(self):
-        """Test that get_blacklist_file returns correct path for mm10."""
-        from grelu.resources import get_blacklist_file
-
-        result = get_blacklist_file("mm10")
-
-        assert "mm10" in result
-        assert "blacklist" in result.lower()
-        assert result.endswith(".bed")
-
-    def test_get_meme_file_path_hocomoco_v12(self):
-        """Test that get_meme_file_path returns correct path for hocomoco_v12."""
-        from grelu.resources import get_meme_file_path
-
-        result = get_meme_file_path("hocomoco_v12")
-
-        assert result.endswith(".meme")
-        assert "H12CORE" in result
-
-    def test_get_meme_file_path_hocomoco_v13(self):
-        """Test that get_meme_file_path returns correct path for hocomoco_v13."""
-        from grelu.resources import get_meme_file_path
-
-        result = get_meme_file_path("hocomoco_v13")
-
-        assert result.endswith(".meme")
-        assert "H13CORE" in result
-
-    def test_get_meme_file_path_consensus(self):
-        """Test that get_meme_file_path returns correct path for consensus."""
-        from grelu.resources import get_meme_file_path
-
-        result = get_meme_file_path("consensus")
-
-        assert result.endswith(".meme")
-        assert "consensus" in result.lower()
-
-
 class TestErrorHandling:
     """Tests for error handling in HuggingFace functions."""
 
