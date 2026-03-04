@@ -7,7 +7,7 @@ For legacy wandb access, use `grelu.resources.wandb`.
 
 from typing import List, Dict, Any, Union
 
-from huggingface_hub import hf_hub_download, HfApi
+from huggingface_hub import hf_hub_download, HfApi, list_repo_files
 
 from grelu.lightning import LightningModel
 from grelu.resources.utils import get_meme_file_path, get_blacklist_file
@@ -135,16 +135,18 @@ def get_model_info(repo_id: str) -> Dict[str, Any]:
         repo_id: HuggingFace repository ID
 
     Returns:
-        Dictionary containing model metadata
+        Dictionary containing model metadata including list of files
     """
     api = HfApi()
     info = api.model_info(repo_id)
+    files = list_repo_files(repo_id)
     return {
         "id": info.id,
         "tags": info.tags,
         "card_data": info.card_data.__dict__ if info.card_data else {},
         "downloads": info.downloads,
         "last_modified": info.last_modified,
+        "files": files,
     }
 
 
@@ -156,16 +158,18 @@ def get_dataset_info(repo_id: str) -> Dict[str, Any]:
         repo_id: HuggingFace repository ID
 
     Returns:
-        Dictionary containing dataset metadata
+        Dictionary containing dataset metadata including list of files
     """
     api = HfApi()
     info = api.dataset_info(repo_id)
+    files = list_repo_files(repo_id, repo_type="dataset")
     return {
         "id": info.id,
         "tags": info.tags,
         "card_data": info.card_data.__dict__ if info.card_data else {},
         "downloads": info.downloads,
         "last_modified": info.last_modified,
+        "files": files,
     }
 
 
