@@ -46,6 +46,11 @@ class CustomGenome:
             )
         return self._sizes_file
 
+    @property
+    def genome_file(self) -> str:
+        """Path to the genome fasta file."""
+        return self.genome
+
 
 def read_sizes(genome: str = "hg38") -> pd.DataFrame:
     """
