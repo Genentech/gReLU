@@ -7,6 +7,8 @@ These tests call the real HuggingFace API.
 import os
 import pytest
 
+pytestmark = pytest.mark.hf
+
 
 def test_list_models():
     """list_models() returns model repos from collection."""
