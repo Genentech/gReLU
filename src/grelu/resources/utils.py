@@ -64,5 +64,8 @@ def get_blacklist_file(genome: str) -> str:
         / "encode"
         / f"{genome}-blacklist.v2.bed"
     )
-    assert blacklist.exists()
+    if not blacklist.exists():
+        raise FileNotFoundError(
+            f"Blacklist file not found for genome '{genome}': {blacklist}"
+        )
     return str(blacklist)
