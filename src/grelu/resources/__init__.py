@@ -66,32 +66,34 @@ def list_datasets() -> List[str]:
     return [item.item_id for item in collection.items if item.item_id.endswith("-data")]
 
 
-def download_model(repo_id: str, filename: str = "model.ckpt") -> str:
+def download_model(repo_id: str, filename: str = "model.ckpt", **kwargs) -> str:
     """
     Download a model checkpoint file from HuggingFace.
 
     Args:
         repo_id: HuggingFace repository ID (e.g., "Genentech/human-atac-catlas-model")
         filename: Name of the checkpoint file to download (default: "model.ckpt")
+        **kwargs: Additional arguments to pass to hf_hub_download
 
     Returns:
         Local path to the downloaded file
     """
-    return hf_hub_download(repo_id=repo_id, filename=filename)
+    return hf_hub_download(repo_id=repo_id, filename=filename, **kwargs)
 
 
-def download_dataset(repo_id: str, filename: str = "data.h5ad") -> str:
+def download_dataset(repo_id: str, filename: str = "data.h5ad", **kwargs) -> str:
     """
     Download a dataset file from HuggingFace.
 
     Args:
         repo_id: HuggingFace repository ID (e.g., "Genentech/human-atac-catlas-data")
         filename: Name of the dataset file to download (default: "data.h5ad")
+        **kwargs: Additional arguments to pass to hf_hub_download
 
     Returns:
         Local path to the downloaded file
     """
-    return hf_hub_download(repo_id=repo_id, filename=filename, repo_type="dataset")
+    return hf_hub_download(repo_id=repo_id, filename=filename, repo_type="dataset", **kwargs)
 
 
 def load_model(
