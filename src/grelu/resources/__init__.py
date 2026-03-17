@@ -6,7 +6,7 @@ such as model checkpoints and datasets in the model zoo on huggingface.
 For legacy wandb access, use `grelu.resources.wandb`.
 """
 
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional
 
 from huggingface_hub import hf_hub_download, HfApi, list_repo_files
 
@@ -97,12 +97,12 @@ def download_dataset(repo_id: str, filename: str = "data.h5ad", **kwargs) -> str
 
 
 def load_model(
-    repo_id: str = None,
+    repo_id: Optional[str] = None,
     filename: str = "model.ckpt",
     device: Union[str, int] = "cpu",
     # Deprecated kwargs - kept for helpful error messages
-    project: str = None,
-    model_name: str = None,
+    project: Optional[str] = None,
+    model_name: Optional[str] = None,
 ) -> LightningModel:
     """
     Download and load a model from HuggingFace.
