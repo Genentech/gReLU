@@ -676,6 +676,24 @@ class LightningModel(pl.LightningModule):
         """
         # Move train data parameters
         self.base_data_params = self.data_params.copy()
+
+        # Warn if fine-tuning chromosomes overlap with pretraining chromosomes
+        base_intervals = self.base_data_params.get("train", {}).get("intervals")
+        if (
+            base_intervals is not None
+            and hasattr(train_dataset, "intervals")
+            and train_dataset.intervals is not None
+        ):
+            base_chroms = set(base_intervals["chrom"])
+            new_chroms = set(train_dataset.intervals["chrom"])
+            overlap = sorted(base_chroms & new_chroms)
+            if overlap:
+                warnings.warn(
+                    f"Fine-tuning dataset contains {len(overlap)} chromosome(s) "
+                    f"({', '.join(overlap)}) that overlap with the pretrained "
+                    "model's training data. This may lead to data leakage."
+                )
+
         self.data_params = {}
 
         # Make new model head
