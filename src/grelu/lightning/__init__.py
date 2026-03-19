@@ -1120,7 +1120,7 @@ class LightningModel(pl.LightningModule):
         Returns:start and end indices of the output bins corresponding
             to each input interval.
         """
-        return pd.DataFrame(
+        result = pd.DataFrame(
             {
                 "start": intervals.start.apply(
                     self.input_coord_to_output_bin, args=(start_pos,)
@@ -1131,6 +1131,35 @@ class LightningModel(pl.LightningModule):
                 + 1,
             }
         )
+
+        # Check for intervals in the cropped-out region
+        issues = []
+        n_negative = (result["start"] < 0).sum()
+        if n_negative > 0:
+            issues.append(
+                f"{n_negative} interval(s) have start positions in the cropped-out "
+                "region, resulting in negative output bin indices."
+            )
+        seq_len = self.data_params.get("train", {}).get("seq_len")
+        if seq_len is not None:
+            bin_size = self.data_params["train"]["bin_size"]
+            crop_len = self.model_params["crop_len"]
+            max_bins = seq_len // bin_size - 2 * crop_len
+            n_over = (result["end"] > max_bins).sum()
+            if n_over > 0:
+                issues.append(
+                    f"{n_over} interval(s) have end positions beyond the cropped-out "
+                    f"region, resulting in output bin indices exceeding the maximum "
+                    f"({max_bins})."
+                )
+        if issues:
+            warnings.warn(
+                " ".join(issues)
+                + " Consider removing these intervals or manually setting their"
+                " boundaries to 0 or the maximum number of output bins."
+            )
+
+        return result
 
 
 class LightningModelEnsemble(pl.LightningModule):
