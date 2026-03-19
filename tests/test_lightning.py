@@ -256,6 +256,11 @@ def test_lightning_model_transform():
     preds = multitask_profile_model.predict_on_dataset(udataset)
     assert preds.shape == (2, 1, 1)
 
+    # return_df=True should work after transform reduces tasks
+    preds_df = multitask_profile_model.predict_on_dataset(udataset, return_df=True)
+    assert isinstance(preds_df, pd.DataFrame)
+    assert preds_df.shape == (2, 1)
+
     # Remove
     multitask_profile_model.reset_transform()
     preds = multitask_profile_model.predict_on_dataset(udataset)
