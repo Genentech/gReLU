@@ -221,7 +221,8 @@ def run_modisco(
         batch_size: Batch size to use for model inference
         n_shuffles: Number of times to shuffle the background sequences for deepshap.
         seed: Random seed
-        method: Either "deepshap", "saliency" or "ism".
+        method: Either "deepshap", "saliency", "ism" or "completed".
+            Attributions must be supplied as an np.ndarray if method is "completed".
         correct_grad: If True, gradients will be corrected using the method of Majdandzic et al.
             (PMID: 37161475). Only used with method='saliency'.
         **kwargs: Additional arguments to pass to TF-Modisco.
@@ -280,6 +281,12 @@ def run_modisco(
             batch_size=batch_size,
             genome=genome,
         )
+    elif method == "completed":
+        print(f"Using completed attributions")
+        if "attributions" not in kwargs:
+            raise ValueError("Attributions must be provided when method is 'completed'.")
+        attrs = kwargs.pop("attributions")
+        attrs = attrs[:, :, start:end]
     else:
         raise NotImplementedError
 
