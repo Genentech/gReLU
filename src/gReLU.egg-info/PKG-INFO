@@ -1,0 +1,137 @@
+Metadata-Version: 2.4
+Name: gReLU
+Version: 1.1.0.post1.dev0
+Summary: gReLU is a python library to train, interpret, and apply deep learning models to DNA sequences
+Home-page: https://github.com/Genentech/gReLU
+Author: lal.avantika,eraslan.gokcen
+Author-email: lal.avantika@gene.com
+License: MIT
+Project-URL: Documentation, https://github.com/Genentech/gReLU
+Project-URL: Source, https://github.com/Genentech/gReLU
+Platform: Linux
+Classifier: Development Status :: 4 - Beta
+Classifier: Programming Language :: Python
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown; charset=UTF-8
+License-File: LICENSE.txt
+Requires-Dist: importlib-metadata
+Requires-Dist: importlib-resources
+Requires-Dist: wandb>=0.14
+Requires-Dist: huggingface_hub
+Requires-Dist: numpy
+Requires-Dist: pandas
+Requires-Dist: seaborn
+Requires-Dist: matplotlib
+Requires-Dist: plotnine>=0.8
+Requires-Dist: anndata>=0.8
+Requires-Dist: scikit-learn
+Requires-Dist: torch>=2.0
+Requires-Dist: pytorch-lightning>=2.0
+Requires-Dist: torchmetrics>=1.1
+Requires-Dist: modisco-lite>=2.4.0
+Requires-Dist: biopython
+Requires-Dist: enformer-pytorch
+Requires-Dist: genomepy
+Requires-Dist: bioframe>=0.4
+Requires-Dist: captum==0.5.0
+Requires-Dist: logomaker>=0.8
+Requires-Dist: pyBigWig
+Requires-Dist: ledidi
+Requires-Dist: tangermeme>=0.5.0
+Requires-Dist: memelite
+Requires-Dist: pygenomeviz<=0.4.4
+Requires-Dist: statsmodels>=0.11.1
+Requires-Dist: pyjaspar>=3.0
+Provides-Extra: testing
+Requires-Dist: setuptools; extra == "testing"
+Requires-Dist: pytest; extra == "testing"
+Requires-Dist: pytest-cov; extra == "testing"
+Dynamic: license-file
+
+[![DOI](https://zenodo.org/badge/788591787.svg)](https://doi.org/10.5281/zenodo.15627611)
+
+# gReLU
+
+gReLU is a Python library to train, interpret, and apply deep learning models to DNA sequences. Code documentation is available [here](https://genentech.github.io/gReLU/).
+
+![Flowchart](media/flowchart.jpg)
+
+## Breaking Changes in v1.1.0
+
+**Model Zoo Migration:** The gReLU model zoo has moved from Weights & Biases to [HuggingFace](https://huggingface.co/collections/Genentech/grelu-model-zoo). The `grelu.resources` API has changed:
+
+```python
+# Old API (wandb) - still available at grelu.resources.wandb but will be removed in future
+grelu.resources.load_model(project="human-atac-catlas", model_name="model")
+
+# New API (HuggingFace)
+grelu.resources.load_model(repo_id="Genentech/human-atac-catlas-model", filename="model.ckpt")
+```
+
+Browse the zoo at https://huggingface.co/collections/Genentech/grelu-model-zoo and see the [Model Zoo Tutorial](docs/tutorials/6_model_zoo.ipynb) for updated usage.
+
+## Installation
+
+To install from source:
+
+```shell
+git clone https://github.com/Genentech/gReLU.git
+cd gReLU
+pip install .
+```
+
+To install using pip:
+
+```shell
+pip install gReLU
+```
+Typical installation time including all dependencies is under 10 minutes.
+
+To train or use transformer models containing flash attention layers, [flash-attn](https://github.com/Dao-AILab/flash-attention) needs to be installed first:
+```shell
+conda install -c conda-forge cudatoolkit-dev -y
+pip install torch ninja
+pip install flash-attn --no-build-isolation
+pip install gReLU
+```
+
+## Contributing
+
+See our [contribution guide](https://genentech.github.io/gReLU/contributing.html).
+
+## Additional requirements
+
+If you want to use genome annotation features through the function `grelu.io.genome.read_gtf`, you will need to install the following UCSC utilities: `genePredToBed`, `genePredToGtf`, `bedToGenePred`, `gtfToGenePred`, `gff3ToGenePred`.
+
+If you want to create bigWig files through the function `grelu.data.preprocess.make_insertion_bigwig`, you will need to install the following UCSC utilities: `bedGraphToBigWig`.
+
+UCSC utilities can be installed from `http://hgdownload.cse.ucsc.edu/admin/exe/`, for example using the following commands:
+
+```shell
+rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/bedGraphToBigWig /usr/bin/
+rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/genePredToBed /usr/bin/
+rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/genePredToGtf /usr/bin/
+rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/bedToGenePred /usr/bin/
+rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/gtfToGenePred /usr/bin/
+rsync -aP rsync://hgdownload.soe.ucsc.edu/genome/admin/exe/linux.x86_64/gff3ToGenePred /usr/bin/
+```
+
+or via bioconda:
+
+```shell
+conda install -y \
+bioconda::ucsc-bedgraphtobigwig \
+bioconda::ucsc-genepredtobed    \
+bioconda::ucsc-genepredtogtf    \
+bioconda::ucsc-bedtogenepred    \
+bioconda::ucsc-gtftogenepred    \
+bioconda::ucsc-gff3togenepred
+```
+
+If you want to create ATAC-seq coverage bigWig files using `grelu.data.preprocess.make_insertion_bigwig`, you will need to install bedtools. See https://bedtools.readthedocs.io/en/latest/content/installation.html for instructions.
+
+## Citation
+
+Please cite our paper: https://www.nature.com/articles/s41592-025-02868-z
+
+Lal, A., Gunsalus, L., Nair, S. et al. gReLU: a comprehensive framework for DNA sequence modeling and design. Nat Methods (2025). https://doi.org/10.1038/s41592-025-02868-z
