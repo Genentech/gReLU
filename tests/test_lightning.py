@@ -85,19 +85,17 @@ multitask_bin_labels = (
 )
 interval_df = pd.DataFrame(
     {
-        "chrom": ["chr1"] * 2,
-        "start": [1e6, 2e6],
-        "end": [1e6 + 2, 2e6 + 2],
+        "chrom": ["seq1", "seq2"],
+        "start": [0, 0],
+        "end": [2, 2],
         "label": [0, 1],
     }
 )
-interval_df.start = interval_df.start.astype(int)
-interval_df.end = interval_df.end.astype(int)
 
 udataset = SeqDataset(strings[:2])
 udataset_aug = SeqDataset(strings[:2], rc=True, max_seq_shift=1)
 ldataset = DFSeqDataset(pd.DataFrame({"seq": strings, "label": 1.0}), rc=True)
-interval_dataset = DFSeqDataset(interval_df, genome="hg38")
+interval_dataset = DFSeqDataset(interval_df, genome="tests/files/test.fa")
 
 
 def test_lightning_model_input():
