@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pandas as pd
 import torch
@@ -458,3 +460,16 @@ def test_input_intervals_to_output_bins():
     assert output.equals(pd.DataFrame({"start": [3], "end": [12]}))
     output = crop_bin_model.input_intervals_to_output_bins(intervals=intervals)
     assert output.equals(pd.DataFrame({"start": [0], "end": [5]}))
+
+
+def test_input_intervals_to_output_bins_cropped_warning():
+    """Warn when intervals fall in the cropped-out region."""
+    # crop_model has crop_len=3, bin_size=1, so coords 0-2 produce negative bins
+    intervals = pd.DataFrame({"chrom": ["chr1"], "start": [0], "end": [2]})
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        output = crop_model.input_intervals_to_output_bins(intervals=intervals)
+        assert len(w) == 1
+        assert "cropped-out region" in str(w[0].message)
+    # Values are still returned (warning, not error)
+    assert (output["start"] < 0).any()
