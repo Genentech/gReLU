@@ -9,4 +9,5 @@
 * M. Hasan Celik <celik.hasan@external.gene.com>
 * Carlo de Donno <carlo.de_donno@roche.com>
 * Johannes Hingerl <hingerl.johannes@gene.com>
+* Liudeng Zhang <zhangliudeng@gmail.com>
 * Jake Dearborn <jakedearborn@gmail.com>

@@ -11,8 +11,6 @@ as input a one-hot encoded sequence tensor of shape (N, 4, length) and return a
 tensor of shape (N, tasks, output_length).
 """
 
-from pathlib import Path
-from tempfile import TemporaryDirectory
 from typing import List, Optional, Union
 
 import torch
@@ -628,15 +626,14 @@ class BorzoiPretrainedModel(BaseModel):
             device=device,
         )
 
-        # Load state dict
-        from grelu.resources import get_artifact
+        # Load state dict from HuggingFace
+        from grelu.resources import download_model
 
-        art = get_artifact(
-            f"human_state_dict_fold{fold}", project="borzoi", alias="latest"
+        path = download_model(
+            repo_id="Genentech/borzoi-model",
+            filename=f"human_state_dict_rep{fold}.h5",
         )
-        with TemporaryDirectory() as d:
-            art.download(d)
-            state_dict = torch.load(Path(d) / f"fold{fold}.h5")
+        state_dict = torch.load(path)
 
         model.load_state_dict(state_dict)
 
@@ -794,13 +791,14 @@ class EnformerPretrainedModel(BaseModel):
             device=device,
         )
 
-        # Load state dict
-        from grelu.resources import get_artifact
+        # Load state dict from HuggingFace
+        from grelu.resources import download_model
 
-        art = get_artifact("human_state_dict", project="enformer", alias="latest")
-        with TemporaryDirectory() as d:
-            art.download(d)
-            state_dict = torch.load(Path(d) / "human.h5")
+        path = download_model(
+            repo_id="Genentech/enformer-model",
+            filename="human_state_dict.h5",
+        )
+        state_dict = torch.load(path)
 
         model.load_state_dict(state_dict)
 
