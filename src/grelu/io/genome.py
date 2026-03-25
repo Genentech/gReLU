@@ -72,12 +72,18 @@ def read_sizes(genome: str = "hg38") -> pd.DataFrame:
     )
 
 
-def get_genome(genome: str, **kwargs) -> Union[CustomGenome, genomepy.Genome]:
+def get_genome(
+    genome: str, genomes_dir: Optional[str] = None, **kwargs
+) -> Union[CustomGenome, genomepy.Genome]:
     """
     Install a genome from genomepy and load it as a Genome object
 
     Args:
-        genome: Name of the genome to load from genomepy
+        genome: Name of the genome to load from genomepy, or the path
+            to a local FASTA file.
+        genomes_dir: Directory for storing downloaded genomes. If None,
+            uses the ``GRELU_GENOMES_DIR`` environment variable, or
+            falls back to genomepy's default (``~/.local/share/genomes``).
         **kwargs: Additional arguments to pass to genomepy.install_genome
 
     Returns:
@@ -85,11 +91,17 @@ def get_genome(genome: str, **kwargs) -> Union[CustomGenome, genomepy.Genome]:
     """
     if os.path.isfile(genome):
         return CustomGenome(genome, **kwargs)
+
+    # Resolve genomes directory
+    if genomes_dir is None:
+        genomes_dir = os.environ.get("GRELU_GENOMES_DIR")
+    if genomes_dir is not None:
+        kwargs["genomes_dir"] = genomes_dir
+
+    if genome not in genomepy.list_installed_genomes(genomes_dir):
+        return genomepy.install_genome(genome, annotation=False, **kwargs)
     else:
-        if genome not in genomepy.list_installed_genomes():
-            return genomepy.install_genome(genome, annotation=False, **kwargs)
-        else:
-            return genomepy.Genome(genome, **kwargs)
+        return genomepy.Genome(genome, **kwargs)
 
 def read_gtf(
     genome: str, features: Optional[Union[str, List[str]]] = None
