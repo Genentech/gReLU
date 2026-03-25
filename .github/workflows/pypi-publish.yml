@@ -21,6 +21,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r docs/requirements.txt
+          pip install -e .
       - name: Sphinx build
         run: |
           sphinx-build docs _build
