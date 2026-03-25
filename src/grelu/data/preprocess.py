@@ -560,7 +560,7 @@ def get_gc_matched_intervals(
     from grelu.sequence.utils import get_unique_length
 
     genome_obj = get_genome(genome)
-    chroms = get_chromosomes(chroms)
+    chroms = get_chromosomes(chroms, genome=genome_obj)
 
     # Get seq_len
     seq_len = get_unique_length(intervals)
@@ -767,7 +767,7 @@ def make_insertion_bigwig(
     filter_cmd = (
         ""
         if chroms is None
-        else f"""grep {"".join([f"-e ^{chrom} " for chrom in get_chromosomes(chroms)])} | """
+        else f"""grep {"".join([f"-e ^{chrom} " for chrom in get_chromosomes(chroms, genome=genome)])} | """
     )
     bedgraph_cmd = f"bedtools genomecov -bg -5 -i stdin -g {genome.sizes_file} | "
     sort_cmd = f"bedtools sort -i stdin > {bedgraph_file}"
