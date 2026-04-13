@@ -11,6 +11,7 @@ from typing import Optional, Union
 from torch import Tensor, nn
 
 from grelu.model.blocks import ConvTower, GRUBlock, TransformerTower
+from grelu.model.trunks.alphagenome import AlphaGenomeTrunk
 
 
 class ConvTrunk(nn.Module):

@@ -1,0 +1,3 @@
+[submodule "src/alphagenome_pytorch"]
+	path = src/alphagenome_pytorch
+	url = https://github.com/genomicsxai/alphagenome-pytorch

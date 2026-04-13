@@ -18,6 +18,7 @@ from torch import Tensor, nn
 
 from grelu.model.heads import ConvHead, MLPHead
 from grelu.model.trunks import (
+    AlphaGenomeTrunk,
     ConvGRUTrunk,
     ConvTransformerTrunk,
     ConvTrunk,
@@ -817,3 +818,25 @@ class EnformerPretrainedModel(BaseModel):
         )
 
         super().__init__(embedding=model.embedding, head=head)
+
+
+class AlphaGenomeModel(BaseModel):
+    """
+    A model that wraps the AlphaGenome architecture.
+
+    Args:
+        num_organisms: Number of organisms (default 2: human, mouse).
+        organism_index: Default organism index to use for inference.
+        output_key: The output modality to extract (e.g., 'atac', 'dnase', 'cage', 'rna_seq', 'contact_maps').
+        resolution: The resolution to extract (1 or 128).
+        dtype_policy: DtypePolicy for precision control.
+        weights_path: Optional path to a pretrained weights file (.pth).
+        gradient_checkpointing: If True, enable gradient checkpointing.
+        **kwargs: Additional arguments passed to AlphaGenome constructor.
+    """
+
+    def __init__(self, **kwargs):
+        embedding = AlphaGenomeTrunk(**kwargs)
+        head = nn.Identity()
+        head.n_tasks = embedding.out_channels
+        super().__init__(embedding, head)
