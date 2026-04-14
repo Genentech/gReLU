@@ -88,6 +88,7 @@ class ExplaiNNTrunk(nn.Module):
         dtype=None,
         device=None,
     ):
+        super().__init__()
         self.channels = channels
         self.blocks = nn.ModuleList()
         self.blocks.append(
