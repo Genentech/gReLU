@@ -860,8 +860,19 @@ class LightningModel(pl.LightningModule):
 
             if return_df:
                 if (preds.ndim == 3) and (preds.shape[-1] == 1):
+                    task_names = self.data_params["tasks"]["name"]
+                    n_tasks_pred = preds.shape[-2]
+                    if n_tasks_pred != len(task_names):
+                        warnings.warn(
+                            f"Prediction has {n_tasks_pred} task(s) but the model"
+                            f" has {len(task_names)} task name(s), likely due to a"
+                            " prediction transform. Using generic column names."
+                        )
+                        task_names = [
+                            f"task_{i}" for i in range(n_tasks_pred)
+                        ]
                     preds = pd.DataFrame(
-                        preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
+                        preds.squeeze(-1), columns=task_names
                     )
                 else:
                     warnings.warn(
