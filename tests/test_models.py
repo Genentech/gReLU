@@ -10,6 +10,7 @@ from grelu.model.models import (
     DilatedConvModel,
     EnformerModel,
     EnformerPretrainedModel,
+    AlphaGenomeModel,
 )
 from grelu.sequence.format import convert_input_type
 
@@ -268,3 +269,21 @@ def test_pretrained_borzoi():
     # Check prediction shape
     pred = model(inputs)
     assert pred.shape == (1, 5, 1)
+
+
+def test_alphagenome_model():
+    import torch
+    inputs = torch.randn(1, 4, 4096)
+    model = AlphaGenomeModel(
+        num_organisms=2, 
+        output_key="atac", 
+        resolution=128
+    ).eval()
+    
+    # Check embedding shape
+    emb = model.embedding(inputs)
+    assert emb.shape == (1, 256, 32)
+    
+    # Check prediction shape
+    pred = model(inputs)
+    assert pred.shape == (1, 256, 32)
