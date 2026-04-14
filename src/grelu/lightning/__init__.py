@@ -833,6 +833,11 @@ class LightningModel(pl.LightningModule):
 
         # Predict
         preds = torch.concat(trainer.predict(self, dataloader))
+        if trainer.world_size > 1 and torch.distributed.is_initialized():
+            preds = preds.contiguous().cuda(trainer.local_rank)
+            gathered_preds = [torch.zeros_like(preds) for _ in range(trainer.world_size)]
+            torch.distributed.all_gather(gathered_preds, preds)
+            preds = torch.stack(gathered_preds, dim=1).view(-1, *preds.shape[1:]).cpu()
 
         if isinstance(dataset, (SeqDataset, LabeledSeqDataset)):
 
