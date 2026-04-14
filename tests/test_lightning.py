@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pandas as pd
 import torch
@@ -83,19 +85,17 @@ multitask_bin_labels = (
 )
 interval_df = pd.DataFrame(
     {
-        "chrom": ["chr1"] * 2,
-        "start": [1e6, 2e6],
-        "end": [1e6 + 2, 2e6 + 2],
+        "chrom": ["seq1", "seq2"],
+        "start": [0, 0],
+        "end": [2, 2],
         "label": [0, 1],
     }
 )
-interval_df.start = interval_df.start.astype(int)
-interval_df.end = interval_df.end.astype(int)
 
 udataset = SeqDataset(strings[:2])
 udataset_aug = SeqDataset(strings[:2], rc=True, max_seq_shift=1)
 ldataset = DFSeqDataset(pd.DataFrame({"seq": strings, "label": 1.0}), rc=True)
-interval_dataset = DFSeqDataset(interval_df, genome="hg38")
+interval_dataset = DFSeqDataset(interval_df, genome="tests/files/test.fa")
 
 
 def test_lightning_model_input():
@@ -465,3 +465,16 @@ def test_input_intervals_to_output_bins():
     assert output.equals(pd.DataFrame({"start": [3], "end": [12]}))
     output = crop_bin_model.input_intervals_to_output_bins(intervals=intervals)
     assert output.equals(pd.DataFrame({"start": [0], "end": [5]}))
+
+
+def test_input_intervals_to_output_bins_cropped_warning():
+    """Warn when intervals fall in the cropped-out region."""
+    # crop_model has crop_len=3, bin_size=1, so coords 0-2 produce negative bins
+    intervals = pd.DataFrame({"chrom": ["chr1"], "start": [0], "end": [2]})
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        output = crop_model.input_intervals_to_output_bins(intervals=intervals)
+        assert len(w) == 1
+        assert "cropped-out region" in str(w[0].message)
+    # Values are still returned (warning, not error)
+    assert (output["start"] < 0).any()

@@ -202,6 +202,7 @@ def run_modisco(
     seed=None,
     method: str = "deepshap",
     correct_grad: bool = False,
+    attributions: Optional[np.ndarray] = None,
     **kwargs,
 ) -> None:
     """
@@ -221,13 +222,15 @@ def run_modisco(
         batch_size: Batch size to use for model inference
         n_shuffles: Number of times to shuffle the background sequences for deepshap.
         seed: Random seed
-        method: Either "deepshap", "saliency" or "ism".
+        method: Either "deepshap", "saliency", "ism" or "completed".
+            Attributions must be supplied as an np.ndarray if method is "completed".
         correct_grad: If True, gradients will be corrected using the method of Majdandzic et al.
             (PMID: 37161475). Only used with method='saliency'.
+        attributions: An np.ndarray of attributions to use when method is "completed".
         **kwargs: Additional arguments to pass to TF-Modisco.
 
     Raises:
-        NotImplementedError: if the method is neither "deepshap" nor "ism"
+        NotImplementedError: if the method is neither "deepshap", "saliency", "ism", nor "completed".
     """
     from modiscolite.io import save_hdf5
     from modiscolite.report import create_modisco_logos, report_motifs
@@ -280,6 +283,12 @@ def run_modisco(
             batch_size=batch_size,
             genome=genome,
         )
+    elif method == "completed":
+        print("Using completed attributions")
+        if attributions is None:
+            raise ValueError("Attributions must be provided when method is 'completed'.")
+        attrs = attributions
+        attrs = attrs[:, :, start:end]
     else:
         raise NotImplementedError
 
