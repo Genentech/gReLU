@@ -58,3 +58,5 @@ lightning_logs*
 # Script output artifacts
 comparison_*.png
 *.png
+/ism_results/
+/eval_data/
