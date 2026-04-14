@@ -15,18 +15,20 @@ import math
 import os
 
 import matplotlib
+
 matplotlib.use("Agg")  # headless
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
 import numpy as np
 import pandas as pd
-import torch
 
 import grelu.data.preprocess
 import grelu.io.genome
 import grelu.resources
 import grelu.sequence.format
+import grelu.transforms.prediction_transforms
 import grelu.visualize
+from grelu.lightning import LightningModel
+from alphagenome_pytorch.config import DtypePolicy  # noqa: E402 — used in Section 2
 
 # ─────────────────────────────────────────────────────────────
 # Helper
@@ -95,10 +97,10 @@ cage_brain_b = tasks_b[
 ].head(2)
 rna_brain_b  = tasks_b[
     (tasks_b.assay == "RNA")  & tasks_b["sample"].str.contains("brain", case=False, na=False)
-].head(2)
+]                                                                   # all 5 brain tracks
 rna_liver_b  = tasks_b[
     (tasks_b.assay == "RNA")  & tasks_b["sample"].str.contains("liver", case=False, na=False)
-].head(2)
+]                                                                   # all 24 liver tracks
 
 borzoi_cage_idx  = cage_brain_b.index.tolist()
 borzoi_rna_brain_idx  = rna_brain_b.index.tolist()
@@ -109,32 +111,23 @@ print(f"Brain RNA tasks   : {borzoi_rna_brain_idx} — {rna_brain_b['name'].toli
 print(f"Liver RNA tasks   : {borzoi_rna_liver_idx} — {rna_liver_b['name'].tolist()}")
 
 # ═══════════════════════════════════════════════════════════════
-# SECTION 2 — AlphaGenome inference
+# SECTION 2 — AlphaGenome inference (via gReLU LightningModel)
 # ═══════════════════════════════════════════════════════════════
 print("\n" + "═" * 60)
-print("SECTION 2 — AlphaGenome inference")
+print("SECTION 2 — AlphaGenome inference (gReLU path)")
 print("═" * 60)
 
 assert os.path.exists(WEIGHTS_PATH), f"Weights not found: {WEIGHTS_PATH}"
 print(f"Weights : {WEIGHTS_PATH}")
 
-from alphagenome_pytorch.config import DtypePolicy
-from alphagenome_pytorch.model import AlphaGenome
-
-ag_model = AlphaGenome.from_pretrained(
-    WEIGHTS_PATH,
-    dtype_policy=DtypePolicy.mixed_precision(),
-    device=f"cuda:{DEVICE}",
-)
-ag_model.eval()
-print("AlphaGenome model loaded.")
+AG_BIN_SIZE = 128
+AG_CROP_LEN = 0          # AlphaGenome has no output cropping
+AG_SEQ_LEN  = 131072
 
 # AlphaGenome input: 131072 bp centred on the Borzoi input centre
-AG_INPUT_LEN = 131072
-ag_start = borzoi_center - AG_INPUT_LEN // 2   # 70190128
-ag_end   = ag_start + AG_INPUT_LEN             # 70321200
-print(f"Input  : {CHROM}:{ag_start}-{ag_end} ({AG_INPUT_LEN} bp)")
-print(f"Output : same region (no cropping), 1024 bins × 128 bp")
+ag_start = borzoi_center - AG_SEQ_LEN // 2   # 70190128
+ag_end   = ag_start + AG_SEQ_LEN             # 70321200
+print(f"Input  : {CHROM}:{ag_start}-{ag_end} ({AG_SEQ_LEN} bp)")
 
 ag_intervals = pd.DataFrame({
     "chrom": [CHROM], "start": [ag_start], "end": [ag_end], "strand": ["+"],
@@ -143,63 +136,76 @@ ag_seqs = grelu.sequence.format.convert_input_type(
     ag_intervals, output_type="strings", genome=GENOME
 )
 
-# One-hot → (1, L, 4) for AlphaGenome
-ag_onehot = grelu.sequence.format.convert_input_type(ag_seqs, output_type="one_hot")
-# ag_onehot may already be a tensor from grelu; use clone().detach() to avoid the
-# "copy construct from tensor" UserWarning
-if isinstance(ag_onehot, torch.Tensor):
-    ag_tensor = ag_onehot.clone().detach().float().cuda(DEVICE)
-else:
-    ag_tensor = torch.tensor(np.array(ag_onehot), dtype=torch.float32).cuda(DEVICE)
-ag_tensor = ag_tensor.transpose(1, 2)   # (1, L, 4)
-print(f"Input tensor : {ag_tensor.shape}")
+# ─── Load via gReLU LightningModel ────────────────────────────────────────────
+_ag_params_base = dict(
+    weights_path=WEIGHTS_PATH,
+    dtype_policy=DtypePolicy.mixed_precision(),
+    resolution=128,
+)
+# AlphaGenome outputs raw read counts — use regression/mse to suppress the
+# default sigmoid activation that LightningModel applies for binary tasks.
+_ag_train_params = {"task": "regression", "loss": "mse"}
 
-organism_idx = torch.zeros(1, dtype=torch.long, device=f"cuda:{DEVICE}")
+print("Loading AlphaGenome rna_seq via gReLU LightningModel …")
+ag_rna_lightning = LightningModel(
+    model_params={"model_type": "AlphaGenomeModel", "output_key": "rna_seq", **_ag_params_base},
+    train_params=_ag_train_params,
+)
+ag_rna_lightning.data_params["train"] = {"seq_len": AG_SEQ_LEN, "bin_size": AG_BIN_SIZE}
+ag_rna_lightning.model_params["crop_len"] = AG_CROP_LEN
 
-print("Running AlphaGenome inference …")
-with torch.no_grad():
-    ag_outputs = ag_model.predict(
-        ag_tensor, organism_idx,
-        channels_last=False,    # → (B, C, L) format
-        resolutions=(128,),     # skip expensive 1 bp decoder
-    )
-print("Inference done.")
+print("Loading AlphaGenome cage via gReLU LightningModel …")
+ag_cage_lightning = LightningModel(
+    model_params={"model_type": "AlphaGenomeModel", "output_key": "cage", **_ag_params_base},
+    train_params=_ag_train_params,
+)
+ag_cage_lightning.data_params["train"] = {"seq_len": AG_SEQ_LEN, "bin_size": AG_BIN_SIZE}
+ag_cage_lightning.model_params["crop_len"] = AG_CROP_LEN
 
-# Check output shapes
-for key in ["cage", "rna_seq"]:
-    t = ag_outputs[key][128]
-    print(f"  {key}[128] : {t.shape}")
+# ─── Inference via predict_on_seqs ────────────────────────────────────────────
+print("Running AlphaGenome rna_seq inference …")
+ag_rna_preds = ag_rna_lightning.predict_on_seqs(ag_seqs, device=DEVICE)   # (1, 768, 1024)
+print(f"  rna_seq predictions : {ag_rna_preds.shape}")
 
-# ---- Pick matching brain CAGE & RNA-seq tracks via track metadata ----
+print("Running AlphaGenome cage inference …")
+ag_cage_preds_full = ag_cage_lightning.predict_on_seqs(ag_seqs, device=DEVICE)  # (1, 640, 1024)
+print(f"  cage predictions    : {ag_cage_preds_full.shape}")
+
+# ─── Output intervals (crop_len=0 → same as input) ────────────────────────────
+ag_out_intervals = ag_rna_lightning.input_intervals_to_output_intervals(ag_intervals)
+ag_out_start = int(ag_out_intervals.start[0])
+ag_out_end   = int(ag_out_intervals.end[0])
+print(f"Output : {CHROM}:{ag_out_start}-{ag_out_end}  (1024 bins × 128 bp)")
+
+# ─── Track metadata ───────────────────────────────────────────────────────────
 ag_meta = pd.read_parquet(AG_META_PATH)
-
-cage_meta_h  = ag_meta[ag_meta.output_type == "cage"]
-rna_meta_h   = ag_meta[ag_meta.output_type == "rna_seq"]
+cage_meta_h = ag_meta[ag_meta.output_type == "cage"]
+rna_meta_h  = ag_meta[ag_meta.output_type == "rna_seq"]
 
 brain_cage_ag = cage_meta_h[
     cage_meta_h.biosample_name.str.contains("brain", case=False, na=False) &
     ~cage_meta_h.biosample_name.str.contains("vasculature", case=False, na=False)
 ].head(2)
-brain_rna_ag  = rna_meta_h[
+brain_rna_ag = rna_meta_h[
     rna_meta_h.biosample_name.str.contains("brain", case=False, na=False)
-].head(2)
-liver_rna_ag  = rna_meta_h[
-    rna_meta_h.biosample_name.str.contains("^liver$", case=False, na=False, regex=True) &
+]                                                                   # all 2 brain tracks
+liver_rna_ag = rna_meta_h[
+    rna_meta_h.biosample_name.str.contains("liver", case=False, na=False) &
     (rna_meta_h.assay_title == "polyA plus RNA-seq")
-].head(2)
+]                                                                   # polyA+ only, assay-matched (4 tracks)
 
-ag_cage_idx       = brain_cage_ag.track_index.tolist()
-ag_rna_brain_idx  = brain_rna_ag.track_index.tolist()
-ag_rna_liver_idx  = liver_rna_ag.track_index.tolist()
+ag_cage_idx      = brain_cage_ag.track_index.tolist()
+ag_rna_brain_idx = brain_rna_ag.track_index.tolist()
+ag_rna_liver_idx = liver_rna_ag.track_index.tolist()
 
 print(f"Brain CAGE tracks : {ag_cage_idx} — {brain_cage_ag.track_name.tolist()}")
 print(f"Brain RNA tracks  : {ag_rna_brain_idx} — {brain_rna_ag.track_name.tolist()}")
 print(f"Liver RNA tracks  : {ag_rna_liver_idx} — {liver_rna_ag.track_name.tolist()}")
 
-# Extract relevant track arrays (CPU numpy)
-ag_cage_preds      = ag_outputs["cage"][128][0, ag_cage_idx, :].cpu().numpy()   # (2,1024)
-ag_rna_brain_preds = ag_outputs["rna_seq"][128][0, ag_rna_brain_idx, :].cpu().numpy()
-ag_rna_liver_preds = ag_outputs["rna_seq"][128][0, ag_rna_liver_idx, :].cpu().numpy()
+# ─── Extract track arrays (numpy) ─────────────────────────────────────────────
+ag_cage_preds      = ag_cage_preds_full[0, ag_cage_idx, :]         # (2, 1024)
+ag_rna_brain_preds = ag_rna_preds[0, ag_rna_brain_idx, :]          # (2, 1024)
+ag_rna_liver_preds = ag_rna_preds[0, ag_rna_liver_idx, :]          # (4, 1024)
 
 # ═══════════════════════════════════════════════════════════════
 # SECTION 3 — Gene / exon annotations
@@ -399,43 +405,57 @@ for row in srsf11_exon_bins_b.itertuples():
 selected_bins_b = sorted(selected_bins_b)
 print(f"\nBorzoi SRSF11 bins : {len(selected_bins_b)}")
 
-borzoi_rna_liver_preds = borzoi_preds[0, borzoi_rna_liver_idx, :]
-brain_liver_b = tasks_b[
-    (tasks_b.assay == "RNA") & tasks_b["sample"].str.contains("liver", case=False, na=False)
-].head(2)
-borzoi_rna_liver_idx2 = brain_liver_b.index.tolist()
-borzoi_rna_liver_preds_full = borzoi_preds[0, borzoi_rna_liver_idx2, :]
+# Specificity transform — exact replication of Tutorial 1 (all 5 brain / 24 liver tracks)
+brain_specific_srsf11 = grelu.transforms.prediction_transforms.Specificity(
+    on_tasks=borzoi_rna_brain_idx,   # [6635,6636,7539,7540,7541]
+    off_tasks=borzoi_rna_liver_idx,  # 24 liver tracks
+    positions=selected_bins_b,       # 380 SRSF11 bins
+    on_aggfunc="mean",
+    off_aggfunc="mean",
+    length_aggfunc="mean",
+    compare_func="divide",
+)
+borzoi_specificity = float(brain_specific_srsf11.compute(borzoi_preds))
 
-brain_signal_b = borzoi_rna_brain_preds[:, selected_bins_b].mean()
-liver_signal_b = borzoi_rna_liver_preds_full[:, selected_bins_b].mean()
-borzoi_specificity = brain_signal_b / (liver_signal_b + 1e-10)
-print(f"  Brain RNA-seq signal (mean over exons) : {brain_signal_b:.4f}")
-print(f"  Liver RNA-seq signal (mean over exons) : {liver_signal_b:.4f}")
-print(f"  Brain/Liver specificity ratio          : {borzoi_specificity:.4f}  (tutorial expects ~1.6x)")
+# Also compute individual signals for display (same aggregation as Specificity)
+brain_signal_b = borzoi_preds[0, borzoi_rna_brain_idx, :][:, selected_bins_b].mean(axis=1).mean()
+liver_signal_b = borzoi_preds[0, borzoi_rna_liver_idx, :][:, selected_bins_b].mean(axis=1).mean()
+print(f"  Brain RNA tracks  : {len(borzoi_rna_brain_idx)}  mean signal : {brain_signal_b:.4f}")
+print(f"  Liver RNA tracks  : {len(borzoi_rna_liver_idx)}  mean signal : {liver_signal_b:.4f}")
+print(f"  Brain/Liver specificity ratio (Specificity transform) : {borzoi_specificity:.4f}  (tutorial expects ~1.6×)")
 
-# ---- AlphaGenome: map SRSF11 exons to 128 bp bins ----
-# Only exons within the AlphaGenome window
+# ---- AlphaGenome: map SRSF11 exons to 128 bp bins via gReLU ----
 srsf11_in_ag = srsf11_exons[
     (srsf11_exons.start < ag_end) & (srsf11_exons.end > ag_start)
 ].copy()
 print(f"\nAlphaGenome SRSF11 exons in window: {len(srsf11_in_ag)}")
 
-AG_BIN_SIZE = 128
+srsf11_exon_bins_ag = ag_rna_lightning.input_intervals_to_output_bins(
+    srsf11_in_ag, start_pos=ag_start
+)
 selected_bins_ag = set()
-for _, row in srsf11_in_ag.iterrows():
-    start_bin = max(0, math.floor((row.start - ag_start) / AG_BIN_SIZE))
-    end_bin   = min(1024, math.ceil((row.end   - ag_start) / AG_BIN_SIZE))
-    selected_bins_ag.update(range(start_bin, end_bin))
+for row in srsf11_exon_bins_ag.itertuples():
+    selected_bins_ag.update(range(max(0, row.start), min(1024, row.end)))
 selected_bins_ag = sorted(selected_bins_ag)
 print(f"AlphaGenome SRSF11 bins : {len(selected_bins_ag)}")
 
 if selected_bins_ag:
-    brain_signal_ag = ag_rna_brain_preds[:, selected_bins_ag].mean()
-    liver_signal_ag = ag_rna_liver_preds[:, selected_bins_ag].mean()
-    ag_specificity  = brain_signal_ag / (liver_signal_ag + 1e-10)
-    print(f"  Brain RNA-seq signal (mean over exons) : {brain_signal_ag:.4f}")
-    print(f"  Liver RNA-seq signal (mean over exons) : {liver_signal_ag:.4f}")
-    print(f"  Brain/Liver specificity ratio          : {ag_specificity:.4f}")
+    # Specificity transform — identical API to Borzoi
+    ag_brain_specific = grelu.transforms.prediction_transforms.Specificity(
+        on_tasks=ag_rna_brain_idx,
+        off_tasks=ag_rna_liver_idx,
+        positions=selected_bins_ag,
+        on_aggfunc="mean",
+        off_aggfunc="mean",
+        length_aggfunc="mean",
+        compare_func="divide",
+    )
+    ag_specificity = float(ag_brain_specific.compute(ag_rna_preds))
+    brain_signal_ag = ag_rna_preds[0, ag_rna_brain_idx, :][:, selected_bins_ag].mean(axis=1).mean()
+    liver_signal_ag = ag_rna_preds[0, ag_rna_liver_idx, :][:, selected_bins_ag].mean(axis=1).mean()
+    print(f"  Brain RNA tracks  : {len(ag_rna_brain_idx)}  mean signal : {brain_signal_ag:.4f}")
+    print(f"  Liver RNA tracks  : {len(ag_rna_liver_idx)}  mean signal : {liver_signal_ag:.4f}")
+    print(f"  Brain/Liver specificity ratio (Specificity transform) : {ag_specificity:.4f}")
 else:
     print("  WARNING: No SRSF11 exons overlap the AlphaGenome window — skipping ratio.")
     ag_specificity = None
@@ -468,10 +488,10 @@ plt.close()
 print("\n" + "═" * 60)
 print("SUMMARY")
 print("═" * 60)
-print(f"Borzoi SRSF11 brain/liver specificity   : {borzoi_specificity:.2f}× (tutorial expects ~1.6×)")
+print(f"Borzoi     brain/liver spec  ({len(borzoi_rna_brain_idx)} brain / {len(borzoi_rna_liver_idx)} liver tracks, 380 bins @32bp)  : {borzoi_specificity:.4f}×  (tutorial: ~1.617×)")
 if ag_specificity is not None:
     verdict = "✓ MATCHES or BEATS Borzoi" if ag_specificity >= borzoi_specificity * 0.9 else "✗ Below Borzoi"
-    print(f"AlphaGenome SRSF11 brain/liver spec.    : {ag_specificity:.2f}×  {verdict}")
+    print(f"AlphaGenome brain/liver spec  ({len(ag_rna_brain_idx)} brain / {len(ag_rna_liver_idx)} liver tracks, {len(selected_bins_ag)} bins @128bp) : {ag_specificity:.4f}×  {verdict}")
 print()
 print("Output files:")
 for f in ["comparison_cage.png", "comparison_rna.png",

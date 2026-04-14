@@ -54,3 +54,7 @@ MANIFEST
 .python-version
 
 lightning_logs*
+
+# Script output artifacts
+comparison_*.png
+*.png

@@ -268,15 +268,51 @@ Track metadata:
 Usage via gReLU:
 ```python
 from grelu.lightning import LightningModel
+from alphagenome_pytorch.config import DtypePolicy
 
-lm = LightningModel(model_params={
-    "model_type":  "AlphaGenomeModel",
-    "output_key":  "cage",         # or "atac", "rna_seq", …
-    "resolution":  128,
-    "weights_path": "~/.cache/…/model_fold_0.safetensors",
-})
-preds = lm.predict_on_seqs(seqs, device=0)   # → (N, 640, 1024)
+# ⚠️  CRITICAL: must pass train_params with task="regression"
+# LightningModel defaults to task="binary" → applies sigmoid to output,
+# which collapses AlphaGenome's raw read counts (~1–1000) to [0,1].
+lm = LightningModel(
+    model_params={
+        "model_type":  "AlphaGenomeModel",
+        "output_key":  "rna_seq",        # or "cage", "atac", …
+        "resolution":  128,
+        "weights_path": "~/.cache/…/model_fold_0.safetensors",
+        "dtype_policy": DtypePolicy.mixed_precision(),
+    },
+    train_params={"task": "regression", "loss": "mse"},  # suppress sigmoid
+)
+preds = lm.predict_on_seqs(seqs, device=0)   # → (N, 768, 1024)
+
+# For coordinate utilities (input_intervals_to_output_intervals /
+# input_intervals_to_output_bins), populate data_params manually
+# since there is no checkpoint to deserialize from:
+lm.data_params["train"] = {"seq_len": 131072, "bin_size": 128}
+lm.model_params["crop_len"] = 0   # AlphaGenome has no output cropping
 ```
+
+### AlphaGenome track metadata
+
+`src/alphagenome_pytorch/src/alphagenome_pytorch/data/track_metadata_human.parquet`
+— key columns: `track_index, output_type, biosample_name, assay_title, strand`
+
+Track counts per `output_type` (human, fold 0):
+
+| `output_type` | Tracks | Notes |
+|--------------|--------|-------|
+| `rna_seq` | 768 | ENCODE + GTEx; tissue-level (UBERON) not sample-level |
+| `chip_tf` | 1664 | — |
+| `chip_histone` | 1152 | — |
+| `cage` | 640 | — |
+| `dnase` | 384 | — |
+| `atac` | 256 | — |
+| `splice_site_usage` | 734 | — |
+
+**Granularity note**: AlphaGenome aggregates replicates at the UBERON tissue-ontology
+level (e.g. `UBERON:0000955` = whole brain). Borzoi retains individual ENCODE/GTEx
+sample IDs. For fair specificity comparisons, filter AlphaGenome tracks by
+`assay_title` (e.g. `"polyA plus RNA-seq"` only) to avoid mixing assay types.
 
 ---
 
