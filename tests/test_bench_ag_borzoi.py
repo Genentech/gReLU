@@ -12,7 +12,7 @@ Principles
    (_stats, _bin_obs, _parse_variant) directly from source.
 2. Test contracts, not steps: Focus on "what" the code promised, not "how" it
    calculates it.
-3. Distinguish Golden Values: Hardcode biological/technical specs in 
+3. Distinguish Golden Values: Hardcode biological/technical specs in
    TestArchitectureConstants. Use derived relationships for other constants.
 4. Parametrize boundary cases: Use @pytest.mark.parametrize for edge cases.
 5. One test, one rule: Test names should describe the business rule being verified.

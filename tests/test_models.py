@@ -275,15 +275,15 @@ def test_alphagenome_model():
     import torch
     inputs = torch.randn(1, 4, 4096)
     model = AlphaGenomeModel(
-        num_organisms=2, 
-        output_key="atac", 
+        num_organisms=2,
+        output_key="atac",
         resolution=128
     ).eval()
-    
+
     # Check embedding shape
     emb = model.embedding(inputs)
     assert emb.shape == (1, 256, 32)
-    
+
     # Check prediction shape
     pred = model(inputs)
     assert pred.shape == (1, 256, 32)

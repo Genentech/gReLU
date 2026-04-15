@@ -85,16 +85,16 @@ class GreluTutorialApp:
     def __init__(self, gene="SRSF11", genome="hg38", devices="0,1,2,3", num_workers=1):
         self.gene = gene
         self.genome = genome
-        
+
         if devices == "cpu":
             self.devices = "cpu"
             self.inference_device = "cpu"
         else:
             self.devices = [int(x) for x in devices.split(',')]
             self.inference_device = self.devices[0]
-            
+
         self.num_workers = num_workers
-        
+
         # 数据缓存
         self.exons = None
         self.input_seqs = None
@@ -107,11 +107,11 @@ class GreluTutorialApp:
         if hasattr(self, 'borzoi'): del self.borzoi
         if hasattr(self, 'ag_rna'): del self.ag_rna
         if hasattr(self, 'ag_cage'): del self.ag_cage
-        
+
         self.borzoi = None
         self.ag_rna = None
         self.ag_cage = None
-        
+
         gc.collect()
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
@@ -121,15 +121,15 @@ class GreluTutorialApp:
     def setup(self):
         if self.input_seqs is not None:
             return
-            
+
         print(f"Setting up sequences for gene {self.gene}...")
         if self.exons is None:
             self.exons = grelu.io.genome.read_gtf(self.genome, features="exon")
-        
+
         self.target_exons = self.exons[self.exons.gene_name == self.gene].copy()
         if len(self.target_exons) == 0:
             raise ValueError(f"Gene {self.gene} not found.")
-            
+
         self.chrom = self.target_exons.chrom.iloc[0]
         self.ism_center = int(self.target_exons.start.min())
 
@@ -200,20 +200,20 @@ class GreluTutorialApp:
 
     def run_inference(self):
         self.setup()
-        
+
         # 1. Borzoi
         self.setup_borzoi()
         print(f"\nRunning Borzoi inference on {self.inference_device}...")
         borzoi_preds = self.borzoi.predict_on_seqs(self.input_seqs, device=self.inference_device)
         b_trans = self.get_borzoi_transform()
         borzoi_specificity = float(b_trans.compute(borzoi_preds).ravel()[0])
-        
+
         tasks_b = pd.DataFrame(self.borzoi.data_params["tasks"])
         borzoi_cage_idx = tasks_b[(tasks_b.assay == "CAGE") & tasks_b["sample"].str.contains("brain", case=False, na=False)].head(2).index.tolist()
         borzoi_rna_brain_idx = tasks_b[(tasks_b.assay == "RNA") & tasks_b["sample"].str.contains("brain", case=False, na=False)].index.tolist()
         borzoi_cage_preds = borzoi_preds[0, borzoi_cage_idx, :]
         borzoi_rna_brain_preds = borzoi_preds[0, borzoi_rna_brain_idx, :]
-        
+
         # 保存这些值用于绘图，然后清理模型
         self.borzoi_plot_data = {
             "cage": borzoi_cage_preds, "rna": borzoi_rna_brain_preds, "spec": borzoi_specificity,
@@ -228,14 +228,14 @@ class GreluTutorialApp:
         ag_rna_preds = self.ag_rna.predict_on_seqs(self.ag_seqs, device=self.inference_device)
         ag_trans = self.get_ag_transform(self.ag_rna)
         ag_spec = float(ag_trans.compute(ag_rna_preds).ravel()[0])
-        
+
         ag_meta = pd.read_parquet(AG_META_PATH)
         rna_meta_h = ag_meta[ag_meta.output_type == "rna_seq"]
         brain_rna_idx = rna_meta_h[rna_meta_h.biosample_name.str.contains("brain", case=False, na=False)].track_index.tolist()
         ag_rna_brain_preds_vals = ag_rna_preds[0, brain_rna_idx, :]
-        
+
         self.ag_rna_plot_data = {
-            "rna": ag_rna_brain_preds_vals, "spec": ag_spec, 
+            "rna": ag_rna_brain_preds_vals, "spec": ag_spec,
             "rna_names": rna_meta_h[rna_meta_h.biosample_name.str.contains("brain", case=False, na=False)].track_name.tolist()
         }
         self._cleanup()
@@ -247,7 +247,7 @@ class GreluTutorialApp:
         cage_meta_h = ag_meta[ag_meta.output_type == "cage"]
         brain_cage_idx = cage_meta_h[cage_meta_h.biosample_name.str.contains("brain", case=False, na=False) & ~cage_meta_h.biosample_name.str.contains("vasculature", case=False, na=False)].head(2).track_index.tolist()
         ag_cage_preds_vals = ag_cage_preds_full[0, brain_cage_idx, :]
-        
+
         self.ag_cage_plot_data = {
             "cage": ag_cage_preds_vals,
             "cage_names": cage_meta_h[cage_meta_h.biosample_name.str.contains("brain", case=False, na=False) & ~cage_meta_h.biosample_name.str.contains("vasculature", case=False, na=False)].head(2).track_name.tolist()
@@ -277,7 +277,7 @@ class GreluTutorialApp:
     def run_ism(self, model_name):
         self.setup()
         self._cleanup() # 确保开始前绝对干净
-        
+
         if model_name == "borzoi":
             self.setup_borzoi()
             trans = self.get_borzoi_transform()

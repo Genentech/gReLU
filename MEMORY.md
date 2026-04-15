@@ -19,4 +19,3 @@ This file serves as a persistent record of major architectural decisions, featur
 - **Empirical Verification**: Conducted In Silico Mutagenesis (ISM) on a 200bp region (SRSF11 promoter) using the Borzoi model.
 - **Consistency Check**: Compared results between single-GPU (Device 0) and 4-GPU (Devices 0, 1, 2, 3) execution.
 - **Outcome**: The results were identical (Max absolute difference: 0.0), confirming that the parallel execution now preserves dataset order and handles padding correctly.
-

@@ -37,7 +37,7 @@ Skip Strategy (CI Friendly)
 ════════════════════════════════════════════════════════════════════════════════
 Module Isolation
 ════════════════════════════════════════════════════════════════════════════════
-The _clear_stubs fixture ensures that MagicMocks installed by unit tests in 
+The _clear_stubs fixture ensures that MagicMocks installed by unit tests in
 sys.modules are cleared before running integration tests, forcing a real import.
 """
 
@@ -92,7 +92,7 @@ requires_2gpus = pytest.mark.skipif(
 @pytest.fixture(scope="module", autouse=True)
 def _clear_stubs():
     """
-    Remove grelu/alphagenome_pytorch stubs installed by unit tests to allow 
+    Remove grelu/alphagenome_pytorch stubs installed by unit tests to allow
     real model loading. Restores them after tests to avoid side effects.
     """
     _prefixes = ("grelu", "alphagenome_pytorch")
