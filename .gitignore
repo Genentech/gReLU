@@ -63,3 +63,4 @@ comparison_*.png
 
 # Local ignored docs
 doc/
+activate.sh
