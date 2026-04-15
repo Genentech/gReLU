@@ -60,3 +60,6 @@ comparison_*.png
 *.png
 /ism_results/
 /eval_data/
+
+# Local ignored docs
+doc/
