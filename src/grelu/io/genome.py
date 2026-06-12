@@ -59,13 +59,18 @@ def read_sizes(genome: str = "hg38") -> pd.DataFrame:
 
     Args:
         genome: Either a genome name to load from genomepy,
-            or the path to a chromosome sizes file.
+            the path to a chromosome sizes file (tab-separated, no header),
+            or the path to a local FASTA file (expects a .sizes file alongside it).
 
     Returns:
         A dataframe containing columns "chrom" (chromosome names)
         and "size" (chromosome size).
     """
-    # Get file path
+    # If the argument is an existing file, treat it as a sizes file directly
+    if os.path.isfile(genome):
+        return pd.read_table(
+            genome, header=None, names=["chrom", "size"], dtype={"chrom": str, "size": int}
+        )
     genome = get_genome(genome).sizes_file
     return pd.read_table(
         genome, header=None, names=["chrom", "size"], dtype={"chrom": str, "size": int}

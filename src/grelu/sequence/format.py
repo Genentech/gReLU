@@ -15,6 +15,7 @@ from typing import Dict, List, Optional, Union
 import numpy as np
 import pandas as pd
 import torch
+from tqdm import tqdm
 from pandas.api.types import is_categorical_dtype, is_integer_dtype, is_string_dtype
 from torch import Tensor
 
@@ -27,6 +28,12 @@ STANDARD_BASES: List[str] = ["A", "C", "G", "T"]
 BASE_TO_INDEX_HASH: Dict[str, int] = {base: i for i, base in enumerate(ALLOWED_BASES)}
 
 INDEX_TO_BASE_HASH: Dict[int, str] = {i: base for i, base in enumerate(ALLOWED_BASES)}
+
+# Vectorized ASCII lookup table: byte value → base index (unknown chars → N=4)
+_BASE_LUT = np.full(256, 4, dtype=np.int8)
+for _i, _b in enumerate(ALLOWED_BASES):
+    _BASE_LUT[ord(_b)] = _i
+    _BASE_LUT[ord(_b.lower())] = _i
 
 
 def check_intervals(df: pd.DataFrame) -> bool:
@@ -197,8 +204,9 @@ def intervals_to_strings(
 
     else:
         # Extract sequences for multiple intervals
+        tqdm.pandas(desc="Fetching sequences")
         if "strand" in intervals.columns:
-            seqs = intervals.apply(
+            seqs = intervals.progress_apply(
                 lambda row: str(
                     genome.get_seq(
                         row["chrom"],
@@ -210,7 +218,7 @@ def intervals_to_strings(
                 axis=1,
             ).tolist()
         else:
-            seqs = intervals.apply(
+            seqs = intervals.progress_apply(
                 lambda row: str(
                     genome.get_seq(row["chrom"], row["start"] + 1, row["end"])
                 ).upper(),
@@ -241,7 +249,7 @@ def strings_to_indices(
 
     # Convert a single sequence
     if isinstance(strings, str):
-        arr = np.array([BASE_TO_INDEX_HASH[base] for base in strings], dtype=np.int8)
+        arr = _BASE_LUT[np.frombuffer(strings.encode("ascii"), dtype=np.uint8)]
         if add_batch_axis:
             return np.expand_dims(arr, 0)
         else:
@@ -253,10 +261,7 @@ def strings_to_indices(
             strings
         ), "All input sequences must have the same length."
         return np.stack(
-            [
-                np.array([BASE_TO_INDEX_HASH[base] for base in string], dtype=np.int8)
-                for string in strings
-            ]
+            [_BASE_LUT[np.frombuffer(s.encode("ascii"), dtype=np.uint8)] for s in strings]
         )
 
 
