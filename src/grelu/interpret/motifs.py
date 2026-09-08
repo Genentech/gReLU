@@ -75,27 +75,44 @@ def trim_pwm(
     pwm: np.ndarray,
     trim_threshold: float = 0.3,
     return_indices: bool = False,
-) -> Union[Tuple[int], np.ndarray]:
+    relative: bool = True,
+) -> Union[Tuple[int, int], np.ndarray]:
     """
-    Trims the edges of a Position Weight Matrix (PWM) based on the
-    information content of each position.
+    Trims the edges of a weight matrix based on the summed absolute
+    weights at each position.
+
+    This function is typically used with information-content PWMs, but
+    also works with other matrices such as PPMs or contribution weight
+    matrices (CWMs).
 
     Args:
-        pwm: A numpy array of shape (4, L) containing the PWM
-        trim_threshold: Threshold ranging from 0 to 1 to trim edge positions
+        pwm: A numpy array of shape (4, L) containing the weight matrix
+            to trim.
+        trim_threshold: Threshold used to decide which edge positions to
+            remove. If ``relative`` is True (default), this value is
+            treated as a fraction of the maximum per-position score and
+            typically ranges from 0 to 1. If ``relative`` is False, this
+            value is used directly as an absolute score threshold.
         return_indices: If True, only the indices of the positions to keep
             will be returned. If False, the trimmed motif will be returned.
+        relative: If True (default), ``trim_threshold`` is multiplied by
+            the maximum per-position score (current behavior). If False,
+            ``trim_threshold`` is treated as an absolute threshold on the
+            per-position score.
 
     Returns:
-        np.array containing the trimmed PWM (if return_indices = True) or a
-        tuple of ints for the start and end positions of the trimmed motif
-        (if return_indices = False).
+        np.array containing the trimmed matrix (if return_indices = False)
+        or a tuple of ints for the start and end positions of the trimmed
+        motif (if return_indices = True).
     """
     # Get per position score
     score = np.sum(np.abs(pwm), axis=0)
 
     # Calculate score threshold
-    trim_thresh = np.max(score) * trim_threshold
+    if relative:
+        trim_thresh = np.max(score) * trim_threshold
+    else:
+        trim_thresh = trim_threshold
 
     # Get indices that pass the threshold
     pass_inds = np.where(score >= trim_thresh)[0]
