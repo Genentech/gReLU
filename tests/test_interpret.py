@@ -48,8 +48,43 @@ def test_trim_pwm():
         )
         + 2
     )
+    # Relative thresholding (default / backwards-compatible behavior)
     assert np.all(trim_pwm(pwm, trim_threshold=0.3) == pwm[:, 2:])
     assert np.all(trim_pwm(pwm, trim_threshold=0.01) == pwm[:, 1:])
+    assert np.all(trim_pwm(pwm, trim_threshold=0.3, relative=True) == pwm[:, 2:])
+
+    # Absolute thresholding: use the per-position score directly
+    # scores = sum(|pwm|, axis=0)
+    scores = np.sum(np.abs(pwm), axis=0)
+    abs_thresh = 0.3 * np.max(scores)
+    assert np.all(
+        trim_pwm(pwm, trim_threshold=abs_thresh, relative=False) == pwm[:, 2:]
+    )
+    assert trim_pwm(pwm, trim_threshold=abs_thresh, relative=False, return_indices=True) == (
+        2,
+        5,
+    )
+
+    # Matrix where relative and absolute thresholds diverge
+    # per-position scores: [0.1, 0.2, 1.0, 1.0, 0.15]
+    weights = np.array(
+        [
+            [0.05, 0.10, 0.50, 0.50, 0.05],
+            [0.05, 0.10, 0.50, 0.50, 0.05],
+            [0.00, 0.00, 0.00, 0.00, 0.05],
+            [0.00, 0.00, 0.00, 0.00, 0.00],
+        ]
+    )
+    # relative=True with 0.3 -> thresh=0.3 -> keep cols 2:4
+    assert np.all(trim_pwm(weights, trim_threshold=0.3, relative=True) == weights[:, 2:4])
+    # absolute with 0.15 -> keep cols 1:5
+    assert np.all(
+        trim_pwm(weights, trim_threshold=0.15, relative=False) == weights[:, 1:5]
+    )
+    # absolute with 0.3 -> keep cols 2:4
+    assert np.all(
+        trim_pwm(weights, trim_threshold=0.3, relative=False) == weights[:, 2:4]
+    )
 
 
 # Create test model
