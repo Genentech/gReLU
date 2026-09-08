@@ -770,26 +770,54 @@ class LightningModel(pl.LightningModule):
     def predict_on_seqs(
         self,
         x: Union[str, List[str]],
-        device: Union[str, int] = "cpu",
+        devices: Union[int, str, List[int]] = "cpu",
+        num_workers: int = 1,
+        batch_size: int = 1,
+        precision: Optional[str] = None,
+        device: Optional[Union[str, int, List[int]]] = None,
     ) -> np.ndarray:
         """
         A simple function to return model predictions directly
-        on a batch of a single batch of sequences in string
-        format.
+        on a single sequence in string format or on multiple
+        sequences in a list of strings.
+
+        This uses the same batched Lightning ``Trainer.predict`` path as
+        ``predict_on_dataset``, avoiding loading the full batch onto the
+        device at once (which can OOM for large models).
 
         Args:
             x: DNA sequences as a string or list of strings.
-            device: Index of the device to use
+            devices: Device IDs to use
+            num_workers: Number of workers for data loader
+            batch_size: Batch size for data loader
+            precision: Precision of the trainer e.g. '32' or 'bf16-mixed'.
+            device: Alias for ``devices`` (kept for backward compatibility
+                with older call sites that pass ``device=``).
 
         Returns:
             A numpy array of predictions.
         """
+        if device is not None:
+            devices = device
+
+        torch.set_float32_matmul_precision("medium")
         x = strings_to_one_hot(x, add_batch_axis=True)
-        x = x.to(device)
-        self.model = self.model.eval().to(device)
-        preds = self.forward(x).detach().cpu().numpy()
-        self.model = self.model.cpu()
-        return preds
+        dataloader = self.make_predict_loader(
+            x,
+            num_workers=num_workers,
+            batch_size=batch_size,
+        )
+        accelerator, devices = self.parse_devices(devices)
+        trainer = pl.Trainer(
+            accelerator=accelerator,
+            devices=devices,
+            logger=None,
+            precision=precision,
+        )
+
+        # Predict
+        preds = torch.concat(trainer.predict(self, dataloader))
+        return preds.detach().cpu().numpy()
 
     def predict_on_dataset(
         self,
