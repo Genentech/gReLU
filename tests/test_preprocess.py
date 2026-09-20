@@ -284,11 +284,11 @@ def test_get_gc_matched_intervals():
     intervals = pd.DataFrame(
         {
             "chrom": ["chr10"],
-            "start": [int(1e7)],
-            "end": [int(1e7+10)],
+            "start": [1000],
+            "end": [1010],
         }
     )
 
     res = get_gc_matched_intervals(
-        intervals=intervals, genome='hg38', chroms=['chr21'], seed=0)
+        intervals=intervals, genome='tests/files/test_genome.fa', chroms=['chr10', 'chr21'], seed=0)
     assert len(res) == 1

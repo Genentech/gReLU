@@ -10,6 +10,15 @@
 import os
 import sys
 import shutil
+from pathlib import Path
+
+# -- Path setup --------------------------------------------------------------
+# Point to the absolute path of the 'src' directory
+docs_dir = Path(__file__).parent.resolve()
+root_dir = docs_dir.parent
+src_dir = root_dir / "src"
+
+sys.path.insert(0, str(src_dir))
 
 # -- General configuration ---------------------------------------------------
 
@@ -34,8 +43,20 @@ extensions = [
     "autoapi.extension",
 ]
 
-autoapi_dirs = ['../src']
-autoapi_ignore = ['*.ipynb_checkpoints*/*.py']
+# -- AutoAPI configuration ---------------------------------------------------
+autoapi_type = 'python'
+autoapi_dirs = [os.path.abspath('../src/grelu')] # Point directly to the package folder
+autoapi_root = 'autoapi'
+autoapi_python_use_implicit_namespaces = True
+autoapi_options = [
+    'members',
+    'undoc-members',
+    'show-inheritance',
+    'show-module-summary',
+    'special-members',
+    'imported-members',
+]
+autoapi_ignore = ['*ipynb_checkpoints*']
 
 def linkcode_resolve(domain, info):
     if domain != 'py':

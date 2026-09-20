@@ -2,6 +2,7 @@
 `grelu.data.utils` contains Dataset-related utility functions.
 """
 
+import re
 from typing import List, Optional, Union
 
 import numpy as np
@@ -33,36 +34,54 @@ def _create_task_data(task_names: List[str]) -> pd.DataFrame:
     return pd.DataFrame(index=task_names)
 
 
-def get_chromosomes(chroms: Union[str, List[str]]) -> List[str]:
+def get_chromosomes(chroms: Union[str, List[str]], genome=None) -> List[str]:
     """
     Return a list of chromosomes given shortcut names.
 
     Args:
-        chroms: The chromosome name(s) or shortcut name(s).
+        chroms: The chromosome name(s) or shortcut name(s). Supported
+            shortcuts are "autosomes", "autosomesX", and "autosomesXY".
+        genome: A genome object with a ``sizes_file`` attribute (e.g.
+            from ``get_genome()``). When provided, chromosome names are
+            read from the genome instead of using hardcoded human defaults.
 
     Returns:
         A list of chromosome name(s).
-
-    Example:
-        >>> get_chromosomes("autosomes")
-        ['chr1', 'chr2', 'chr3', 'chr4', 'chr5', 'chr6', 'chr7', 'chr8', 'chr9', 'chr10',
-        'chr11', 'chr12', 'chr13', 'chr14', 'chr15', 'chr16', 'chr17', 'chr18', 'chr19',
-        'chr20', 'chr21', 'chr22']
     """
-    # Define shortcuts for chromosome names
-    chrom_shortcuts = {
-        "autosomes": ["chr" + str(x) for x in range(1, 23)],
-        "autosomesX": ["chr" + str(x) for x in range(1, 23)] + ["chrX"],
-        "autosomesXY": ["chr" + str(x) for x in range(1, 23)] + ["chrX", "chrY"],
-    }
+    shortcuts = {"autosomes", "autosomesX", "autosomesXY"}
 
-    # Return the corresponding chromosome names if a shortcut name is given
-    if isinstance(chroms, str) and (chroms in chrom_shortcuts):
-        return chrom_shortcuts[chroms]
+    if isinstance(chroms, str) and chroms in shortcuts:
+        if genome is not None:
+            # Read actual chromosome names from the genome
+            sizes = pd.read_table(
+                genome.sizes_file,
+                header=None,
+                names=["chrom", "size"],
+                dtype={"chrom": str, "size": int},
+            )
+            all_chroms = set(sizes["chrom"])
+            autosomes = sorted(
+                [c for c in all_chroms if re.match(r"^chr\d+$", c)],
+                key=lambda c: int(c[3:]),
+            )
+            if chroms == "autosomes":
+                return autosomes
+            elif chroms == "autosomesX":
+                return autosomes + (["chrX"] if "chrX" in all_chroms else [])
+            else:  # autosomesXY
+                extras = [c for c in ["chrX", "chrY"] if c in all_chroms]
+                return autosomes + extras
+        else:
+            # Fall back to hardcoded human chromosomes
+            human_autosomes = ["chr" + str(x) for x in range(1, 23)]
+            if chroms == "autosomes":
+                return human_autosomes
+            elif chroms == "autosomesX":
+                return human_autosomes + ["chrX"]
+            else:  # autosomesXY
+                return human_autosomes + ["chrX", "chrY"]
 
-    # Return the chromosome names if they are given directly
-    else:
-        return chroms
+    return chroms
 
 
 def _tile_positions(
