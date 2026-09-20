@@ -352,13 +352,13 @@ def test_lightning_model_finetune():
 def test_lightning_model_finetune_chrom_overlap_warning():
     """Warn when fine-tuning chromosomes overlap with pretraining chromosomes."""
     model = generate_model(task="regression", loss="poisson", n_tasks=2)
-    # Simulate a pretrained model that was trained on chr1
+    # Simulate a pretrained model that was trained on seq1
     model.data_params["train"] = {
-        "intervals": {"chrom": ["chr1", "chr1"], "start": [0, 100], "end": [2, 102]},
+        "intervals": {"chrom": ["seq1", "seq1"], "start": [0, 100], "end": [2, 102]},
         "seq_len": 2,
     }
 
-    # Fine-tune with interval_dataset which also uses chr1
+    # Fine-tune with interval_dataset which also uses seq1
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter("always")
         model.tune_on_dataset(
@@ -366,7 +366,7 @@ def test_lightning_model_finetune_chrom_overlap_warning():
         )
         overlap_warnings = [x for x in w if "overlap" in str(x.message)]
         assert len(overlap_warnings) == 1
-        assert "chr1" in str(overlap_warnings[0].message)
+        assert "seq1" in str(overlap_warnings[0].message)
         assert "data leakage" in str(overlap_warnings[0].message)
 
 
