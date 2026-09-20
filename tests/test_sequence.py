@@ -293,6 +293,50 @@ def test_resize():
     assert np.all(resize(intervals, seq_len=8) == resized_intervals)
 
 
+def test_resize_intervals_genome():
+    genome = "tests/files/test_genome.fa"
+    intervals = pd.DataFrame(
+        {
+            "chrom": ["chr10", "chr10", "chr21"],
+            "start": [2, 1990, 100],
+            "end": [12, 2000, 110],
+        },
+        index=["left", "right", "ok"],
+    )
+
+    unconstrained = pd.DataFrame(
+        {
+            "chrom": ["chr10", "chr10", "chr21"],
+            "start": [-3, 1985, 95],
+            "end": [17, 2005, 115],
+        },
+        index=["left", "right", "ok"],
+    )
+    assert resize(intervals, seq_len=20).equals(unconstrained)
+    assert resize(intervals, seq_len=20, genome=None).equals(unconstrained)
+
+    shifted = resize(intervals, seq_len=20, genome=genome)
+    expected = pd.DataFrame(
+        {
+            "chrom": ["chr10", "chr10", "chr21"],
+            "start": [0, 1980, 95],
+            "end": [20, 2000, 115],
+        },
+        index=["left", "right", "ok"],
+    )
+    assert len(shifted) == len(intervals)
+    assert shifted.equals(expected)
+
+    left = intervals.loc[["left"]]
+    assert resize(left, seq_len=20, genome=genome).equals(expected.loc[["left"]])
+
+    right = intervals.loc[["right"]]
+    assert resize(right, seq_len=20, genome=genome).equals(expected.loc[["right"]])
+
+    with pytest.raises(ValueError, match="exceeds the chromosome size"):
+        resize(intervals.loc[["ok"]], seq_len=2001, genome=genome)
+
+
 def test_random_generation():
     seqs = generate_random_sequences(seq_len=3, n=5, output_format="indices")
     assert (get_input_type(seqs) == "indices") and (seqs.shape == (5, 3))
