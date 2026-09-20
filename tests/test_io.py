@@ -690,3 +690,60 @@ def test_read_modisco_report():
     vals = list(output.values())
     assert np.allclose(vals[0], expected_pos_patterns[0][:, 9:11])
     assert np.allclose(vals[1], expected_pos_patterns[1][:, 19:23])
+
+
+def test_update_ckpt(tmp_path):
+    # Legacy checkpoints written by gReLU carry numpy scalars in "performance"
+    # (LightningModel.on_save_checkpoint), which torch.load refuses under the
+    # weights_only=True default of PyTorch >= 2.6. update_ckpt must still be
+    # able to open them.
+    import pytorch_lightning as pl
+    import torch
+
+    from grelu.io import update_ckpt
+    from grelu.lightning import LightningModel
+
+    model_params = {
+        "model_type": "ConvModel",
+        "n_tasks": 1,
+        "n_conv": 1,
+        "channel_init": 8,
+        "stem_kernel_size": 3,
+        "kernel_size": 3,
+        "act_func": "relu",
+        "norm": False,
+        "final_pool_func": "avg",
+    }
+    train_params = {
+        "task": "regression",
+        "loss": "MSE",
+        "lr": 1e-3,
+        "batch_size": 2,
+        "max_epochs": 1,
+    }
+    ckpt_file = str(tmp_path / "legacy.ckpt")
+    model = LightningModel(model_params=model_params, train_params=train_params)
+    trainer = pl.Trainer(
+        accelerator="cpu",
+        devices=1,
+        max_epochs=1,
+        logger=False,
+        enable_checkpointing=False,
+    )
+    trainer.strategy.connect(model)
+    trainer.save_checkpoint(ckpt_file)
+
+    # Reproduce the legacy on-disk state: numpy metric values in "performance"
+    # and the pre-rename "depth" hyperparameter
+    ckpt = torch.load(ckpt_file, map_location="cpu", weights_only=False)
+    ckpt["performance"] = {"val": {"pearson": np.float64(0.87)}}
+    ckpt["hyper_parameters"]["model_params"]["depth"] = 0
+    torch.save(ckpt, ckpt_file)
+
+    out_file = str(tmp_path / "updated.ckpt")
+    update_ckpt(ckpt_file, out_file)
+
+    updated = torch.load(out_file, map_location="cpu", weights_only=False)
+    assert updated["hyper_parameters"]["model_params"]["n_transformers"] == 0
+    assert "depth" not in updated["hyper_parameters"]["model_params"]
+    assert updated["performance"] == {"val": {"pearson": np.float64(0.87)}}
