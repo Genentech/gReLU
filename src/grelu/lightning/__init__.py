@@ -743,6 +743,24 @@ class LightningModel(pl.LightningModule):
         """
         # Move train data parameters
         self.base_data_params = self.data_params.copy()
+
+        # Warn if fine-tuning chromosomes overlap with pretraining chromosomes
+        base_intervals = self.base_data_params.get("train", {}).get("intervals")
+        if (
+            base_intervals is not None
+            and hasattr(train_dataset, "intervals")
+            and train_dataset.intervals is not None
+        ):
+            base_chroms = set(base_intervals["chrom"])
+            new_chroms = set(train_dataset.intervals["chrom"])
+            overlap = sorted(base_chroms & new_chroms)
+            if overlap:
+                warnings.warn(
+                    f"Fine-tuning dataset contains {len(overlap)} chromosome(s) "
+                    f"({', '.join(overlap)}) that overlap with the pretrained "
+                    "model's training data. This may lead to data leakage."
+                )
+
         self.data_params = {}
 
         # Make new model head
@@ -860,8 +878,22 @@ class LightningModel(pl.LightningModule):
 
             if return_df:
                 if (preds.ndim == 3) and (preds.shape[-1] == 1):
+                    n_tasks_pred = preds.shape[-2]
+                    task_names = (
+                        self.data_params.get("tasks", {}).get("name", None)
+                    )
+                    if task_names is None or n_tasks_pred != len(task_names):
+                        if task_names is not None:
+                            warnings.warn(
+                                f"Prediction has {n_tasks_pred} task(s) but the model"
+                                f" has {len(task_names)} task name(s), likely due to a"
+                                " prediction transform. Using generic column names."
+                            )
+                        task_names = [
+                            f"task_{i}" for i in range(n_tasks_pred)
+                        ]
                     preds = pd.DataFrame(
-                        preds.squeeze(-1), columns=self.data_params["tasks"]["name"]
+                        preds.squeeze(-1), columns=task_names
                     )
                 else:
                     warnings.warn(

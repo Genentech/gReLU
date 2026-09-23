@@ -256,6 +256,11 @@ def test_lightning_model_transform():
     preds = multitask_profile_model.predict_on_dataset(udataset)
     assert preds.shape == (2, 1, 1)
 
+    # return_df=True should work after transform reduces tasks
+    preds_df = multitask_profile_model.predict_on_dataset(udataset, return_df=True)
+    assert isinstance(preds_df, pd.DataFrame)
+    assert preds_df.shape == (2, 1)
+
     # Remove
     multitask_profile_model.reset_transform()
     preds = multitask_profile_model.predict_on_dataset(udataset)
@@ -342,6 +347,38 @@ def test_lightning_model_finetune():
         nn.Parameter(Tensor([0.0, 0.0])),
     )
     assert multitask_reg_model.model_params["n_tasks"] == 1
+
+
+def test_lightning_model_finetune_chrom_overlap_warning():
+    """Warn when fine-tuning chromosomes overlap with pretraining chromosomes."""
+    model = generate_model(task="regression", loss="poisson", n_tasks=2)
+    # Simulate a pretrained model that was trained on seq1
+    model.data_params["train"] = {
+        "intervals": {"chrom": ["seq1", "seq1"], "start": [0, 100], "end": [2, 102]},
+        "seq_len": 2,
+    }
+
+    # Fine-tune with interval_dataset which also uses seq1
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        model.tune_on_dataset(
+            interval_dataset, interval_dataset, final_pool_func="avg"
+        )
+        overlap_warnings = [x for x in w if "overlap" in str(x.message)]
+        assert len(overlap_warnings) == 1
+        assert "seq1" in str(overlap_warnings[0].message)
+        assert "data leakage" in str(overlap_warnings[0].message)
+
+
+def test_lightning_model_finetune_no_chrom_warning():
+    """No warning when fine-tuning with non-interval datasets."""
+    model = generate_model(task="regression", loss="poisson", n_tasks=2)
+    # ldataset is string-based (no intervals), so no warning should fire
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        model.tune_on_dataset(ldataset, ldataset, final_pool_func="avg")
+        overlap_warnings = [x for x in w if "overlap" in str(x.message)]
+        assert len(overlap_warnings) == 0
 
 
 def test_lightning_model_ensemble():
