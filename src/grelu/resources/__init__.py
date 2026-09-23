@@ -12,6 +12,7 @@ from huggingface_hub import hf_hub_download, HfApi, list_repo_files
 
 from grelu.lightning import LightningModel
 from grelu.resources.utils import get_meme_file_path, get_blacklist_file
+from grelu.resources.wandb import DEFAULT_WANDB_HOST, get_artifact
 
 
 class DeprecationError(Exception):
