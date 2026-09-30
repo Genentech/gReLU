@@ -13,7 +13,8 @@ import numpy as np
 import pandas as pd
 import torch
 from captum.attr import InputXGradient, IntegratedGradients, Saliency
-from tangermeme.deep_lift_shap import deep_lift_shap
+from enformer_pytorch.modeling_enformer import Attention, AttentionPool
+from tangermeme.deep_lift_shap import deep_lift_shap, integrated_gradients_op
 from torch import Tensor
 
 from grelu.model.models import EnformerModel, EnformerPretrainedModel
@@ -175,22 +176,28 @@ def get_attributions(
 
     # Initialize the attributer
     if method == "deepshap":
-        if isinstance(model.model, EnformerModel) or isinstance(
-            model.model, EnformerPretrainedModel
-        ):
-            raise NotImplementedError(
-                "DeepShap currently cannot be applied to Enformer models."
-            )
-        else:
-            attributions = deep_lift_shap(
-                model,
-                X=seqs,
-                n_shuffles=n_shuffles,
-                hypothetical=hypothetical,
-                device=device,
-                random_state=seed,
-                **kwargs,
-            ).numpy(force=True)
+        additional_nonlinear_ops = kwargs.pop("additional_nonlinear_ops", None) or {}
+        if isinstance(model.model, (EnformerModel, EnformerPretrainedModel)):
+            # Enformer's self-attention and attention-pooling layers use functional
+            # softmax/einsum calls rather than registered modules, so DeepLIFT/SHAP's
+            # hook-based rescale rule cannot attach directly. Register an
+            # integrated-gradients-based rule for these layers instead (requires
+            # tangermeme >= 1.5.0, see jmschrei/tangermeme#3).
+            additional_nonlinear_ops = {
+                Attention: integrated_gradients_op(K=8),
+                AttentionPool: integrated_gradients_op(K=8),
+                **additional_nonlinear_ops,
+            }
+        attributions = deep_lift_shap(
+            model,
+            X=seqs,
+            n_shuffles=n_shuffles,
+            hypothetical=hypothetical,
+            device=device,
+            random_state=seed,
+            additional_nonlinear_ops=additional_nonlinear_ops or None,
+            **kwargs,
+        ).numpy(force=True)
 
     else:
         if method == "integratedgradients":
