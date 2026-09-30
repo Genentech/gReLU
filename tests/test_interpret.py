@@ -1,7 +1,9 @@
 import os
+import warnings
 
 import numpy as np
 import pandas as pd
+import torch
 from torch import Tensor, nn
 
 from grelu.interpret.motifs import (
@@ -11,7 +13,12 @@ from grelu.interpret.motifs import (
     trim_pwm,
     compare_motifs
 )
-from grelu.interpret.score import ISM_predict, get_attention_scores, get_attributions
+from grelu.interpret.score import (
+    ISM_predict,
+    _SqueezeOutput,
+    get_attention_scores,
+    get_attributions,
+)
 from grelu.interpret.simulate import (
     marginalize_pattern_spacing,
     marginalize_patterns,
@@ -180,13 +187,49 @@ def test_ISM_predict():
     )
 
 
+def test_squeeze_output():
+    # A model with a trailing length-1 axis, as produced by e.g. ConvHead's
+    # default pooling, should have that axis dropped by the wrapper (#202).
+    class DummyPooledModel(nn.Module):
+        def forward(self, x):
+            return torch.arange(x.shape[0] * 3).reshape(x.shape[0], 3, 1).float()
+
+    x = torch.zeros(4, 4, 10)
+    out = DummyPooledModel()(x)
+    assert out.shape == (4, 3, 1)
+    wrapped_out = _SqueezeOutput(DummyPooledModel())(x)
+    assert wrapped_out.shape == (4, 3)
+    assert torch.equal(wrapped_out, out.squeeze(-1))
+
+    # A model whose output already has multiple positions per task should be
+    # left untouched.
+    class DummyProfileModel(nn.Module):
+        def forward(self, x):
+            return torch.arange(x.shape[0] * 3 * 5).reshape(x.shape[0], 3, 5).float()
+
+    profile_out = DummyProfileModel()(x)
+    wrapped_profile_out = _SqueezeOutput(DummyProfileModel())(x)
+    assert wrapped_profile_out.shape == (4, 3, 5)
+    assert torch.equal(wrapped_profile_out, profile_out)
+
+
 def test_get_attributions():
     seq = generate_random_sequences(n=1, seq_len=50, seed=0, output_format="strings")[0]
     for hypothetical in [True, False]:
-        attrs = get_attributions(
-            model, seq, hypothetical=hypothetical, n_shuffles=10, method="deepshap"
-        )
+        # The model's output has a trailing length-1 axis (shape (N, tasks, 1)).
+        # tangermeme.deep_lift_shap's internal convergence-delta check assumes a
+        # flat (N, tasks) output; without squeezing that axis away first, the
+        # shape mismatch is silently broadcast into a meaningless (N, N) matrix
+        # and a spurious "Convergence deltas too high" warning fires (#202).
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            attrs = get_attributions(
+                model, seq, hypothetical=hypothetical, n_shuffles=10, method="deepshap"
+            )
         assert attrs.shape == (1, 4, 50)
+        assert not any(
+            "Convergence deltas too high" in str(w.message) for w in caught
+        )
     for method in ["saliency", "inputxgradient", "integratedgradients"]:
         attrs = get_attributions(model, seq, method=method)
         assert attrs.shape == (1, 4, 50)
