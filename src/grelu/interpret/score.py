@@ -13,8 +13,8 @@ import numpy as np
 import pandas as pd
 import torch
 from captum.attr import InputXGradient, IntegratedGradients, Saliency
-from enformer_pytorch.modeling_enformer import Attention, AttentionPool
-from tangermeme.deep_lift_shap import deep_lift_shap, integrated_gradients_op
+from enformer_pytorch.modeling_enformer import GELU, Attention, AttentionPool
+from tangermeme.deep_lift_shap import _nonlinear, deep_lift_shap, integrated_gradients_op
 from torch import Tensor
 
 from grelu.model.models import EnformerModel, EnformerPretrainedModel
@@ -182,10 +182,13 @@ def get_attributions(
             # softmax/einsum calls rather than registered modules, so DeepLIFT/SHAP's
             # hook-based rescale rule cannot attach directly. Register an
             # integrated-gradients-based rule for these layers instead (requires
-            # tangermeme >= 1.5.0, see jmschrei/tangermeme#3).
+            # tangermeme >= 1.5.0, see jmschrei/tangermeme#3). Enformer's GELU is
+            # also a custom elementwise op (not torch.nn.GELU), so it needs its own
+            # (exact, not approximate) rule.
             additional_nonlinear_ops = {
                 Attention: integrated_gradients_op(K=8),
                 AttentionPool: integrated_gradients_op(K=8),
+                GELU: _nonlinear,
                 **additional_nonlinear_ops,
             }
         attributions = deep_lift_shap(
