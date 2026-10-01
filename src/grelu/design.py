@@ -285,7 +285,7 @@ def ledidi(
         designer = designer.to(torch.device(devices))
 
         # Run ledidi
-        X_hat = designer.fit_transform(X, torch.tensor(0)).cpu()
+        X_hat = designer.fit_transform(X, torch.tensor([0])).cpu()
 
     finally:
         print("Cleaning up model state...")
