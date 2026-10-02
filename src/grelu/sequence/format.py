@@ -3,7 +3,7 @@
 input DNA sequences and converting them between accepted sequence formats.
 
 The following are accepted sequence formats in gReLU:
-1. intervals: a pd.DataFrame object containing valid genomic intervals
+1. intervals: a pd.DataFrame object containing valid genomic intervals (columns "chrom", "start", "end" by name; order does not matter)
 2. strings: A string or list of strings
 3. indices: A numpy array of shape (length,) or (N, length) and dtype np.int8
 4. one_hot: A torch tensor of shape (4, length) or (N, 4, length) and dtype torch.float32
@@ -33,22 +33,25 @@ def check_intervals(df: pd.DataFrame) -> bool:
     """
     Check if a pandas dataframe contains valid genomic intervals.
 
+    Required columns are identified by name ("chrom", "start", "end");
+    column order does not matter, and additional columns are allowed.
+
     Args:
         df: Dataframe to check
 
     Returns:
         Whether the dataframe contains valid genomic intervals
     """
-    # Check if required columns are included
-    if df.shape[1] >= 3:
-        if np.all(df.columns[:3] == ["chrom", "start", "end"]):
-            # Check column dtypes
-            if (
-                (is_string_dtype(df.chrom) or is_categorical_dtype(df.chrom))
-                and (is_integer_dtype(df.start))
-                and (is_integer_dtype(df.end))
-            ):
-                return True
+    # Check if required columns are included (order-independent)
+    required = ["chrom", "start", "end"]
+    if all(col in df.columns for col in required):
+        # Check column dtypes
+        if (
+            (is_string_dtype(df["chrom"]) or is_categorical_dtype(df["chrom"]))
+            and (is_integer_dtype(df["start"]))
+            and (is_integer_dtype(df["end"]))
+        ):
+            return True
     return False
 
 

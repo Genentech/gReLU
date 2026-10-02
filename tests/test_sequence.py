@@ -25,6 +25,23 @@ def test_get_input_type():
     df = pd.DataFrame({"chrom": ["chr1", "chr2"], "start": [10, 20], "end": [20, 30]})
     assert get_input_type(df) == "intervals"
 
+    # Column order should not matter for interval dataframes
+    df_reordered = pd.DataFrame(
+        {"end": [20, 30], "chrom": ["chr1", "chr2"], "start": [10, 20]}
+    )
+    assert get_input_type(df_reordered) == "intervals"
+
+    # Extra columns are allowed alongside chrom/start/end
+    df_extra = pd.DataFrame(
+        {
+            "name": ["a", "b"],
+            "chrom": ["chr1", "chr2"],
+            "start": [10, 20],
+            "end": [20, 30],
+        }
+    )
+    assert get_input_type(df_extra) == "intervals"
+
     # Test invalid dataframe input
     df_missing_cols = pd.DataFrame({"chrom": ["chr1", "chr2"]})
     with pytest.raises(ValueError):
@@ -291,6 +308,22 @@ def test_resize():
         {"chrom": ["chr1", "chr1"], "start": [14998, 15008], "end": [15006, 15016]}
     )
     assert np.all(resize(intervals, seq_len=8) == resized_intervals)
+
+    # Interval input with out-of-order columns (and an extra column)
+    intervals_reordered = pd.DataFrame(
+        {
+            "name": ["x", "y"],
+            "end": [15003, 15013],
+            "chrom": ["chr1", "chr1"],
+            "start": [15000, 15010],
+        }
+    )
+    resized_reordered = resize(intervals_reordered, seq_len=8)
+    assert list(resized_reordered.columns) == ["name", "end", "chrom", "start"]
+    assert np.all(resized_reordered["chrom"] == ["chr1", "chr1"])
+    assert np.all(resized_reordered["start"] == [14998, 15008])
+    assert np.all(resized_reordered["end"] == [15006, 15016])
+    assert np.all(resized_reordered["name"] == ["x", "y"])
 
 
 def test_random_generation():
