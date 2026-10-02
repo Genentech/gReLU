@@ -260,12 +260,51 @@ def trim(
         )
 
 
+def _shift_intervals_to_chrom(
+    intervals: pd.DataFrame,
+    seq_len: int,
+    genome: str,
+) -> pd.DataFrame:
+    """
+    Shift resized intervals so they stay within chromosome bounds.
+
+    Rows are never dropped. Intervals with ``start < 0`` are shifted right;
+    intervals with ``end`` past the chromosome size are shifted left. This
+    matches the bounds checked by ``check_chrom_ends`` / ``filter_chrom_ends``.
+    """
+    from grelu.io.genome import read_sizes
+
+    sizes = read_sizes(genome)
+    chrom_sizes = intervals["chrom"].map(sizes.set_index("chrom")["size"])
+
+    oversized = chrom_sizes.notna() & (chrom_sizes < seq_len)
+    if oversized.any():
+        bad_chroms = intervals.loc[oversized, "chrom"].drop_duplicates().tolist()
+        raise ValueError(
+            f"Cannot resize to seq_len={seq_len} because it exceeds the "
+            f"chromosome size for: {', '.join(bad_chroms)}."
+        )
+
+    out = intervals.copy()
+    left_oob = out["start"] < 0
+    out.loc[left_oob, "start"] = 0
+    out.loc[left_oob, "end"] = seq_len
+
+    right_oob = chrom_sizes.notna() & (out["end"] > chrom_sizes)
+    out.loc[right_oob, "end"] = chrom_sizes.loc[right_oob].astype(int)
+    out.loc[right_oob, "start"] = (chrom_sizes.loc[right_oob] - seq_len).astype(int)
+    out["start"] = out["start"].astype(int)
+    out["end"] = out["end"].astype(int)
+    return out
+
+
 def resize(
-    seqs: Union[str, List[str], np.ndarray],
+    seqs: Union[str, List[str], np.ndarray, pd.DataFrame],
     seq_len: int,
     end: str = "both",
     input_type: Optional[str] = None,
-) -> Union[str, List[str], np.ndarray]:
+    genome: Optional[str] = None,
+) -> Union[str, List[str], np.ndarray, pd.DataFrame]:
     """
     Resize the given sequences to the desired length (`seq_len`).
     Sequences shorter than seq_len will be padded with Ns. Sequences longer
@@ -278,12 +317,21 @@ def resize(
             "left", "right" or "both".
         input_type: Format of the input sequences. Accepted values
             are "intervals", "strings" or "indices".
+        genome: Name of the genome or path to a FASTA / chromosome sizes file.
+            If provided and the input is intervals, windows that extend past a
+            chromosome end are shifted to stay on-chromosome while keeping
+            ``seq_len``. Rows are not dropped, so AnnData ``X``/``var``
+            alignment is preserved. Raises ValueError if ``seq_len`` exceeds a
+            chromosome's size. Ignored for string and index inputs. Default
+            ``None`` preserves previous behavior, including out-of-bounds
+            coordinates.
 
     Returns:
         Resized sequences in the same format
 
     Raises:
         ValueError: if input sequences are not in interval, string or integer encoded format
+        ValueError: if genome is provided and seq_len exceeds a chromosome size
     """
     # Check the sequence type
     input_type = input_type or get_input_type(seqs)
@@ -300,6 +348,8 @@ def resize(
             centers = (seqs["end"] + seqs["start"]) / 2
             out["start"] = (np.ceil(centers - (seq_len / 2))).astype(int)
             out["end"] = (out["start"] + seq_len).astype(int)
+        if genome is not None:
+            out = _shift_intervals_to_chrom(out, seq_len=seq_len, genome=genome)
         return out
 
     # Resize strings
