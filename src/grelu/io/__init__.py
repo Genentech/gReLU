@@ -54,8 +54,10 @@ def update_ckpt(ckpt_file: str, out_file: Optional[str] = None) -> None:
     import torch
     from pytorch_lightning.utilities.migration import migrate_checkpoint
 
-    # Load old checkpoint
-    ckpt = torch.load(ckpt_file, map_location="cpu")
+    # Load old checkpoint. Legacy gReLU checkpoints store numpy values in
+    # "performance", which the weights_only=True default of PyTorch >= 2.6
+    # refuses to unpickle.
+    ckpt = torch.load(ckpt_file, map_location="cpu", weights_only=False)
 
     # Update pytorch version
     ckpt, _ = migrate_checkpoint(ckpt)
