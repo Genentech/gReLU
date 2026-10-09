@@ -263,9 +263,10 @@ class DFSeqDataset(LabeledSeqDataset):
     ) -> None:
         # Separate the sequences and labels
         if check_intervals(df):
-            print(f"Sequences will be extracted from columns {df.columns[:3].tolist()}")
-            seqs = df.iloc[:, :3]
-            labels = df.iloc[:, 3:]
+            interval_cols = ["chrom", "start", "end"]
+            print(f"Sequences will be extracted from columns {interval_cols}")
+            seqs = df[interval_cols]
+            labels = df.drop(columns=interval_cols)
         else:
             print(f"Sequences will be extracted from columns {df.columns[:1].tolist()}")
             seqs = df.iloc[:, 0].tolist()

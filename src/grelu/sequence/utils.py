@@ -261,18 +261,21 @@ def trim(
 
 
 def resize(
-    seqs: Union[str, List[str], np.ndarray],
+    seqs: Union[pd.DataFrame, str, List[str], np.ndarray],
     seq_len: int,
     end: str = "both",
     input_type: Optional[str] = None,
-) -> Union[str, List[str], np.ndarray]:
+) -> Union[pd.DataFrame, str, List[str], np.ndarray]:
     """
     Resize the given sequences to the desired length (`seq_len`).
     Sequences shorter than seq_len will be padded with Ns. Sequences longer
     than seq_len will be trimmed.
 
     Args:
-        seqs: DNA sequences as intervals, strings, or integer encoded format
+        seqs: DNA sequences as intervals, strings, or integer encoded format.
+            Interval inputs should be a pandas DataFrame containing columns
+            named "chrom", "start", and "end" (column order does not matter;
+            additional columns are preserved).
         seq_len: Desired length of output sequences.
         end: Which end of the sequence to trim or extend. Accepted values are
             "left", "right" or "both".
