@@ -218,13 +218,27 @@ def test_lightning_model_predict_on_dataset():
 
 
 def test_lightning_model_predict_on_seqs():
+    expected_single = single_task_reg_model(one_hot[[0]]).detach().numpy()
+    expected_multi = single_task_reg_model(one_hot).detach().numpy()
+
     assert np.allclose(
         single_task_reg_model.predict_on_seqs(strings[0]),
-        single_task_reg_model(one_hot[[0]]).detach().numpy(),
+        expected_single,
     )
     assert np.allclose(
         single_task_reg_model.predict_on_seqs(strings),
-        single_task_reg_model(one_hot).detach().numpy(),
+        expected_multi,
+    )
+    # Batched path and backward-compatible device= alias
+    assert np.allclose(
+        single_task_reg_model.predict_on_seqs(
+            strings, devices="cpu", batch_size=1, num_workers=0
+        ),
+        expected_multi,
+    )
+    assert np.allclose(
+        single_task_reg_model.predict_on_seqs(strings, device="cpu", batch_size=2),
+        expected_multi,
     )
 
 
