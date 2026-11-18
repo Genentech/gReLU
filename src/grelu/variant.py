@@ -43,6 +43,8 @@ def filter_variants(
 
     print("Initial number of variants: {}".format(len(variants)))
 
+    drop = []
+
     # Drop nonstandard bases
     if standard_bases:
         # Identify alleles containing nonstandard bases

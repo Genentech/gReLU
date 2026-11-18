@@ -25,6 +25,13 @@ def test_filter_variants():
     assert filter_variants(
         df, max_insert_len=0, max_del_len=0, standard_bases=True
     ).equals(df.iloc[[0], :])
+    # keep nonstandard bases, only filter by length
+    assert filter_variants(
+        df, max_insert_len=0, max_del_len=0, standard_bases=False
+    ).equals(df.iloc[[0, 5], :])
+    assert filter_variants(
+        df, max_insert_len=None, max_del_len=None, standard_bases=False
+    ).equals(df)
 
 
 variant_file = os.path.join(cwd, "files", "test_variants.txt")
