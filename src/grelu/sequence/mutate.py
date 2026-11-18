@@ -96,7 +96,8 @@ def insert(
 
     # Get insert position
     seq_len = len(seq)
-    pos = pos or seq_len // 2
+    if pos is None:
+        pos = seq_len // 2
 
     # Introduce the insertion
     if input_type == "strings":
@@ -149,7 +150,8 @@ def delete(
 
     # Get deletion position
     seq_len = len(seq)
-    pos = pos or int(np.floor(len(seq) / 2 - deletion_len / 2))
+    if pos is None:
+        pos = int(np.floor(len(seq) / 2 - deletion_len / 2))
 
     # Introduce the deletion
     if input_type == "strings":
