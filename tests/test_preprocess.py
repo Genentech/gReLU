@@ -10,6 +10,7 @@ from grelu.data.preprocess import (
     filter_chrom_ends,
     filter_coverage,
     filter_overlapping,
+    filter_random,
     merge_intervals_by_column,
     split,
     get_gc_matched_intervals
@@ -50,6 +51,27 @@ def test_split():
     assert train_ad.var.equals(ad.var.iloc[[0, 1, 5], :])
     assert val_ad.var.equals(ad.var.iloc[[2], :])
     assert test_ad.var.equals(ad.var.iloc[[3], :])
+
+
+def test_split_sample():
+    """
+    Test splitting with random subsampling of each split
+    """
+    intervals = pd.DataFrame(
+        {
+            "chrom": ["chr1"] * 5 + ["chr10"] * 3 + ["chr11"] * 3,
+            "start": range(0, 1100, 100),
+            "end": range(50, 1150, 100),
+        }
+    )
+    sampled = filter_random(intervals, 2, seed=0)
+    assert len(sampled) == 2
+    assert len(intervals) == 11
+
+    train, val, test = split(intervals, sample=[2, 1, None], seed=0)
+    assert len(train) == 2
+    assert len(val) == 1
+    assert len(test) == 3
 
 
 def test_filter_coverage():
