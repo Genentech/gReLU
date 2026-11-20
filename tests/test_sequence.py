@@ -306,6 +306,8 @@ def test_insert():
     assert insert(seq="AGT", insert="CCC", pos=1, keep_len=False) == "ACCCGT"
     assert insert(seq="AGAAT", insert="CCC", pos=None, keep_len=False) == "AGCCCAAT"
     assert insert(seq="AGAAT", insert="CCC", pos=None, keep_len=True) == "GCCCA"
+    # pos=0 means the start of the sequence, not the center
+    assert insert(seq="AAAAAAAA", insert="GG", pos=0) == "GGAAAAAAAA"
 
     # Integer encoded input
     assert np.allclose(
@@ -325,6 +327,8 @@ def test_delete():
     assert delete(seq="AGT", deletion_len=1, pos=2, keep_len=False) == "AG"
     assert delete(seq="AGAAT", deletion_len=2, pos=None, keep_len=False) == "AAT"
     assert delete(seq="AGAAT", deletion_len=2, pos=None, keep_len=True) == "NAATN"
+    # pos=0 means the start of the sequence, not the center
+    assert delete(seq="ACGTACGT", deletion_len=2, pos=0) == "GTACGT"
 
     # Integer encoded input
     assert np.allclose(
