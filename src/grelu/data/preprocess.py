@@ -199,7 +199,7 @@ def filter_random(
     keep[rng.choice(list(range(n_intervals)), n, replace=False)] = True
 
     # Filter
-    filter_intervals(data, keep, inplace=inplace)
+    return filter_intervals(data, keep, inplace=inplace)
 
 
 def filter_chromosomes(
