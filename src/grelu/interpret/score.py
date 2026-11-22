@@ -20,6 +20,29 @@ from grelu.model.models import EnformerModel, EnformerPretrainedModel
 from grelu.sequence.format import convert_input_type
 
 
+class _SqueezeOutput(torch.nn.Module):
+    """
+    Wraps a model to drop a trailing length-1 axis from its output.
+
+    gReLU models pooled to a single value per task return shape (N, tasks, 1)
+    rather than (N, tasks). tangermeme.deep_lift_shap indexes a single task with
+    `target` (an int), which only consumes the tasks axis and leaves the trailing
+    1 in place; the resulting shape mismatch between its output-difference and
+    attribution-sum tensors is silently broadcast into a meaningless (N, N)
+    matrix instead of raising an error, corrupting its convergence-delta check.
+    """
+
+    def __init__(self, model: Callable) -> None:
+        super().__init__()
+        self.model = model
+
+    def forward(self, x: Tensor) -> Tensor:
+        out = self.model(x)
+        if out.ndim == 3 and out.shape[-1] == 1:
+            out = out.squeeze(-1)
+        return out
+
+
 def ISM_predict(
     seqs: Union[pd.DataFrame, np.ndarray, str, List[str]],
     model: Callable,
@@ -183,7 +206,7 @@ def get_attributions(
             )
         else:
             attributions = deep_lift_shap(
-                model,
+                _SqueezeOutput(model),
                 X=seqs,
                 n_shuffles=n_shuffles,
                 hypothetical=hypothetical,
