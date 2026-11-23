@@ -1,4 +1,4 @@
-autoapi
+astroid<4  # sphinx-autoapi<3.6.1 cannot parse files with astroid>=4
 #jsonschema==4.17.3
 git+https://github.com/executablebooks/MyST-NB.git
 ipython
