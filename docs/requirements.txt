@@ -1,4 +1,3 @@
-autoapi
 #jsonschema==4.17.3
 git+https://github.com/executablebooks/MyST-NB.git
 ipython
@@ -7,5 +6,6 @@ myst-parser==2.0
 pydata-sphinx-theme
 sphinx==7.2
 sphinx-autoapi
+astroid<4  # sphinx-autoapi<3.6.1 cannot parse files with astroid>=4
 sphinx-copybutton
 sphinx-sitemap
