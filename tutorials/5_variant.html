@@ -1,0 +1,1857 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Predict Effects of Alzheimer’s Variants Using ATAC Models &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=db04a367"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://genentech.github.io/gReLU/tutorials/5_variant.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Querying the gReLU model zoo on HuggingFace" href="6_model_zoo.html" />
+    <link rel="prev" title="Model-guided design of regulatory elements" href="4_design.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.2.0" />
+    <meta name="docbuild:last-update" content="Nov 23, 2026"/>
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../autoapi/index.html">
+    Module reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="7_simulations.html">
+    Tutorial: Simulations
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="8_custom_models.html">
+    Tutorial: Custom Model
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../autoapi/index.html">
+    Module reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="7_simulations.html">
+    Tutorial: Simulations
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="8_custom_models.html">
+    Tutorial: Custom Model
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Predict Effects of Alzheimer’s Variants Using ATAC Models</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="predict-effects-of-alzheimer-s-variants-using-atac-models">
+<h1>Predict Effects of Alzheimer’s Variants Using ATAC Models<a class="headerlink" href="#predict-effects-of-alzheimer-s-variants-using-atac-models" title="Link to this heading">#</a></h1>
+<p>In this tutorial, we demonstrate how to predict the impact of sequence variation using a trained gReLU model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">anndata</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ad</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="load-the-catlas-model">
+<h2>Load the CATlas model<a class="headerlink" href="#load-the-catlas-model" title="Link to this heading">#</a></h2>
+<p>This is a binary classification model trained on snATAC-seq data from Catlas (<a class="reference external" href="http://catlas.org/humanenhancer/">http://catlas.org/humanenhancer/</a>). This model predicts the probability that an input sequence will be accessible in various cell types.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.resources</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">repo_id</span><span class="o">=</span><span class="s2">"Genentech/human-atac-catlas-model"</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">'model.ckpt'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="view-the-model-s-metadata">
+<h2>View the model’s metadata<a class="headerlink" href="#view-the-model-s-metadata" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">model.data_params</span></code> is a dictionary containing metadata about the data used to train the model. Let’s look at what information is stored:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>dict_keys(['tasks', 'train', 'val', 'test'])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">'train'</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span><span class="s2">"intervals"</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">'train'</span><span class="p">][</span><span class="n">k</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>bin_size 1
+end both
+genome hg38
+label_aggfunc None
+label_len 200
+label_transform_func None
+max_label_clip None
+max_pair_shift 0
+max_seq_shift 2
+min_label_clip None
+n_alleles 1
+n_augmented 1
+n_seqs 977014
+n_tasks 204
+padded_label_len 200
+padded_seq_len 204
+predict False
+rc True
+seq_len 200
+</pre></div>
+</div>
+</div>
+</div>
+<p>Note the parameter <code class="docutils literal notranslate"><span class="pre">seq_len</span></code>. This tells us that the model was trained on 200 bp long sequences.</p>
+<p><code class="docutils literal notranslate"><span class="pre">model.data_params['tasks']</span></code> is a large dictionary containing metadata about the output tracks that the model predicts. We can collect these into a dataframe called tasks:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tasks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">])</span>
+<span class="n">tasks</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>cell type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Follicular</td>
+      <td>Follicular</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Fibro General</td>
+      <td>Fibro General</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Acinar</td>
+      <td>Acinar</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="load-alzheimer-s-variants-from-gwas-catalog-jansen-et-al-2019-meta-analysis">
+<h2>Load Alzheimer’s Variants from GWAS Catalog (Jansen et al. 2019 meta-analysis)<a class="headerlink" href="#load-alzheimer-s-variants-from-gwas-catalog-jansen-et-al-2019-meta-analysis" title="Link to this heading">#</a></h2>
+<p>Download a small subset of variants from the AD sumstats file from this meta-analysis study. This contains 1,000 variants mapped to the hg19 genome.</p>
+<p>The hosted CSV labels genome reference and alternate alleles correctly in the <code class="docutils literal notranslate"><span class="pre">ref</span></code> and <code class="docutils literal notranslate"><span class="pre">alt</span></code> columns, but its <code class="docutils literal notranslate"><span class="pre">snpid</span></code> strings use GWAS-style <code class="docutils literal notranslate"><span class="pre">chrom:pos_ALT_REF</span></code> order (and list <code class="docutils literal notranslate"><span class="pre">alt</span></code> before <code class="docutils literal notranslate"><span class="pre">ref</span></code>). Below we rebuild each <code class="docutils literal notranslate"><span class="pre">snpid</span></code> as <code class="docutils literal notranslate"><span class="pre">chrom:pos_REF_ALT</span></code> and reorder columns to the usual <code class="docutils literal notranslate"><span class="pre">ref</span></code>, <code class="docutils literal notranslate"><span class="pre">alt</span></code> order so IDs match the allele columns.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.resources</span>
+
+<span class="n">variant_file</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">download_dataset</span><span class="p">(</span>
+    <span class="n">repo_id</span><span class="o">=</span><span class="s2">"Genentech/alzheimers-variant-tutorial-data"</span><span class="p">,</span> 
+    <span class="n">filename</span><span class="o">=</span><span class="s2">"variants.csv"</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variants</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">variant_file</span><span class="p">)</span>
+
+<span class="c1"># Normalize snpid to chrom:pos_REF_ALT and put ref before alt</span>
+<span class="n">variants</span><span class="p">[</span><span class="s2">"snpid"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">variants</span><span class="p">[</span><span class="s2">"chrom"</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"chr"</span><span class="p">,</span> <span class="s2">""</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="o">+</span> <span class="s2">":"</span>
+    <span class="o">+</span> <span class="n">variants</span><span class="p">[</span><span class="s2">"pos"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="o">+</span> <span class="s2">"_"</span>
+    <span class="o">+</span> <span class="n">variants</span><span class="p">[</span><span class="s2">"ref"</span><span class="p">]</span>
+    <span class="o">+</span> <span class="s2">"_"</span>
+    <span class="o">+</span> <span class="n">variants</span><span class="p">[</span><span class="s2">"alt"</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">variants</span> <span class="o">=</span> <span class="n">variants</span><span class="p">[[</span><span class="s2">"snpid"</span><span class="p">,</span> <span class="s2">"chrom"</span><span class="p">,</span> <span class="s2">"pos"</span><span class="p">,</span> <span class="s2">"ref"</span><span class="p">,</span> <span class="s2">"alt"</span><span class="p">,</span> <span class="s2">"rsid"</span><span class="p">,</span> <span class="s2">"pval"</span><span class="p">,</span> <span class="s2">"beta"</span><span class="p">,</span> <span class="s2">"se"</span><span class="p">]]</span>
+<span class="n">variants</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>snpid</th>
+      <th>chrom</th>
+      <th>pos</th>
+      <th>ref</th>
+      <th>alt</th>
+      <th>rsid</th>
+      <th>pval</th>
+      <th>beta</th>
+      <th>se</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>6:32630634_A_G</td>
+      <td>chr6</td>
+      <td>32630634</td>
+      <td>A</td>
+      <td>G</td>
+      <td>6:32630634</td>
+      <td>0.000071</td>
+      <td>0.025194</td>
+      <td>0.006339</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6:32630797_G_A</td>
+      <td>chr6</td>
+      <td>32630797</td>
+      <td>G</td>
+      <td>A</td>
+      <td>6:32630797</td>
+      <td>0.000053</td>
+      <td>0.024866</td>
+      <td>0.006155</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6:32630824_C_T</td>
+      <td>chr6</td>
+      <td>32630824</td>
+      <td>C</td>
+      <td>T</td>
+      <td>6:32630824</td>
+      <td>0.000088</td>
+      <td>0.026630</td>
+      <td>0.006790</td>
+    </tr>
+  </tbody>
+</table></div></div>
+</div>
+</section>
+<section id="filter-variants">
+<h2>Filter variants<a class="headerlink" href="#filter-variants" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">grelu.data.preprocess</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_blacklist</span><span class="p">,</span> <span class="n">filter_chromosomes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">grelu.variant</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_variants</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Remove indels, since we don’t support them for now. We also remove variants where one of the alleles contains Ns.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variants</span> <span class="o">=</span> <span class="n">filter_variants</span><span class="p">(</span><span class="n">variants</span><span class="p">,</span> <span class="n">max_del_len</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_insert_len</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">standard_bases</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Initial number of variants: 1000
+Final number of variants: 989
+</pre></div>
+</div>
+</div>
+</div>
+<p>Remove non-standard chromosomes</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variants</span> <span class="o">=</span> <span class="n">filter_chromosomes</span><span class="p">(</span><span class="n">variants</span><span class="p">,</span> <span class="n">include</span><span class="o">=</span><span class="s1">'autosomesXY'</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Keeping 989 intervals
+</pre></div>
+</div>
+</div>
+</div>
+<p>Remove SNPs from unmappable regions</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variants</span> <span class="o">=</span> <span class="n">filter_blacklist</span><span class="p">(</span><span class="n">variants</span><span class="p">,</span> <span class="n">genome</span><span class="o">=</span><span class="s2">"hg19"</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Keeping 988 intervals
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variants</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>snpid</th>
+      <th>chrom</th>
+      <th>pos</th>
+      <th>ref</th>
+      <th>alt</th>
+      <th>rsid</th>
+      <th>pval</th>
+      <th>beta</th>
+      <th>se</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>6:32630634_A_G</td>
+      <td>chr6</td>
+      <td>32630634</td>
+      <td>A</td>
+      <td>G</td>
+      <td>6:32630634</td>
+      <td>0.000071</td>
+      <td>0.025194</td>
+      <td>0.006339</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6:32630797_G_A</td>
+      <td>chr6</td>
+      <td>32630797</td>
+      <td>G</td>
+      <td>A</td>
+      <td>6:32630797</td>
+      <td>0.000053</td>
+      <td>0.024866</td>
+      <td>0.006155</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6:32630824_C_T</td>
+      <td>chr6</td>
+      <td>32630824</td>
+      <td>C</td>
+      <td>T</td>
+      <td>6:32630824</td>
+      <td>0.000088</td>
+      <td>0.026630</td>
+      <td>0.006790</td>
+    </tr>
+  </tbody>
+</table></div></div>
+</div>
+</section>
+<section id="predict-variant-effects">
+<h2>Predict variant effects<a class="headerlink" href="#predict-variant-effects" title="Link to this heading">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">grelu.variant</span></code> module contains several functions related to analysis of variants. The <code class="docutils literal notranslate"><span class="pre">predict_variant_effects</span></code> function takes a model and a dataframe of variants, and uses the model to predict the activity of the genomic regions containing both the ref and alt alleles. It can then compare the two predictions and return an effect size for each variant. We can also apply data augmentation, i.e. make predictions for several versions of the sequence and average them together.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.variant</span>
+
+<span class="n">odds</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">variant</span><span class="o">.</span><span class="n">predict_variant_effects</span><span class="p">(</span>
+    <span class="n">variants</span><span class="o">=</span><span class="n">variants</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> 
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># Run on GPU 0</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+    <span class="n">genome</span><span class="o">=</span><span class="s2">"hg19"</span><span class="p">,</span>
+    <span class="n">compare_func</span><span class="o">=</span><span class="s2">"log2FC"</span><span class="p">,</span> <span class="c1"># Return the log2 fold change between alt and ref predictions</span>
+    <span class="n">return_ad</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Return an anndata object.</span>
+    <span class="n">rc</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="c1"># Reverse complement the ref/alt predictions and average them.</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>making dataset
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "c16cc9f5eb1448fb92a8f8f6a95afb7e", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2952a1de928546849dbcaf9c50e2b75f", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2e6d50db8e57462c94a62b6c5873bd27", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<p>Now this (odds) is an AnnData object (similar to <code class="docutils literal notranslate"><span class="pre">SingleCellExperiment</span></code> in R but in Python). Might be a good point to pause here and learn more about it: <a class="reference external" href="https://anndata.readthedocs.io/en/latest/">https://anndata.readthedocs.io/en/latest/</a>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">odds</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>AnnData object with n_obs × n_vars = 988 × 204
+    obs: 'snpid', 'chrom', 'pos', 'ref', 'alt', 'rsid', 'pval', 'beta', 'se'
+    var: 'cell type'
+</pre></div>
+</div>
+</div>
+</div>
+<p>odds.var contains the cell types for which the model makes predictions.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">odds</span><span class="o">.</span><span class="n">var</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cell type</th>
+    </tr>
+    <tr>
+      <th>name</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Follicular</th>
+      <td>Follicular</td>
+    </tr>
+    <tr>
+      <th>Fibro General</th>
+      <td>Fibro General</td>
+    </tr>
+    <tr>
+      <th>Acinar</th>
+      <td>Acinar</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>odds.obs contains the variants.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">odds</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>snpid</th>
+      <th>chrom</th>
+      <th>pos</th>
+      <th>ref</th>
+      <th>alt</th>
+      <th>rsid</th>
+      <th>pval</th>
+      <th>beta</th>
+      <th>se</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>6:32630634_A_G</td>
+      <td>chr6</td>
+      <td>32630634</td>
+      <td>A</td>
+      <td>G</td>
+      <td>6:32630634</td>
+      <td>0.000071</td>
+      <td>0.025194</td>
+      <td>0.006339</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>6:32630797_G_A</td>
+      <td>chr6</td>
+      <td>32630797</td>
+      <td>G</td>
+      <td>A</td>
+      <td>6:32630797</td>
+      <td>0.000053</td>
+      <td>0.024866</td>
+      <td>0.006155</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>6:32630824_C_T</td>
+      <td>chr6</td>
+      <td>32630824</td>
+      <td>C</td>
+      <td>T</td>
+      <td>6:32630824</td>
+      <td>0.000088</td>
+      <td>0.026630</td>
+      <td>0.006790</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>And odds.X contains the predicted effect size for each variant in a numpy array of shape (n_variants x n_cell types)</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">odds</span><span class="o">.</span><span class="n">X</span><span class="p">[:</span><span class="mi">5</span><span class="p">,</span> <span class="p">:</span><span class="mi">5</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[[ 1.107881    1.1225077   1.3193094   1.760034    1.7427868 ]
+ [ 0.06262888 -0.07848518 -0.03106441  0.07413852  0.01521102]
+ [-0.5139757  -0.10657616 -0.70205635 -0.56330484 -0.6706449 ]
+ [ 0.6097045   0.4748386   0.7162784   0.22368696  0.4141106 ]
+ [-1.253903   -0.92243546 -0.43949667  0.32733923  0.13079897]]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="select-a-variant-with-effect-specific-to-microglia">
+<h2>Select a variant with effect specific to microglia<a class="headerlink" href="#select-a-variant-with-effect-specific-to-microglia" title="Link to this heading">#</a></h2>
+<p>As an example, we search for variants that strongly disrupt accessibility in microglia but not in all cell types.</p>
+<p>We set some arbitrary thresholds; The log2 fold change of the alt allele w.r.t the ref allele should be &lt; -2, and the average log2 fold change of the alt allele w.r.t the ref allele should be nonnegative.</p>
+<p>This implies that the alt allele should decrease accessibility in microglia to &lt; 1/4 of its reference value, but should not decrease accessibility across all cell types on average.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate the mean variant effect across all cell types</span>
+<span class="n">mean_variant_effect</span> <span class="o">=</span> <span class="n">odds</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Calculate the variant effect only in microglia</span>
+<span class="n">microglia_effect</span> <span class="o">=</span> <span class="n">odds</span><span class="p">[:,</span> <span class="s1">'Microglia'</span><span class="p">]</span><span class="o">.</span><span class="n">X</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span> 
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">specific_variant_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">microglia_effect</span> <span class="o">&lt;</span> <span class="o">-</span><span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">mean_variant_effect</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> 
+<span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">specific_variant_idx</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([498])
+</pre></div>
+</div>
+</div>
+</div>
+<p>We will isolate this microglia specific variant to analyze further.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variant</span> <span class="o">=</span> <span class="n">odds</span><span class="p">[</span><span class="n">specific_variant_idx</span><span class="p">,</span> <span class="p">:]</span> 
+<span class="n">variant</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>View of AnnData object with n_obs × n_vars = 1 × 204
+    obs: 'snpid', 'chrom', 'pos', 'ref', 'alt', 'rsid', 'pval', 'beta', 'se'
+    var: 'cell type'
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variant</span><span class="o">.</span><span class="n">obs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>snpid</th>
+      <th>chrom</th>
+      <th>pos</th>
+      <th>ref</th>
+      <th>alt</th>
+      <th>rsid</th>
+      <th>pval</th>
+      <th>beta</th>
+      <th>se</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>498</th>
+      <td>6:76659840_G_T</td>
+      <td>chr6</td>
+      <td>76659840</td>
+      <td>G</td>
+      <td>T</td>
+      <td>rs138940043</td>
+      <td>0.000061</td>
+      <td>0.058235</td>
+      <td>0.014525</td>
+    </tr>
+  </tbody>
+</table></div></div>
+</div>
+<p>Let’s look at the effect size (log2FC) for this variant:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variant_effect_size</span> <span class="o">=</span> <span class="n">variant</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"Microglia"</span><span class="p">]</span><span class="o">.</span><span class="n">X</span>
+<span class="n">variant_effect_size</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ArrayView([[-2.7606957]], dtype=float32)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="view-importance-scores-in-microglia-for-the-bases-surrounding-the-selected-variant">
+<h2>View importance scores in microglia for the bases surrounding the selected variant<a class="headerlink" href="#view-importance-scores-in-microglia-for-the-bases-surrounding-the-selected-variant" title="Link to this heading">#</a></h2>
+<p>We can use several different approaches to calculate the importance of each base in the reference and alternate sequence. However, we want to score each base specifically by its importance to the model’s prediction in microglia and not the model’s predictions on other tasks.</p>
+<p>To do this we define a transform that operates on the model’s predictions and selects only the predictions in Microglia.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">grelu.transforms.prediction_transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Aggregate</span>
+<span class="n">microglia_score</span> <span class="o">=</span> <span class="n">Aggregate</span><span class="p">(</span><span class="n">tasks</span><span class="o">=</span><span class="p">[</span><span class="s2">"Microglia"</span><span class="p">],</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Next, we extract the 200 bp long genomic sequences containing the reference and alternate alleles.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ref_seq</span><span class="p">,</span> <span class="n">alt_seq</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">variant</span><span class="o">.</span><span class="n">variant_to_seqs</span><span class="p">(</span>
+    <span class="n">seq_len</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">'train'</span><span class="p">][</span><span class="s1">'seq_len'</span><span class="p">],</span> <span class="c1"># Create variant-centered sequence of this length</span>
+    <span class="n">genome</span><span class="o">=</span><span class="s1">'hg19'</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">variant</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][[</span><span class="s2">"chrom"</span><span class="p">,</span> <span class="s2">"pos"</span><span class="p">,</span> <span class="s2">"ref"</span><span class="p">,</span> <span class="s2">"alt"</span><span class="p">]]</span>
+<span class="p">)</span>
+
+<span class="n">ref_seq</span><span class="p">,</span> <span class="n">alt_seq</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>('CAAAGATATATGTCATAATAATTATCTTTTCACTTTCTTTGTTAGGGACCAGGAATGATAAACCACTTAGTCATTTTTTAGGTTTACAAGAACTTAAGGGGAACTAAGAAAGGAACCCTTACTCCTGAACTCTCAGCCTCATCTGTGCTGGACCATTCTAACTTTGTACCCTTTCATGAGATTGATATAATTTAGAAAAT',
+ 'CAAAGATATATGTCATAATAATTATCTTTTCACTTTCTTTGTTAGGGACCAGGAATGATAAACCACTTAGTCATTTTTTAGGTTTACAAGAACTTAAGGTGAACTAAGAAAGGAACCCTTACTCCTGAACTCTCAGCCTCATCTGTGCTGGACCATTCTAACTTTGTACCCTTTCATGAGATTGATATAATTTAGAAAAT')
+</pre></div>
+</div>
+</div>
+</div>
+<p>We are now ready to calculate the per-base importance scores. For this, we use the <code class="docutils literal notranslate"><span class="pre">grelu.interpret.score</span></code> module, which contains functions related to scoring the importance of each base in a sequence. We choose the “inputxgradient” method to score each base.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.interpret.score</span>
+
+<span class="n">ref_attrs</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">get_attributions</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">ref_seq</span><span class="p">,</span> <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"inputxgradient"</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">alt_attrs</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">get_attributions</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span> <span class="n">alt_seq</span><span class="p">,</span> <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"inputxgradient"</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+<p>We can visualize the attribution scores for the sequence, highlighting the mutated base. Here, we visualize the attributions for the central 100 bp of the 200 bp sequence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.visualize</span>
+<span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_attributions</span><span class="p">(</span>
+    <span class="n">ref_attrs</span><span class="p">,</span> <span class="n">start_pos</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">end_pos</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+    <span class="n">highlight_positions</span><span class="o">=</span><span class="p">[</span><span class="mi">99</span><span class="p">],</span> <span class="n">ticks</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'red'</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x14a91de74790&gt;
+</pre></div>
+</div>
+<img alt="../_images/14d16aeeb7ace3e48e61ffe91c82d5f3d72e0c8a4e508cd5aac68b11c1ab4660.png" src="../_images/14d16aeeb7ace3e48e61ffe91c82d5f3d72e0c8a4e508cd5aac68b11c1ab4660.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_attributions</span><span class="p">(</span>
+    <span class="n">alt_attrs</span><span class="p">,</span> <span class="n">start_pos</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">end_pos</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+    <span class="n">highlight_positions</span><span class="o">=</span><span class="p">[</span><span class="mi">99</span><span class="p">],</span> <span class="n">ticks</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x14a91db785d0&gt;
+</pre></div>
+</div>
+<img alt="../_images/d5e0f7a66f761040b9253824b0224707b3da8e35f3cd0ff6a7d7ef5b86219698.png" src="../_images/d5e0f7a66f761040b9253824b0224707b3da8e35f3cd0ff6a7d7ef5b86219698.png" />
+</div>
+</div>
+</section>
+<section id="ism">
+<h2>ISM<a class="headerlink" href="#ism" title="Link to this heading">#</a></h2>
+<p>We can also perform ISM (In silico mutagenesis) of the bases surrounding the variant to see what the effect would be if we mutated the reference allele to any other base. The <code class="docutils literal notranslate"><span class="pre">ISM_predict</span></code> function in <code class="docutils literal notranslate"><span class="pre">grelu.interpret.score</span></code> performs every possible single-base substitution on the given sequence, predicts the effect of each substitution, and optionally compares these predictions to the reference sequence to return an effect size for each substitution.</p>
+<p>Once again, since we are interested in how important each base is to the model’s prediction in microglia,
+we use the <code class="docutils literal notranslate"><span class="pre">microglia_score</span></code> transform. This ensures that ISM will score each base’s importance to the
+microglial prediction only.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ism</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">interpret</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">ISM_predict</span><span class="p">(</span>
+    <span class="n">ref_seq</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span> <span class="c1"># Focus on the prediction in microglia</span>
+    <span class="n">compare_func</span> <span class="o">=</span> <span class="s2">"log2FC"</span><span class="p">,</span> <span class="c1"># Return the log2FC of the mutated sequence prediction w.r.t the reference sequence</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># Index of the GPU to use</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "0e4de0e98a8f4f3d81fe8a9a6452c7f5", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ism</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>C</th>
+      <th>A</th>
+      <th>A</th>
+      <th>A</th>
+      <th>G</th>
+      <th>A</th>
+      <th>T</th>
+      <th>A</th>
+      <th>T</th>
+      <th>A</th>
+      <th>...</th>
+      <th>T</th>
+      <th>T</th>
+      <th>T</th>
+      <th>A</th>
+      <th>G</th>
+      <th>A</th>
+      <th>A</th>
+      <th>A</th>
+      <th>A</th>
+      <th>T</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>A</th>
+      <td>0.054882</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-0.004369</td>
+      <td>0.000000</td>
+      <td>-0.062929</td>
+      <td>0.000000</td>
+      <td>0.037061</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.022315</td>
+      <td>-0.202768</td>
+      <td>-0.114814</td>
+      <td>-0.002966</td>
+      <td>-0.105570</td>
+      <td>-0.002966</td>
+      <td>-0.002966</td>
+      <td>-0.002966</td>
+      <td>-0.002966</td>
+      <td>0.034192</td>
+    </tr>
+    <tr>
+      <th>C</th>
+      <td>0.000000</td>
+      <td>-0.027611</td>
+      <td>-0.002416</td>
+      <td>-0.064968</td>
+      <td>-0.063026</td>
+      <td>-0.028825</td>
+      <td>-0.080880</td>
+      <td>-0.034179</td>
+      <td>-0.051146</td>
+      <td>-0.096463</td>
+      <td>...</td>
+      <td>0.176605</td>
+      <td>-0.177294</td>
+      <td>0.079079</td>
+      <td>0.140559</td>
+      <td>-0.074599</td>
+      <td>0.211111</td>
+      <td>0.107023</td>
+      <td>0.122998</td>
+      <td>0.092927</td>
+      <td>0.108006</td>
+    </tr>
+    <tr>
+      <th>G</th>
+      <td>0.024039</td>
+      <td>0.015707</td>
+      <td>-0.012429</td>
+      <td>-0.108350</td>
+      <td>0.000000</td>
+      <td>-0.302840</td>
+      <td>-0.045235</td>
+      <td>-0.045110</td>
+      <td>-0.058974</td>
+      <td>-0.321752</td>
+      <td>...</td>
+      <td>0.069490</td>
+      <td>0.001972</td>
+      <td>0.056143</td>
+      <td>0.127993</td>
+      <td>-0.002966</td>
+      <td>0.118532</td>
+      <td>0.072232</td>
+      <td>0.066505</td>
+      <td>0.039074</td>
+      <td>0.110938</td>
+    </tr>
+    <tr>
+      <th>T</th>
+      <td>0.021374</td>
+      <td>-0.030615</td>
+      <td>0.034908</td>
+      <td>-0.143111</td>
+      <td>0.033140</td>
+      <td>-0.051820</td>
+      <td>0.000000</td>
+      <td>-0.116558</td>
+      <td>0.000000</td>
+      <td>-0.055416</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>-0.002966</td>
+      <td>-0.041839</td>
+      <td>-0.165060</td>
+      <td>0.087063</td>
+      <td>-0.194618</td>
+      <td>-0.024649</td>
+      <td>-0.041730</td>
+      <td>-0.002966</td>
+    </tr>
+  </tbody>
+</table>
+<p>4 rows × 200 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_ISM</span><span class="p">(</span>
+    <span class="n">ism</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"heatmap"</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;Axes: &gt;
+</pre></div>
+</div>
+<img alt="../_images/bf103719e4d3dda0f57da387917e3fcc8af01fa83ec99a50b82430713958c11d.png" src="../_images/bf103719e4d3dda0f57da387917e3fcc8af01fa83ec99a50b82430713958c11d.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_ISM</span><span class="p">(</span>
+    <span class="n">ism</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">'logo'</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span> <span class="n">highlight_positions</span><span class="o">=</span><span class="p">[</span><span class="mi">99</span><span class="p">],</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'red'</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;logomaker.src.Logo.Logo at 0x14a91d4c0510&gt;
+</pre></div>
+</div>
+<img alt="../_images/d996460b3827de6556109a6f489bc704f9230ecb8d9c6d995ffa4935b8b3d87b.png" src="../_images/d996460b3827de6556109a6f489bc704f9230ecb8d9c6d995ffa4935b8b3d87b.png" />
+</div>
+</div>
+</section>
+<section id="scan-variant-with-motifs">
+<h2>Scan variant with motifs<a class="headerlink" href="#scan-variant-with-motifs" title="Link to this heading">#</a></h2>
+<p>We now scan the reference and alternate sequences to identify known TF motifs that may have been disrupted by the variant. We can use the <code class="docutils literal notranslate"><span class="pre">grelu.interpret.motifs</span></code> module to scan these sequences with TF motifs. Here, we use the HOCOMOCO v13 set.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">grelu.interpret.motifs</span><span class="w"> </span><span class="kn">import</span> <span class="n">compare_motifs</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">compare_motifs</span><span class="p">(</span>
+    <span class="n">ref_seq</span><span class="o">=</span><span class="n">ref_seq</span><span class="p">,</span>
+    <span class="n">alt_seq</span><span class="o">=</span><span class="n">alt_seq</span><span class="p">,</span>
+    <span class="n">motifs</span><span class="o">=</span><span class="s2">"hocomoco_v13"</span><span class="p">,</span>
+    <span class="n">pthresh</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+    <span class="n">ref_attrs</span><span class="o">=</span><span class="n">ref_attrs</span><span class="p">,</span>
+    <span class="n">alt_attrs</span><span class="o">=</span><span class="n">alt_attrs</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>motif</th>
+      <th>start</th>
+      <th>end</th>
+      <th>strand</th>
+      <th>fimo_p-value_alt</th>
+      <th>fimo_p-value_ref</th>
+      <th>fimo_score_alt</th>
+      <th>fimo_score_ref</th>
+      <th>motif_attr_score_alt</th>
+      <th>motif_attr_score_ref</th>
+      <th>site_attr_score_alt</th>
+      <th>site_attr_score_ref</th>
+      <th>fimo_score_diff</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>SPIB.H13CORE.1.S.C</td>
+      <td>93</td>
+      <td>106</td>
+      <td>+</td>
+      <td>0.002108</td>
+      <td>0.000090</td>
+      <td>-7.645480</td>
+      <td>5.641884</td>
+      <td>-0.000985</td>
+      <td>0.051337</td>
+      <td>-0.000291</td>
+      <td>0.011623</td>
+      <td>-13.287364</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>SPIB.H13CORE.0.P.B</td>
+      <td>94</td>
+      <td>110</td>
+      <td>+</td>
+      <td>0.002976</td>
+      <td>0.000052</td>
+      <td>-3.500456</td>
+      <td>9.686128</td>
+      <td>-0.001005</td>
+      <td>0.042656</td>
+      <td>-0.000401</td>
+      <td>0.011381</td>
+      <td>-13.186584</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>SPIB.H13CORE.2.SM.B</td>
+      <td>91</td>
+      <td>107</td>
+      <td>+</td>
+      <td>0.001238</td>
+      <td>0.000082</td>
+      <td>-7.038979</td>
+      <td>4.544859</td>
+      <td>-0.000797</td>
+      <td>0.041247</td>
+      <td>-0.000220</td>
+      <td>0.009247</td>
+      <td>-11.583838</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>SPI1.H13CORE.1.S.B</td>
+      <td>95</td>
+      <td>107</td>
+      <td>+</td>
+      <td>0.006406</td>
+      <td>0.000049</td>
+      <td>2.095837</td>
+      <td>11.517704</td>
+      <td>-0.001016</td>
+      <td>0.052423</td>
+      <td>-0.000343</td>
+      <td>0.014483</td>
+      <td>-9.421867</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>ZN701.H13CORE.0.P.B</td>
+      <td>85</td>
+      <td>104</td>
+      <td>+</td>
+      <td>0.000435</td>
+      <td>0.000036</td>
+      <td>5.164952</td>
+      <td>10.891898</td>
+      <td>-0.000414</td>
+      <td>0.017886</td>
+      <td>-0.000233</td>
+      <td>0.008311</td>
+      <td>-5.726945</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>STAT1.H13CORE.0.P.B</td>
+      <td>80</td>
+      <td>100</td>
+      <td>-</td>
+      <td>0.000047</td>
+      <td>0.000026</td>
+      <td>11.692194</td>
+      <td>12.570953</td>
+      <td>-0.000170</td>
+      <td>0.001517</td>
+      <td>-0.000188</td>
+      <td>0.001428</td>
+      <td>-0.878759</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>NR1I3.H13CORE.1.PSM.A</td>
+      <td>92</td>
+      <td>109</td>
+      <td>-</td>
+      <td>0.000099</td>
+      <td>0.090040</td>
+      <td>9.407806</td>
+      <td>-28.693682</td>
+      <td>-0.000907</td>
+      <td>0.015508</td>
+      <td>-0.000366</td>
+      <td>0.009969</td>
+      <td>38.101488</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>NR1I3.H13CORE.2.M.C</td>
+      <td>89</td>
+      <td>109</td>
+      <td>-</td>
+      <td>0.000011</td>
+      <td>0.931289</td>
+      <td>13.900074</td>
+      <td>-69.032222</td>
+      <td>-0.000684</td>
+      <td>0.009954</td>
+      <td>-0.000268</td>
+      <td>0.008749</td>
+      <td>82.932295</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">fimo_score_ref</span></code> column contains the score for the motif in the reference allele-containing sequence and the <code class="docutils literal notranslate"><span class="pre">fimo_score_alt</span></code> column contains the score in the alternate-allele containing sequence. Similarly, the <code class="docutils literal notranslate"><span class="pre">fimo_p-value_ref</span></code> column contains the p-value for the motif in the reference allele-containing sequence and the <code class="docutils literal notranslate"><span class="pre">fimo_p-value_alt</span></code> column contains the p-value in the alternate-allele containing sequence.</p>
+<p><code class="docutils literal notranslate"><span class="pre">site_attr_score</span></code> is the average attribution value for all nucleotides within the motif match site. This score gives the importance of the sequence region but does not reflect the similarity between the PWM and the shape of the attributions.</p>
+<p><code class="docutils literal notranslate"><span class="pre">motif_attr_score</span></code> is the sum of the element-wise product of the PWM and the attributions. This score is higher when the shape of the motif matches the shape of the attribution profile, and is  useful for ranking multiple motifs that all match to the same sequence region.</p>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">SPI1.H13CORE.1.P.B</span></code> motif is much weaker in the alternate allele-containing sequence.</p>
+</section>
+<section id="compare-the-variant-impact-to-a-background-distribution">
+<h2>Compare the variant impact to a background distribution<a class="headerlink" href="#compare-the-variant-impact-to-a-background-distribution" title="Link to this heading">#</a></h2>
+<p>We saw that the variant has a strong effect size (log2 fold change). To place this effect size in context, we create a set of background sequences by shuffling the sequence surrounding the variant while conserving dinucleotide frequency. We then insert the reference and alternate alleles in each shuffled sequence, and compute the variant effect size again.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test</span> <span class="o">=</span> <span class="n">grelu</span><span class="o">.</span><span class="n">variant</span><span class="o">.</span><span class="n">marginalize_variants</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+    <span class="n">variants</span><span class="o">=</span><span class="n">variant</span><span class="o">.</span><span class="n">obs</span><span class="p">,</span>
+    <span class="n">genome</span><span class="o">=</span><span class="s2">"hg19"</span><span class="p">,</span>
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">microglia_score</span><span class="p">,</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">n_shuffles</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">compare_func</span><span class="o">=</span><span class="s2">"log2FC"</span><span class="p">,</span>
+    <span class="n">rc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Average the result over both strands</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Predicting variant effects
+making dataset
+Predicting variant effects in background sequences
+Calculating background distributions
+Performing 2-sided test
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "511fdc11e6f8499b849e26caffd97999", "version_major": 2, "version_minor": 0}</script><script type="application/vnd.jupyter.widget-view+json">{"model_id": "548d173f57ba45cfa15f7bf468f39ddc", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{'effect_size': [-2.758793592453003],
+ 'mean': [-0.002620171522721648],
+ 'sd': [0.33667072653770447],
+ 'pvalue': [2.6881005251979756e-16]}
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="4_design.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Model-guided design of regulatory elements</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="6_model_zoo.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Querying the gReLU model zoo on HuggingFace</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-the-catlas-model">Load the CATlas model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#view-the-model-s-metadata">View the model’s metadata</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-alzheimer-s-variants-from-gwas-catalog-jansen-et-al-2019-meta-analysis">Load Alzheimer’s Variants from GWAS Catalog (Jansen et al. 2019 meta-analysis)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#filter-variants">Filter variants</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#predict-variant-effects">Predict variant effects</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#select-a-variant-with-effect-specific-to-microglia">Select a variant with effect specific to microglia</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#view-importance-scores-in-microglia-for-the-bases-surrounding-the-selected-variant">View importance scores in microglia for the bases surrounding the selected variant</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ism">ISM</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scan-variant-with-motifs">Scan variant with motifs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compare-the-variant-impact-to-a-background-distribution">Compare the variant impact to a background distribution</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/tutorials/5_variant.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/5_variant.ipynb">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

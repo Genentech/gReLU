@@ -1,0 +1,1161 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>(Advanced) Using gReLU with external pytorch models &#8212; gReLU</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=3ba690ee" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=db04a367"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <link rel="canonical" href="https://genentech.github.io/gReLU/tutorials/8_custom_models.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Contributing" href="../contributing.html" />
+    <link rel="prev" title="Simulation-based model interpretation with gReLU" href="7_simulations.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.2.0" />
+    <meta name="docbuild:last-update" content="Nov 23, 2026"/>
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">gReLU</p>
+  
+</a></div>
+    
+      <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../autoapi/index.html">
+    Module reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="7_simulations.html">
+    Tutorial: Simulations
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    Tutorial: Custom Model
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../readme.html">
+    Overview
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../autoapi/index.html">
+    Module reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="1_inference.html">
+    Tutorial: Inference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="2_finetune.html">
+    Tutorial: Fine-tuning
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="3_train.html">
+    Tutorial: Training
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="4_design.html">
+    Tutorial: Design
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="5_variant.html">
+    Tutorial: Variant effect prediction
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="6_model_zoo.html">
+    Tutorial: Model zoo
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="7_simulations.html">
+    Tutorial: Simulations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Tutorial: Custom Model
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../license.html">
+    License
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../authors.html">
+    Contributors
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../changelog.html">
+    Changelog
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/Genentech/gReLU" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fab fa-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">(Advanced) Using gReLU with external pytorch models</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="advanced-using-grelu-with-external-pytorch-models">
+<h1>(Advanced) Using gReLU with external pytorch models<a class="headerlink" href="#advanced-using-grelu-with-external-pytorch-models" title="Link to this heading">#</a></h1>
+<p>This tutorial shows how to take a pytorch model that was not trained using gReLU, and make it compatible with gReLU’s downstream functions (e.g. inference, variant effect prediction, interpretation and design).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">torch</span><span class="w"> </span><span class="kn">import</span> <span class="n">nn</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+</pre></div>
+</div>
+</div>
+</div>
+<section id="load-an-external-pytorch-model">
+<h2>Load an external pytorch model<a class="headerlink" href="#load-an-external-pytorch-model" title="Link to this heading">#</a></h2>
+<p>We will load the pytorch version of the Basset model from the Kipoi repository (<a class="reference external" href="https://kipoi.org/models/Basset/">https://kipoi.org/models/Basset/</a>). You can also try this with any other pytorch sequence-to-function model.</p>
+<p>Kipoi provides us the following important information about the model:</p>
+<p><code class="docutils literal notranslate"><span class="pre">This</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">Basset</span> <span class="pre">model</span> <span class="pre">published</span> <span class="pre">by</span> <span class="pre">David</span> <span class="pre">Kelley</span> <span class="pre">converted</span> <span class="pre">to</span> <span class="pre">pytorch</span> <span class="pre">by</span> <span class="pre">Roman</span> <span class="pre">Kreuzhuber.</span> <span class="pre">It</span> <span class="pre">categorically</span> <span class="pre">predicts</span> <span class="pre">probabilities</span> <span class="pre">of</span> <span class="pre">accesible</span> <span class="pre">genomic</span> <span class="pre">regions</span> <span class="pre">in</span> <span class="pre">164</span> <span class="pre">cell</span> <span class="pre">types</span> <span class="pre">(ENCODE</span> <span class="pre">project</span> <span class="pre">and</span> <span class="pre">Roadmap</span> <span class="pre">Epigenomics</span> <span class="pre">Consortium).</span> <span class="pre">Data</span> <span class="pre">was</span> <span class="pre">generated</span> <span class="pre">using</span> <span class="pre">DNAse-seq.</span> <span class="pre">The</span> <span class="pre">sequence</span> <span class="pre">length</span> <span class="pre">the</span> <span class="pre">model</span> <span class="pre">uses</span> <span class="pre">as</span> <span class="pre">input</span> <span class="pre">is</span> <span class="pre">600bp.</span> <span class="pre">The</span> <span class="pre">input</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">tensor</span> <span class="pre">has</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">(N,</span> <span class="pre">4,</span> <span class="pre">600,</span> <span class="pre">1)</span> <span class="pre">for</span> <span class="pre">N</span> <span class="pre">samples,</span> <span class="pre">600bp</span> <span class="pre">window</span> <span class="pre">size</span> <span class="pre">and</span> <span class="pre">4</span> <span class="pre">nucleotides.</span> <span class="pre">Per</span> <span class="pre">sample,</span> <span class="pre">164</span> <span class="pre">probabilities</span> <span class="pre">of</span> <span class="pre">accessible</span> <span class="pre">chromatin</span> <span class="pre">will</span> <span class="pre">be</span> <span class="pre">predicted.</span></code></p>
+<p>You will need to uncomment the cell below to install kipoi.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="ch">#!pip install kipoi</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">kipoi</span>
+<span class="n">kipoi_model</span> <span class="o">=</span> <span class="n">kipoi</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="s1">'Basset'</span><span class="p">,</span> <span class="n">with_dataloader</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">kipoi_model</span> <span class="o">=</span> <span class="n">kipoi_model</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">cpu</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Downloading https://zenodo.org/record/1466068/files/pretrained_model_reloaded_th.pth?download=1 to /home/lala8/.kipoi/models/Basset/downloaded/model_files/weights/4878981d84499eb575abd0f3b45570d3
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can view the structure of this model below:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kipoi_model</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Sequential(
+  (0): Conv2d(4, 300, kernel_size=(19, 1), stride=(1, 1))
+  (1): BatchNorm2d(300, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (2): ReLU()
+  (3): MaxPool2d(kernel_size=(3, 1), stride=(3, 1), padding=0, dilation=1, ceil_mode=False)
+  (4): Conv2d(300, 200, kernel_size=(11, 1), stride=(1, 1))
+  (5): BatchNorm2d(200, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (6): ReLU()
+  (7): MaxPool2d(kernel_size=(4, 1), stride=(4, 1), padding=0, dilation=1, ceil_mode=False)
+  (8): Conv2d(200, 200, kernel_size=(7, 1), stride=(1, 1))
+  (9): BatchNorm2d(200, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (10): ReLU()
+  (11): MaxPool2d(kernel_size=(4, 1), stride=(4, 1), padding=0, dilation=1, ceil_mode=False)
+  (12): Lambda()
+  (13): Sequential(
+    (0): Lambda()
+    (1): Linear(in_features=2000, out_features=1000, bias=True)
+  )
+  (14): BatchNorm1d(1000, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (15): ReLU()
+  (16): Dropout(p=0.3, inplace=False)
+  (17): Sequential(
+    (0): Lambda()
+    (1): Linear(in_features=1000, out_features=1000, bias=True)
+  )
+  (18): BatchNorm1d(1000, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (19): ReLU()
+  (20): Dropout(p=0.3, inplace=False)
+  (21): Sequential(
+    (0): Lambda()
+    (1): Linear(in_features=1000, out_features=164, bias=True)
+  )
+  (22): Sigmoid()
+)
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="modify-the-model-to-make-it-grelu-compatible">
+<h2>Modify the model to make it gReLU-compatible<a class="headerlink" href="#modify-the-model-to-make-it-grelu-compatible" title="Link to this heading">#</a></h2>
+<section id="step-1-check-the-input-and-output-formats">
+<h3>Step 1: Check the input and output formats<a class="headerlink" href="#step-1-check-the-input-and-output-formats" title="Link to this heading">#</a></h3>
+<p>First, we need to pay attention to the shapes of the model’s input and output shapes. As per Kipoi:</p>
+<p><code class="docutils literal notranslate"><span class="pre">The</span> <span class="pre">input</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">tensor</span> <span class="pre">has</span> <span class="pre">to</span> <span class="pre">be</span> <span class="pre">(N,</span> <span class="pre">4,</span> <span class="pre">600,</span> <span class="pre">1)</span> <span class="pre">for</span> <span class="pre">N</span> <span class="pre">samples,</span> <span class="pre">600bp</span> <span class="pre">window</span> <span class="pre">size</span> <span class="pre">and</span> <span class="pre">4</span> <span class="pre">nucleotides.</span></code></p>
+<p>Kipoi doesn’t tell us the shape of the output tensor produced by this model, so let’s check by creating a random tensor of the required shape and passing it through the model.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">random_tensor</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="c1"># N=2</span>
+<span class="n">random_tensor</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>torch.Size([2, 4, 600, 1])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">output_shape</span> <span class="o">=</span> <span class="n">kipoi_model</span><span class="p">(</span><span class="n">random_tensor</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>torch.Size([2, 164])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-2-define-adapter-layer-s-if-necessary">
+<h3>Step 2: Define adapter layer(s) if necessary<a class="headerlink" href="#step-2-define-adapter-layer-s-if-necessary" title="Link to this heading">#</a></h3>
+<p>We see that this model expects inputs of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">4,</span> <span class="pre">input_len,</span> <span class="pre">1)</span></code> and produces outputs of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">T)</span></code>. Here N is the number of examples, input_len is the sequence length and T is the number of tasks.</p>
+<p>However, gReLU models take inputs of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">4,</span> <span class="pre">input_len)</span></code> and produce outputs of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">T,</span> <span class="pre">output_len)</span></code>. For binary classification models like Basset, the output_len is 1, so outputs should be of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">T,</span> <span class="pre">1)</span></code>.</p>
+<p>Hence, we will need to add adapter layers to this model to create inputs and outputs of the right format. Specifically:</p>
+<ol class="arabic simple">
+<li><p>gReLU inputs of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">4,</span> <span class="pre">input_len)</span></code> should be converted to the model’s required shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">4,</span> <span class="pre">input_len,</span> <span class="pre">1)</span></code>. This requires adding a new axis.</p></li>
+<li><p>The model’s outputs of shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">T)</span></code> should be converted to gReLU’s required shape <code class="docutils literal notranslate"><span class="pre">(N,</span> <span class="pre">T,</span> <span class="pre">1)</span></code>. This also requires adding a new axis.</p></li>
+</ol>
+<p>We can achieve both of these by creating an AddNewAxis layer, as below:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">AddNewAxis</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-3-construct-embedding-head-and-activation-sections">
+<h3>Step 3: Construct embedding, head and activation sections<a class="headerlink" href="#step-3-construct-embedding-head-and-activation-sections" title="Link to this heading">#</a></h3>
+<p>We see that <code class="docutils literal notranslate"><span class="pre">kipoi_model</span></code> consists of a sequence of 21 pytorch layers plus the sigmoid activation. All gReLU models are separated into three parts: the embedding, the head, and the final activation.</p>
+<p>Generally, all the layers upto the final linear layer are the embedding. The last linear layer of the model, which produces the right number of outputs (164 in this case) is the head. The final non-linear layer of the model, in this case <code class="docutils literal notranslate"><span class="pre">Sigmoid()</span></code> is the activation.</p>
+<p>We now split <code class="docutils literal notranslate"><span class="pre">kipoi_model</span></code> into embedding, head, and activation sections:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span> <span class="o">=</span> <span class="n">kipoi_model</span><span class="p">[:</span><span class="mi">21</span><span class="p">]</span>
+<span class="n">head</span> <span class="o">=</span> <span class="n">kipoi_model</span><span class="p">[</span><span class="mi">21</span><span class="p">]</span>
+<span class="n">activation</span> <span class="o">=</span> <span class="n">kipoi_model</span><span class="p">[</span><span class="mi">22</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>We can look at these individually:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Sequential(
+  (0): Conv2d(4, 300, kernel_size=(19, 1), stride=(1, 1))
+  (1): BatchNorm2d(300, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (2): ReLU()
+  (3): MaxPool2d(kernel_size=(3, 1), stride=(3, 1), padding=0, dilation=1, ceil_mode=False)
+  (4): Conv2d(300, 200, kernel_size=(11, 1), stride=(1, 1))
+  (5): BatchNorm2d(200, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (6): ReLU()
+  (7): MaxPool2d(kernel_size=(4, 1), stride=(4, 1), padding=0, dilation=1, ceil_mode=False)
+  (8): Conv2d(200, 200, kernel_size=(7, 1), stride=(1, 1))
+  (9): BatchNorm2d(200, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (10): ReLU()
+  (11): MaxPool2d(kernel_size=(4, 1), stride=(4, 1), padding=0, dilation=1, ceil_mode=False)
+  (12): Lambda()
+  (13): Sequential(
+    (0): Lambda()
+    (1): Linear(in_features=2000, out_features=1000, bias=True)
+  )
+  (14): BatchNorm1d(1000, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (15): ReLU()
+  (16): Dropout(p=0.3, inplace=False)
+  (17): Sequential(
+    (0): Lambda()
+    (1): Linear(in_features=1000, out_features=1000, bias=True)
+  )
+  (18): BatchNorm1d(1000, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+  (19): ReLU()
+  (20): Dropout(p=0.3, inplace=False)
+)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">head</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Sequential(
+  (0): Lambda()
+  (1): Linear(in_features=1000, out_features=164, bias=True)
+)
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">activation</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Sigmoid()
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-4-format-the-embedding-and-head">
+<h3>Step 4: Format the embedding and head<a class="headerlink" href="#step-4-format-the-embedding-and-head" title="Link to this heading">#</a></h3>
+<p>We need to add the adapter layer we defined previously to the embedding and head, to ensure that they produce the correct input and output shape.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="n">AddNewAxis</span><span class="p">(),</span> <span class="o">*</span><span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">embedding</span><span class="p">])</span>
+
+<span class="n">head</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">l</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">head</span><span class="p">],</span> <span class="n">AddNewAxis</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The head in a gReLU model also needs to have an attribute <code class="docutils literal notranslate"><span class="pre">n_tasks</span></code>. This is the number of outputs of the model:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">head</span><span class="o">.</span><span class="n">n_tasks</span> <span class="o">=</span> <span class="mi">164</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="wrap-the-model-in-a-lightningmodel-object">
+<h2>Wrap the model in a LightningModel object<a class="headerlink" href="#wrap-the-model-in-a-lightningmodel-object" title="Link to this heading">#</a></h2>
+<p>We can construct a <code class="docutils literal notranslate"><span class="pre">LightningModel</span></code> object using the <code class="docutils literal notranslate"><span class="pre">embedding</span></code>, <code class="docutils literal notranslate"><span class="pre">head</span></code> and <code class="docutils literal notranslate"><span class="pre">activation</span></code> objects.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">grelu.lightning</span><span class="w"> </span><span class="kn">import</span> <span class="n">LightningModel</span>
+
+<span class="n">grelu_model</span> <span class="o">=</span> <span class="n">LightningModel</span><span class="p">(</span><span class="n">model_params</span><span class="o">=</span><span class="p">{</span><span class="s1">'model_type'</span><span class="p">:</span><span class="s1">'BaseModel'</span><span class="p">,</span> <span class="s1">'embedding'</span><span class="p">:</span><span class="n">embedding</span><span class="p">,</span> <span class="s1">'head'</span><span class="p">:</span><span class="n">head</span><span class="p">})</span>
+<span class="n">grelu_model</span><span class="o">.</span><span class="n">activation</span> <span class="o">=</span> <span class="n">activation</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+</div>
+</div>
+</section>
+<section id="add-the-task-metadata">
+<h2>Add the task metadata<a class="headerlink" href="#add-the-task-metadata" title="Link to this heading">#</a></h2>
+<p>We can also add the metadata concerning the 164 cell types that the model is trained on.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">tasks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span><span class="s1">'https://raw.github.com/davek44/Basset/refs/heads/master/data/models/targets.txt'</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                     <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">'name'</span><span class="p">,</span> <span class="s1">'source'</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">))</span>
+<span class="n">tasks</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>164
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>source</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>8988T</td>
+      <td>encode/wgEncodeAwgDnaseDuke8988tUniPk.narrowPe...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>AoSMC</td>
+      <td>encode/wgEncodeAwgDnaseDukeAosmcUniPk.narrowPe...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Chorion</td>
+      <td>encode/wgEncodeAwgDnaseDukeChorionUniPk.narrow...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>CLL</td>
+      <td>encode/wgEncodeAwgDnaseDukeCllUniPk.narrowPeak.gz</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>Fibrobl</td>
+      <td>encode/wgEncodeAwgDnaseDukeFibroblUniPk.narrow...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grelu_model</span><span class="o">.</span><span class="n">data_params</span><span class="p">[</span><span class="s1">'tasks'</span><span class="p">]</span> <span class="o">=</span> <span class="n">tasks</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">"list"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="test-the-model">
+<h2>Test the model<a class="headerlink" href="#test-the-model" title="Link to this heading">#</a></h2>
+<p>Let’s make sure that the model can generate predictions for a random sequence:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">grelu.sequence.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_random_sequences</span>
+<span class="n">test_input</span> <span class="o">=</span> <span class="n">generate_random_sequences</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">output_format</span><span class="o">=</span><span class="s1">'strings'</span><span class="p">,</span> <span class="n">seq_len</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_output</span> <span class="o">=</span> <span class="n">grelu_model</span><span class="o">.</span><span class="n">predict_on_seqs</span><span class="p">(</span><span class="n">test_input</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test_output</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">test_output</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">test_output</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>((1, 164, 1), np.float32(0.13277043), np.float32(0.72227246))
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="use-the-model">
+<h2>Use the model<a class="headerlink" href="#use-the-model" title="Link to this heading">#</a></h2>
+<p>We can now use this model for various downstream functions. As an example, we will take the random sequence we generated above, and edit it using directed evolution to produce a sequence accessible in GM12878 but not in K562 cells. See Tutorial 4 for more details on the directed evolution process.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">grelu.transforms.prediction_transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Specificity</span>
+
+<span class="n">gm12878_specificity</span> <span class="o">=</span> <span class="n">Specificity</span><span class="p">(</span>
+    <span class="n">on_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"GM12878"</span><span class="p">],</span>
+    <span class="n">off_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"K562"</span><span class="p">],</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">grelu_model</span><span class="p">,</span>
+    <span class="n">compare_func</span><span class="o">=</span><span class="s1">'subtract'</span><span class="p">,</span> <span class="c1"># Maximize the difference in probabilities</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">grelu.design</span><span class="w"> </span><span class="kn">import</span> <span class="n">evolve</span>
+
+<span class="n">output</span> <span class="o">=</span> <span class="n">evolve</span><span class="p">(</span>
+    <span class="n">test_input</span><span class="p">,</span> <span class="c1"># The initial sequences</span>
+    <span class="n">grelu_model</span><span class="p">,</span> 
+    <span class="n">prediction_transform</span><span class="o">=</span><span class="n">gm12878_specificity</span><span class="p">,</span> <span class="c1"># Objective to optimize </span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="c1"># Number of iterations for directed evolution</span>
+    <span class="n">num_workers</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span>
+    <span class="n">devices</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">return_seqs</span><span class="o">=</span><span class="s2">"all"</span><span class="p">,</span> <span class="c1"># Return the best sequences in each iteration</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Iteration 0
+Best value at iteration 0: 0.015
+Iteration 1
+Best value at iteration 1: 0.031
+Iteration 2
+Best value at iteration 2: 0.070
+Iteration 3
+Best value at iteration 3: 0.113
+Iteration 4
+Best value at iteration 4: 0.174
+Iteration 5
+Best value at iteration 5: 0.233
+Iteration 6
+Best value at iteration 6: 0.282
+Iteration 7
+Best value at iteration 7: 0.325
+Iteration 8
+Best value at iteration 8: 0.374
+Iteration 9
+Best value at iteration 9: 0.419
+Iteration 10
+Best value at iteration 10: 0.492
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "de5703e61fd54cd4bcd92478bbcd512c", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "e0a6b53900ff492ab2d7104766715e3a", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "095f0602263649c29ba7e226f3f57eb1", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "1f910681b1b64d94847c126517db934c", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "5477cb383d5640fc9451fdfb0b16e371", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "2e3f73a5a77947ed9cc24f15772dd91b", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "19ba18a442ae4215ac7eb361cef535a5", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "27166024d1064e5e974c781e9fa9c832", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "0053da80279b41f982e71ebfe2ac45e5", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "ff35c5128ba84b088a29d8f96e3a0531", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "5c8506059462428ca5eca897fae9b7d4", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div><script type="application/vnd.jupyter.widget-view+json">{"model_id": "fc16debdf9fe4ac7b75c60506a1527ed", "version_major": 2, "version_minor": 0}</script><div class="output text_html"><pre style="white-space:pre;overflow-x:auto;line-height:normal;font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace"></pre>
+</div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">grelu.visualize</span>
+<span class="n">grelu</span><span class="o">.</span><span class="n">visualize</span><span class="o">.</span><span class="n">plot_evolution</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">outlier_size</span><span class="o">=</span><span class="mf">.1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<a class="reference internal image-reference" href="../_images/c3a3ece30a19f07d05d2dcc395da33ca3096f9b9c0095fc909544b77321022a6.png"><img alt="../_images/c3a3ece30a19f07d05d2dcc395da33ca3096f9b9c0095fc909544b77321022a6.png" src="../_images/c3a3ece30a19f07d05d2dcc395da33ca3096f9b9c0095fc909544b77321022a6.png" style="width: 400px; height: 300px;" /></a>
+</div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="7_simulations.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Simulation-based model interpretation with gReLU</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../contributing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Contributing</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#load-an-external-pytorch-model">Load an external pytorch model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modify-the-model-to-make-it-grelu-compatible">Modify the model to make it gReLU-compatible</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-check-the-input-and-output-formats">Step 1: Check the input and output formats</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-define-adapter-layer-s-if-necessary">Step 2: Define adapter layer(s) if necessary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-construct-embedding-head-and-activation-sections">Step 3: Construct embedding, head and activation sections</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-format-the-embedding-and-head">Step 4: Format the embedding and head</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wrap-the-model-in-a-lightningmodel-object">Wrap the model in a LightningModel object</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-the-task-metadata">Add the task metadata</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#test-the-model">Test the model</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#use-the-model">Use the model</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/Genentech/gReLU/edit/main/docs/tutorials/8_custom_models.ipynb">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="../_sources/tutorials/8_custom_models.ipynb">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2023, Regulatory Genomics, BRAID, Genentech.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
